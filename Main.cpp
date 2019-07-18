@@ -21,7 +21,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			break;
 		}
 
-		gfx.UpdateFrame();
+		gfx.BeginFrame();
+
+		gfx.EndFrame();
 	}
 
 	return 0;

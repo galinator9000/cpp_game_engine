@@ -45,8 +45,37 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 		&FeatureLevelsSupported,			// pFeatureLevel
 		&pDeviceContext						// ppImmediateContext
 	);
+
+	ID3D11Resource* pBackBuffer;
+	this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(&pBackBuffer));
+	this->pDevice->CreateRenderTargetView(
+		pBackBuffer,
+		NULL,
+		&this->pRenderTargetView
+	);
+	pBackBuffer->Release();
 }
 
-void Graphics::UpdateFrame(){
+// Clears target view with black color.
+void Graphics::Clear() {
+	this->pDeviceContext->ClearRenderTargetView(
+		this->pRenderTargetView,
+		new float[4]{ 0.0, 0.0, 0.0, 1.0 }
+	);
+}
+
+// Clears target view with specified RGBA color.
+void Graphics::Clear(float r, float g, float b, float a){
+	this->pDeviceContext->ClearRenderTargetView(
+		this->pRenderTargetView,
+		new float[4]{r, g, b, a}
+	);
+}
+
+void Graphics::BeginFrame(){
+	this->Clear();
+}
+
+void Graphics::EndFrame(){
 	this->pSwapChain->Present(1, 0);
 }
