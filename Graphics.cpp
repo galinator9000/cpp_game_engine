@@ -32,7 +32,7 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	D3D_FEATURE_LEVEL FeatureLevelsSupported;
 
 	// Create D3D device & swap chain.
-	D3D11CreateDeviceAndSwapChain(
+	this->hr = D3D11CreateDeviceAndSwapChain(
 		NULL,								// pAdapter
 		D3D_DRIVER_TYPE_HARDWARE,			// DriverType
 		NULL,								// Software
@@ -49,8 +49,8 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 
 	// Create a RenderTargetView for rendering.
 	wrl::ComPtr<ID3D11Resource> pBackBuffer;
-	this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(pBackBuffer.GetAddressOf()));
-	this->pDevice->CreateRenderTargetView(
+	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(pBackBuffer.GetAddressOf()));
+	this->hr = this->pDevice->CreateRenderTargetView(
 		pBackBuffer.Get(),
 		NULL,
 		&this->pRenderTargetView
@@ -64,8 +64,8 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	);
 
 	// Bind Pixel Shader to pipeline.
-	D3DReadFileToBlob(L"PixelShader.cso", &this->pBlob);
-	this->pDevice->CreatePixelShader(
+	this->hr = D3DReadFileToBlob(L"PixelShader.cso", &this->pBlob);
+	this->hr = this->pDevice->CreatePixelShader(
 		this->pBlob->GetBufferPointer(),
 		this->pBlob->GetBufferSize(),
 		NULL,
@@ -78,8 +78,8 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	);
 
 	// Bind Vertex Shader to pipeline.
-	D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
-	this->pDevice->CreateVertexShader(
+	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
+	this->hr = this->pDevice->CreateVertexShader(
 		this->pBlob->GetBufferPointer(),
 		this->pBlob->GetBufferSize(),
 		NULL,
@@ -111,7 +111,7 @@ void Graphics::Clear(float r, float g, float b, float a){
 }
 
 void Graphics::BeginFrame(){
-	this->Clear(0.0, 0.0, 0.0, 1.0);
+	this->Clear(0.3, 0.6, 0.9, 1.0);
 }
 
 void Graphics::EndFrame() {
@@ -127,17 +127,21 @@ void Graphics::EndFrame() {
 	};
 
 	// Create VertexBuffer.
-	D3D11_BUFFER_DESC pd;
-	pd.ByteWidth = sizeof(vertices);
-	pd.Usage = D3D11_USAGE_DEFAULT;
-	pd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	pd.CPUAccessFlags = 1u;
-	pd.MiscFlags = 0u;
-	pd.StructureByteStride = sizeof(Vertex);
+	D3D11_BUFFER_DESC bd;
+	bd.ByteWidth = sizeof(vertices);
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0u;
+	bd.MiscFlags = 0u;
+	bd.StructureByteStride = sizeof(Vertex);
+
+	D3D11_SUBRESOURCE_DATA sd = {};
+	sd.pSysMem = vertices;
+
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
-	this->pDevice->CreateBuffer(
-		&pd,
-		NULL,
+	this->hr = this->pDevice->CreateBuffer(
+		&bd,
+		&sd,
 		&pVertexBuffer
 	);
 
@@ -159,7 +163,7 @@ void Graphics::EndFrame() {
 	};
 
 	//D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
-	this->pDevice->CreateInputLayout(
+	this->hr = this->pDevice->CreateInputLayout(
 		ied,
 		1,
 		this->pBlob->GetBufferPointer(),
@@ -169,10 +173,10 @@ void Graphics::EndFrame() {
 	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
 
 	// Set primitive topology
-	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Draw it..
 	this->pDeviceContext->Draw(3, 0);
 
-	this->pSwapChain->Present(1, 0);
+	this->hr = this->pSwapChain->Present(1, 0);
 }

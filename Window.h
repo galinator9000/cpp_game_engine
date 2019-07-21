@@ -9,7 +9,6 @@ public:
 	void SetTitle(LPCWSTR title);
 	HWND GetHandler();
 
-	void ProcessMessagesLoop();
 	bool ProcessMessages();
 
 private:

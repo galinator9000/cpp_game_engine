@@ -16,6 +16,8 @@ public:
 	void BeginFrame();
 	void EndFrame();
 private:
+	HRESULT hr;
+
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
