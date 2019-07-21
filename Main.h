@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <Windowsx.h>
+#include <wrl.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>

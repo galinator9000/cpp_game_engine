@@ -15,14 +15,13 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		REFRESH_RATE
 	);
 
-	while (true) {
+	while (true){
 		// Terminal condition of the program.
 		if (!mainWnd.ProcessMessages()) {
 			break;
 		}
 
 		gfx.BeginFrame();
-
 		gfx.EndFrame();
 	}
 

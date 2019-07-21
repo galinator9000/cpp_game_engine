@@ -31,6 +31,7 @@ LRESULT Window::WndProcSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
 		SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::WndProcForward));
+
 		return pWnd->WndProc(hWnd, uMsg, wParam, lParam);
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);

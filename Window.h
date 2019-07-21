@@ -7,8 +7,10 @@ class Window{
 public:
 	Window(HINSTANCE hInstance, LPCWSTR title, int width, int height);
 	void SetTitle(LPCWSTR title);
-	bool ProcessMessages();
 	HWND GetHandler();
+
+	void ProcessMessagesLoop();
+	bool ProcessMessages();
 
 private:
 	// Windows event handling.
