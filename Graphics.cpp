@@ -36,7 +36,13 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 		NULL,								// pAdapter
 		D3D_DRIVER_TYPE_HARDWARE,			// DriverType
 		NULL,								// Software
-		0,									// Flags
+
+		// Flags
+#ifndef _DEBUGGING
+		D3D11_CREATE_DEVICE_DEBUG,
+#else
+		0,
+#endif
 		FeatureLevelsRequested,				// pFeatureLevels
 		6,									// FeatureLevels count
 		D3D11_SDK_VERSION,					// SDKVersion
@@ -121,26 +127,26 @@ void Graphics::EndFrame() {
 		float x;
 		float y;
 		float z;
+		float r;
+		float g;
+		float b;
+		float a;
 	};
 	const Vertex vertices[] = {
-		{ -0.5f, -0.5f, 0.0f },	// 1
-		{ -0.5f, -0.5f, 1.0f },	// 2
-		{ 0.5f, -0.5f, 0.0f },	// 3
-		{ 0.5f, -0.5f, 1.0f },	// 4
-		{ 0.0f, 0.5f, 0.5f }	// 5
+		{ -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },	// 1
+		{ -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },	// 2
+		{ 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },	// 3
+		{ 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f },	// 4
+		{ 0.0f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f }	// 5
 	};
 
 	// Create VertexBuffer.
-	D3D11_BUFFER_DESC bd;
+	D3D11_BUFFER_DESC bd = {0};
 	bd.ByteWidth = sizeof(vertices);
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0u;
-	bd.MiscFlags = 0u;
 	bd.StructureByteStride = sizeof(Vertex);
-	D3D11_SUBRESOURCE_DATA sd = {};
-	sd.pSysMem = vertices;
-
+	D3D11_SUBRESOURCE_DATA sd = {vertices, 0, 0};
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
 	this->hr = this->pDevice->CreateBuffer(
 		&bd,
@@ -162,26 +168,23 @@ void Graphics::EndFrame() {
 	////////// INDEX
 	// Build index data.
 	const unsigned short indexes[] = {
-		5,1,3,
-		5,2,1,
-		5,4,2,
-		5,3,4,
-		1,2,4,
-		1,4,3
+		5,3,1,
+		5,1,2,
+		5,2,4,
+		5,4,3,
+		2,1,4,
+		3,1,4
 	};
 
 	// Create IndexBuffer.
-	D3D11_BUFFER_DESC ibd;
+	D3D11_BUFFER_DESC ibd = {0};
 	ibd.ByteWidth = sizeof(indexes);
 	ibd.Usage = D3D11_USAGE_DEFAULT;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0u;
 	ibd.MiscFlags = 0u;
 	ibd.StructureByteStride = sizeof(unsigned short);
-
-	D3D11_SUBRESOURCE_DATA isd = {};
-	isd.pSysMem = indexes;
-
+	D3D11_SUBRESOURCE_DATA isd = {indexes, 0, 0};
 	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
 	this->hr = this->pDevice->CreateBuffer(
 		&ibd,
@@ -196,16 +199,15 @@ void Graphics::EndFrame() {
 		0
 	);
 
-	// Set Input Layout
+	// Create & Set InputLayout
 	wrl::ComPtr<ID3D11InputLayout> pInputLayout;
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
-		{"Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Color", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
-
-	//D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
 		ied,
-		1,
+		(UINT) std::size(ied),
 		this->pBlob->GetBufferPointer(),
 		this->pBlob->GetBufferSize(),
 		&pInputLayout

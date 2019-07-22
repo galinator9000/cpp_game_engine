@@ -9,6 +9,8 @@
 #include "Window.h"
 #include "Graphics.h"
 
+#define _DEBUGGING TRUE
+
 enum EXIT {
 	USER_EXIT
 };

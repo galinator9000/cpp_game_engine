@@ -12,6 +12,15 @@
 class Graphics{
 public:
 	Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE);
+	~Graphics() {
+		/*this->pVertexShader->Release();
+		this->pPixelShader->Release();
+		this->pRenderTargetView->Release();
+		this->pDeviceContext->Release();
+		this->pSwapChain->Release();
+		this->pDevice->Release();*/
+	}
+
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
 	void BeginFrame();
