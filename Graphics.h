@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include "d3dcompiler.h"
 #include <wrl.h>
+#include <iostream>
 
 // Macro for handling HRESULT graphics errors from Direct3D API calls.
 #define GFX_ERROR_CHECK(hr)

@@ -111,19 +111,23 @@ void Graphics::Clear(float r, float g, float b, float a){
 }
 
 void Graphics::BeginFrame(){
-	this->Clear(0.3, 0.6, 0.9, 1.0);
+	this->Clear();
 }
 
 void Graphics::EndFrame() {
+	////////// VERTEX
 	// Build vertex data.
 	struct Vertex {
 		float x;
 		float y;
+		float z;
 	};
 	const Vertex vertices[] = {
-		{ 0.0f, 0.5f },
-		{ 0.5f, -0.5f },
-		{ -0.5f, -0.5f },
+		{ -0.5f, -0.5f, 0.0f },	// 1
+		{ -0.5f, -0.5f, 1.0f },	// 2
+		{ 0.5f, -0.5f, 0.0f },	// 3
+		{ 0.5f, -0.5f, 1.0f },	// 4
+		{ 0.0f, 0.5f, 0.5f }	// 5
 	};
 
 	// Create VertexBuffer.
@@ -134,7 +138,6 @@ void Graphics::EndFrame() {
 	bd.CPUAccessFlags = 0u;
 	bd.MiscFlags = 0u;
 	bd.StructureByteStride = sizeof(Vertex);
-
 	D3D11_SUBRESOURCE_DATA sd = {};
 	sd.pSysMem = vertices;
 
@@ -154,6 +157,43 @@ void Graphics::EndFrame() {
 		pVertexBuffer.GetAddressOf(),
 		&pStrides,
 		&pOffsets
+	);
+
+	////////// INDEX
+	// Build index data.
+	const unsigned short indexes[] = {
+		5,1,3,
+		5,2,1,
+		5,4,2,
+		5,3,4,
+		1,2,4,
+		1,4,3
+	};
+
+	// Create IndexBuffer.
+	D3D11_BUFFER_DESC ibd;
+	ibd.ByteWidth = sizeof(indexes);
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0u;
+	ibd.MiscFlags = 0u;
+	ibd.StructureByteStride = sizeof(unsigned short);
+
+	D3D11_SUBRESOURCE_DATA isd = {};
+	isd.pSysMem = indexes;
+
+	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
+	this->hr = this->pDevice->CreateBuffer(
+		&ibd,
+		&isd,
+		&pIndexBuffer
+	);
+
+	// Bind IndexBuffer to pipeline.
+	this->pDeviceContext->IASetIndexBuffer(
+		pIndexBuffer.Get(),
+		DXGI_FORMAT_R16_UINT,
+		0
 	);
 
 	// Set Input Layout
@@ -176,7 +216,11 @@ void Graphics::EndFrame() {
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Draw it..
-	this->pDeviceContext->Draw(3, 0);
+	this->pDeviceContext->DrawIndexed(
+		(UINT) std::size(indexes),
+		0,
+		0
+	);
 
 	this->hr = this->pSwapChain->Present(1, 0);
 }
