@@ -64,11 +64,11 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	);
 
 	// Bind RenderTargetView to end of the pipeline.
-	this->pDeviceContext->OMSetRenderTargets(
+	/*this->pDeviceContext->OMSetRenderTargets(
 		1,
 		this->pRenderTargetView.GetAddressOf(),
 		NULL
-	);
+	);*/
 
 	// Bind Pixel Shader to pipeline.
 	this->hr = D3DReadFileToBlob(L"PixelShader.cso", &this->pBlob);
@@ -107,13 +107,55 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
 	this->pDeviceContext->RSSetViewports(1, &vp);
+
+	// Create depth buffer & bind it to pipeline. (a.k.a Z-Buffer)
+	CD3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = TRUE;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &pDSState);
+	this->pDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1);
+
+	// Create 2D texture for Depth Buffer.
+	wrl::ComPtr<ID3D11Texture2D> pDSTXT;
+	D3D11_TEXTURE2D_DESC descDSTXT = {};
+	descDSTXT.Width = WIDTH;
+	descDSTXT.Height = HEIGHT;
+	descDSTXT.MipLevels = 1;
+	descDSTXT.ArraySize = 1;
+	descDSTXT.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSTXT.SampleDesc.Count = 1;
+	descDSTXT.SampleDesc.Quality = 0;
+	descDSTXT.Usage = D3D11_USAGE_DEFAULT;
+	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTXT);
+
+	// Create DepthStencil view object.
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	this->pDevice->CreateDepthStencilView(pDSTXT.Get(), &descDSV, &pDSView);
+
+	// Set DepthStencilView as render target.
+	this->pDeviceContext->OMSetRenderTargets(1, this->pRenderTargetView.GetAddressOf(), pDSView.Get());
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
 void Graphics::Clear(float r, float g, float b, float a){
+	// Clear back buffer.
 	this->pDeviceContext->ClearRenderTargetView(
-		pRenderTargetView.Get(),
+		this->pRenderTargetView.Get(),
 		new float[4]{r, g, b, a}
+	);
+
+	// Clear z-buffer.
+	this->pDeviceContext->ClearDepthStencilView(
+		this->pDSView.Get(),
+		D3D11_CLEAR_DEPTH,
+		1.0f,
+		0u
 	);
 }
 
@@ -121,7 +163,11 @@ void Graphics::BeginFrame(){
 	this->Clear();
 }
 
-void Graphics::EndFrame(float mfx, float mfy, float theta){
+void Graphics::EndFrame() {
+	this->hr = this->pSwapChain->Present(1, 0);
+}
+
+void Graphics::Draw(float mfx, float mfy, float theta){
 	////////// ROTATION
 	// Build constant buffer data.
 	struct Constant {
@@ -133,7 +179,7 @@ void Graphics::EndFrame(float mfx, float mfy, float theta){
 			dx::XMMatrixTranspose(
 				dx::XMMatrixRotationZ(theta) *
 				dx::XMMatrixRotationX(theta) *
-				dx::XMMatrixTranslation(mfx, mfy, 4.0f) *
+				dx::XMMatrixTranslation(mfx, mfy, 2.0f) *
 				dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 			)
 		}
@@ -296,6 +342,4 @@ void Graphics::EndFrame(float mfx, float mfy, float theta){
 		0,
 		0
 	);
-
-	this->hr = this->pSwapChain->Present(1, 0);
 }

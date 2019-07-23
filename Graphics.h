@@ -25,7 +25,8 @@ public:
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
 	void BeginFrame();
-	void EndFrame(float mfx, float mfy, float theta);
+	void Draw(float mfx, float mfy, float theta);
+	void EndFrame();
 private:
 	HRESULT hr;
 
@@ -35,6 +36,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
-	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
+	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
+
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
 };

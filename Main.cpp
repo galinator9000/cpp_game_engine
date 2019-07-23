@@ -27,7 +27,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		fmy = -mainWnd.mouse.GetY() / (HEIGHT / 2.0f) + 1.0f;
 
 		gfx.BeginFrame();
-		gfx.EndFrame(fmx, fmy, angle);
+		gfx.Draw(0, 0, angle);
+		gfx.Draw(0, 0, -angle);
+		gfx.EndFrame();
 		angle += 0.01f;
 	}
 
