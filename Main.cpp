@@ -16,14 +16,18 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	);
 
 	float angle = 0.0f;
+	float fmx, fmy;
 	while (true){
 		// Terminal condition of the program.
 		if (!mainWnd.ProcessMessages()) {
 			break;
 		}
 
+		fmx = mainWnd.mouse.GetX() / (WIDTH / 2.0f) - 1.0f;
+		fmy = -mainWnd.mouse.GetY() / (HEIGHT / 2.0f) + 1.0f;
+
 		gfx.BeginFrame();
-		gfx.EndFrame(angle);
+		gfx.EndFrame(fmx, fmy, angle);
 		angle += 0.01f;
 	}
 

@@ -15,6 +15,9 @@ public:
 	bool leftPressed;
 	bool rightPressed;
 
+	int GetX();
+	int GetY();
+
 private:
 	int x, y;
 	int wheelAccumulate;

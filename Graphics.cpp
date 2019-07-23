@@ -121,7 +121,7 @@ void Graphics::BeginFrame(){
 	this->Clear();
 }
 
-void Graphics::EndFrame(float theta){
+void Graphics::EndFrame(float mfx, float mfy, float theta){
 	////////// ROTATION
 	// Build constant buffer data.
 	struct Constant {
@@ -131,7 +131,9 @@ void Graphics::EndFrame(float theta){
 	const Constant constants[] = {
 		{
 			dx::XMMatrixTranspose(
-				dx::XMMatrixTranslation(0.0f, 0.0f, 4.0f) * dx::XMMatrixRotationZ(theta) *
+				dx::XMMatrixRotationZ(theta) *
+				dx::XMMatrixRotationX(theta) *
+				dx::XMMatrixTranslation(mfx, mfy, 4.0f) *
 				dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 			)
 		}
@@ -187,14 +189,14 @@ void Graphics::EndFrame(float theta){
 		{ 1.0f, 1.0f, 1.0f,		255, 128, 255, 255 }*/
 
 		// 3D Pyramid
-		{ 0.0f, 0.5f, 0.75f,	0, 0, 255, 255 },		// 0
-		{ -0.5f, -0.5f, 0.5f,	255, 0, 255, 255 },		// 1
-		{ 0.5f, -0.5f, 0.5f,	255, 0, 255, 255 },		// 2
-		{ 0.5f, -0.5f, 1.0f,	255, 0, 0, 255 },		// 3
-		{ -0.5f, -0.5f, 1.0f,	0, 255, 0, 255 }		// 4
+		{ 0.0f, 0.5f, 0.0f,	0, 0, 255, 255 },			// 0
+		{ -0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 1
+		{ 0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 2
+		{ 0.5f, -0.5f, 0.5f,	255, 0, 0, 255 },		// 3
+		{ -0.5f, -0.5f, 0.5f,	0, 255, 0, 255 }		// 4
 
 		// 2D Triangle
-		/*{ 0.0f, 0.0f, 0.0f,		0, 0, 255, 255 },		// 0
+		/*{ 0.0f, 0.0f, 0.0f,		0, 0, 255, 255 },	// 0
 		{ -0.5f, -0.5f, 0.0f,	255, 0, 255, 255 },		// 1
 		{ 0.5f, -0.5f, 0.0f,	255, 0, 255, 255 },		// 2*/
 	};
@@ -239,7 +241,9 @@ void Graphics::EndFrame(float theta){
 		0,2,1,
 		0,3,2,
 		0,4,3,
-		0,1,4
+		0,1,4,
+		4,1,3,
+		2,3,1
 
 		// 2D Triangle
 		/*0,2,1 */

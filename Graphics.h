@@ -25,7 +25,7 @@ public:
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
 	void BeginFrame();
-	void EndFrame(float theta);
+	void EndFrame(float mfx, float mfy, float theta);
 private:
 	HRESULT hr;
 

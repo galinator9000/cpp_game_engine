@@ -48,3 +48,13 @@ void Mouse::OnLeave(){
 void Mouse::OnHover(){
 
 }
+
+int Mouse::GetX()
+{
+	return this->x;
+}
+
+int Mouse::GetY()
+{
+	return this->y;
+}
