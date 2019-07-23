@@ -15,6 +15,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		REFRESH_RATE
 	);
 
+	float angle = 0.0f;
 	while (true){
 		// Terminal condition of the program.
 		if (!mainWnd.ProcessMessages()) {
@@ -22,7 +23,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		}
 
 		gfx.BeginFrame();
-		gfx.EndFrame();
+		gfx.EndFrame(angle);
+		angle += 0.01f;
 	}
 
 	return 0;

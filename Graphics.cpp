@@ -1,6 +1,7 @@
 #include "Graphics.h"
 
 namespace wrl = Microsoft::WRL;
+namespace dx = DirectX;
 
 Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	// Initialize graphics object, create Direct3D device.
@@ -120,24 +121,71 @@ void Graphics::BeginFrame(){
 	this->Clear();
 }
 
-void Graphics::EndFrame() {
+void Graphics::EndFrame(float theta){
+	////////// ROTATION
+	// Build constant buffer data.
+	struct Constant {
+		dx::XMMATRIX transform;
+	};
+
+	const Constant constants[] = {
+		{
+			dx::XMMatrixTranspose(
+				dx::XMMatrixRotationZ(theta)
+			)
+		}
+	};
+
+	// Create ConstantBuffer.
+	D3D11_BUFFER_DESC cbd = { 0 };
+	cbd.ByteWidth = sizeof(constants);
+	cbd.Usage = D3D11_USAGE_DYNAMIC;
+	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbd.MiscFlags = 0;
+	cbd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA csd = { &constants, 0, 0 };
+	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
+	this->hr = this->pDevice->CreateBuffer(
+		&cbd,
+		&csd,
+		&pConstantBuffer
+	);
+
+	// Bind ConstantBuffer to pipeline.
+	this->pDeviceContext->VSSetConstantBuffers(
+		0,
+		1,
+		pConstantBuffer.GetAddressOf()
+	);
+
 	////////// VERTEX
 	// Build vertex data.
 	struct Vertex {
-		float x;
-		float y;
-		float z;
-		float r;
-		float g;
-		float b;
-		float a;
+		struct Position {
+			float x;
+			float y;
+			float z;
+		} pos;
+		struct Color {
+			unsigned char r;
+			unsigned char g;
+			unsigned char b;
+			unsigned char a;
+		} color;
 	};
 	const Vertex vertices[] = {
-		{ -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },	// 1
-		{ -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },	// 2
-		{ 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },	// 3
-		{ 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f },	// 4
-		{ 0.0f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f }	// 5
+		// 3D Pyramid
+		{ 0.0f, 0.5f, 0.0f,		0, 0, 255, 255 },		// 0
+		{ -0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 1
+		{ 0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 2
+		{ 0.5f, -0.5f, 0.5f,	255, 0, 0, 255 },		// 3
+		{ -0.5f, -0.5f, 0.5f,	0, 255, 0, 255 }		// 4
+
+		// 2D Triangle
+		/*{ 0.0f, 0.0f, 0.0f,		0, 0, 255, 255 },		// 0
+		{ -0.5f, -0.5f, 0.0f,	255, 0, 255, 255 },		// 1
+		{ 0.5f, -0.5f, 0.0f,	255, 0, 255, 255 },		// 2*/
 	};
 
 	// Create VertexBuffer.
@@ -156,10 +204,10 @@ void Graphics::EndFrame() {
 
 	// Bind VertexBuffer to pipeline.
 	const UINT pStrides = sizeof(Vertex);
-	const UINT pOffsets = 0u;
+	const UINT pOffsets = 0;
 	this->pDeviceContext->IASetVertexBuffers(
-		0u,
-		1u,
+		0,
+		1,
 		pVertexBuffer.GetAddressOf(),
 		&pStrides,
 		&pOffsets
@@ -168,12 +216,14 @@ void Graphics::EndFrame() {
 	////////// INDEX
 	// Build index data.
 	const unsigned short indexes[] = {
-		5,3,1,
-		5,1,2,
-		5,2,4,
-		5,4,3,
-		2,1,4,
-		3,1,4
+		// 3D Pyramid
+		0,2,1,
+		0,3,2,
+		0,4,3,
+		0,1,4
+
+		// 2D Triangle
+		/*0,2,1*/
 	};
 
 	// Create IndexBuffer.
@@ -203,7 +253,7 @@ void Graphics::EndFrame() {
 	wrl::ComPtr<ID3D11InputLayout> pInputLayout;
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Color", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Color", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 	this->hr = this->pDevice->CreateInputLayout(
 		ied,

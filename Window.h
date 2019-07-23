@@ -11,6 +11,9 @@ public:
 
 	bool ProcessMessages();
 
+	Keyboard keyb;
+	Mouse mouse;
+
 private:
 	// Windows event handling.
 	static LRESULT CALLBACK WndProcSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -18,6 +21,4 @@ private:
 	LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	HWND hWnd;
-	Keyboard keyb;
-	Mouse mouse;
 };

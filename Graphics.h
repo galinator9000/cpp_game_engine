@@ -3,6 +3,7 @@
 #pragma comment(lib, "D3DCompiler.lib")
 #include <d3d11.h>
 #include "d3dcompiler.h"
+#include <DirectXMath.h>
 #include <wrl.h>
 #include <iostream>
 
@@ -24,7 +25,7 @@ public:
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
 	void BeginFrame();
-	void EndFrame();
+	void EndFrame(float theta);
 private:
 	HRESULT hr;
 
