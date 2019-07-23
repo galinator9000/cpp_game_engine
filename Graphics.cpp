@@ -131,7 +131,8 @@ void Graphics::EndFrame(float theta){
 	const Constant constants[] = {
 		{
 			dx::XMMatrixTranspose(
-				dx::XMMatrixRotationZ(theta)
+				dx::XMMatrixTranslation(0.0f, 0.0f, 4.0f) * dx::XMMatrixRotationZ(theta) *
+				dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 			)
 		}
 	};
@@ -175,12 +176,22 @@ void Graphics::EndFrame(float theta){
 		} color;
 	};
 	const Vertex vertices[] = {
+		// 3D Cube
+		/*{ -1.0f, -1.0f, -1.0f,	255, 255, 255, 255 },
+		{ 1.0f, -1.0f, -1.0f,	255, 255, 0, 255 },
+		{ -1.0f, 1.0f, -1.0f,	255, 0, 0, 255 },
+		{ 1.0f, 1.0f, -1.0f,	0, 255, 0, 255 },
+		{ -1.0f, -1.0f, 1.0f,	0, 255, 255, 255 },
+		{ 1.0f, -1.0f, 1.0f,	0, 0, 255, 255 },
+		{ -1.0f, 1.0f, 1.0f,	255, 0, 255, 255 },
+		{ 1.0f, 1.0f, 1.0f,		255, 128, 255, 255 }*/
+
 		// 3D Pyramid
-		{ 0.0f, 0.5f, 0.0f,		0, 0, 255, 255 },		// 0
-		{ -0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 1
-		{ 0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 2
-		{ 0.5f, -0.5f, 0.5f,	255, 0, 0, 255 },		// 3
-		{ -0.5f, -0.5f, 0.5f,	0, 255, 0, 255 }		// 4
+		{ 0.0f, 0.5f, 0.75f,	0, 0, 255, 255 },		// 0
+		{ -0.5f, -0.5f, 0.5f,	255, 0, 255, 255 },		// 1
+		{ 0.5f, -0.5f, 0.5f,	255, 0, 255, 255 },		// 2
+		{ 0.5f, -0.5f, 1.0f,	255, 0, 0, 255 },		// 3
+		{ -0.5f, -0.5f, 1.0f,	0, 255, 0, 255 }		// 4
 
 		// 2D Triangle
 		/*{ 0.0f, 0.0f, 0.0f,		0, 0, 255, 255 },		// 0
@@ -216,6 +227,14 @@ void Graphics::EndFrame(float theta){
 	////////// INDEX
 	// Build index data.
 	const unsigned short indexes[] = {
+		// 3D Cube
+		/*0,2,1, 2,3,1,
+		1,3,5, 3,7,5,
+		2,6,3, 3,6,7,
+		4,5,7, 4,7,6,
+		0,4,2, 2,4,6,
+		0,1,4, 1,5,4 */
+
 		// 3D Pyramid
 		0,2,1,
 		0,3,2,
@@ -223,7 +242,7 @@ void Graphics::EndFrame(float theta){
 		0,1,4
 
 		// 2D Triangle
-		/*0,2,1*/
+		/*0,2,1 */
 	};
 
 	// Create IndexBuffer.
