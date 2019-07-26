@@ -1,6 +1,5 @@
 #pragma once
 #include "btBulletDynamicsCommon.h"
-#include "btBulletCollisionCommon.h"
 
 class Physics{
 public:
