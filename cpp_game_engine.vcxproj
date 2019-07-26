@@ -105,6 +105,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
@@ -124,6 +125,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)lib\Bullet3Dynamics_vs2010_x64_$(Configuration).lib;$(SolutionDir)lib\Bullet3Collision_vs2010_x64_$(Configuration).lib;$(SolutionDir)lib\LinearMath_vs2010_x64_$(Configuration).lib</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
@@ -147,6 +149,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)lib\BulletDynamics_vs2010_release.lib;$(SolutionDir)lib\BulletCollision_vs2010_release.lib;$(SolutionDir)lib\LinearMath_vs2010_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
@@ -170,12 +173,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)lib\BulletDynamics_vs2010_x64_$(Configuration).lib;$(SolutionDir)lib\BulletCollision_vs2010_x64_$(Configuration).lib;$(SolutionDir)lib\LinearMath_vs2010_x64_$(Configuration).lib</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Physics.h" />
     <ClInclude Include="src\Graphics.h" />
     <ClInclude Include="src\Exception.h" />
     <ClInclude Include="src\Keyboard.h" />
@@ -185,6 +190,7 @@
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Graphics.cpp" />
     <ClCompile Include="src\Exception.cpp" />
     <ClCompile Include="src\Keyboard.cpp" />

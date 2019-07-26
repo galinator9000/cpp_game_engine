@@ -8,6 +8,7 @@
 
 #include "Window.h"
 #include "Graphics.h"
+#include "Physics.h"
 
 #define _DEBUGGING TRUE
 
