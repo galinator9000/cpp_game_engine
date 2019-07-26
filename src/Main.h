@@ -16,6 +16,6 @@ enum EXIT {
 };
 
 const auto WND_TITLE = L"Direct3D";
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 1024;
+const int HEIGHT = 768;
 const int REFRESH_RATE = 60;
