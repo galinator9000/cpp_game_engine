@@ -9,20 +9,33 @@ Physics::Physics(float Gravity, float stepPerSecond){
 	btCollisionDispatcher* ColDsp = new btCollisionDispatcher(ColCfg);
 	btBroadphaseInterface* BrdPhs = new btDbvtBroadphase();
 	btSequentialImpulseConstraintSolver* CnstSlv = new btSequentialImpulseConstraintSolver;
-	World = new btDiscreteDynamicsWorld(
+	this->phyWorld = new btDiscreteDynamicsWorld(
 		ColDsp,
 		BrdPhs,
 		CnstSlv,
 		ColCfg
 	);
-	World->setGravity(btVector3(0, Gravity, 0));
-
-	// Add rigid body.
-	btCollisionShape* box_shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-	btRigidBody* body = new btRigidBody(btScalar(1.0), new btDefaultMotionState, box_shape);
-	World->addRigidBody(body);
+	this->phyWorld->setGravity(btVector3(0, Gravity, 0));
 }
 
 void Physics::Update(){
-	this->World->stepSimulation(1.0f / this->stepPerSecond, 10);
+	this->phyWorld->stepSimulation(1.0f / this->stepPerSecond, 10);
+	for (int ico = 0; ico < this->phyWorld->getNumCollisionObjects(); ico++) {
+		btCollisionObject* co = this->phyWorld->getCollisionObjectArray()[ico];
+		btTransform tsf = co->getWorldTransform();
+
+		if (ico > 0) {
+			std::ostringstream myStream;
+			myStream << "world pos object " << ico << ", ";
+			myStream << float(tsf.getOrigin().getX()) << ", ";
+			myStream << float(tsf.getOrigin().getY()) << ", ";
+			myStream << float(tsf.getOrigin().getZ()) << "\n";
+			OutputDebugStringA(myStream.str().c_str());
+		}
+	}
+}
+
+void Physics::AddEntity(BaseEntity& pBaseEntity){
+	this->phyWorld->addRigidBody(pBaseEntity.rigidBody);
+	this->collisionShapes.push_back(pBaseEntity.colShape);
 }

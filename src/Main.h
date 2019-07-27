@@ -7,9 +7,13 @@
 #include <iostream>
 #include <string>
 
+// Main components
 #include "Window.h"
 #include "Graphics.h"
 #include "Physics.h"
+
+// Game folder
+#include "Game/World.h"
 
 #define _DEBUGGING TRUE
 

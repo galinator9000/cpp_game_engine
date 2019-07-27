@@ -8,17 +8,23 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		HEIGHT
 	);
 
+	// Create render and physics components, give it to world component.
 	Graphics gfx = Graphics(
 		mainWnd.GetHandler(),
 		WIDTH,
 		HEIGHT,
 		REFRESH_RATE
 	);
+	Physics phy = Physics(-10.0f, 60.0f);
+	World world = World(&gfx, &phy);
 
-	Physics phy = Physics(-10, 60.0f);
+	// Add ground.
+	Cube ground = Cube(btVector3(0.0f, 0.0f, 0.0f), btQuaternion(0.0f, 0.0f, 0.0f), btVector3(50.0f, 1.0f, 50.0f), 0.0f);
+	world.addEntity(ground);
 
-	float angle = 0.0f;
-	float fmx, fmy;
+	// Add dynamic cube.
+	Cube cube = Cube(btVector3(0.0f, 25.0f, 0.0f), btQuaternion(45.0f, 45.0f, 45.0f), btVector3(1.0f, 1.0f, 1.0f), 3.0f);
+	world.addEntity(cube);
 
 	// Main loop of the engine.
 	while (true){
@@ -26,20 +32,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		if (!mainWnd.ProcessMessages()) {
 			break;
 		}
-		
-		// Get mouse coordinates.
-		fmx = mainWnd.mouse.GetX() / (WIDTH / 2.0f) - 1.0f;
-		fmy = -mainWnd.mouse.GetY() / (HEIGHT / 2.0f) + 1.0f;
 
-		// Clear frame and redraw state of the world.
-		gfx.BeginFrame();
-		gfx.Draw(0, 0, angle);
-		gfx.Draw(0, 0, -angle);
-		gfx.EndFrame();
-		angle += 0.01f;
-
-		// Step and update physics of the world.
-		phy.Update();
+		// Update world.
+		world.Update();
 	}
 
 	return 0;

@@ -333,7 +333,7 @@ void Graphics::Draw(float mfx, float mfy, float theta){
 	);
 	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
 
-	// Set primitive topology
+	// Set primitive topology.
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Draw it..
