@@ -33,6 +33,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			break;
 		}
 
+		/*
+		Print mouse XY.
+		std::ostringstream myStream;
+		myStream << "X: " << mainWnd.mouse.GetX();
+		myStream << "Y: " << mainWnd.mouse.GetY() << "\n";
+		OutputDebugStringA(myStream.str().c_str());
+		*/
+
 		// Update world.
 		world.Update();
 	}

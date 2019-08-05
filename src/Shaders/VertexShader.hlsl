@@ -3,7 +3,7 @@ struct VSOut {
 	float4 pos : SV_Position;
 };
 
-cbuffer ConstantBuffer {
+cbuffer ConstantBuffer : register(b0) {
 	matrix transformation;
 };
 

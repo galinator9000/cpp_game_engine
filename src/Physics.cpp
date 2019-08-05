@@ -24,6 +24,9 @@ void Physics::Update(){
 		btCollisionObject* co = this->phyWorld->getCollisionObjectArray()[ico];
 		btTransform tsf = co->getWorldTransform();
 
+		/*
+		Print all entities' position.
+		*/
 		if (ico > 0) {
 			std::ostringstream myStream;
 			myStream << "world pos object " << ico << ", ";

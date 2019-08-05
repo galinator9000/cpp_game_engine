@@ -8,12 +8,14 @@ World::World(Graphics* pGfx, Physics* pPhy){
 void World::Update(){
 	// Clear frame and redraw state of the world.
 	this->pGfx->BeginFrame();
+	this->pGfx->Draw();
 	this->pGfx->EndFrame();
 
 	// Step and update physics of the world.
 	this->pPhy->Update();
 }
 
-void World::addEntity(BaseEntity& pBaseEntity) {
+void World::addEntity(BaseEntity& pBaseEntity){
 	this->pPhy->AddEntity(pBaseEntity);
+	// Add entity to graphics.
 }

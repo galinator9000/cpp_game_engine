@@ -167,7 +167,7 @@ void Graphics::EndFrame() {
 	this->hr = this->pSwapChain->Present(1, 0);
 }
 
-void Graphics::Draw(float mfx, float mfy, float theta){
+void Graphics::Draw(){
 	////////// ROTATION
 	// Build constant buffer data.
 	struct Constant {
@@ -177,9 +177,9 @@ void Graphics::Draw(float mfx, float mfy, float theta){
 	const Constant constants[] = {
 		{
 			dx::XMMatrixTranspose(
-				dx::XMMatrixRotationZ(theta) *
-				dx::XMMatrixRotationX(theta) *
-				dx::XMMatrixTranslation(mfx, mfy, 2.0f) *
+				dx::XMMatrixRotationZ(0.0f) *
+				dx::XMMatrixRotationX(0.0f) *
+				dx::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
 				dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 			)
 		}
