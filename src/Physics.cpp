@@ -1,44 +1,53 @@
 #include "Physics.h"
 
-Physics::Physics(float Gravity, float stepPerSecond){
+Physics::Physics(float Gravity, float stepPerSecond) {
+
 	// Set class values.
 	this->stepPerSecond = stepPerSecond;
 
-	// Create world.
-	btCollisionConfiguration* ColCfg = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* ColDsp = new btCollisionDispatcher(ColCfg);
-	btBroadphaseInterface* BrdPhs = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver* CnstSlv = new btSequentialImpulseConstraintSolver;
-	this->phyWorld = new btDiscreteDynamicsWorld(
-		ColDsp,
-		BrdPhs,
-		CnstSlv,
-		ColCfg
-	);
-	this->phyWorld->setGravity(btVector3(0, Gravity, 0));
-}
+	// Create foundation for PhysX.
+	this->pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, this->pxAllocator, this->pxErrorCallback);
+	if (this->pxFoundation == NULL) {}
 
-void Physics::Update(){
-	this->phyWorld->stepSimulation(1.0f / this->stepPerSecond, 10);
-	for (int ico = 0; ico < this->phyWorld->getNumCollisionObjects(); ico++) {
-		btCollisionObject* co = this->phyWorld->getCollisionObjectArray()[ico];
-		btTransform tsf = co->getWorldTransform();
+	// Create Visual Debugger.
+	pxPvd = PxCreatePvd(*(this->pxFoundation));
+	PxPvdTransport* pxTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+	pxPvd->connect(*pxTransport, PxPvdInstrumentationFlag::eALL);
 
-		/*
-		Print all entities' position.
-		*/
-		if (ico > 0) {
-			std::ostringstream myStream;
-			myStream << "world pos object " << ico << ", ";
-			myStream << float(tsf.getOrigin().getX()) << ", ";
-			myStream << float(tsf.getOrigin().getY()) << ", ";
-			myStream << float(tsf.getOrigin().getZ()) << "\n";
-			OutputDebugStringA(myStream.str().c_str());
-		}
+	// Physics.
+	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*pxFoundation), PxTolerancesScale(), false, pxPvd);
+	if (this->pxPhysics == NULL) {}
+
+	// CPU dispatcher.
+	PxDefaultCpuDispatcher* pxDispatcher = PxDefaultCpuDispatcherCreate(2, NULL);
+
+	// Scene.
+	PxSceneDesc pxSceneDesc = PxSceneDesc(this->pxPhysics->getTolerancesScale());
+	pxSceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	pxSceneDesc.cpuDispatcher = pxDispatcher;
+	pxSceneDesc.filterShader = PxDefaultSimulationFilterShader;
+
+	this->pxScene = this->pxPhysics->createScene(pxSceneDesc);
+
+	// Debugger client.
+	PxPvdSceneClient* pvdClient = this->pxScene->getScenePvdClient();
+	if(pvdClient){
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 }
 
+Physics::~Physics(){
+	this->pxPhysics->release();
+	this->pxFoundation->release();
+}
+
+void Physics::Update(){
+	this->pxScene->simulate(1.0f / this->stepPerSecond);
+	this->pxScene->fetchResults(true);
+}
+
 void Physics::AddEntity(BaseEntity& pBaseEntity){
-	this->phyWorld->addRigidBody(pBaseEntity.rigidBody);
-	this->collisionShapes.push_back(pBaseEntity.colShape);
+
 }

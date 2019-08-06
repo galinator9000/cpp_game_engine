@@ -19,12 +19,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	World world = World(&gfx, &phy);
 
 	// Add ground.
+	/*
 	Cube ground = Cube(btVector3(0.0f, 0.0f, 0.0f), btQuaternion(0.0f, 0.0f, 0.0f), btVector3(50.0f, 1.0f, 50.0f), 0.0f);
 	world.addEntity(ground);
 
 	// Add dynamic cube.
 	Cube cube = Cube(btVector3(0.0f, 25.0f, 0.0f), btQuaternion(45.0f, 45.0f, 45.0f), btVector3(1.0f, 1.0f, 1.0f), 3.0f);
 	world.addEntity(cube);
+	*/
 
 	// Main loop of the engine.
 	while (true){

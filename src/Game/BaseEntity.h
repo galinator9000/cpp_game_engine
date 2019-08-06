@@ -1,10 +1,8 @@
 #pragma once
-#include "btBulletDynamicsCommon.h"
+#include "PxPhysicsAPI.h"
+using namespace physx;
 
 class BaseEntity{
 public:
-	btRigidBody* rigidBody;
-	btScalar mass;
-	btMotionState* motState;
-	btCollisionShape* colShape;
+	PxShape* shape;
 };
