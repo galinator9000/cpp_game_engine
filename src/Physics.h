@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEntity.h"
+
 #include <Windows.h>
 #include <sstream>
 
@@ -14,13 +15,18 @@ public:
 	void Update();
 	void AddEntity(BaseEntity& pBaseEntity);
 
+	// PhysX variables
+public:
+	PxPhysics* pxPhysics;
 private:
 	float stepPerSecond;
 
+	// Default objects
 	PxDefaultAllocator pxAllocator;
 	PxDefaultErrorCallback pxErrorCallback;
-	PxFoundation* pxFoundation = NULL;
-	PxPhysics* pxPhysics = NULL;
-	PxPvd* pxPvd = NULL;
-	PxScene* pxScene = NULL;
+
+	// PhysX object pointers
+	PxFoundation* pxFoundation;
+	PxPvd* pxPvd;
+	PxScene* pxScene;
 };

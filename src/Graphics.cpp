@@ -3,6 +3,10 @@
 namespace wrl = Microsoft::WRL;
 namespace dx = DirectX;
 
+void Graphics::AddEntity(BaseEntity& pBaseEntity){
+
+}
+
 Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	// Initialize graphics object, create Direct3D device.
 	DXGI_SWAP_CHAIN_DESC scd;

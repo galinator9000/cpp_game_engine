@@ -212,7 +212,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Game\Cube.h" />
+    <ClInclude Include="src\Game\Plane.h" />
+    <ClInclude Include="src\Game\Box.h" />
     <ClInclude Include="src\Game\BaseEntity.h" />
     <ClInclude Include="src\Physics.h" />
     <ClInclude Include="src\Graphics.h" />
@@ -225,7 +226,8 @@
     <ClInclude Include="src\Game\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Game\Cube.cpp" />
+    <ClCompile Include="src\Game\Plane.cpp" />
+    <ClCompile Include="src\Game\Box.cpp" />
     <ClCompile Include="src\Game\BaseEntity.cpp" />
     <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Graphics.cpp" />
