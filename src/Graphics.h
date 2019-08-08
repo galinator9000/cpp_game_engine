@@ -1,4 +1,6 @@
 #pragma once
+#include "BaseEntity.h"
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
 #include <d3d11.h>
@@ -24,6 +26,7 @@ public:
 
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
+	void AddEntity(BaseEntity& pBaseEntity);
 	void BeginFrame();
 	void Draw();
 	void EndFrame();

@@ -17,5 +17,5 @@ void World::Update(){
 
 void World::addEntity(BaseEntity& pBaseEntity){
 	this->pPhy->AddEntity(pBaseEntity);
-	// Add entity to graphics.
+	this->pGfx->AddEntity(pBaseEntity);
 }
