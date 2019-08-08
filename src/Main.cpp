@@ -34,6 +34,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	);
 	world.addEntity(box);
 
+	// Add dynamic cube.
+	Box box2 = Box(
+		PxVec3(15.0f, 15.0f, 15.0f),
+		PxVec3(0.0f, 10.0f, 0.0f),
+		PxVec3(0, 0, 0)
+	);
+	world.addEntity(box2);
+
 	// Main loop of the engine.
 	while (true){
 		// Update world.
