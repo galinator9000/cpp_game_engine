@@ -3,10 +3,6 @@
 namespace wrl = Microsoft::WRL;
 namespace dx = DirectX;
 
-void Graphics::AddEntity(BaseEntity& pBaseEntity){
-
-}
-
 Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	// Initialize graphics object, create Direct3D device.
 	DXGI_SWAP_CHAIN_DESC scd;
@@ -167,37 +163,39 @@ void Graphics::BeginFrame(){
 	this->Clear();
 }
 
-void Graphics::EndFrame() {
+void Graphics::EndFrame(){
 	this->hr = this->pSwapChain->Present(1, 0);
 }
 
-void Graphics::Draw(){
-	////////// ROTATION
-	// Build constant buffer data.
-	struct Constant {
-		dx::XMMATRIX transform;
+void Graphics::AddEntity(BaseEntity& entity){
+	// Create box vertices and indices for rendering the entity.
+	switch (entity.type) {
+		case ENTITY_TYPE::BOX:
+			break;
+		case ENTITY_TYPE::PLANE:
+			break;
+	}
+
+	// Build constant buffer.
+	const dx::XMMATRIX constBuffer[] = {
+		dx::XMMatrixTranspose(
+			dx::XMMatrixRotationZ(entity.gRotation.z) *
+			dx::XMMatrixRotationY(entity.gRotation.y) *
+			dx::XMMatrixRotationX(entity.gRotation.x) *
+			dx::XMMatrixTranslation(entity.gPosition.x, entity.gPosition.y, entity.gPosition.z) *
+			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
+		)
 	};
 
-	const Constant constants[] = {
-		{
-			dx::XMMatrixTranspose(
-				dx::XMMatrixRotationZ(0.0f) *
-				dx::XMMatrixRotationX(0.0f) *
-				dx::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
-				dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
-			)
-		}
-	};
-
-	// Create ConstantBuffer.
+	// Create buffer.
 	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(constants);
+	cbd.ByteWidth = sizeof(constBuffer);
 	cbd.Usage = D3D11_USAGE_DYNAMIC;
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cbd.MiscFlags = 0;
 	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &constants, 0, 0 };
+	D3D11_SUBRESOURCE_DATA csd = { &constBuffer, 0, 0 };
 	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
 	this->hr = this->pDevice->CreateBuffer(
 		&cbd,
@@ -205,145 +203,14 @@ void Graphics::Draw(){
 		&pConstantBuffer
 	);
 
-	// Bind ConstantBuffer to pipeline.
+	// Bind buffer to pipeline.
 	this->pDeviceContext->VSSetConstantBuffers(
 		0,
 		1,
 		pConstantBuffer.GetAddressOf()
 	);
+}
 
-	////////// VERTEX
-	// Build vertex data.
-	struct Vertex {
-		struct Position {
-			float x;
-			float y;
-			float z;
-		} pos;
-		struct Color {
-			unsigned char r;
-			unsigned char g;
-			unsigned char b;
-			unsigned char a;
-		} color;
-	};
-	const Vertex vertices[] = {
-		// 3D Cube
-		/*{ -1.0f, -1.0f, -1.0f,	255, 255, 255, 255 },
-		{ 1.0f, -1.0f, -1.0f,	255, 255, 0, 255 },
-		{ -1.0f, 1.0f, -1.0f,	255, 0, 0, 255 },
-		{ 1.0f, 1.0f, -1.0f,	0, 255, 0, 255 },
-		{ -1.0f, -1.0f, 1.0f,	0, 255, 255, 255 },
-		{ 1.0f, -1.0f, 1.0f,	0, 0, 255, 255 },
-		{ -1.0f, 1.0f, 1.0f,	255, 0, 255, 255 },
-		{ 1.0f, 1.0f, 1.0f,		255, 128, 255, 255 }*/
+void Graphics::DrawEntity(BaseEntity* entity){
 
-		// 3D Pyramid
-		{ 0.0f, 0.5f, 0.0f,	0, 0, 255, 255 },			// 0
-		{ -0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 1
-		{ 0.5f, -0.5f, -0.5f,	255, 0, 255, 255 },		// 2
-		{ 0.5f, -0.5f, 0.5f,	255, 0, 0, 255 },		// 3
-		{ -0.5f, -0.5f, 0.5f,	0, 255, 0, 255 }		// 4
-
-		// 2D Triangle
-		/*{ 0.0f, 0.0f, 0.0f,		0, 0, 255, 255 },	// 0
-		{ -0.5f, -0.5f, 0.0f,	255, 0, 255, 255 },		// 1
-		{ 0.5f, -0.5f, 0.0f,	255, 0, 255, 255 },		// 2*/
-	};
-
-	// Create VertexBuffer.
-	D3D11_BUFFER_DESC bd = {0};
-	bd.ByteWidth = sizeof(vertices);
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.StructureByteStride = sizeof(Vertex);
-	D3D11_SUBRESOURCE_DATA sd = {vertices, 0, 0};
-	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
-	this->hr = this->pDevice->CreateBuffer(
-		&bd,
-		&sd,
-		&pVertexBuffer
-	);
-
-	// Bind VertexBuffer to pipeline.
-	const UINT pStrides = sizeof(Vertex);
-	const UINT pOffsets = 0;
-	this->pDeviceContext->IASetVertexBuffers(
-		0,
-		1,
-		pVertexBuffer.GetAddressOf(),
-		&pStrides,
-		&pOffsets
-	);
-
-	////////// INDEX
-	// Build index data.
-	const unsigned short indexes[] = {
-		// 3D Cube
-		/*0,2,1, 2,3,1,
-		1,3,5, 3,7,5,
-		2,6,3, 3,6,7,
-		4,5,7, 4,7,6,
-		0,4,2, 2,4,6,
-		0,1,4, 1,5,4 */
-
-		// 3D Pyramid
-		0,2,1,
-		0,3,2,
-		0,4,3,
-		0,1,4,
-		4,1,3,
-		2,3,1
-
-		// 2D Triangle
-		/*0,2,1 */
-	};
-
-	// Create IndexBuffer.
-	D3D11_BUFFER_DESC ibd = {0};
-	ibd.ByteWidth = sizeof(indexes);
-	ibd.Usage = D3D11_USAGE_DEFAULT;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0u;
-	ibd.MiscFlags = 0u;
-	ibd.StructureByteStride = sizeof(unsigned short);
-	D3D11_SUBRESOURCE_DATA isd = {indexes, 0, 0};
-	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
-	this->hr = this->pDevice->CreateBuffer(
-		&ibd,
-		&isd,
-		&pIndexBuffer
-	);
-
-	// Bind IndexBuffer to pipeline.
-	this->pDeviceContext->IASetIndexBuffer(
-		pIndexBuffer.Get(),
-		DXGI_FORMAT_R16_UINT,
-		0
-	);
-
-	// Create & Set InputLayout
-	wrl::ComPtr<ID3D11InputLayout> pInputLayout;
-	const D3D11_INPUT_ELEMENT_DESC ied[] = {
-		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Color", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
-	this->hr = this->pDevice->CreateInputLayout(
-		ied,
-		(UINT) std::size(ied),
-		this->pBlob->GetBufferPointer(),
-		this->pBlob->GetBufferSize(),
-		&pInputLayout
-	);
-	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
-
-	// Set primitive topology.
-	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Draw it..
-	this->pDeviceContext->DrawIndexed(
-		(UINT) std::size(indexes),
-		0,
-		0
-	);
 }

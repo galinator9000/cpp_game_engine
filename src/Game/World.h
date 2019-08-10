@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "../Graphics.h"
 #include "../Physics.h"
 
@@ -19,5 +21,6 @@ public:
 private:
 	Graphics* pGfx;
 	Physics* pPhy;
-};
 
+	std::vector<BaseEntity*> allEntities;
+};

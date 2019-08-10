@@ -26,15 +26,18 @@ public:
 
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
-	void AddEntity(BaseEntity& pBaseEntity);
+	void AddEntity(BaseEntity& BaseEntity);
 	void BeginFrame();
-	void Draw();
+	void DrawEntity(BaseEntity* entity);
 	void EndFrame();
+
+	// Graphics
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
+
 private:
 	HRESULT hr;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
 

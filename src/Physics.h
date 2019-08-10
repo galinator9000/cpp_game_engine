@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "PxPhysicsAPI.h"
+
 using namespace physx;
 
 class Physics{
@@ -18,6 +19,8 @@ public:
 	// PhysX variables
 public:
 	PxPhysics* pxPhysics;
+	PxScene* pxScene;
+
 private:
 	float stepPerSecond;
 
@@ -25,8 +28,7 @@ private:
 	PxDefaultAllocator pxAllocator;
 	PxDefaultErrorCallback pxErrorCallback;
 
-	// PhysX object pointers
+	// PhysX main object pointers
 	PxFoundation* pxFoundation;
 	PxPvd* pxPvd;
-	PxScene* pxScene;
 };

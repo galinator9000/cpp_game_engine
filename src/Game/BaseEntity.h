@@ -1,17 +1,28 @@
 #pragma once
+#include <DirectXMath.h>
 #include "PxPhysicsAPI.h"
+
 using namespace physx;
+namespace dx = DirectX;
+
+const enum ENTITY_TYPE{
+	BOX,
+	PLANE
+};
 
 class BaseEntity{
 public:
-	// Index to keep track of entity id's.
-	static unsigned int lastEntityId;
-
 	// Derived classes will set this value.
-	unsigned int entityId;
+	unsigned int id;
+	unsigned int type;
 
-	// PhysX
+	// Physics
 	static PxPhysics* ppxPhysics;
-	PxShape* shape = NULL;
-	PxActor* actor = NULL;
+	PxShape* pShape = NULL;
+	PxActor* pActor = NULL;
+
+	// Graphics
+	dx::XMFLOAT3 gSize;
+	dx::XMFLOAT3 gPosition;
+	dx::XMFLOAT3 gRotation;
 };
