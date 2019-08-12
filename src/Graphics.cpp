@@ -185,7 +185,6 @@ void Graphics::endFrame(){
 }
 
 void Graphics::addEntity(BaseEntity& entity){
-	// Create box vertices and indices for rendering the entity.
 	switch (entity.type) {
 		case ENTITY_TYPE::BOX:
 			break;
@@ -230,31 +229,31 @@ void Graphics::addEntity(BaseEntity& entity){
 
 	/// VERTEX BUFFER
 	// Build vertex buffer on GPU side.
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.ByteWidth = sizeof(entity.vertices);
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.StructureByteStride = sizeof(Vertex);
-	D3D11_SUBRESOURCE_DATA sd = { entity.vertices, 0, 0 };
+	D3D11_BUFFER_DESC vBd = { 0 };
+	vBd.StructureByteStride = sizeof(Vertex);
+	vBd.ByteWidth = (UINT)vBd.StructureByteStride * entity.vertexCount;
+	vBd.Usage = D3D11_USAGE_DEFAULT;
+	vBd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	D3D11_SUBRESOURCE_DATA vSd = { entity.vertices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
-		&bd,
-		&sd,
+		&vBd,
+		&vSd,
 		&entity.pVertexBuffer
 	);
 
 	/// INDEX BUFFER
 	// Create index buffer on GPU side.
-	D3D11_BUFFER_DESC ibd = { 0 };
-	ibd.ByteWidth = sizeof(entity.indices);
-	ibd.Usage = D3D11_USAGE_DEFAULT;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0u;
-	ibd.MiscFlags = 0u;
-	ibd.StructureByteStride = sizeof(unsigned short);
-	D3D11_SUBRESOURCE_DATA isd = { entity.indices, 0, 0 };
+	D3D11_BUFFER_DESC iBd = { 0 };
+	iBd.StructureByteStride = sizeof(unsigned short);
+	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity.indexCount;
+	iBd.Usage = D3D11_USAGE_DEFAULT;
+	iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	iBd.CPUAccessFlags = 0u;
+	iBd.MiscFlags = 0u;
+	D3D11_SUBRESOURCE_DATA iSd = { entity.indices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
-		&ibd,
-		&isd,
+		&iBd,
+		&iSd,
 		&entity.pIndexBuffer
 	);
 }
@@ -296,7 +295,7 @@ void Graphics::drawEntity(BaseEntity& entity){
 
 	// Draw the entity..
 	this->pDeviceContext->DrawIndexed(
-		((UINT) sizeof(entity.indices) / sizeof(unsigned short)),
+		entity.indexCount,
 		0,
 		0
 	);

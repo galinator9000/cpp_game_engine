@@ -32,6 +32,7 @@ void Box::createVertices() {
 		{ -gSize.x, gSize.y, gSize.z, },
 		{ gSize.x, gSize.y, gSize.z }
 	};
+	this->vertexCount = (UINT) std::size(_vertices);
 	this->vertices = _vertices;
 }
 
@@ -45,5 +46,6 @@ void Box::createIndices() {
 		0,4,2, 2,4,6,
 		0,1,4, 1,5,4
 	};
+	this->indexCount = (UINT) std::size(_indices);
 	this->indices = _indices;
 }

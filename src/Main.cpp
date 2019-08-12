@@ -28,20 +28,17 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Add dynamic cube.
 	Box box = Box(
-		PxVec3(15.0f, 15.0f, 15.0f),
-		PxVec3(0.0f, 10.0f, 0.0f),
+		PxVec3(0.5f, 0.5f, 0.5f),
+		PxVec3(0.0f, 0.0f, 0.0f),
 		PxVec3(45.0f, 45.0f, 45.0f),
 		PxVec3(0, 0, 0)
 	);
 	world.addEntity(box);
 
 	std::ostringstream myStream;
-	myStream << ((USHORT) box.indices[0]) << "\n";
-	myStream << ((USHORT) box.indices[1]) << "\n";
-	myStream << ((USHORT) box.indices[2]) << "\n";
-	myStream << ((USHORT) box.indices[3]) << "\n";
-	myStream << ((USHORT) box.indices[4]) << "\n";
-	myStream << ((USHORT) box.indices[5]) << "\n";
+	myStream << box.indices[0] << "\n";
+	myStream << box.indices[1] << "\n";
+	myStream << box.indices[2] << "\n";
 	OutputDebugStringA(myStream.str().c_str());
 
 	// Main loop of the engine.

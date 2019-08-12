@@ -5,6 +5,7 @@
 #include <wrl.h>
 
 #include "Structs.h"
+#include <vector>
 
 using namespace physx;
 namespace dx = DirectX;
@@ -32,8 +33,11 @@ public:
 	dx::XMFLOAT3 gRotation;
 
 	dx::XMFLOAT4X4 transformMatrix;
+
 	Vertex* vertices;
 	unsigned short* indices;
+	unsigned int vertexCount;
+	unsigned int indexCount;
 	void createVertexAndIndexBuffer();
 
 	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
