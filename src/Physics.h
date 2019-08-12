@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEntity.h"
+#include "Shapes.h"
 
 #include <Windows.h>
 #include <sstream>
@@ -14,7 +15,7 @@ public:
 	~Physics();
 
 	void Update();
-	void AddEntity(BaseEntity& pBaseEntity);
+	void addEntity(BaseEntity& pBaseEntity);
 
 	// PhysX variables
 public:

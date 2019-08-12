@@ -35,6 +35,15 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	);
 	world.addEntity(box);
 
+	std::ostringstream myStream;
+	myStream << ((USHORT) box.indices[0]) << "\n";
+	myStream << ((USHORT) box.indices[1]) << "\n";
+	myStream << ((USHORT) box.indices[2]) << "\n";
+	myStream << ((USHORT) box.indices[3]) << "\n";
+	myStream << ((USHORT) box.indices[4]) << "\n";
+	myStream << ((USHORT) box.indices[5]) << "\n";
+	OutputDebugStringA(myStream.str().c_str());
+
 	// Main loop of the engine.
 	while (true){
 		// Update world.
@@ -60,7 +69,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		myStream << float(box.rigidDynamic->getLinearVelocity().x) << ", ";
 		myStream << float(box.rigidDynamic->getLinearVelocity().y) << ", ";
 		myStream << float(box.rigidDynamic->getLinearVelocity().z) << "\n";
-		OutputDebugStringA(myStream.str().c_str());
+		//OutputDebugStringA(myStream.str().c_str());
 	}
 
 	return 0;

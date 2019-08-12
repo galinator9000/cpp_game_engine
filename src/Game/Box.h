@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEntity.h"
+#include "Structs.h"
 
 using namespace DirectX;
 
@@ -11,4 +12,6 @@ public:
 	PxRigidDynamic* rigidDynamic;
 
 	// Graphics
+	void createVertices();
+	void createIndices();
 };

@@ -10,7 +10,7 @@ void World::Update(){
 	this->pPhy->Update();
 
 	// Clear frame and redraw state of the world.
-	this->pGfx->BeginFrame();
+	this->pGfx->beginFrame();
 
 	for (unsigned int e = 0; e < allEntities.size(); e++){
 		BaseEntity* ent = allEntities[e];
@@ -22,16 +22,16 @@ void World::Update(){
 			continue;
 		}
 
-		this->pGfx->DrawEntity(ent);
+		this->pGfx->drawEntity(*ent);
 	}
 
-	this->pGfx->EndFrame();
+	this->pGfx->endFrame();
 }
 
 void World::addEntity(BaseEntity& entity){
 	entity.id = (unsigned int) allEntities.size();
 	allEntities.push_back(&entity);
 	
-	this->pPhy->AddEntity(entity);
-	this->pGfx->AddEntity(entity);
+	this->pPhy->addEntity(entity);
+	this->pGfx->addEntity(entity);
 }

@@ -140,6 +140,23 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 
 	// Set DepthStencilView as render target.
 	this->pDeviceContext->OMSetRenderTargets(1, this->pRenderTargetView.GetAddressOf(), pDSView.Get());
+
+	// Create InputLayout
+	const D3D11_INPUT_ELEMENT_DESC ied[] = {
+		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
+	this->hr = this->pDevice->CreateInputLayout(
+		ied,
+		(UINT)std::size(ied),
+		this->pBlob->GetBufferPointer(),
+		this->pBlob->GetBufferSize(),
+		&this->pInputLayout
+	);
+
+	// Set input layout and primitive topology.
+	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
+	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
@@ -150,7 +167,7 @@ void Graphics::Clear(float r, float g, float b, float a){
 		new float[4]{r, g, b, a}
 	);
 
-	// Clear z-buffer.
+	// Clear Z-buffer.
 	this->pDeviceContext->ClearDepthStencilView(
 		this->pDSView.Get(),
 		D3D11_CLEAR_DEPTH,
@@ -159,58 +176,128 @@ void Graphics::Clear(float r, float g, float b, float a){
 	);
 }
 
-void Graphics::BeginFrame(){
+void Graphics::beginFrame(){
 	this->Clear();
 }
 
-void Graphics::EndFrame(){
+void Graphics::endFrame(){
 	this->hr = this->pSwapChain->Present(1, 0);
 }
 
-void Graphics::AddEntity(BaseEntity& entity){
+void Graphics::addEntity(BaseEntity& entity){
 	// Create box vertices and indices for rendering the entity.
 	switch (entity.type) {
 		case ENTITY_TYPE::BOX:
 			break;
 		case ENTITY_TYPE::PLANE:
+			return;
 			break;
 	}
 
+	/// CONSTANT BUFFER
 	// Build constant buffer.
-	const dx::XMMATRIX constBuffer[] = {
-		dx::XMMatrixTranspose(
-			dx::XMMatrixRotationZ(entity.gRotation.z) *
-			dx::XMMatrixRotationY(entity.gRotation.y) *
-			dx::XMMatrixRotationX(entity.gRotation.x) *
-			dx::XMMatrixTranslation(entity.gPosition.x, entity.gPosition.y, entity.gPosition.z) *
-			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
-		)
-	};
-
-	// Create buffer.
+	const dx::XMMATRIX transformMatrix = dx::XMMatrixTranspose(
+		dx::XMMatrixRotationZ(entity.gRotation.z) *
+		dx::XMMatrixRotationY(entity.gRotation.y) *
+		dx::XMMatrixRotationX(entity.gRotation.x) *
+		dx::XMMatrixTranslation(entity.gPosition.x, entity.gPosition.y, entity.gPosition.z) *
+		dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
+	);
+	// Attach constant buffer to it to entity object.
+	XMStoreFloat4x4(
+		&(entity.transformMatrix),
+		transformMatrix
+	);
+	
+	// Create buffer on GPU side.
 	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(constBuffer);
+	cbd.ByteWidth = sizeof(entity.transformMatrix);
 	cbd.Usage = D3D11_USAGE_DYNAMIC;
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cbd.MiscFlags = 0;
 	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &constBuffer, 0, 0 };
-	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
+	D3D11_SUBRESOURCE_DATA csd = { &(entity.transformMatrix), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cbd,
 		&csd,
-		&pConstantBuffer
+		&entity.pConstantBuffer
 	);
 
-	// Bind buffer to pipeline.
-	this->pDeviceContext->VSSetConstantBuffers(
-		0,
-		1,
-		pConstantBuffer.GetAddressOf()
+	// Build vertex and index buffer depending on shape of the object,
+	// fill them in the entity object's "indices" and "vertices" arrays.
+	entity.createVertexAndIndexBuffer();
+
+	/// VERTEX BUFFER
+	// Build vertex buffer on GPU side.
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.ByteWidth = sizeof(entity.vertices);
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.StructureByteStride = sizeof(Vertex);
+	D3D11_SUBRESOURCE_DATA sd = { entity.vertices, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&bd,
+		&sd,
+		&entity.pVertexBuffer
+	);
+
+	/// INDEX BUFFER
+	// Create index buffer on GPU side.
+	D3D11_BUFFER_DESC ibd = { 0 };
+	ibd.ByteWidth = sizeof(entity.indices);
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0u;
+	ibd.MiscFlags = 0u;
+	ibd.StructureByteStride = sizeof(unsigned short);
+	D3D11_SUBRESOURCE_DATA isd = { entity.indices, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&ibd,
+		&isd,
+		&entity.pIndexBuffer
 	);
 }
 
-void Graphics::DrawEntity(BaseEntity* entity){
+void Graphics::drawEntity(BaseEntity& entity){
+	switch (entity.type) {
+		case ENTITY_TYPE::BOX:
+			break;
+		case ENTITY_TYPE::PLANE:
+			return;
+			break;
+	}
 
+	// Bind buffers to pipeline.
+	// Constant buffer
+	this->pDeviceContext->VSSetConstantBuffers(
+		0,
+		1,
+		entity.pConstantBuffer.GetAddressOf()
+	);
+
+	// Vertex buffer
+	const UINT pStrides = sizeof(Vertex);
+	const UINT pOffsets = 0;
+	this->pDeviceContext->IASetVertexBuffers(
+		0,
+		1,
+		entity.pVertexBuffer.GetAddressOf(),
+		&pStrides,
+		&pOffsets
+	);
+
+	// Index buffer
+	this->pDeviceContext->IASetIndexBuffer(
+		entity.pIndexBuffer.Get(),
+		DXGI_FORMAT_R16_UINT,
+		0
+	);
+
+	// Draw the entity..
+	this->pDeviceContext->DrawIndexed(
+		((UINT) sizeof(entity.indices) / sizeof(unsigned short)),
+		0,
+		0
+	);
 }

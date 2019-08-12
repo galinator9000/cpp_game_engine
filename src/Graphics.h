@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEntity.h"
+#include "Shapes.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
@@ -26,18 +27,15 @@ public:
 
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
-	void AddEntity(BaseEntity& BaseEntity);
-	void BeginFrame();
-	void DrawEntity(BaseEntity* entity);
-	void EndFrame();
-
-	// Graphics
-Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
-
+	void addEntity(BaseEntity& entity);
+	void beginFrame();
+	void drawEntity(BaseEntity& entity);
+	void endFrame();
 private:
 	HRESULT hr;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
 
@@ -45,6 +43,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
 };

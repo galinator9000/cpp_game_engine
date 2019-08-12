@@ -19,3 +19,31 @@ Box::Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material) {
 
 	this->type = ENTITY_TYPE::BOX;
 }
+
+void Box::createVertices() {
+	// 3D Cube vertices
+	Vertex _vertices[] = {
+		{ -gSize.x, -gSize.y, -gSize.z },
+		{ gSize.x, -gSize.y, -gSize.z },
+		{ -gSize.x, gSize.y, -gSize.z },
+		{ gSize.x, gSize.y, -gSize.z },
+		{ -gSize.x, -gSize.y, gSize.z },
+		{ gSize.x, -gSize.y, gSize.z },
+		{ -gSize.x, gSize.y, gSize.z, },
+		{ gSize.x, gSize.y, gSize.z }
+	};
+	this->vertices = _vertices;
+}
+
+void Box::createIndices() {
+	// 3D Cube indices
+	unsigned short _indices[] = {
+		0,2,1, 2,3,1,
+		1,3,5, 3,7,5,
+		2,6,3, 3,6,7,
+		4,5,7, 4,7,6,
+		0,4,2, 2,4,6,
+		0,1,4, 1,5,4
+	};
+	this->indices = _indices;
+}

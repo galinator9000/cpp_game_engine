@@ -13,7 +13,7 @@
 #include "Graphics.h"
 #include "Physics.h"
 
-// Game folder
+// Game world
 #include "Game/World.h"
 
 #define _DEBUGGING TRUE
