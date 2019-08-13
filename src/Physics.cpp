@@ -50,6 +50,6 @@ void Physics::Update(){
 	this->pxScene->fetchResults(true);
 }
 
-void Physics::addEntity(BaseEntity& pBaseEntity){
-	this->pxScene->addActor(*(pBaseEntity.pActor));
+void Physics::addEntity(BaseEntity* pEntity){
+	this->pxScene->addActor(*pEntity->pActor);
 }

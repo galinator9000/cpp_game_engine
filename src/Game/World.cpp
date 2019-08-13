@@ -10,28 +10,25 @@ void World::Update(){
 	this->pPhy->Update();
 
 	// Clear frame and redraw state of the world.
-	this->pGfx->beginFrame();
+	//this->pGfx->beginFrame();
 
 	for (unsigned int e = 0; e < allEntities.size(); e++){
 		BaseEntity* ent = allEntities[e];
 
-		if(ent == NULL){
-			continue;
-		}
-		if(ent->type == ENTITY_TYPE::PLANE){
+		if(ent->type == ENTITY_TYPE::PLANE || ent == NULL){
 			continue;
 		}
 
-		this->pGfx->drawEntity(*ent);
+		this->pGfx->drawEntity(ent);
 	}
 
 	this->pGfx->endFrame();
 }
 
-void World::addEntity(BaseEntity& entity){
-	entity.id = (unsigned int) allEntities.size();
-	allEntities.push_back(&entity);
+void World::addEntity(BaseEntity* bEntity){
+	bEntity->id = (unsigned int) allEntities.size();
+	allEntities.push_back(bEntity);
 	
-	this->pPhy->addEntity(entity);
-	this->pGfx->addEntity(entity);
+	this->pPhy->addEntity(bEntity);
+	this->pGfx->addEntity(bEntity);
 }

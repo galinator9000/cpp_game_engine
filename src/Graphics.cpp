@@ -153,10 +153,6 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 		this->pBlob->GetBufferSize(),
 		&this->pInputLayout
 	);
-
-	// Set input layout and primitive topology.
-	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
-	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
@@ -184,8 +180,8 @@ void Graphics::endFrame(){
 	this->hr = this->pSwapChain->Present(1, 0);
 }
 
-void Graphics::addEntity(BaseEntity& entity){
-	switch (entity.type) {
+void Graphics::addEntity(BaseEntity* entity){
+	switch (entity->type) {
 		case ENTITY_TYPE::BOX:
 			break;
 		case ENTITY_TYPE::PLANE:
@@ -193,73 +189,74 @@ void Graphics::addEntity(BaseEntity& entity){
 			break;
 	}
 
+	// Build vertex and index buffer elements depending on shape of the object,
+	// fill them in the entity object's "indices" and "vertices" arrays.
+	entity->gCreateVerticesAndIndices();
+
 	/// CONSTANT BUFFER
 	// Build constant buffer.
 	const dx::XMMATRIX transformMatrix = dx::XMMatrixTranspose(
-		dx::XMMatrixRotationZ(entity.gRotation.z) *
-		dx::XMMatrixRotationY(entity.gRotation.y) *
-		dx::XMMatrixRotationX(entity.gRotation.x) *
-		dx::XMMatrixTranslation(entity.gPosition.x, entity.gPosition.y, entity.gPosition.z) *
+		dx::XMMatrixRotationZ(entity->gRotation.z) *
+		dx::XMMatrixRotationY(entity->gRotation.y) *
+		dx::XMMatrixRotationX(entity->gRotation.x) *
+		dx::XMMatrixTranslation(entity->gPosition.x, entity->gPosition.y, entity->gPosition.z) *
 		dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 	);
+
 	// Attach constant buffer to it to entity object.
 	XMStoreFloat4x4(
-		&(entity.transformMatrix),
+		&(entity->gTransformMatrix),
 		transformMatrix
 	);
 	
 	// Create buffer on GPU side.
 	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(entity.transformMatrix);
+	cbd.ByteWidth = sizeof(entity->gTransformMatrix);
 	cbd.Usage = D3D11_USAGE_DYNAMIC;
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cbd.MiscFlags = 0;
 	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &(entity.transformMatrix), 0, 0 };
+	D3D11_SUBRESOURCE_DATA csd = { &(entity->gTransformMatrix), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cbd,
 		&csd,
-		&entity.pConstantBuffer
+		&entity->pConstantBuffer
 	);
-
-	// Build vertex and index buffer depending on shape of the object,
-	// fill them in the entity object's "indices" and "vertices" arrays.
-	entity.createVertexAndIndexBuffer();
 
 	/// VERTEX BUFFER
 	// Build vertex buffer on GPU side.
 	D3D11_BUFFER_DESC vBd = { 0 };
 	vBd.StructureByteStride = sizeof(Vertex);
-	vBd.ByteWidth = (UINT)vBd.StructureByteStride * entity.vertexCount;
+	vBd.ByteWidth = (UINT)vBd.StructureByteStride * entity->gVertexCount;
 	vBd.Usage = D3D11_USAGE_DEFAULT;
 	vBd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA vSd = { entity.vertices, 0, 0 };
+	D3D11_SUBRESOURCE_DATA vSd = { entity->gVertices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&vBd,
 		&vSd,
-		&entity.pVertexBuffer
+		&entity->pVertexBuffer
 	);
 
 	/// INDEX BUFFER
 	// Create index buffer on GPU side.
 	D3D11_BUFFER_DESC iBd = { 0 };
 	iBd.StructureByteStride = sizeof(unsigned short);
-	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity.indexCount;
+	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity->gIndexCount;
 	iBd.Usage = D3D11_USAGE_DEFAULT;
 	iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	iBd.CPUAccessFlags = 0u;
 	iBd.MiscFlags = 0u;
-	D3D11_SUBRESOURCE_DATA iSd = { entity.indices, 0, 0 };
+	D3D11_SUBRESOURCE_DATA iSd = { entity->gIndices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&iBd,
 		&iSd,
-		&entity.pIndexBuffer
+		&entity->pIndexBuffer
 	);
 }
 
-void Graphics::drawEntity(BaseEntity& entity){
-	switch (entity.type) {
+void Graphics::drawEntity(BaseEntity* entity){
+	switch (entity->type) {
 		case ENTITY_TYPE::BOX:
 			break;
 		case ENTITY_TYPE::PLANE:
@@ -272,7 +269,7 @@ void Graphics::drawEntity(BaseEntity& entity){
 	this->pDeviceContext->VSSetConstantBuffers(
 		0,
 		1,
-		entity.pConstantBuffer.GetAddressOf()
+		entity->pConstantBuffer.GetAddressOf()
 	);
 
 	// Vertex buffer
@@ -281,21 +278,25 @@ void Graphics::drawEntity(BaseEntity& entity){
 	this->pDeviceContext->IASetVertexBuffers(
 		0,
 		1,
-		entity.pVertexBuffer.GetAddressOf(),
+		entity->pVertexBuffer.GetAddressOf(),
 		&pStrides,
 		&pOffsets
 	);
 
 	// Index buffer
 	this->pDeviceContext->IASetIndexBuffer(
-		entity.pIndexBuffer.Get(),
+		entity->pIndexBuffer.Get(),
 		DXGI_FORMAT_R16_UINT,
 		0
 	);
 
+	// Set input layout and primitive topology.
+	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
+	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	// Draw the entity..
 	this->pDeviceContext->DrawIndexed(
-		entity.indexCount,
+		entity->gIndexCount,
 		0,
 		0
 	);

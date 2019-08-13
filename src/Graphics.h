@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEntity.h"
+#include "Structs.h"
 #include "Shapes.h"
 
 #pragma comment(lib, "d3d11.lib")
@@ -9,6 +10,7 @@
 #include <DirectXMath.h>
 #include <wrl.h>
 #include <iostream>
+#include <vector>
 
 // Macro for handling HRESULT graphics errors from Direct3D API calls.
 #define GFX_ERROR_CHECK(hr)
@@ -27,9 +29,9 @@ public:
 
 	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
 
-	void addEntity(BaseEntity& entity);
+	void addEntity(BaseEntity* entity);
 	void beginFrame();
-	void drawEntity(BaseEntity& entity);
+	void drawEntity(BaseEntity* entity);
 	void endFrame();
 private:
 	HRESULT hr;

@@ -20,7 +20,9 @@ Box::Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material) {
 	this->type = ENTITY_TYPE::BOX;
 }
 
-void Box::createVertices() {
+Box::~Box(){}
+
+void Box::gCreateVerticesAndIndices() {
 	// 3D Cube vertices
 	Vertex _vertices[] = {
 		{ -gSize.x, -gSize.y, -gSize.z },
@@ -32,11 +34,12 @@ void Box::createVertices() {
 		{ -gSize.x, gSize.y, gSize.z, },
 		{ gSize.x, gSize.y, gSize.z }
 	};
-	this->vertexCount = (UINT) std::size(_vertices);
-	this->vertices = _vertices;
-}
+	this->gVertexCount = (UINT) std::size(_vertices);
 
-void Box::createIndices() {
+	Vertex* vertices = new Vertex[this->gVertexCount];
+	std::copy(_vertices, _vertices + this->gVertexCount, vertices);
+	this->gVertices = vertices;
+	
 	// 3D Cube indices
 	unsigned short _indices[] = {
 		0,2,1, 2,3,1,
@@ -46,6 +49,9 @@ void Box::createIndices() {
 		0,4,2, 2,4,6,
 		0,1,4, 1,5,4
 	};
-	this->indexCount = (UINT) std::size(_indices);
-	this->indices = _indices;
+	this->gIndexCount = (UINT) std::size(_indices);
+
+	unsigned short* indices = new unsigned short[this->gIndexCount];
+	std::copy(_indices, _indices + this->gIndexCount, indices);
+	this->gIndices = indices;
 }

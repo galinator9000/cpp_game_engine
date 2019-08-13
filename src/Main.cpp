@@ -21,25 +21,19 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	BaseEntity::ppxPhysics = phy.pxPhysics;
 
 	// Add static ground.
-	Plane ground = Plane(
+	Plane* ground = new Plane(
 		PxVec3(0.5f, 0.5f, 0.6f)
 	);
 	world.addEntity(ground);
 
 	// Add dynamic cube.
-	Box box = Box(
+	Box* box = new Box(
 		PxVec3(0.5f, 0.5f, 0.5f),
 		PxVec3(0.0f, 0.0f, 0.0f),
 		PxVec3(45.0f, 45.0f, 45.0f),
 		PxVec3(0, 0, 0)
 	);
 	world.addEntity(box);
-
-	std::ostringstream myStream;
-	myStream << box.indices[0] << "\n";
-	myStream << box.indices[1] << "\n";
-	myStream << box.indices[2] << "\n";
-	OutputDebugStringA(myStream.str().c_str());
 
 	// Main loop of the engine.
 	while (true){
@@ -59,13 +53,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		OutputDebugStringA(myStream.str().c_str());
 		*/
 
-		/*
-		Print box's position.
-		*/
+		/* Print box's position. */
 		std::ostringstream myStream;
-		myStream << float(box.rigidDynamic->getLinearVelocity().x) << ", ";
-		myStream << float(box.rigidDynamic->getLinearVelocity().y) << ", ";
-		myStream << float(box.rigidDynamic->getLinearVelocity().z) << "\n";
+		myStream << float(box->rigidDynamic->getLinearVelocity().x) << ", ";
+		myStream << float(box->rigidDynamic->getLinearVelocity().y) << ", ";
+		myStream << float(box->rigidDynamic->getLinearVelocity().z) << "\n";
 		//OutputDebugStringA(myStream.str().c_str());
 	}
 

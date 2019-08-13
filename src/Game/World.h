@@ -12,7 +12,7 @@ public:
 	World(Graphics* pGfx, Physics* pPhy);
 
 	void Update();
-	void addEntity(BaseEntity&);
+	void addEntity(BaseEntity* bEntity);
 
 private:
 	Graphics* pGfx;
