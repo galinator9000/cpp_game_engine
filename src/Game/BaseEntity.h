@@ -20,6 +20,7 @@ const enum ENTITY_TYPE{
 class BaseEntity{
 public:
 	~BaseEntity();
+	virtual void Update();
 
 	// Derived classes will set this value.
 	unsigned int id;
@@ -35,13 +36,16 @@ public:
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT3 gRotation;
 
-	dx::XMFLOAT4X4 gTransformMatrix;
-
+	// Vertex & index
 	Vertex* gVertices;
 	unsigned short* gIndices;
 	unsigned int gVertexCount;
 	unsigned int gIndexCount;
 	virtual void gCreateVerticesAndIndices();
+
+	// Constant buffer
+	ConstantBuffer gConstBuffer;
+	virtual void updateConstantBuffer();
 
 	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;

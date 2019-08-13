@@ -28,12 +28,21 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Add dynamic cube.
 	Box* box = new Box(
-		PxVec3(0.5f, 1.0f, 0.5f),
-		PxVec3(0.0f, 0.0f, 0.0f),
-		PxVec3(45.0f, 45.0f, 45.0f),
+		PxVec3(0.5f, 1.5f, 0.5f),
+		PxVec3(0.0f, 10.0f, 6.0f),
+		PxVec3(15.0f, 0.0f, 0.0f),
 		PxVec3(0, 0, 0)
 	);
 	world->addEntity(box);
+
+	// Add dynamic cube.
+	Box* box2 = new Box(
+		PxVec3(0.5f, 1.5f, 0.5f),
+		PxVec3(0.0f, 15.0f, 6.0f),
+		PxVec3(25.0f, 25.0f, 45.0f),
+		PxVec3(0, 0, 0)
+	);
+	world->addEntity(box2);
 
 	// Main loop of the engine.
 	while (true){
@@ -45,20 +54,19 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			break;
 		}
 
-		/*
-		Print mouse XY.
-		std::ostringstream myStream;
-		myStream << "X: " << mainWnd.mouse.GetX();
-		myStream << "Y: " << mainWnd.mouse.GetY() << "\n";
-		OutputDebugStringA(myStream.str().c_str());
-		*/
-
 		/* Print box's position. */
+		PxTransform tm = box->rigidDynamic->getGlobalPose();
+
 		std::ostringstream myStream;
-		myStream << float(box->rigidDynamic->getLinearVelocity().x) << ", ";
-		myStream << float(box->rigidDynamic->getLinearVelocity().y) << ", ";
-		myStream << float(box->rigidDynamic->getLinearVelocity().z) << "\n";
-		//OutputDebugStringA(myStream.str().c_str());
+		myStream << "Pos: ";
+		myStream << float(tm.p.x) << ", ";
+		myStream << float(tm.p.y) << ", ";
+		myStream << float(tm.p.z) << "\t";
+		myStream << "Rot: ";
+		myStream << float(tm.q.x) << ", ";
+		myStream << float(tm.q.y) << ", ";
+		myStream << float(tm.q.z) << "\n";
+		OutputDebugStringA(myStream.str().c_str());
 	}
 
 	return 0;

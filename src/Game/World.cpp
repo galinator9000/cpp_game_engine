@@ -15,7 +15,13 @@ void World::Update(){
 	for (unsigned int e = 0; e < allEntities.size(); e++){
 		BaseEntity* ent = allEntities[e];
 
-		if(ent->type == ENTITY_TYPE::PLANE || ent == NULL){
+		if(ent == NULL){
+			continue;
+		}
+
+		ent->Update();
+
+		if(ent->type == ENTITY_TYPE::PLANE){
 			continue;
 		}
 
