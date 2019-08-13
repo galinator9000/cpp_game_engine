@@ -148,7 +148,7 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
 		ied,
-		(UINT)std::size(ied),
+		(UINT) std::size(ied),
 		this->pBlob->GetBufferPointer(),
 		this->pBlob->GetBufferSize(),
 		&this->pInputLayout
@@ -196,10 +196,14 @@ void Graphics::addEntity(BaseEntity* entity){
 	/// CONSTANT BUFFER
 	// Build constant buffer.
 	const dx::XMMATRIX transformMatrix = dx::XMMatrixTranspose(
-		dx::XMMatrixRotationZ(entity->gRotation.z) *
+		/*dx::XMMatrixRotationZ(entity->gRotation.z) *
 		dx::XMMatrixRotationY(entity->gRotation.y) *
-		dx::XMMatrixRotationX(entity->gRotation.x) *
-		dx::XMMatrixTranslation(entity->gPosition.x, entity->gPosition.y, entity->gPosition.z) *
+		dx::XMMatrixRotationX(entity->gRotation.x) **/
+		dx::XMMatrixRotationZ(45.0f) *
+		dx::XMMatrixRotationY(45.0f) *
+		dx::XMMatrixRotationX(45.0f) *
+		//dx::XMMatrixTranslation(entity->gPosition.x, entity->gPosition.y, entity->gPosition.z) *
+		dx::XMMatrixTranslation(0.0f, 0.0f, 5.0f) *
 		dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 	);
 
@@ -211,31 +215,31 @@ void Graphics::addEntity(BaseEntity* entity){
 	
 	// Create buffer on GPU side.
 	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(entity->gTransformMatrix);
+	cbd.ByteWidth = sizeof(transformMatrix);
 	cbd.Usage = D3D11_USAGE_DYNAMIC;
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cbd.MiscFlags = 0;
 	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &(entity->gTransformMatrix), 0, 0 };
+	D3D11_SUBRESOURCE_DATA csd = { &transformMatrix, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cbd,
 		&csd,
-		&entity->pConstantBuffer
+		&(entity->pConstantBuffer)
 	);
 
 	/// VERTEX BUFFER
 	// Build vertex buffer on GPU side.
 	D3D11_BUFFER_DESC vBd = { 0 };
 	vBd.StructureByteStride = sizeof(Vertex);
-	vBd.ByteWidth = (UINT)vBd.StructureByteStride * entity->gVertexCount;
+	vBd.ByteWidth = (UINT) vBd.StructureByteStride * entity->gVertexCount;
 	vBd.Usage = D3D11_USAGE_DEFAULT;
 	vBd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	D3D11_SUBRESOURCE_DATA vSd = { entity->gVertices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&vBd,
 		&vSd,
-		&entity->pVertexBuffer
+		&(entity->pVertexBuffer)
 	);
 
 	/// INDEX BUFFER
@@ -251,7 +255,7 @@ void Graphics::addEntity(BaseEntity* entity){
 	this->hr = this->pDevice->CreateBuffer(
 		&iBd,
 		&iSd,
-		&entity->pIndexBuffer
+		&(entity->pIndexBuffer)
 	);
 }
 
@@ -291,12 +295,12 @@ void Graphics::drawEntity(BaseEntity* entity){
 	);
 
 	// Set input layout and primitive topology.
-	this->pDeviceContext->IASetInputLayout(pInputLayout.Get());
+	this->pDeviceContext->IASetInputLayout(this->pInputLayout.Get());
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Draw the entity..
 	this->pDeviceContext->DrawIndexed(
-		entity->gIndexCount,
+		(UINT) entity->gIndexCount,
 		0,
 		0
 	);

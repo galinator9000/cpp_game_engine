@@ -9,36 +9,36 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	);
 
 	// Create render and physics components, give it to world component.
-	Graphics gfx = Graphics(
+	Graphics* gfx = new Graphics(
 		mainWnd.GetHandler(),
 		WIDTH,
 		HEIGHT,
 		REFRESH_RATE
 	);
-	Physics phy = Physics(-10.0f, 60.0f);
-	World world = World(&gfx, &phy);
+	Physics* phy = new Physics(-10.0f, 60.0f);
+	World* world = new World(gfx, phy);
 
-	BaseEntity::ppxPhysics = phy.pxPhysics;
+	BaseEntity::ppxPhysics = phy->pxPhysics;
 
 	// Add static ground.
 	Plane* ground = new Plane(
 		PxVec3(0.5f, 0.5f, 0.6f)
 	);
-	world.addEntity(ground);
+	world->addEntity(ground);
 
 	// Add dynamic cube.
 	Box* box = new Box(
-		PxVec3(0.5f, 0.5f, 0.5f),
+		PxVec3(0.5f, 1.0f, 0.5f),
 		PxVec3(0.0f, 0.0f, 0.0f),
 		PxVec3(45.0f, 45.0f, 45.0f),
 		PxVec3(0, 0, 0)
 	);
-	world.addEntity(box);
+	world->addEntity(box);
 
 	// Main loop of the engine.
 	while (true){
 		// Update world.
-		world.Update();
+		world->Update();
 
 		// Terminal condition of the engine.
 		if (!mainWnd.ProcessMessages()) {

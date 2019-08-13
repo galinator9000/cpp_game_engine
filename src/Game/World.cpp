@@ -10,7 +10,7 @@ void World::Update(){
 	this->pPhy->Update();
 
 	// Clear frame and redraw state of the world.
-	//this->pGfx->beginFrame();
+	this->pGfx->beginFrame();
 
 	for (unsigned int e = 0; e < allEntities.size(); e++){
 		BaseEntity* ent = allEntities[e];
