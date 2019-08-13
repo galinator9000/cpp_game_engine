@@ -34,7 +34,7 @@ public:
 	// Graphics
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
-	dx::XMFLOAT3 gRotation;
+	dx::XMFLOAT4 gRotationQ;
 
 	// Vertex & index
 	Vertex* gVertices;

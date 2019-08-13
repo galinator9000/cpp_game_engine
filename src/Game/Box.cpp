@@ -6,6 +6,7 @@ Box::Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material) {
 		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
 	);
 
+	PxQuat rotationQuaternion;
 	PxTransform transform(position);
 	this->rigidDynamic = this->ppxPhysics->createRigidDynamic(transform);
 	this->rigidDynamic->attachShape(*pShape);
@@ -15,7 +16,7 @@ Box::Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material) {
 	// Graphics
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
-	this->gRotation = XMFLOAT3(rotation.x, rotation.y, rotation.z);
+	this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
 
 	this->type = ENTITY_TYPE::BOX;
 	this->Update();
@@ -29,22 +30,10 @@ void Box::Update(){
 	this->gPosition.x = tm.p.x;
 	this->gPosition.y = tm.p.y;
 	this->gPosition.z = tm.p.z;
-
-	float angleX = 4.0f;
-	PxVec3 axisX(1.0f, 0.0f, 0.0f);
-	tm.q.toRadiansAndUnitAxis(angleX, axisX);
-
-	float angleY = 3.0f;
-	PxVec3 axisY(0.0f, 1.0f, 0.0f);
-	tm.q.toRadiansAndUnitAxis(angleY, axisY);
-
-	float angleZ = 2.0f;
-	PxVec3 axisZ(0.0f, 0.0f, 1.0f);
-	tm.q.toRadiansAndUnitAxis(angleZ, axisZ);
-
-	this->gRotation.x = tm.q.x;
-	this->gRotation.y = tm.q.y;
-	this->gRotation.z = tm.q.z;
+	this->gRotationQ.x = tm.q.x;
+	this->gRotationQ.y = tm.q.y;
+	this->gRotationQ.z = tm.q.z;
+	this->gRotationQ.w = tm.q.w;	
 
 	this->updateConstantBuffer();
 }
@@ -54,9 +43,7 @@ void Box::updateConstantBuffer() {
 	dx::XMStoreFloat4x4(
 		&(this->gConstBuffer.transform),
 		dx::XMMatrixTranspose(
-			dx::XMMatrixRotationZ(this->gRotation.z) *
-			dx::XMMatrixRotationY(this->gRotation.y) *
-			dx::XMMatrixRotationX(this->gRotation.x) *
+			XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
 			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z) *
 			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
 		)

@@ -22,27 +22,29 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Add static ground.
 	Plane* ground = new Plane(
-		PxVec3(0.5f, 0.5f, 0.6f)
+		PxVec3(10.0f, 10.0f, 0)
 	);
 	world->addEntity(ground);
 
 	// Add dynamic cube.
 	Box* box = new Box(
-		PxVec3(0.5f, 1.5f, 0.5f),
-		PxVec3(0.0f, 10.0f, 6.0f),
-		PxVec3(15.0f, 0.0f, 0.0f),
+		PxVec3(1.5f, 0.1f, 1.5f),
+		PxVec3(0.0f, 2.0f, 6.0f),
+		PxVec3(10.0f, 0.0f, 10.0f),
 		PxVec3(0, 0, 0)
 	);
-	world->addEntity(box);
+	//world->addEntity(box);
 
-	// Add dynamic cube.
-	Box* box2 = new Box(
-		PxVec3(0.5f, 1.5f, 0.5f),
-		PxVec3(0.0f, 15.0f, 6.0f),
-		PxVec3(25.0f, 25.0f, 45.0f),
-		PxVec3(0, 0, 0)
-	);
-	world->addEntity(box2);
+	// Add small cubes.
+	for (int i = 1; i<150; i++) {
+		Box* box2 = new Box(
+			PxVec3(0.01f, 0.1f, 0.01f),
+			PxVec3(0.0f, i*5.0f, 6.0f),
+			PxVec3(0.0f, 0.0f, 0.0f),
+			PxVec3(0, 0, 0)
+		);
+		world->addEntity(box2);
+	}
 
 	// Main loop of the engine.
 	while (true){
