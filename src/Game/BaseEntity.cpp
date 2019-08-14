@@ -8,6 +8,6 @@ BaseEntity::~BaseEntity() {
 	delete[] this->gIndices;
 }
 
-void BaseEntity::Update(){}
+void BaseEntity::Update(bool initial){}
 void BaseEntity::updateConstantBuffer(){}
 void BaseEntity::gCreateVerticesAndIndices(){}

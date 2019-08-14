@@ -7,5 +7,7 @@ Plane::Plane(PxVec3 material){
 		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
 	);
 
+	// Set properties of the entity.
 	this->type = ENTITY_TYPE::PLANE;
+	this->isDynamic = false;
 }

@@ -8,7 +8,7 @@ class Box : public BaseEntity {
 public:
 	Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material);
 	~Box();
-	void Update();
+	void Update(bool initial=false);
 
 	// Physics
 	PxRigidDynamic* rigidDynamic;

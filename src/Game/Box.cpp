@@ -18,13 +18,28 @@ Box::Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material) {
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
 	this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
 
+	// Set properties of the entity.
 	this->type = ENTITY_TYPE::BOX;
-	this->Update();
+	this->isDynamic = true;
+
+	this->Update(true);
 }
 
 Box::~Box(){}
 
-void Box::Update(){
+void Box::Update(bool initial){
+	// Skip static and sleeping dynamic entities.
+	if(!initial){
+		// Static check.
+		if(!this->isDynamic){
+			return;
+		}
+		// Dynamic and sleeping check.
+		if(this->isDynamic && this->rigidDynamic->isSleeping()){
+			return;
+		}
+	}
+
 	// Integrate entities' physics position and rotation with graphics side.
 	PxTransform tm = this->rigidDynamic->getGlobalPose();
 	this->gPosition.x = tm.p.x;

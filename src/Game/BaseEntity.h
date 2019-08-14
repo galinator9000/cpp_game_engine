@@ -20,11 +20,12 @@ const enum ENTITY_TYPE{
 class BaseEntity{
 public:
 	~BaseEntity();
-	virtual void Update();
+	virtual void Update(bool initial=false);
 
 	// Derived classes will set this value.
 	unsigned int id;
 	unsigned int type;
+	bool isDynamic;
 
 	// Physics
 	static PxPhysics* ppxPhysics;
