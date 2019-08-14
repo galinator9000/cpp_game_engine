@@ -157,6 +157,54 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	// Set input layout and primitive topology.
 	this->pDeviceContext->IASetInputLayout(this->pInputLayout.Get());
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Build View and Projection matrices, bind them to pipeline.
+
+	// View
+	dx::XMFLOAT3 eye(0, 0, 0);
+	dx::XMFLOAT3 at(0, 0, 50.0f);
+	dx::XMFLOAT3 up(0, 1, 0);
+
+	dx::XMStoreFloat4x4(
+		&this->gViewProjection.viewMatrix,
+		dx::XMMatrixTranspose(
+			dx::XMMatrixLookAtLH(
+				dx::XMLoadFloat3(&eye),
+				dx::XMLoadFloat3(&at),
+				dx::XMLoadFloat3(&up)
+			)
+		)
+	);
+
+	// Projection
+	dx::XMStoreFloat4x4(
+		&this->gViewProjection.projectionMatrix,
+		dx::XMMatrixTranspose(
+			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 100.0f)
+		)
+	);
+	
+	// Create buffer for View and Projection matrices on GPU side.
+	D3D11_BUFFER_DESC cbd = { 0 };
+	cbd.ByteWidth = sizeof(gViewProjection);
+	cbd.Usage = D3D11_USAGE_DYNAMIC;
+	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbd.MiscFlags = 0;
+	cbd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA csd = { &gViewProjection, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cbd,
+		&csd,
+		&(this->pgViewProjection)
+	);
+
+	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
+	this->pDeviceContext->VSSetConstantBuffers(
+		1,
+		1,
+		this->pgViewProjection.GetAddressOf()
+	);
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
@@ -257,17 +305,21 @@ void Graphics::drawEntity(BaseEntity* entity){
 	// Constant buffer
 
 	// Update subresource of the constant buffer on GPU side.
-	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-	this->pDeviceContext->Map(
-		entity->pConstantBuffer.Get(),
-		0,
-		D3D11_MAP_WRITE_DISCARD,
-		0,
-		&mappedResource
-	);
-	memcpy(mappedResource.pData, &entity->gConstBuffer, sizeof(entity->gConstBuffer));
-	this->pDeviceContext->Unmap(entity->pConstantBuffer.Get(), 0);
+	// ONLY if it should.
+	if(entity->shouldUpdateData){
+		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+		this->pDeviceContext->Map(
+			entity->pConstantBuffer.Get(),
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&mappedResource
+		);
+		memcpy(mappedResource.pData, &entity->gConstBuffer, sizeof(entity->gConstBuffer));
+		this->pDeviceContext->Unmap(entity->pConstantBuffer.Get(), 0);
+	}
 
+	// Bind entity's constant buffer to first (index 0) slot.
 	this->pDeviceContext->VSSetConstantBuffers(
 		0,
 		1,

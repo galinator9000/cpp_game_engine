@@ -15,7 +15,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		HEIGHT,
 		REFRESH_RATE
 	);
-	Physics* phy = new Physics(-10.0f, 60.0f);
+	Physics* phy = new Physics(-9.81f, 60.0f);
 	World* world = new World(gfx, phy);
 
 	BaseEntity::ppxPhysics = phy->pxPhysics;

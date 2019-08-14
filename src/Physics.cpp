@@ -1,6 +1,6 @@
 #include "Physics.h"
 
-Physics::Physics(float Gravity, float stepPerSecond) {
+Physics::Physics(float gravity, float stepPerSecond) {
 
 	// Set class values.
 	this->stepPerSecond = stepPerSecond;
@@ -24,7 +24,7 @@ Physics::Physics(float Gravity, float stepPerSecond) {
 
 	// Scene.
 	PxSceneDesc pxSceneDesc = PxSceneDesc(this->pxPhysics->getTolerancesScale());
-	pxSceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	pxSceneDesc.gravity = PxVec3(0.0f, gravity, 0.0f);
 	pxSceneDesc.cpuDispatcher = pxDispatcher;
 	pxSceneDesc.filterShader = PxDefaultSimulationFilterShader;
 

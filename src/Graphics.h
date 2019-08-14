@@ -36,16 +36,20 @@ public:
 private:
 	HRESULT hr;
 
+	// Device side
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
 
+	// Pipeline
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
-
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
+
+	ViewProjectionMatrices gViewProjection;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pgViewProjection;
 };

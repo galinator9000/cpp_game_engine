@@ -47,6 +47,7 @@ public:
 	// Constant buffer
 	ConstantBuffer gConstBuffer;
 	virtual void updateConstantBuffer();
+	bool shouldUpdateData;
 
 	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;

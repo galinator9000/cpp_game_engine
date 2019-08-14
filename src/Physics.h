@@ -11,7 +11,7 @@ using namespace physx;
 
 class Physics{
 public:
-	Physics(float Gravity, float stepPerSecond);
+	Physics(float gravity, float stepPerSecond);
 	~Physics();
 
 	void Update();

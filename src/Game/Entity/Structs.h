@@ -8,5 +8,10 @@ struct Vertex {
 };
 
 struct ConstantBuffer {
-	dx::XMFLOAT4X4 transform;
+	dx::XMFLOAT4X4 worldMatrix;
+};
+
+struct ViewProjectionMatrices {
+	dx::XMFLOAT4X4 viewMatrix;
+	dx::XMFLOAT4X4 projectionMatrix;
 };

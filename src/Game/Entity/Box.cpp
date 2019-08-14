@@ -29,13 +29,17 @@ Box::~Box(){}
 
 void Box::Update(bool initial){
 	// Skip static and sleeping dynamic entities.
+	this->shouldUpdateData = true;
+
 	if(!initial){
 		// Static check.
 		if(!this->isDynamic){
+			this->shouldUpdateData = false;
 			return;
 		}
 		// Dynamic and sleeping check.
 		if(this->isDynamic && this->rigidDynamic->isSleeping()){
+			this->shouldUpdateData = false;
 			return;
 		}
 	}
@@ -54,13 +58,14 @@ void Box::Update(bool initial){
 }
 
 void Box::updateConstantBuffer() {
-	// Update constant buffer.
+	// Update constant buffer that held on class.
 	dx::XMStoreFloat4x4(
-		&(this->gConstBuffer.transform),
+		&(this->gConstBuffer.worldMatrix),
 		dx::XMMatrixTranspose(
-			XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
+			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
+			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
 			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z) *
-			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 10.0f)
+			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 100.0f)
 		)
 	);
 }
@@ -68,14 +73,14 @@ void Box::updateConstantBuffer() {
 void Box::gCreateVerticesAndIndices() {
 	// 3D Cube vertices
 	Vertex _vertices[] = {
-		{{ -gSize.x, -gSize.y, -gSize.z }},
-		{{ gSize.x, -gSize.y, -gSize.z }},
-		{{ -gSize.x, gSize.y, -gSize.z }},
-		{{ gSize.x, gSize.y, -gSize.z }},
-		{{ -gSize.x, -gSize.y, gSize.z }},
-		{{ gSize.x, -gSize.y, gSize.z }},
-		{{ -gSize.x, gSize.y, gSize.z, }},
-		{{ gSize.x, gSize.y, gSize.z }}
+		{{ -1.0f, -1.0f, -1.0f }},
+		{{ 1.0f, -1.0f, -1.0f }},
+		{{ -1.0f, 1.0f, -1.0f }},
+		{{ 1.0f, 1.0f, -1.0f }},
+		{{ -1.0f, -1.0f, 1.0f }},
+		{{ 1.0f, -1.0f, 1.0f }},
+		{{ -1.0f, 1.0f, 1.0f, }},
+		{{ 1.0f, 1.0f, 1.0f }}
 	};
 	this->gVertexCount = (UINT) std::size(_vertices);
 
