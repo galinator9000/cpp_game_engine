@@ -1,6 +1,6 @@
 #pragma once
-#include "BaseEntity.h"
-#include "Shapes.h"
+#include "Entity/BaseEntity.h"
+#include "Entity/Shapes.h"
 
 #include <Windows.h>
 #include <sstream>

@@ -1,7 +1,7 @@
 #pragma once
-#include "BaseEntity.h"
-#include "Structs.h"
-#include "Shapes.h"
+#include "Entity/BaseEntity.h"
+#include "Entity/Structs.h"
+#include "Entity/Shapes.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")

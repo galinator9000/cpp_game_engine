@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
 
-#include "../Graphics.h"
-#include "../Physics.h"
+#include "Graphics.h"
+#include "Physics.h"
 
 // Base class for all entities
-#include "BaseEntity.h"
+#include "Entity/BaseEntity.h"
 
 class World{
 public:
