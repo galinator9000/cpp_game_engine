@@ -33,7 +33,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		PxVec3(10.0f, 0.0f, 10.0f),
 		PxVec3(0, 0, 0)
 	);
-	//world->addEntity(box);
+	world->addEntity(box);
 
 	// Add small cubes.
 	for (int i = 1; i<150; i++) {

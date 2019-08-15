@@ -64,8 +64,7 @@ void Box::updateConstantBuffer() {
 		dx::XMMatrixTranspose(
 			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
 			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
-			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z) *
-			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 100.0f)
+			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z)
 		)
 	);
 }

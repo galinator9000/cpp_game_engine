@@ -14,10 +14,13 @@ cbuffer ViewProjectionMatrices : register(b1) {
 VSOut main(float3 pos : Position) {
 	VSOut vso;
 
-	vso.pos = mul(
-		float4(pos.x, pos.y, pos.z, 1.0f),
-		worldMatrix
+	float4 finalVector;
+	finalVector = mul(
+		float4(pos.x, pos.y, pos.z, 1.0f), worldMatrix
 	);
+	finalVector = mul(finalVector, viewMatrix);
+	finalVector = mul(finalVector, projectionMatrix);
 
+	vso.pos = finalVector;
 	return vso;
 }

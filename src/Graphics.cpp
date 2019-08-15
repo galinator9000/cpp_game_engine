@@ -159,10 +159,9 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Build View and Projection matrices, bind them to pipeline.
-
 	// View
-	dx::XMFLOAT3 eye(0, 0, 0);
-	dx::XMFLOAT3 at(0, 0, 50.0f);
+	dx::XMFLOAT3 eye(1.0f, 3.0f, 1.0f);
+	dx::XMFLOAT3 at(eye.x + -0.15f, eye.y + -0.15f, eye.z + 1.0f);
 	dx::XMFLOAT3 up(0, 1, 0);
 
 	dx::XMStoreFloat4x4(
@@ -196,14 +195,14 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	this->hr = this->pDevice->CreateBuffer(
 		&cbd,
 		&csd,
-		&(this->pgViewProjection)
+		&(this->pViewProjectionBuffer)
 	);
 
 	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		1,
 		1,
-		this->pgViewProjection.GetAddressOf()
+		this->pViewProjectionBuffer.GetAddressOf()
 	);
 }
 

@@ -51,5 +51,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
 
 	ViewProjectionMatrices gViewProjection;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pgViewProjection;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pViewProjectionBuffer;
 };
