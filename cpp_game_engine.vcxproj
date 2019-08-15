@@ -212,6 +212,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Camera.h" />
     <ClInclude Include="src\Game\Entity\Shapes.h" />
     <ClInclude Include="src\Game\Entity\Plane.h" />
     <ClInclude Include="src\Game\Entity\Box.h" />
@@ -228,6 +229,7 @@
     <ClInclude Include="src\Game\World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Camera.cpp" />
     <ClCompile Include="src\Game\Entity\Plane.cpp" />
     <ClCompile Include="src\Game\Entity\Box.cpp" />
     <ClCompile Include="src\Game\Entity\BaseEntity.cpp" />

@@ -1,4 +1,5 @@
 #pragma once
+#include "Camera.h"
 #include "Entity/BaseEntity.h"
 #include "Entity/Structs.h"
 #include "Entity/Shapes.h"
@@ -17,7 +18,7 @@
 
 class Graphics{
 public:
-	Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE);
+	Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRESH_RATE);
 	~Graphics() {
 		/*this->pVertexShader->Release();
 		this->pPixelShader->Release();
@@ -33,6 +34,13 @@ public:
 	void beginFrame();
 	void drawEntity(BaseEntity* entity);
 	void endFrame();
+	
+	void addCamera(Camera* camera, bool setAsMain);
+	void setCamera(Camera* camera);
+	void updateCamera(Camera* camera);
+
+	unsigned int gWidth;
+	unsigned int gHeight;
 private:
 	HRESULT hr;
 
@@ -49,7 +57,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
-
-	ViewProjectionMatrices gViewProjection;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pViewProjectionBuffer;
 };

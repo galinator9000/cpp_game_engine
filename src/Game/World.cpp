@@ -9,6 +9,10 @@ void World::Update(){
 	// Step and update physics of the world.
 	this->pPhy->Update();
 
+	// Update active camera.
+	this->activeCamera->Update();
+	this->pGfx->updateCamera(this->activeCamera);
+
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
 
@@ -31,10 +35,28 @@ void World::Update(){
 	this->pGfx->endFrame();
 }
 
+// Entity
 void World::addEntity(BaseEntity* bEntity){
 	bEntity->id = (unsigned int) allEntities.size();
 	allEntities.push_back(bEntity);
 	
 	this->pPhy->addEntity(bEntity);
 	this->pGfx->addEntity(bEntity);
+}
+
+// Camera
+void World::addCamera(Camera* camera, bool setAsMain){
+	camera->id = (unsigned int) allCameras.size();
+	allCameras.push_back(camera);
+
+	if(setAsMain){
+		this->setCamera(camera->id);
+	}
+
+	this->pGfx->addCamera(camera, setAsMain);
+}
+
+void World::setCamera(unsigned int cameraIndex) {
+	this->activeCamera = allCameras[cameraIndex];
+	this->pGfx->setCamera(this->activeCamera);
 }

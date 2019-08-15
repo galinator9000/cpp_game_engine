@@ -3,7 +3,10 @@
 namespace wrl = Microsoft::WRL;
 namespace dx = DirectX;
 
-Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
+Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRESH_RATE){
+	this->gWidth = WIDTH;
+	this->gHeight = HEIGHT;
+
 	// Initialize graphics object, create Direct3D device.
 	DXGI_SWAP_CHAIN_DESC scd;
 	scd.BufferDesc.Width = WIDTH;
@@ -157,53 +160,51 @@ Graphics::Graphics(HWND hWnd, int WIDTH, int HEIGHT, int REFRESH_RATE){
 	// Set input layout and primitive topology.
 	this->pDeviceContext->IASetInputLayout(this->pInputLayout.Get());
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
 
-	// Build View and Projection matrices, bind them to pipeline.
-	// View
-	dx::XMFLOAT3 eye(1.0f, 3.0f, 1.0f);
-	dx::XMFLOAT3 at(eye.x + -0.15f, eye.y + -0.15f, eye.z + 1.0f);
-	dx::XMFLOAT3 up(0, 1, 0);
-
-	dx::XMStoreFloat4x4(
-		&this->gViewProjection.viewMatrix,
-		dx::XMMatrixTranspose(
-			dx::XMMatrixLookAtLH(
-				dx::XMLoadFloat3(&eye),
-				dx::XMLoadFloat3(&at),
-				dx::XMLoadFloat3(&up)
-			)
-		)
-	);
-
-	// Projection
-	dx::XMStoreFloat4x4(
-		&this->gViewProjection.projectionMatrix,
-		dx::XMMatrixTranspose(
-			dx::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 100.0f)
-		)
-	);
-	
+void Graphics::addCamera(Camera* camera, bool setAsMAin){
 	// Create buffer for View and Projection matrices on GPU side.
 	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(gViewProjection);
+	cbd.ByteWidth = sizeof(camera->gViewProjection);
 	cbd.Usage = D3D11_USAGE_DYNAMIC;
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cbd.MiscFlags = 0;
 	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &gViewProjection, 0, 0 };
+	D3D11_SUBRESOURCE_DATA csd = { &camera->gViewProjection, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cbd,
 		&csd,
-		&(this->pViewProjectionBuffer)
+		&(camera->pViewProjectionBuffer)
 	);
 
+	if(setAsMAin){
+		this->setCamera(camera);
+	}
+}
+
+void Graphics::setCamera(Camera* camera){
 	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		1,
 		1,
-		this->pViewProjectionBuffer.GetAddressOf()
+		camera->pViewProjectionBuffer.GetAddressOf()
 	);
+}
+
+void Graphics::updateCamera(Camera* camera) {
+	if (camera->shouldUpdateData) {
+		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+		this->pDeviceContext->Map(
+			camera->pViewProjectionBuffer.Get(),
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&mappedResource
+		);
+		memcpy(mappedResource.pData, &camera->gViewProjection, sizeof(camera->gViewProjection));
+		this->pDeviceContext->Unmap(camera->pViewProjectionBuffer.Get(), 0);
+	}
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
