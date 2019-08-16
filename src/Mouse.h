@@ -6,6 +6,12 @@
 class Mouse{
 public:
 	Mouse();
+
+	// Game Engine
+	int getX();
+	int getY();
+
+	// Windows procedure
 	void OnLeftPress(WPARAM wParam, LPARAM lParam);
 	void OnLeftRelease(WPARAM wParam, LPARAM lParam);
 	void OnRightPress(WPARAM wParam, LPARAM lParam);
@@ -17,9 +23,6 @@ public:
 
 	bool leftPressed;
 	bool rightPressed;
-
-	int GetX();
-	int GetY();
 
 private:
 	int x, y;

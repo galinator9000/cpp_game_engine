@@ -11,8 +11,8 @@ public:
 
 	bool ProcessMessages();
 
-	Keyboard keyb;
-	Mouse mouse;
+	Keyboard* keyb;
+	Mouse* mouse;
 
 	HINSTANCE hInstance;
 	LPCWSTR title;

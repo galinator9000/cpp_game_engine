@@ -15,6 +15,12 @@ public:
 	unsigned int gFieldOfView;
 	float gAspectRatio;
 
+	float currentSpeed = 0.25f;
+	float initialSpeed = 0.25f;
+
+	// Game Engine
+	void moveDirection(float x, float y, float z);
+
 	// GPU side
 	ViewProjectionMatrices gViewProjection;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pViewProjectionBuffer;
@@ -24,4 +30,5 @@ public:
 	dx::XMFLOAT3 eye;
 	dx::XMFLOAT3 at;
 	dx::XMFLOAT3 up;
+	dx::XMFLOAT3 directionAccumulate;
 };

@@ -5,25 +5,40 @@ Camera::Camera(float posX, float posY, float posZ, unsigned int fov, float aspec
 	this->gAspectRatio = aspectRatio;
 
 	this->eye = dx::XMFLOAT3(posX, posY, posZ);
-	this->at = dx::XMFLOAT3(eye.x, eye.y, eye.z + 1.0f);
+	this->at = dx::XMFLOAT3(this->eye.x, this->eye.y, this->eye.z + 1.0f);
 	this->up = dx::XMFLOAT3(0, 1, 0);
+	this->directionAccumulate = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	this->Update(true);
 }
 
-void Camera::Update(bool initial){
-	this->eye = dx::XMFLOAT3(this->eye.x + 0.002f, this->eye.y - 0.001f, this->eye.z - 0.002f);
-	this->at = dx::XMFLOAT3(eye.x, eye.y, eye.z + 1.0f);
+void Camera::moveDirection(float x, float y, float z){
+	this->directionAccumulate.x += this->currentSpeed * x;
+	this->directionAccumulate.y += this->currentSpeed * y;
+	this->directionAccumulate.z += this->currentSpeed * z;
 	this->hasChanged = true;
+}
 
-	this->shouldUpdateData = true;
+void Camera::Update(bool initial){
+	this->shouldUpdateData = false;
 
-	if (!initial && !hasChanged){
-		this->shouldUpdateData = false;
-		return;
+	if (initial){
+		this->updateConstantBuffer();
 	}
 
-	this->updateConstantBuffer();
+	if (this->hasChanged) {
+		// Update camera position and orientation data.
+		this->eye.x += this->directionAccumulate.x;
+		this->eye.y += this->directionAccumulate.y;
+		this->eye.z += this->directionAccumulate.z;
+		this->at = dx::XMFLOAT3(this->eye.x, this->eye.y, this->eye.z + 1.0f);
+
+		// Reset.
+		this->directionAccumulate = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		this->hasChanged = false;
+
+		this->updateConstantBuffer();
+	}
 }
 
 void Camera::updateConstantBuffer() {
@@ -52,4 +67,5 @@ void Camera::updateConstantBuffer() {
 			)
 		)
 	);
+	this->shouldUpdateData = true;
 }

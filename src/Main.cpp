@@ -1,6 +1,7 @@
 #include "Main.h"
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
+	// Main window class
 	Window* mainWnd = new Window(
 		hInstance,
 		WND_TITLE,
@@ -8,7 +9,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		HEIGHT
 	);
 
-	// Create render and physics components, give it to world component.
+	// Input to window
+	Keyboard* keyb = new Keyboard();
+	Mouse* mouse = new Mouse();
+
+	mainWnd->keyb = keyb;
+	mainWnd->mouse = mouse;
+
+	// Create graphics and physics components
 	Graphics* gfx = new Graphics(
 		mainWnd->GetHandler(),
 		WIDTH,
@@ -16,8 +24,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		REFRESH_RATE
 	);
 	Physics* phy = new Physics(-9.81f, 60.0f);
-	World* world = new World(gfx, phy);
 	BaseEntity::ppxPhysics = phy->pxPhysics;
+
+	// Create world.
+	World* world = new World(gfx, phy);
 
 	// Add main camera.
 	Camera* camera = new Camera(
@@ -58,24 +68,34 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		// Update world.
 		world->Update();
 
+		// Input handling.
+		if (keyb->isKeyPressed('W')) {
+			world->activeCamera->moveDirection(0.0f, 0.0f, 1.0f);
+		}
+		if (keyb->isKeyPressed('S')) {
+			world->activeCamera->moveDirection(0.0f, 0.0f, -1.0f);
+		}
+		if (keyb->isKeyPressed('A')) {
+			world->activeCamera->moveDirection(-1.0f, 0.0f, 0.0f);
+		}
+		if (keyb->isKeyPressed('D')) {
+			world->activeCamera->moveDirection(1.0f, 0.0f, 0.0f);
+		}
+		if (keyb->isKeyPressed(' ')) {
+			world->activeCamera->moveDirection(0.0f, 1.0f, 0.0f);
+		}
+		if (keyb->isKeyPressed('C')) {
+			world->activeCamera->moveDirection(0.0f, -1.0f, 0.0f);
+		}
+
+		/*std::ostringstream myStream;
+		myStream << keyb->isKeyPressed(' ') << "\n";
+		OutputDebugStringA(myStream.str().c_str());*/
+
 		// Terminal condition of the engine.
 		if (!mainWnd->ProcessMessages()) {
 			break;
 		}
-
-		/* Print box's position. */
-		PxTransform tm = box->rigidDynamic->getGlobalPose();
-
-		std::ostringstream myStream;
-		myStream << "Pos: ";
-		myStream << float(tm.p.x) << ", ";
-		myStream << float(tm.p.y) << ", ";
-		myStream << float(tm.p.z) << "\t";
-		myStream << "Rot: ";
-		myStream << float(tm.q.x) << ", ";
-		myStream << float(tm.q.y) << ", ";
-		myStream << float(tm.q.z) << "\n";
-		OutputDebugStringA(myStream.str().c_str());
 	}
 
 	return 0;

@@ -50,42 +50,46 @@ LRESULT Window::WndProcForward(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 	// Keyboard messages
+	// Key strokes
 	case WM_KEYDOWN:
-		this->keyb.OnKeyPress(wParam, lParam);
+		this->keyb->OnKeyPress(wParam, lParam);
 		break;
-
 	case WM_KEYUP:
-		this->keyb.OnKeyRelease(wParam, lParam);
+		this->keyb->OnKeyRelease(wParam, lParam);
 		break;
 
+	// Character
 	case WM_CHAR:
-		this->keyb.OnChar();
+		this->keyb->OnChar(wParam, lParam);
+		break;
+	case WM_UNICHAR:
+		this->keyb->OnChar(wParam, lParam);
 		break;
 
 	// Mouse messages
 	case WM_MOUSEMOVE:
-		this->mouse.OnMove(wParam, lParam);
+		this->mouse->OnMove(wParam, lParam);
 		break;
 	case WM_MOUSELEAVE:
-		this->mouse.OnLeave(wParam, lParam);
+		this->mouse->OnLeave(wParam, lParam);
 		break;
 	case WM_MOUSEHOVER:
-		this->mouse.OnHover(wParam, lParam);
+		this->mouse->OnHover(wParam, lParam);
 		break;
 	case WM_LBUTTONDOWN:
-		this->mouse.OnLeftPress(wParam, lParam);
+		this->mouse->OnLeftPress(wParam, lParam);
 		break;
 	case WM_LBUTTONUP:
-		this->mouse.OnLeftRelease(wParam, lParam);
+		this->mouse->OnLeftRelease(wParam, lParam);
 		break;
 	case WM_RBUTTONDOWN:
-		this->mouse.OnRightPress(wParam, lParam);
+		this->mouse->OnRightPress(wParam, lParam);
 		break;
 	case WM_RBUTTONUP:
-		this->mouse.OnRightRelease(wParam, lParam);
+		this->mouse->OnRightRelease(wParam, lParam);
 		break;
 	case WM_MOUSEWHEEL:
-		this->mouse.OnWheelMove(wParam, lParam);
+		this->mouse->OnWheelMove(wParam, lParam);
 		break;
 
 	// Other messages

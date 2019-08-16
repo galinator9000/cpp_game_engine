@@ -8,6 +8,18 @@ Mouse::Mouse() {
 	this->rightPressed = false;
 }
 
+// Game Engine
+int Mouse::getX()
+{
+	return this->x;
+}
+
+int Mouse::getY()
+{
+	return this->y;
+}
+
+// Windows procedure
 void Mouse::OnLeftPress(WPARAM wParam, LPARAM lParam){
 	this->x = GET_X_LPARAM(lParam);
 	this->y = GET_Y_LPARAM(lParam);
@@ -47,14 +59,4 @@ void Mouse::OnLeave(WPARAM wParam, LPARAM lParam){
 
 void Mouse::OnHover(WPARAM wParam, LPARAM lParam){
 
-}
-
-int Mouse::GetX()
-{
-	return this->x;
-}
-
-int Mouse::GetY()
-{
-	return this->y;
 }

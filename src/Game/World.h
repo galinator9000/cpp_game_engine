@@ -12,10 +12,18 @@ class World{
 public:
 	World(Graphics* pGfx, Physics* pPhy);
 
+	// General
 	void Update();
+
+	// Entity functions
 	void addEntity(BaseEntity* bEntity);
+
+	// Camera functions
 	void addCamera(Camera* camera, bool setAsMain=false);
 	void setCamera(Camera* camera);
+
+	// Main camera pointer.
+	Camera* activeCamera;
 
 private:
 	Graphics* pGfx;
@@ -26,7 +34,4 @@ private:
 
 	// List for keeping track of cameras.
 	std::vector<Camera*> allCameras;
-
-	// Main camera pointer.
-	Camera* activeCamera;
 };
