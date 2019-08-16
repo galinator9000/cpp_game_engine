@@ -15,11 +15,14 @@ public:
 	unsigned int gFieldOfView;
 	float gAspectRatio;
 
-	float currentSpeed = 0.25f;
-	float initialSpeed = 0.25f;
-
 	// Game Engine
-	void moveDirection(float x, float y, float z);
+	void Move(float x, float y, float z);
+	void Rotate(float x, float y);
+
+	const float initialMovementSpeed = 0.25f;
+	const float initialRotationSpeed = 0.005f;
+	float currentMovementSpeed = initialMovementSpeed;
+	float currentRotationSpeed = initialRotationSpeed;
 
 	// GPU side
 	ViewProjectionMatrices gViewProjection;
@@ -27,8 +30,8 @@ public:
 	bool shouldUpdateData = false;
 	bool hasChanged = false;
 
-	dx::XMFLOAT3 eye;
-	dx::XMFLOAT3 at;
-	dx::XMFLOAT3 up;
-	dx::XMFLOAT3 directionAccumulate;
+	dx::XMFLOAT3 lookDirection;
+	dx::XMFLOAT3 rotation;
+	dx::XMFLOAT3 camPosition;
+	dx::XMFLOAT3 camLookAt;
 };

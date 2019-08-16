@@ -69,27 +69,32 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		world->Update();
 
 		////// Input handling section
-		// Keyboard
+		//// Keyboard
+		// Camera position
 		if (keyb->isKeyPressed('W')) {
-			world->activeCamera->moveDirection(0.0f, 0.0f, 1.0f);
+			world->activeCamera->Move(0.0f, 0.0f, 1.0f);
 		}
 		if (keyb->isKeyPressed('S')) {
-			world->activeCamera->moveDirection(0.0f, 0.0f, -1.0f);
+			world->activeCamera->Move(0.0f, 0.0f, -1.0f);
 		}
 		if (keyb->isKeyPressed('A')) {
-			world->activeCamera->moveDirection(-1.0f, 0.0f, 0.0f);
+			world->activeCamera->Move(-1.0f, 0.0f, 0.0f);
 		}
 		if (keyb->isKeyPressed('D')) {
-			world->activeCamera->moveDirection(1.0f, 0.0f, 0.0f);
+			world->activeCamera->Move(1.0f, 0.0f, 0.0f);
 		}
 		if (keyb->isKeyPressed(' ')) {
-			world->activeCamera->moveDirection(0.0f, 1.0f, 0.0f);
+			world->activeCamera->Move(0.0f, 1.0f, 0.0f);
 		}
 		if (keyb->isKeyPressed('C')) {
-			world->activeCamera->moveDirection(0.0f, -1.0f, 0.0f);
+			world->activeCamera->Move(0.0f, -1.0f, 0.0f);
 		}
 
-		// Mouse
+		//// Mouse
+		// Camera rotation (Pitch, Yaw)
+		if(mouse->rawAccumulateX != 0 || mouse->rawAccumulateY != 0){
+			world->activeCamera->Rotate((float) mouse->rawAccumulateX, (float) mouse->rawAccumulateY);
+		}
 
 		/*std::ostringstream myStream;
 		myStream << mouse->rawAccumulateX << ", ";

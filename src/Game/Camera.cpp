@@ -4,18 +4,93 @@ Camera::Camera(float posX, float posY, float posZ, unsigned int fov, float aspec
 	this->gFieldOfView = fov;
 	this->gAspectRatio = aspectRatio;
 
-	this->eye = dx::XMFLOAT3(posX, posY, posZ);
-	this->at = dx::XMFLOAT3(this->eye.x, this->eye.y, this->eye.z + 1.0f);
-	this->up = dx::XMFLOAT3(0, 1, 0);
-	this->directionAccumulate = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	this->rotation = dx::XMFLOAT3(0, 0, 0);
+
+	// Build looking direction vector
+	dx::XMStoreFloat3(
+		&this->lookDirection,
+		dx::XMVector3Transform(
+			dx::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
+			dx::XMMatrixRotationRollPitchYaw(
+				this->rotation.x,
+				this->rotation.y,
+				0
+			)
+		)
+	);
+
+	// Fill camera position and looking direction vector
+	this->camPosition = dx::XMFLOAT3(posX, posY, posZ);
+	this->camLookAt = dx::XMFLOAT3(
+		this->camPosition.x + this->lookDirection.x,
+		this->camPosition.y + this->lookDirection.y,
+		this->camPosition.z + this->lookDirection.z
+	);
 
 	this->Update(true);
 }
 
-void Camera::moveDirection(float x, float y, float z){
-	this->directionAccumulate.x += this->currentSpeed * x;
-	this->directionAccumulate.y += this->currentSpeed * y;
-	this->directionAccumulate.z += this->currentSpeed * z;
+void Camera::Move(float x, float y, float z){
+	// Calculate camera movement direction.
+	dx::XMFLOAT3 camTranslation = dx::XMFLOAT3(x, y, z);
+	dx::XMStoreFloat3(
+		&camTranslation,
+		dx::XMVector3Transform(
+			dx::XMLoadFloat3(&camTranslation),
+			(
+				dx::XMMatrixRotationRollPitchYaw(
+					this->rotation.x,
+					this->rotation.y,
+					0
+				) *
+				dx::XMMatrixScaling(currentMovementSpeed, currentMovementSpeed, currentMovementSpeed)
+			)
+		)
+	);
+
+	// Update camera position
+	this->camPosition.x += camTranslation.x;
+	this->camPosition.y += camTranslation.y;
+	this->camPosition.z += camTranslation.z;
+
+	// Update looking direction vector
+	this->camLookAt = dx::XMFLOAT3(
+		this->camPosition.x + this->lookDirection.x,
+		this->camPosition.y + this->lookDirection.y,
+		this->camPosition.z + this->lookDirection.z
+	);
+
+	this->hasChanged = true;
+}
+
+void Camera::Rotate(float yaw, float pitch) {
+	yaw *= this->currentRotationSpeed;
+	pitch *= this->currentRotationSpeed;
+
+	// Update camera rotation
+	this->rotation.x += pitch;
+	this->rotation.y += yaw;
+
+	// Update looking direction vector
+	dx::XMStoreFloat3(
+		&this->lookDirection,
+		dx::XMVector3Transform(
+			dx::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
+			dx::XMMatrixRotationRollPitchYaw(
+				this->rotation.x,
+				this->rotation.y,
+				0
+			)
+		)
+	);
+
+	// Update looking direction vector
+	this->camLookAt = dx::XMFLOAT3(
+		this->camPosition.x + this->lookDirection.x,
+		this->camPosition.y + this->lookDirection.y,
+		this->camPosition.z + this->lookDirection.z
+	);
+
 	this->hasChanged = true;
 }
 
@@ -27,17 +102,9 @@ void Camera::Update(bool initial){
 	}
 
 	if (this->hasChanged) {
-		// Update camera position and orientation data.
-		this->eye.x += this->directionAccumulate.x;
-		this->eye.y += this->directionAccumulate.y;
-		this->eye.z += this->directionAccumulate.z;
-		this->at = dx::XMFLOAT3(this->eye.x, this->eye.y, this->eye.z + 1.0f);
-
-		// Reset.
-		this->directionAccumulate = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		this->hasChanged = false;
-
 		this->updateConstantBuffer();
+		this->shouldUpdateData = true;
 	}
 }
 
@@ -48,9 +115,9 @@ void Camera::updateConstantBuffer() {
 		&this->gViewProjection.viewMatrix,
 		dx::XMMatrixTranspose(
 			dx::XMMatrixLookAtLH(
-				dx::XMLoadFloat3(&this->eye),
-				dx::XMLoadFloat3(&this->at),
-				dx::XMLoadFloat3(&this->up)
+				dx::XMLoadFloat3(&this->camPosition),
+				dx::XMLoadFloat3(&this->camLookAt),
+				dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
 			)
 		)
 	);
@@ -67,5 +134,4 @@ void Camera::updateConstantBuffer() {
 			)
 		)
 	);
-	this->shouldUpdateData = true;
 }
