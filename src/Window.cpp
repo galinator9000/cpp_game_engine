@@ -2,27 +2,32 @@
 #include "Window.h"
 
 Window::Window(HINSTANCE hInstance, LPCWSTR title, int width, int height) {
+	this->hInstance = hInstance;
+	this->title = title;
+	this->width = width;
+	this->height = height;
+
 	WNDCLASSEX wc = { 0 };
 	wc.style = CS_OWNDC;
 	wc.lpfnWndProc = WndProcSetup;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
+	wc.hInstance = this->hInstance;
 	wc.hIcon = NULL;
 	wc.hCursor = NULL;
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = title;
+	wc.lpszClassName = this->title;
 	wc.cbSize = sizeof(wc);
 	RegisterClassEx(&wc);
 
-	hWnd = CreateWindow(
-		title, title,
+	this->hWnd = CreateWindow(
+		this->title, this->title,
 		(WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU),
-		CW_USEDEFAULT, CW_USEDEFAULT, width, height,
-		NULL, NULL, hInstance, this
+		CW_USEDEFAULT, CW_USEDEFAULT, this->width, this->height,
+		NULL, NULL, this->hInstance, this
 	);
-	ShowWindow(hWnd, SW_SHOW);
+	ShowWindow(this->hWnd, SW_SHOW);
 }
 
 LRESULT Window::WndProcSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -46,11 +51,11 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 	// Keyboard messages
 	case WM_KEYDOWN:
-		this->keyb.OnKeyPress();
+		this->keyb.OnKeyPress(wParam, lParam);
 		break;
 
 	case WM_KEYUP:
-		this->keyb.OnKeyRelease();
+		this->keyb.OnKeyRelease(wParam, lParam);
 		break;
 
 	case WM_CHAR:
@@ -58,31 +63,32 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	// Mouse messages
-	case WM_LBUTTONDOWN:
-		this->mouse.OnLeftPress(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
-	case WM_LBUTTONUP:
-		this->mouse.OnLeftRelease(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
-	case WM_RBUTTONDOWN:
-		this->mouse.OnRightPress(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
-	case WM_RBUTTONUP:
-		this->mouse.OnRightRelease(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
 	case WM_MOUSEMOVE:
-		this->mouse.OnMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
-	case WM_MOUSEWHEEL:
-		this->mouse.OnWheelMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), GET_WHEEL_DELTA_WPARAM(wParam));
+		this->mouse.OnMove(wParam, lParam);
 		break;
 	case WM_MOUSELEAVE:
-		this->mouse.OnLeave();
+		this->mouse.OnLeave(wParam, lParam);
 		break;
 	case WM_MOUSEHOVER:
-		this->mouse.OnHover();
+		this->mouse.OnHover(wParam, lParam);
+		break;
+	case WM_LBUTTONDOWN:
+		this->mouse.OnLeftPress(wParam, lParam);
+		break;
+	case WM_LBUTTONUP:
+		this->mouse.OnLeftRelease(wParam, lParam);
+		break;
+	case WM_RBUTTONDOWN:
+		this->mouse.OnRightPress(wParam, lParam);
+		break;
+	case WM_RBUTTONUP:
+		this->mouse.OnRightRelease(wParam, lParam);
+		break;
+	case WM_MOUSEWHEEL:
+		this->mouse.OnWheelMove(wParam, lParam);
 		break;
 
+	// Other messages
 	case WM_CLOSE:
 		PostQuitMessage(USER_EXIT);
 		break;
@@ -93,9 +99,9 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 }
 
 bool Window::ProcessMessages(){
-	// Process all messages on queue.
+	// Process messages on queue.
 	MSG Msg;
-	while(PeekMessage(&Msg, this->hWnd, 0, 0, PM_REMOVE) != 0){
+	while (PeekMessage(&Msg, this->hWnd, 0, 0, PM_REMOVE) != 0) {
 		if (Msg.message == WM_QUIT) {
 			return false;
 		}
@@ -107,7 +113,7 @@ bool Window::ProcessMessages(){
 }
 
 void Window::SetTitle(LPCWSTR title){
-	SetWindowText(hWnd, title);
+	SetWindowText(this->hWnd, title);
 }
 
 HWND Window::GetHandler(){

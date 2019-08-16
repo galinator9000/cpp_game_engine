@@ -14,6 +14,12 @@ public:
 	Keyboard keyb;
 	Mouse mouse;
 
+	HINSTANCE hInstance;
+	LPCWSTR title;
+	int width;
+	int height;
+	bool isReady;
+
 private:
 	// Windows event handling.
 	static LRESULT CALLBACK WndProcSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

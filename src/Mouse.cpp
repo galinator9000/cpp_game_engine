@@ -8,44 +8,44 @@ Mouse::Mouse() {
 	this->rightPressed = false;
 }
 
-void Mouse::OnLeftPress(int xx, int yy){
-	this->x = xx;
-	this->y = yy;
+void Mouse::OnLeftPress(WPARAM wParam, LPARAM lParam){
+	this->x = GET_X_LPARAM(lParam);
+	this->y = GET_Y_LPARAM(lParam);
 	leftPressed = true;
 }
 
-void Mouse::OnLeftRelease(int xx, int yy){
-	this->x = xx;
-	this->y = yy;
+void Mouse::OnLeftRelease(WPARAM wParam, LPARAM lParam){
+	this->x = GET_X_LPARAM(lParam);
+	this->y = GET_Y_LPARAM(lParam);
 	leftPressed = false;
 }
 
-void Mouse::OnRightPress(int xx, int yy){
-	this->x = xx;
-	this->y = yy;
+void Mouse::OnRightPress(WPARAM wParam, LPARAM lParam){
+	this->x = GET_X_LPARAM(lParam);
+	this->y = GET_Y_LPARAM(lParam);
 	rightPressed = true;
 }
 
-void Mouse::OnRightRelease(int xx, int yy){
-	this->x = xx;
-	this->y = yy;
+void Mouse::OnRightRelease(WPARAM wParam, LPARAM lParam){
+	this->x = GET_X_LPARAM(lParam);
+	this->y = GET_Y_LPARAM(lParam);
 	rightPressed = false;
 }
 
-void Mouse::OnMove(int xx, int yy){
-	this->x = xx;
-	this->y = yy;
+void Mouse::OnMove(WPARAM wParam, LPARAM lParam){
+	this->x = GET_X_LPARAM(lParam);
+	this->y = GET_Y_LPARAM(lParam);
 }
 
-void Mouse::OnWheelMove(int xx, int yy, int wheelDelta){
-	this->wheelAccumulate += wheelDelta;
+void Mouse::OnWheelMove(WPARAM wParam, LPARAM lParam){
+	this->wheelAccumulate += GET_WHEEL_DELTA_WPARAM(wParam);
 }
 
-void Mouse::OnLeave(){
+void Mouse::OnLeave(WPARAM wParam, LPARAM lParam){
 
 }
 
-void Mouse::OnHover(){
+void Mouse::OnHover(WPARAM wParam, LPARAM lParam){
 
 }
 

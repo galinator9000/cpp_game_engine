@@ -50,13 +50,13 @@ void World::addCamera(Camera* camera, bool setAsMain){
 	allCameras.push_back(camera);
 
 	if(setAsMain){
-		this->setCamera(camera->id);
+		this->setCamera(camera);
 	}
 
 	this->pGfx->addCamera(camera, setAsMain);
 }
 
-void World::setCamera(unsigned int cameraIndex) {
-	this->activeCamera = allCameras[cameraIndex];
+void World::setCamera(Camera* camera) {
+	this->activeCamera = camera;
 	this->pGfx->setCamera(this->activeCamera);
 }

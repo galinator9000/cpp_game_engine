@@ -15,7 +15,7 @@ public:
 	void Update();
 	void addEntity(BaseEntity* bEntity);
 	void addCamera(Camera* camera, bool setAsMain=false);
-	void setCamera(unsigned int cameraIndex);
+	void setCamera(Camera* camera);
 
 private:
 	Graphics* pGfx;

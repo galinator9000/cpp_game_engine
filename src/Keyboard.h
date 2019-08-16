@@ -1,10 +1,12 @@
 #pragma once
-#include "Windows.h"
+#include <Windows.h>
+#pragma comment(lib, "user32.lib")
+#include <Windowsx.h>
 
 class Keyboard{
 public:
 	Keyboard();
-	void OnKeyPress();
-	void OnKeyRelease();
+	void OnKeyPress(WPARAM wParam, LPARAM lParam);
+	void OnKeyRelease(WPARAM wParam, LPARAM lParam);
 	void OnChar();
 };

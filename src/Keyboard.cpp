@@ -3,12 +3,12 @@
 Keyboard::Keyboard(){
 }
 
-void Keyboard::OnKeyPress() {
+void Keyboard::OnKeyPress(WPARAM wParam, LPARAM lParam) {
 
 }
 
-void Keyboard::OnKeyRelease() {
-
+void Keyboard::OnKeyRelease(WPARAM wParam, LPARAM lParam) {
+	
 }
 
 void Keyboard::OnChar() {

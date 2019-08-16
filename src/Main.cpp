@@ -1,7 +1,7 @@
 #include "Main.h"
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-	Window mainWnd = Window(
+	Window* mainWnd = new Window(
 		hInstance,
 		WND_TITLE,
 		WIDTH,
@@ -10,7 +10,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Create render and physics components, give it to world component.
 	Graphics* gfx = new Graphics(
-		mainWnd.GetHandler(),
+		mainWnd->GetHandler(),
 		WIDTH,
 		HEIGHT,
 		REFRESH_RATE
@@ -40,7 +40,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		PxVec3(10.0f, 0.0f, 10.0f),
 		PxVec3(0, 0, 0)
 	);
-	//world->addEntity(box);
+	world->addEntity(box);
 
 	// Add small cubes.
 	for (int i = 1; i<500; i++) {
@@ -59,7 +59,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		world->Update();
 
 		// Terminal condition of the engine.
-		if (!mainWnd.ProcessMessages()) {
+		if (!mainWnd->ProcessMessages()) {
 			break;
 		}
 

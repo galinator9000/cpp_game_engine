@@ -1,16 +1,19 @@
 #pragma once
+#include <Windows.h>
+#pragma comment(lib, "user32.lib")
+#include <Windowsx.h>
 
 class Mouse{
 public:
 	Mouse();
-	void OnLeftPress(int xx, int yy);
-	void OnLeftRelease(int xx, int yy);
-	void OnRightPress(int xx, int yy);
-	void OnRightRelease(int xx, int yy);
-	void OnMove(int xx, int yy);
-	void OnWheelMove(int xx, int yy, int wheelDelta);
-	void OnLeave();
-	void OnHover();
+	void OnLeftPress(WPARAM wParam, LPARAM lParam);
+	void OnLeftRelease(WPARAM wParam, LPARAM lParam);
+	void OnRightPress(WPARAM wParam, LPARAM lParam);
+	void OnRightRelease(WPARAM wParam, LPARAM lParam);
+	void OnMove(WPARAM wParam, LPARAM lParam);
+	void OnWheelMove(WPARAM wParam, LPARAM lParam);
+	void OnLeave(WPARAM wParam, LPARAM lParam);
+	void OnHover(WPARAM wParam, LPARAM lParam);
 
 	bool leftPressed;
 	bool rightPressed;
