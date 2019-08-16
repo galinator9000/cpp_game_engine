@@ -21,6 +21,7 @@ Window::Window(HINSTANCE hInstance, LPCWSTR title, int width, int height) {
 	wc.cbSize = sizeof(wc);
 	RegisterClassEx(&wc);
 
+	// Create window from API
 	this->hWnd = CreateWindow(
 		this->title, this->title,
 		(WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU),
@@ -28,6 +29,14 @@ Window::Window(HINSTANCE hInstance, LPCWSTR title, int width, int height) {
 		NULL, NULL, this->hInstance, this
 	);
 	ShowWindow(this->hWnd, SW_SHOW);
+
+	// Register raw mouse input
+	RAWINPUTDEVICE rid = {0};
+	rid.usUsagePage = 1;
+	rid.usUsage = 2;
+	rid.dwFlags = 0;
+	rid.hwndTarget = NULL;
+	RegisterRawInputDevices(&rid, 1, sizeof(rid));
 }
 
 LRESULT Window::WndProcSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -91,6 +100,35 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	case WM_MOUSEWHEEL:
 		this->mouse->OnWheelMove(wParam, lParam);
 		break;
+
+	// Raw messages
+	case WM_INPUT: {
+		unsigned int pcbSize = 0;
+		GetRawInputData(
+			(HRAWINPUT) lParam,
+			RID_INPUT,
+			NULL,
+			&pcbSize,
+			sizeof(RAWINPUTHEADER)
+		);
+
+		byte* pData = new byte[pcbSize];
+		GetRawInputData(
+			(HRAWINPUT) lParam,
+			RID_INPUT,
+			pData,
+			&pcbSize,
+			sizeof(RAWINPUTHEADER)
+		);
+		RAWINPUT* raw = (RAWINPUT*) pData;
+
+		// Raw mouse handling
+		if (raw->header.dwType == RIM_TYPEMOUSE) {
+			this->mouse->OnMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+		}
+
+		break;
+	};
 
 	// Other messages
 	case WM_CLOSE:

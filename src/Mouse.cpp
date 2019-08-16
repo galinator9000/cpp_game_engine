@@ -1,52 +1,46 @@
 #include "Mouse.h"
 
-Mouse::Mouse() {
-	this->x = 0;
-	this->y = 0;
-	this->wheelAccumulate = 0;
-	this->leftPressed = false;
-	this->rightPressed = false;
-}
+Mouse::Mouse(){}
 
 // Game Engine
-int Mouse::getX()
-{
-	return this->x;
-}
-
-int Mouse::getY()
-{
-	return this->y;
+void Mouse::resetRawAccumulate(){
+	this->rawAccumulateX = 0;
+	this->rawAccumulateY = 0;
 }
 
 // Windows procedure
 void Mouse::OnLeftPress(WPARAM wParam, LPARAM lParam){
-	this->x = GET_X_LPARAM(lParam);
-	this->y = GET_Y_LPARAM(lParam);
+	this->posX = GET_X_LPARAM(lParam);
+	this->posY = GET_Y_LPARAM(lParam);
 	leftPressed = true;
 }
 
 void Mouse::OnLeftRelease(WPARAM wParam, LPARAM lParam){
-	this->x = GET_X_LPARAM(lParam);
-	this->y = GET_Y_LPARAM(lParam);
+	this->posX = GET_X_LPARAM(lParam);
+	this->posY = GET_Y_LPARAM(lParam);
 	leftPressed = false;
 }
 
 void Mouse::OnRightPress(WPARAM wParam, LPARAM lParam){
-	this->x = GET_X_LPARAM(lParam);
-	this->y = GET_Y_LPARAM(lParam);
+	this->posX = GET_X_LPARAM(lParam);
+	this->posY = GET_Y_LPARAM(lParam);
 	rightPressed = true;
 }
 
 void Mouse::OnRightRelease(WPARAM wParam, LPARAM lParam){
-	this->x = GET_X_LPARAM(lParam);
-	this->y = GET_Y_LPARAM(lParam);
+	this->posX = GET_X_LPARAM(lParam);
+	this->posY = GET_Y_LPARAM(lParam);
 	rightPressed = false;
 }
 
 void Mouse::OnMove(WPARAM wParam, LPARAM lParam){
-	this->x = GET_X_LPARAM(lParam);
-	this->y = GET_Y_LPARAM(lParam);
+	this->posX = GET_X_LPARAM(lParam);
+	this->posY = GET_Y_LPARAM(lParam);
+}
+
+void Mouse::OnMoveRaw(signed long deltaX, signed long deltaY){
+	this->rawAccumulateX += deltaX;
+	this->rawAccumulateY += deltaY;
 }
 
 void Mouse::OnWheelMove(WPARAM wParam, LPARAM lParam){

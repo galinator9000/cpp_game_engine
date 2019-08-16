@@ -8,8 +8,7 @@ public:
 	Mouse();
 
 	// Game Engine
-	int getX();
-	int getY();
+	void resetRawAccumulate();
 
 	// Windows procedure
 	void OnLeftPress(WPARAM wParam, LPARAM lParam);
@@ -17,14 +16,17 @@ public:
 	void OnRightPress(WPARAM wParam, LPARAM lParam);
 	void OnRightRelease(WPARAM wParam, LPARAM lParam);
 	void OnMove(WPARAM wParam, LPARAM lParam);
+	void OnMoveRaw(signed long deltaX, signed long deltaY);
 	void OnWheelMove(WPARAM wParam, LPARAM lParam);
 	void OnLeave(WPARAM wParam, LPARAM lParam);
 	void OnHover(WPARAM wParam, LPARAM lParam);
 
-	bool leftPressed;
-	bool rightPressed;
+	bool leftPressed = false;
+	bool rightPressed = false;
 
-private:
-	int x, y;
-	int wheelAccumulate;
+	unsigned int posX = 0;
+	unsigned int posY = 0;
+	signed long rawAccumulateX = 0;
+	signed long rawAccumulateY = 0;
+	signed int wheelAccumulate = 0;
 };

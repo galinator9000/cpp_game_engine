@@ -63,12 +63,13 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		world->addEntity(box2);
 	}
 
-	// Main loop of the engine.
-	while (true){
-		// Update world.
+	// Main loop of the engine
+	while (mainWnd->ProcessMessages()){
+		////// Update section
 		world->Update();
 
-		// Input handling.
+		////// Input handling section
+		// Keyboard
 		if (keyb->isKeyPressed('W')) {
 			world->activeCamera->moveDirection(0.0f, 0.0f, 1.0f);
 		}
@@ -88,14 +89,15 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			world->activeCamera->moveDirection(0.0f, -1.0f, 0.0f);
 		}
 
+		// Mouse
+
 		/*std::ostringstream myStream;
-		myStream << keyb->isKeyPressed(' ') << "\n";
+		myStream << mouse->rawAccumulateX << ", ";
+		myStream << mouse->rawAccumulateY << "\n";
 		OutputDebugStringA(myStream.str().c_str());*/
 
-		// Terminal condition of the engine.
-		if (!mainWnd->ProcessMessages()) {
-			break;
-		}
+		////// Resetting section.
+		mouse->resetRawAccumulate();
 	}
 
 	return 0;
