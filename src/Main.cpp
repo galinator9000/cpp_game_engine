@@ -71,23 +71,41 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		////// Input handling section
 		//// Keyboard
 		// Camera position
-		if (keyb->isKeyPressed('W')) {
-			world->activeCamera->Move(0.0f, 0.0f, 1.0f);
+		if (keyb->isKeyPressed('W') || keyb->isKeyPressed(VK_UP)) {
+			world->activeCamera->Move(
+				0.0f, 0.0f, 1.0f,
+				keyb->isKeyPressed(VK_CONTROL)
+			);
 		}
-		if (keyb->isKeyPressed('S')) {
-			world->activeCamera->Move(0.0f, 0.0f, -1.0f);
+		if (keyb->isKeyPressed('S') || keyb->isKeyPressed(VK_DOWN)) {
+			world->activeCamera->Move(
+				0.0f, 0.0f, -1.0f,
+				keyb->isKeyPressed(VK_CONTROL)
+			);
 		}
-		if (keyb->isKeyPressed('A')) {
-			world->activeCamera->Move(-1.0f, 0.0f, 0.0f);
+		if (keyb->isKeyPressed('A') || keyb->isKeyPressed(VK_LEFT)) {
+			world->activeCamera->Move(
+				-1.0f, 0.0f, 0.0f,
+				keyb->isKeyPressed(VK_CONTROL)
+			);
 		}
-		if (keyb->isKeyPressed('D')) {
-			world->activeCamera->Move(1.0f, 0.0f, 0.0f);
+		if (keyb->isKeyPressed('D') || keyb->isKeyPressed(VK_RIGHT)) {
+			world->activeCamera->Move(
+				1.0f, 0.0f, 0.0f,
+				keyb->isKeyPressed(VK_CONTROL)
+			);
 		}
 		if (keyb->isKeyPressed(' ')) {
-			world->activeCamera->Move(0.0f, 1.0f, 0.0f);
+			world->activeCamera->Move(
+				0.0f, 1.0f, 0.0f,
+				false
+			);
 		}
 		if (keyb->isKeyPressed('C')) {
-			world->activeCamera->Move(0.0f, -1.0f, 0.0f);
+			world->activeCamera->Move(
+				0.0f, -1.0f, 0.0f,
+				false
+			);
 		}
 
 		//// Mouse
@@ -96,10 +114,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			world->activeCamera->Rotate((float) mouse->rawAccumulateX, (float) mouse->rawAccumulateY);
 		}
 
-		/*std::ostringstream myStream;
-		myStream << mouse->rawAccumulateX << ", ";
-		myStream << mouse->rawAccumulateY << "\n";
-		OutputDebugStringA(myStream.str().c_str());*/
+		std::ostringstream myStream;
+		myStream << world->activeCamera->wasMovingFast << ", ";
+		myStream << world->activeCamera->currentMovementSpeed << "\n";
+		OutputDebugStringA(myStream.str().c_str());
 
 		////// Resetting section.
 		mouse->resetRawAccumulate();

@@ -16,8 +16,11 @@ public:
 	float gAspectRatio;
 
 	// Game Engine
-	void Move(float x, float y, float z);
+	void Move(float x, float y, float z, bool moveFast);
 	void Rotate(float x, float y);
+
+	const float fastMovementFactor = 1.03f;
+	bool wasMovingFast;
 
 	const float initialMovementSpeed = 0.25f;
 	const float initialRotationSpeed = 0.005f;

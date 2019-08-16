@@ -30,7 +30,13 @@ Camera::Camera(float posX, float posY, float posZ, unsigned int fov, float aspec
 	this->Update(true);
 }
 
-void Camera::Move(float x, float y, float z){
+void Camera::Move(float x, float y, float z, bool moveFast){
+	if(this->wasMovingFast){
+		this->currentMovementSpeed *= fastMovementFactor;
+	}else{
+		this->currentMovementSpeed = this->initialMovementSpeed;
+	}
+
 	// Calculate camera movement direction.
 	dx::XMFLOAT3 camTranslation = dx::XMFLOAT3(x, y, z);
 	dx::XMStoreFloat3(
@@ -60,6 +66,11 @@ void Camera::Move(float x, float y, float z){
 		this->camPosition.z + this->lookDirection.z
 	);
 
+	if(moveFast){
+		this->wasMovingFast = true;
+	}else{
+		this->wasMovingFast = false;
+	}
 	this->hasChanged = true;
 }
 
