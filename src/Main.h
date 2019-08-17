@@ -14,13 +14,10 @@
 #include "Physics.h"
 
 // Game world
-#include "Game/World.h"
+#include "Game.h"
+#include "World.h"
 
 #define _DEBUGGING TRUE
-
-enum EXIT {
-	USER_EXIT
-};
 
 const auto WND_TITLE = L"Direct3D";
 const int WIDTH = 1024;

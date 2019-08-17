@@ -132,7 +132,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	// Other messages
 	case WM_CLOSE:
-		PostQuitMessage(USER_EXIT);
+		PostQuitMessage(0);
 		break;
 	default:
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);

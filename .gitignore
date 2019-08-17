@@ -339,3 +339,6 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /ThirdParty
+
+# Keep .obj files in assets directory.
+!assets/*.obj

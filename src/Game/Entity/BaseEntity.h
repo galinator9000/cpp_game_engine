@@ -29,8 +29,8 @@ public:
 
 	// Physics
 	static PxPhysics* ppxPhysics;
-	PxShape* pShape = NULL;
 	PxActor* pActor = NULL;
+	PxShape* pShape = NULL;
 
 	// Graphics
 	dx::XMFLOAT3 gSize;
