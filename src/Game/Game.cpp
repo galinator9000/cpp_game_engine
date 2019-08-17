@@ -1,14 +1,18 @@
 #include "Game.h"
 
-// Utils
-#include "utils/OBJ_Loader.h"
-objl::Loader Loader;
-
 Game::Game(World* pWorld){
 	this->pWorld = pWorld;
 }
 
 void Game::Setup(){
+	// Add main camera.
+	Camera* pCamera = new Camera(
+		0.0f, 3.0f, 1.0f,
+		FOV,
+		WIDTH / HEIGHT
+	);
+	pWorld->addCamera(pCamera, true);
+
 	// Add static ground.
 	Plane* ground = new Plane(
 		PxVec3(10.0f, 10.0f, 0)
@@ -35,13 +39,16 @@ void Game::Setup(){
 		this->pWorld->addEntity(box2);
 	}
 
-	// Load OBJ file
-	bool loadResult = Loader.LoadFile("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer.obj");
-	if(loadResult){
-		objl::Mesh mesh = Loader.LoadedMeshes[0];
-		mesh.MeshName;
-	}
+	/*TriangleMesh* deer = new TriangleMesh(
+		PxVec3(1, 1, 1),
+		PxVec3(0, 0, 0.0f),
+		PxVec3(0.0f, 0.0f, 0.0f),
+		PxVec3(0, 0, 0)
+	);
+	deer->LoadVerticesAndIndicesOBJ("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\box_stack.obj");
+	this->pWorld->addEntity(deer);*/
 }
+
 void Game::Update(){
 
 }

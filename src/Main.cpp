@@ -30,14 +30,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Create world.
 	World* pWorld = new World(pGfx, pPhy);
 
-	// Add main camera.
-	Camera* pCamera = new Camera(
-		0.0f, 3.0f, 1.0f,
-		FOV,
-		WIDTH / HEIGHT
-	);
-	pWorld->addCamera(pCamera, true);
-
 	// Use engine
 	Game* pGame = new Game(pWorld);
 	pGame->Setup();

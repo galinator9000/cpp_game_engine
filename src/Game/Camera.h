@@ -19,10 +19,10 @@ public:
 	void Move(float x, float y, float z, bool moveFast);
 	void Rotate(float x, float y);
 
-	const float fastMovementFactor = 1.03f;
+	const float fastMovementFactor = 1.02f;
 	bool wasMovingFast;
 
-	const float initialMovementSpeed = 0.25f;
+	const float initialMovementSpeed = 0.15f;
 	const float initialRotationSpeed = 0.005f;
 	float currentMovementSpeed = initialMovementSpeed;
 	float currentRotationSpeed = initialRotationSpeed;

@@ -14,7 +14,8 @@ namespace wrl = Microsoft::WRL;
 
 const enum ENTITY_TYPE{
 	BOX,
-	PLANE
+	PLANE,
+	TRIANGLE_MESH
 };
 
 class BaseEntity{
@@ -39,7 +40,7 @@ public:
 
 	// Vertex & index
 	Vertex* gVertices;
-	unsigned short* gIndices;
+	unsigned int* gIndices;
 	unsigned int gVertexCount;
 	unsigned int gIndexCount;
 	virtual void gCreateVerticesAndIndices();

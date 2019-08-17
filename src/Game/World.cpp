@@ -25,10 +25,6 @@ void World::Update(){
 
 		ent->Update();
 
-		if(ent->type == ENTITY_TYPE::PLANE){
-			continue;
-		}
-
 		this->pGfx->drawEntity(ent);
 	}
 

@@ -3,6 +3,8 @@
 // Game world
 #include "World.h"
 
+#include "Config.h"
+
 class Game{
 public:
 	Game(World* pWorld);

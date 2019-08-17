@@ -88,7 +88,7 @@ void Box::gCreateVerticesAndIndices() {
 	this->gVertices = vertices;
 	
 	// 3D Cube indices
-	unsigned short _indices[] = {
+	unsigned int _indices[] = {
 		0,2,1, 2,3,1,
 		1,3,5, 3,7,5,
 		2,6,3, 3,6,7,
@@ -98,7 +98,7 @@ void Box::gCreateVerticesAndIndices() {
 	};
 	this->gIndexCount = (UINT) std::size(_indices);
 
-	unsigned short* indices = new unsigned short[this->gIndexCount];
+	unsigned int* indices = new unsigned int[this->gIndexCount];
 	std::copy(_indices, _indices + this->gIndexCount, indices);
 	this->gIndices = indices;
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include "BaseEntity.h"
-#include "Structs.h"
+#include "../BaseEntity.h"
+#include "../Structs.h"
 
 class Plane : public BaseEntity {
 public:

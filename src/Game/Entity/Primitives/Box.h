@@ -1,6 +1,6 @@
 #pragma once
-#include "BaseEntity.h"
-#include "Structs.h"
+#include "../BaseEntity.h"
+#include "../Structs.h"
 
 using namespace DirectX;
 

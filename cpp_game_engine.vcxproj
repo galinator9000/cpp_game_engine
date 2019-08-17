@@ -212,12 +212,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Config.h" />
+    <ClInclude Include="src\Game\Entity\TriangleMesh.h" />
     <ClInclude Include="src\Game\Game.h" />
     <ClInclude Include="src\Game\Camera.h" />
     <ClInclude Include="src\Game\DirectionalLight.h" />
     <ClInclude Include="src\Game\Entity\Shapes.h" />
-    <ClInclude Include="src\Game\Entity\Plane.h" />
-    <ClInclude Include="src\Game\Entity\Box.h" />
+    <ClInclude Include="src\Game\Entity\Primitives\Plane.h" />
+    <ClInclude Include="src\Game\Entity\Primitives\Box.h" />
     <ClInclude Include="src\Game\Entity\BaseEntity.h" />
     <ClInclude Include="src\Game\Entity\Structs.h" />
     <ClInclude Include="src\Game\PointLight.h" />
@@ -233,10 +235,11 @@
     <ClInclude Include="src\Game\World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Entity\TriangleMesh.cpp" />
     <ClCompile Include="src\Game\Game.cpp" />
     <ClCompile Include="src\Game\Camera.cpp" />
-    <ClCompile Include="src\Game\Entity\Plane.cpp" />
-    <ClCompile Include="src\Game\Entity\Box.cpp" />
+    <ClCompile Include="src\Game\Entity\Primitives\Plane.cpp" />
+    <ClCompile Include="src\Game\Entity\Primitives\Box.cpp" />
     <ClCompile Include="src\Game\Entity\BaseEntity.cpp" />
     <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Graphics.cpp" />

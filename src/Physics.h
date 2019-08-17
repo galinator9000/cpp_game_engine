@@ -15,7 +15,7 @@ public:
 	~Physics();
 
 	void Update();
-	void addEntity(BaseEntity* bEntity);
+	bool addEntity(BaseEntity* bEntity);
 
 	// PhysX variables
 public:

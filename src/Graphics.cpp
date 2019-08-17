@@ -239,6 +239,8 @@ void Graphics::addEntity(BaseEntity* entity){
 		case ENTITY_TYPE::PLANE:
 			return;
 			break;
+		case ENTITY_TYPE::TRIANGLE_MESH:
+			break;
 	}
 
 	// Build vertex and index buffer elements depending on shape of the object,
@@ -278,7 +280,7 @@ void Graphics::addEntity(BaseEntity* entity){
 	/// INDEX BUFFER
 	// Create index buffer on GPU side.
 	D3D11_BUFFER_DESC iBd = { 0 };
-	iBd.StructureByteStride = sizeof(unsigned short);
+	iBd.StructureByteStride = sizeof(unsigned int);
 	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity->gIndexCount;
 	iBd.Usage = D3D11_USAGE_DEFAULT;
 	iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -298,6 +300,8 @@ void Graphics::drawEntity(BaseEntity* entity){
 			break;
 		case ENTITY_TYPE::PLANE:
 			return;
+			break;
+		case ENTITY_TYPE::TRIANGLE_MESH:
 			break;
 	}
 
@@ -340,7 +344,7 @@ void Graphics::drawEntity(BaseEntity* entity){
 	// Index buffer
 	this->pDeviceContext->IASetIndexBuffer(
 		entity->pIndexBuffer.Get(),
-		DXGI_FORMAT_R16_UINT,
+		DXGI_FORMAT_R32_UINT,
 		0
 	);
 
