@@ -2,6 +2,7 @@
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	// Setup engine
+
 	// Main window class
 	Window* pMainWnd = new Window(
 		hInstance,

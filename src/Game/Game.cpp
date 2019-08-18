@@ -29,7 +29,7 @@ void Game::Setup(){
 	this->pWorld->addEntity(box);
 
 	// Add small cubes
-	for (int i = 1; i < 500; i++) {
+	/*for (int i = 1; i < 500; i++) {
 		Box* box2 = new Box(
 			Vector3(0.01f, 1.0f, 0.01f),
 			Vector3(i * 0.01f, i * 5.0f, 6.0f),
@@ -37,6 +37,16 @@ void Game::Setup(){
 			Vector3(0, 0, 0)
 		);
 		this->pWorld->addEntity(box2);
+	}*/
+
+	TriangleMesh* tMesh = new TriangleMesh(
+		Vector3(0.1f, 0.1f, 0.1f),
+		Vector3(0, 0, 0.0f),
+		Vector3(0.0f, 0.0f, 0.0f),
+		Vector3(0, 0, 0)
+	);
+	if (tMesh->LoadVerticesAndIndicesFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_tiny.fbx")){
+		this->pWorld->addEntity(tMesh);
 	}
 }
 
