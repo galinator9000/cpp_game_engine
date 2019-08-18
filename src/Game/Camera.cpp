@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(float posX, float posY, float posZ, unsigned int fov, float aspectRatio){
+Camera::Camera(Vector3 pos, unsigned int fov, float aspectRatio){
 	this->gFieldOfView = fov;
 	this->gAspectRatio = aspectRatio;
 
@@ -20,7 +20,7 @@ Camera::Camera(float posX, float posY, float posZ, unsigned int fov, float aspec
 	);
 
 	// Fill camera position and looking direction vector
-	this->camPosition = dx::XMFLOAT3(posX, posY, posZ);
+	this->camPosition = dx::XMFLOAT3(pos.x, pos.y, pos.z);
 	this->camLookAt = dx::XMFLOAT3(
 		this->camPosition.x + this->lookDirection.x,
 		this->camPosition.y + this->lookDirection.y,
@@ -30,7 +30,7 @@ Camera::Camera(float posX, float posY, float posZ, unsigned int fov, float aspec
 	this->Update(true);
 }
 
-void Camera::Move(float x, float y, float z, bool moveFast){
+void Camera::Move(Vector3 moveDir, bool moveFast){
 	if(this->wasMovingFast){
 		this->currentMovementSpeed *= fastMovementFactor;
 	}else{
@@ -38,7 +38,7 @@ void Camera::Move(float x, float y, float z, bool moveFast){
 	}
 
 	// Calculate camera movement direction.
-	dx::XMFLOAT3 camTranslation = dx::XMFLOAT3(x, y, z);
+	dx::XMFLOAT3 camTranslation = dx::XMFLOAT3(moveDir.x, moveDir.y, moveDir.z);
 	dx::XMStoreFloat3(
 		&camTranslation,
 		dx::XMVector3Transform(

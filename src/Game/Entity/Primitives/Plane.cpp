@@ -1,6 +1,6 @@
 #include "Plane.h"
 
-Plane::Plane(PxVec3 material){
+Plane::Plane(Vector3 material){
 	this->pActor = PxCreatePlane(
 		*this->ppxPhysics,
 		PxPlane(0, 1, 0, 0),

@@ -1,10 +1,9 @@
 #include "TriangleMesh.h"
 
 // Utils
-#include "utils/OBJ_Loader.h"
-objl::Loader Loader;
+//#include "fbxsdk.h"
 
-TriangleMesh::TriangleMesh(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material){
+TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Vector3 material){
 	PxQuat rotationQuaternion;
 
 	// Graphics
@@ -48,49 +47,6 @@ void TriangleMesh::updateConstantBuffer() {
 	);
 }
 
-bool TriangleMesh::LoadVerticesAndIndicesOBJ(const char* fileName){
-	// Load OBJ file
-	bool loadResult = Loader.LoadFile(fileName);
-
-	if (loadResult){
-		objl::Mesh mesh = Loader.LoadedMeshes[0];
-
-		// Process loaded mesh.
-		this->gVertexCount = (UINT) mesh.Vertices.size();
-		this->gIndexCount = (UINT) mesh.Indices.size();
-
-		Vertex* vertices = new Vertex[this->gVertexCount];
-		unsigned int* indices = new unsigned int[this->gIndexCount];
-
-		// Load vertices.
-		for (int v = 0; v < mesh.Vertices.size(); v++) {
-			vertices[v] = Vertex(
-				{
-					// XMFLOAT3 position
-					{
-						mesh.Vertices.at(v).Position.X,
-						mesh.Vertices.at(v).Position.Y,
-						mesh.Vertices.at(v).Position.Z,
-					}
-				}
-			);
-		}
-
-		// Load indices.
-		for (int i = 0; i < mesh.Indices.size(); i+=3) {
-			/*indices[i] = mesh.Indices.at(i);
-			indices[i+1] = mesh.Indices.at(i+1);
-			indices[i+2] = mesh.Indices.at(i+2);*/
-
-			indices[i] = mesh.Indices.at(i + 2);
-			indices[i + 1] = mesh.Indices.at(i + 1);
-			indices[i + 2] = mesh.Indices.at(i);
-		}
-
-		// Copy filled array to class' property.
-		this->gVertices = vertices;
-		this->gIndices = indices;
-	}
-
-	return loadResult;
+bool TriangleMesh::LoadVerticesAndIndicesFBX(const char* fileName){
+	return false;
 }

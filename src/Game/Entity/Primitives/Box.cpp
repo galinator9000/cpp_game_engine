@@ -1,13 +1,13 @@
 #include "Box.h"
 
-Box::Box(PxVec3 size, PxVec3 position, PxVec3 rotation, PxVec3 material) {
+Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Vector3 material) {
 	this->pShape = this->ppxPhysics->createShape(
-		PxBoxGeometry(size),
+		PxBoxGeometry(PxVec3(size.x, size.y, size.z)),
 		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
 	);
 
 	PxQuat rotationQuaternion;
-	PxTransform transform(position);
+	PxTransform transform(PxVec3(position.x, position.y, position.z));
 	this->rigidDynamic = this->ppxPhysics->createRigidDynamic(transform);
 	this->rigidDynamic->attachShape(*pShape);
 	PxRigidBodyExt::updateMassAndInertia(*(this->rigidDynamic), 10.0f);

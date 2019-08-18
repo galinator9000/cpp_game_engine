@@ -4,7 +4,7 @@
 
 class Plane : public BaseEntity {
 public:
-	Plane(PxVec3 material);
+	Plane(Vector3 material);
 
 	// Graphics
 };

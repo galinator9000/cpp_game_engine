@@ -45,37 +45,37 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		// Camera position
 		if (pKeyb->isKeyPressed('W') || pKeyb->isKeyPressed(VK_UP)) {
 			pWorld->activeCamera->Move(
-				0.0f, 0.0f, 1.0f,
+				Vector3(0.0f, 0.0f, 1.0f),
 				pKeyb->isKeyPressed(VK_CONTROL)
 			);
 		}
 		if (pKeyb->isKeyPressed('S') || pKeyb->isKeyPressed(VK_DOWN)) {
 			pWorld->activeCamera->Move(
-				0.0f, 0.0f, -1.0f,
+				Vector3(0.0f, 0.0f, -1.0f),
 				pKeyb->isKeyPressed(VK_CONTROL)
 			);
 		}
 		if (pKeyb->isKeyPressed('A') || pKeyb->isKeyPressed(VK_LEFT)) {
 			pWorld->activeCamera->Move(
-				-1.0f, 0.0f, 0.0f,
+				Vector3(-1.0f, 0.0f, 0.0f),
 				pKeyb->isKeyPressed(VK_CONTROL)
 			);
 		}
 		if (pKeyb->isKeyPressed('D') || pKeyb->isKeyPressed(VK_RIGHT)) {
 			pWorld->activeCamera->Move(
-				1.0f, 0.0f, 0.0f,
+				Vector3(1.0f, 0.0f, 0.0f),
 				pKeyb->isKeyPressed(VK_CONTROL)
 			);
 		}
 		if (pKeyb->isKeyPressed(' ')) {
 			pWorld->activeCamera->Move(
-				0.0f, 1.0f, 0.0f,
+				Vector3(0.0f, 1.0f, 0.0f),
 				false
 			);
 		}
 		if (pKeyb->isKeyPressed('C')) {
 			pWorld->activeCamera->Move(
-				0.0f, -1.0f, 0.0f,
+				Vector3(0.0f, -1.0f, 0.0f),
 				false
 			);
 		}

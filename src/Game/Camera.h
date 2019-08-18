@@ -7,7 +7,7 @@
 
 class Camera{
 public:
-	Camera(float posX, float posY, float posZ, unsigned int fov, float aspectRatio);
+	Camera(Vector3 pos, unsigned int fov, float aspectRatio);
 	void Update(bool initial=false);
 	void updateConstantBuffer();
 
@@ -16,7 +16,7 @@ public:
 	float gAspectRatio;
 
 	// Game Engine
-	void Move(float x, float y, float z, bool moveFast);
+	void Move(Vector3 moveDir, bool moveFast);
 	void Rotate(float x, float y);
 
 	const float fastMovementFactor = 1.02f;
