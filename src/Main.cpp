@@ -17,6 +17,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	pMainWnd->keyb = pKeyb;
 	pMainWnd->mouse = pMouse;
+	pMainWnd->updateBounds();
 
 	// Create graphics and physics components
 	Graphics* pGfx = new Graphics(
@@ -43,6 +44,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 		// Input handling section
 		// Keyboard
+		if (pKeyb->isKeyPressed(VK_ESCAPE)) {
+			pMouse->freeCursor();
+		}
+
 		// Camera position
 		if (pKeyb->isKeyPressed('W') || pKeyb->isKeyPressed(VK_UP)) {
 			pWorld->activeCamera->Move(

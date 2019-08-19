@@ -39,7 +39,7 @@ void Game::Setup(){
 		this->pWorld->addEntity(box2);
 	}
 
-	/*TriangleMesh* tMesh = new TriangleMesh(
+	TriangleMesh* tMesh = new TriangleMesh(
 		Vector3(1.0f, 1.0f, 1.0f),
 		Vector3(0, 0, 0),
 		Vector3(0.0f, 0.0f, 0.0f),
@@ -47,7 +47,7 @@ void Game::Setup(){
 	);
 	if (tMesh->LoadVerticesAndIndicesFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")){
 		this->pWorld->addEntity(tMesh);
-	}*/
+	}
 }
 
 void Game::Update(){

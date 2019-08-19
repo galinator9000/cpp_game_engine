@@ -5,10 +5,11 @@
 class Window{
 public:
 	Window(HINSTANCE hInstance, LPCWSTR title, int width, int height);
+
 	void SetTitle(LPCWSTR title);
 	HWND GetHandler();
-
 	bool ProcessMessages();
+	void updateBounds();
 
 	Keyboard* keyb;
 	Mouse* mouse;

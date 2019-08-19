@@ -85,9 +85,14 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	case WM_MOUSEHOVER:
 		this->mouse->OnHover(wParam, lParam);
 		break;
-	case WM_LBUTTONDOWN:
+	case WM_LBUTTONDOWN: {
+		this->updateBounds();
+
+		// Confine cursor to current window's bounds.
+		this->mouse->confineCursor();
 		this->mouse->OnLeftPress(wParam, lParam);
 		break;
+	}
 	case WM_LBUTTONUP:
 		this->mouse->OnLeftRelease(wParam, lParam);
 		break;
@@ -137,6 +142,17 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	default:
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		break;
+	}
+}
+
+void Window::updateBounds() {
+	// Update window bound values.
+	RECT rect = RECT({ 0 });
+	if (GetWindowRect(this->hWnd, &rect)) {
+		this->mouse->pRect->left = rect.left;
+		this->mouse->pRect->top = rect.top;
+		this->mouse->pRect->right = rect.right;
+		this->mouse->pRect->bottom = rect.bottom;
 	}
 }
 

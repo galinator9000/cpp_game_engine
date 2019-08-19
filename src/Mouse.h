@@ -3,12 +3,16 @@
 #pragma comment(lib, "user32.lib")
 #include <Windowsx.h>
 
-class Mouse{
+class Mouse {
 public:
 	Mouse();
 
 	// Game Engine
 	void resetRawAccumulate();
+	bool confineCursor();
+	bool freeCursor();
+	void hideCursor();
+	void showCursor();
 
 	// Windows procedure
 	void OnLeftPress(WPARAM wParam, LPARAM lParam);
@@ -28,5 +32,8 @@ public:
 	unsigned int posY = 0;
 	signed long rawAccumulateX = 0;
 	signed long rawAccumulateY = 0;
-	signed int wheelAccumulate = 0;
+
+	LPRECT pRect;
+private:
+	bool confined = false;
 };
