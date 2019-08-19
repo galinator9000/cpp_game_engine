@@ -146,7 +146,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
-		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
@@ -234,12 +235,8 @@ void Graphics::endFrame(){
 
 void Graphics::addEntity(BaseEntity* entity){
 	switch (entity->type) {
-		case ENTITY_TYPE::BOX:
-			break;
 		case ENTITY_TYPE::PLANE:
 			return;
-			break;
-		case ENTITY_TYPE::TRIANGLE_MESH:
 			break;
 	}
 
@@ -296,12 +293,8 @@ void Graphics::addEntity(BaseEntity* entity){
 
 void Graphics::drawEntity(BaseEntity* entity){
 	switch (entity->type) {
-		case ENTITY_TYPE::BOX:
-			break;
 		case ENTITY_TYPE::PLANE:
 			return;
-			break;
-		case ENTITY_TYPE::TRIANGLE_MESH:
 			break;
 	}
 

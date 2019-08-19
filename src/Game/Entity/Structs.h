@@ -61,6 +61,7 @@ struct Vector3 {
 
 struct Vertex {
 	Vector3 pos;
+	Vector3 normal;
 };
 
 // Structs for GPU side.

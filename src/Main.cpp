@@ -87,11 +87,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			pWorld->activeCamera->Rotate((float) pMouse->rawAccumulateX, (float)pMouse->rawAccumulateY);
 		}
 
-		/*std::ostringstream myStream;
-		myStream << world->activeCamera->wasMovingFast << ", ";
-		myStream << world->activeCamera->currentMovementSpeed << "\n";
-		OutputDebugStringA(myStream.str().c_str());*/
-
 		// Resetting section.
 		pMouse->resetRawAccumulate();
 	}

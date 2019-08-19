@@ -58,6 +58,7 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 	for(int v = 0; v < fbxVertexCount; v++) {
 		_vertices->push_back(
 			{
+				// Position of Vertex
 				{
 					// Swap Y and Z axes
 					(float) fbxVertices[v].mData[0],
