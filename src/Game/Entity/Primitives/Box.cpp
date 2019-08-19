@@ -16,7 +16,8 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Vector3 material) {
 	// Graphics
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
-	this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
+	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
+	this->gRotationQ = XMFLOAT4(0, 0, 0, 0);
 
 	// Set properties of the entity.
 	this->type = ENTITY_TYPE::BOX;

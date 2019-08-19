@@ -40,12 +40,12 @@ void Game::Setup(){
 	}*/
 
 	TriangleMesh* tMesh = new TriangleMesh(
-		Vector3(0.1f, 0.1f, 0.1f),
-		Vector3(0, 0, 0.0f),
+		Vector3(1.0f, 1.0f, 1.0f),
+		Vector3(0, 0, 0),
 		Vector3(0.0f, 0.0f, 0.0f),
 		Vector3(0, 0, 0)
 	);
-	if (tMesh->LoadVerticesAndIndicesFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_tiny.fbx")){
+	if (tMesh->LoadVerticesAndIndicesFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")){
 		this->pWorld->addEntity(tMesh);
 	}
 }

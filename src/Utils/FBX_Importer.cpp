@@ -35,14 +35,34 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 
 	// Collect all vertices.
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
+
+	// Method 1
+	/*for (int p = 0; p < mesh->GetPolygonCount(); p++) {
+		for (int v = 0; v < 3; v++) {
+			int icp = mesh->GetPolygonVertex(p, v);
+
+			_vertices->push_back(
+				{
+					{
+						(float) fbxVertices[icp].mData[0],
+						(float) fbxVertices[icp].mData[1],
+						(float) fbxVertices[icp].mData[2]
+					}
+				}
+			);
+		}
+	}*/
+
+	// Method 2
 	int fbxVertexCount = mesh->GetControlPointsCount();
 	for(int v = 0; v < fbxVertexCount; v++) {
 		_vertices->push_back(
 			{
 				{
+					// Swap Y and Z axes
 					(float) fbxVertices[v].mData[0],
-					(float) fbxVertices[v].mData[1],
-					(float) fbxVertices[v].mData[2]
+					(float) fbxVertices[v].mData[2],
+					(float) fbxVertices[v].mData[1]
 				}
 			}
 		);
