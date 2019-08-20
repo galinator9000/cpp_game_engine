@@ -44,10 +44,9 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 				{
 					// Position of the Vertex
 					{
-						// Swap Y and Z axes
 						(float) fbxVertices[controlPointIndex].mData[0],
-						(float) fbxVertices[controlPointIndex].mData[2],
-						(float) fbxVertices[controlPointIndex].mData[1]
+						(float) fbxVertices[controlPointIndex].mData[1],
+						(float) fbxVertices[controlPointIndex].mData[2]
 					},
 					// Fill normals and colors of the Vertex with zeros temporarily.
 					{
