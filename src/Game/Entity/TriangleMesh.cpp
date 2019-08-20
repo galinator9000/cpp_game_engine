@@ -48,7 +48,7 @@ void TriangleMesh::updateConstantBuffer() {
 	);
 }
 
-bool TriangleMesh::LoadVerticesAndIndicesFBX(const char* fileName){
+bool TriangleMesh::LoadFBX(const char* fileName){
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
 

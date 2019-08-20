@@ -13,5 +13,5 @@ public:
 	// Graphics
 	void updateConstantBuffer();
 
-	bool LoadVerticesAndIndicesFBX(const char* fileName);
+	bool LoadFBX(const char* fileName);
 };
