@@ -10,8 +10,7 @@ cbuffer ViewProjectionMatrices : register(b1) {
 };
 
 // Light direction and intensity values.
-cbuffer LightConstantBuffer : register(b2)
-{
+cbuffer LightConstantBuffer : register(b2){
     float3 direction;
     float intensity;
 };
@@ -41,8 +40,17 @@ VSOut main(VSIn vertex){
 	finalVector = mul(finalVector, projectionMatrix);
 	vso.pos = finalVector;
 
-	// Color
-	vso.color = vertex.color;
+    // Directional light calculation
+    float diffuse = intensity * dot(clamp(vertex.normal, 0.0f, 1.0f), -direction);
+
+    // Blend color and light.
+    vso.color = vertex.color * diffuse;
+
+    // Add ambient light.
+    vso.color += float4(0.15f, 0.15f, 0.15f, 1.0f);
+
+    // Clamp values.
+    vso.color = clamp(vso.color, 0.0f, 1.0f);
 
 	return vso;
 }

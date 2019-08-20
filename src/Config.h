@@ -8,4 +8,5 @@ const int REFRESH_RATE = 60;
 const int FOV = 90;
 
 // Gray background color.
-const Color BACKGROUND_COLOR = Color(0.14f, 0.14f, 0.14f, 1.0f);
+//const Color BACKGROUND_COLOR = Color(0.14f, 0.14f, 0.14f, 1.0f);
+const Color BACKGROUND_COLOR = Color(0, 0, 0, 1);
