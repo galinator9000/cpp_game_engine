@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 #include "Camera.h"
 #include "Entity/BaseEntity.h"
 #include "Entity/Structs.h"
@@ -28,7 +29,7 @@ public:
 		this->pDevice->Release();*/
 	}
 
-	void Clear(float=0.0f, float=0.0f, float=0.0f, float=1.0f);
+	void Clear(Color c = {0.0f, 0.0f, 0.0f, 1.0f});
 
 	void addEntity(BaseEntity* entity);
 	void beginFrame();

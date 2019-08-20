@@ -23,7 +23,7 @@ public:
 	~BaseEntity();
 	virtual void Update(bool initial=false);
 
-	// Derived classes will set this value.
+	// Derived classes will set these values.
 	unsigned int id;
 	unsigned int type;
 	bool isDynamic;
@@ -37,6 +37,7 @@ public:
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
+	Color gColor;
 
 	// Vertex & index
 	Vertex* gVertices;

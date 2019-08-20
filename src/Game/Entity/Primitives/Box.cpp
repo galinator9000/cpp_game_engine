@@ -1,6 +1,6 @@
 #include "Box.h"
 
-Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Vector3 material) {
+Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material) {
 	this->pShape = this->ppxPhysics->createShape(
 		PxBoxGeometry(PxVec3(size.x, size.y, size.z)),
 		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
@@ -14,6 +14,8 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Vector3 material) {
 	this->pActor = this->rigidDynamic;
 
 	// Graphics
+	this->gColor = color;
+
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
 	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
@@ -73,43 +75,48 @@ void Box::updateConstantBuffer() {
 void Box::gCreateVerticesAndIndices() {
 	// 3D Cube vertices
 	Vertex _vertices[] = {
+		// Default color: White
 		// Front (Normal -Z)
-		{{ -1.0f, -1.0f, -1.0f }, {0, 0, -1}},
-		{{ 1.0f, -1.0f, -1.0f }, {0, 0, -1}},
-		{{ -1.0f, 1.0f, -1.0f }, {0, 0, -1}},
-		{{ 1.0f, 1.0f, -1.0f }, {0, 0, -1}},
+		{{ -1.0f, -1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, -1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, 1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, 1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
 
 		// Back (Normal +Z)
-		{{ 1.0f, -1.0f, 1.0f }, {0, 0, 1}},
-		{{ -1.0f, -1.0f, 1.0f }, {0, 0, 1}},
-		{{ 1.0f, 1.0f, 1.0f }, {0, 0, 1}},
-		{{ -1.0f, 1.0f, 1.0f }, {0, 0, 1}},
+		{{ 1.0f, -1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, -1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, 1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, 1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
 
 		// Right (Normal +X)
-		{{ 1.0f, -1.0f, -1.0f }, {1, 0, 0}},
-		{{ 1.0f, -1.0f, 1.0f }, {1, 0, 0}},
-		{{ 1.0f, 1.0f, -1.0f }, {1, 0, 0}},
-		{{ 1.0f, 1.0f, 1.0f }, {1, 0, 0}},
+		{{ 1.0f, -1.0f, -1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, -1.0f, 1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, 1.0f, -1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, 1.0f, 1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
 
 		// Left (Normal -X)
-		{{ -1.0f, -1.0f, 1.0f }, {-1, 0, 0}},
-		{{ -1.0f, -1.0f, -1.0f }, {-1, 0, 0}},
-		{{ -1.0f, 1.0f, 1.0f }, {-1, 0, 0}},
-		{{ -1.0f, 1.0f, -1.0f }, {-1, 0, 0}},
+		{{ -1.0f, -1.0f, 1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, -1.0f, -1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, 1.0f, 1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, 1.0f, -1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
 
 		// Top (Normal +Y)
-		{{ -1.0f, 1.0f, -1.0f }, {0, 1, 0}},
-		{{ 1.0f, 1.0f, -1.0f }, {0, 1, 0}},
-		{{ -1.0f, 1.0f, 1.0f }, {0, 1, 0}},
-		{{ 1.0f, 1.0f, 1.0f }, {0, 1, 0}},
+		{{ -1.0f, 1.0f, -1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, 1.0f, -1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, 1.0f, 1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, 1.0f, 1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
 
 		// Bottom (Normal -Y)
-		{{ -1.0f, -1.0f, 1.0f }, {0, -1, 0}},
-		{{ 1.0f, -1.0f, 1.0f }, {0, -1, 0}},
-		{{ -1.0f, -1.0f, -1.0f }, {0, -1, 0}},
-		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}},
+		{{ -1.0f, -1.0f, 1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, -1.0f, 1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
 	};
 	this->gVertexCount = (UINT) std::size(_vertices);
+
+	for (unsigned int v = 0; v < this->gVertexCount; v++) {
+		_vertices[v].color = this->gColor;
+	}
 
 	Vertex* vertices = new Vertex[this->gVertexCount];
 	std::copy(_vertices, _vertices + this->gVertexCount, vertices);

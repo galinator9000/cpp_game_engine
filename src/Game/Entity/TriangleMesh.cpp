@@ -3,10 +3,11 @@
 // Utils
 #include "Utils/FBX_Importer.h"
 
-TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Vector3 material){
+TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material){
 	PxQuat rotationQuaternion;
 
 	// Graphics
+	this->gColor = color;
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
 	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
@@ -65,6 +66,7 @@ bool TriangleMesh::LoadFBX(const char* fileName){
 
 	for (int v = 0; v < _vertices->size(); v++) {
 		vertices[v] = _vertices->at(v);
+		vertices[v].color = this->gColor;
 	}
 	for (int i = 0; i < _indices->size(); i++) {
 		indices[i] = _indices->at(i);

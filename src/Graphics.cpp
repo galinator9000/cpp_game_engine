@@ -147,7 +147,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
@@ -209,11 +210,11 @@ void Graphics::updateCamera(Camera* camera) {
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
-void Graphics::Clear(float r, float g, float b, float a){
+void Graphics::Clear(Color c){
 	// Clear back buffer.
 	this->pDeviceContext->ClearRenderTargetView(
 		this->pRenderTargetView.Get(),
-		new float[4]{r, g, b, a}
+		new float[4]{c.r, c.g, c.b, c.a}
 	);
 
 	// Clear Z-buffer.
@@ -226,7 +227,7 @@ void Graphics::Clear(float r, float g, float b, float a){
 }
 
 void Graphics::beginFrame(){
-	this->Clear();
+	this->Clear(BACKGROUND_COLOR);
 }
 
 void Graphics::endFrame(){

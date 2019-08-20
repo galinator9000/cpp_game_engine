@@ -49,9 +49,13 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 						(float) fbxVertices[controlPointIndex].mData[2],
 						(float) fbxVertices[controlPointIndex].mData[1]
 					},
-					// Fill normals of the Vertex with zeros temporarily.
+					// Fill normals and colors of the Vertex with zeros temporarily.
 					{
 						0,0,0
+					},
+					// Fill colors with white as default.
+					{
+						1.0f, 1.0f, 1.0f, 1.0f
 					}
 				}
 			);
