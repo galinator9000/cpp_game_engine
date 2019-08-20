@@ -47,14 +47,14 @@ void Game::Setup(){
 		{ 1.0f, 1.0f, 1.0f },
 		{ 0, 0, 0 },
 		{ 0.0f, 0.0f, 0.0f },
-		{ 0.2f, 0.2f, 0.2f, 1.0f },
+		{ 1.0f, 0.2f, 0.2f, 1.0f },
 		{ 0, 0, 0 }
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")){
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\sphere.fbx")){
 		this->pWorld->addEntity(tMesh);
 	}
 
-	DirectionalLight* dirLight = new DirectionalLight(Vector3(1.0f, 1.0f, 1.0f), 1.0f);
+	DirectionalLight* dirLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);
 	this->pWorld->addLight(dirLight);
 }
 

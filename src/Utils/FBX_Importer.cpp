@@ -44,9 +44,10 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 				{
 					// Position of the Vertex
 					{
+						// Swap Y and Z axes.
 						(float) fbxVertices[controlPointIndex].mData[0],
-						(float) fbxVertices[controlPointIndex].mData[1],
-						(float) fbxVertices[controlPointIndex].mData[2]
+						(float) fbxVertices[controlPointIndex].mData[2],
+						(float) fbxVertices[controlPointIndex].mData[1]
 					},
 					// Fill normals and colors of the Vertex with zeros temporarily.
 					{
@@ -66,7 +67,7 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 		// Process every vertex in this polygon (triangle)
 		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 			_indices->push_back(
-				(unsigned int) polygonIndex * 3 + vertexIndex
+				(unsigned int) polygonIndex * 3 + (2-vertexIndex)
 			);
 		}
 	}
@@ -143,9 +144,10 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 					// Place normal to our Vertex object.
 					assert(normalIndex != -1);
 
+					// Swap Y and Z axes.
 					_vertices->at(indexByPolygonVertex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
-					_vertices->at(indexByPolygonVertex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
-					_vertices->at(indexByPolygonVertex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+					_vertices->at(indexByPolygonVertex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+					_vertices->at(indexByPolygonVertex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
 				}
 			}
 
