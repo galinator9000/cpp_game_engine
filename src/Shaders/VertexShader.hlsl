@@ -1,5 +1,5 @@
 // World matrix is provided by the entity we are currently processing.
-cbuffer ConstantBuffer : register(b0) {
+cbuffer EntityConstantBuffer : register(b0) {
 	matrix worldMatrix;
 };
 
@@ -7,6 +7,13 @@ cbuffer ConstantBuffer : register(b0) {
 cbuffer ViewProjectionMatrices : register(b1) {
 	matrix viewMatrix;
 	matrix projectionMatrix;
+};
+
+// Light direction and intensity values.
+cbuffer LightConstantBuffer : register(b2)
+{
+    float3 direction;
+    float intensity;
 };
 
 // Input structure of the Vertex shader.

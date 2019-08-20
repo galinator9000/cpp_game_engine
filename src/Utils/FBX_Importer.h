@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 
-#include "Entity/Structs.h"
+#include "Structs.h"
 
 // Utils
 #include "fbxsdk.h"

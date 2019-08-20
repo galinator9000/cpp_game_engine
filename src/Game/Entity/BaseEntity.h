@@ -47,11 +47,11 @@ public:
 	virtual void gCreateVerticesAndIndices();
 
 	// Constant buffer
-	ConstantBuffer gConstBuffer;
+	EntityConstantBuffer gEntityConstBuffer;
 	virtual void updateConstantBuffer();
 	bool shouldUpdateData;
 
-	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
+	wrl::ComPtr<ID3D11Buffer> pEntityConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
 	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
 };

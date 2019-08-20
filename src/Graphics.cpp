@@ -164,19 +164,49 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
+void Graphics::addLight(DirectionalLight* light, bool activate) {
+	// Create buffer for View and Projection matrices on GPU side.
+	D3D11_BUFFER_DESC cBd = { 0 };
+	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
+	cBd.Usage = D3D11_USAGE_DYNAMIC;
+	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBd.MiscFlags = 0;
+	cBd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSd = { &light->gLightConstBuffer, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cBd,
+		&cSd,
+		&(light->pLightConstantBuffer)
+	);
+
+	if (activate) {
+		this->activateLight(light);
+	}
+}
+
+void Graphics::activateLight(DirectionalLight* light) {
+	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
+	this->pDeviceContext->VSSetConstantBuffers(
+		2,
+		1,
+		light->pLightConstantBuffer.GetAddressOf()
+	);
+}
+
 void Graphics::addCamera(Camera* camera, bool setAsMAin){
 	// Create buffer for View and Projection matrices on GPU side.
-	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(camera->gViewProjection);
-	cbd.Usage = D3D11_USAGE_DYNAMIC;
-	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbd.MiscFlags = 0;
-	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &camera->gViewProjection, 0, 0 };
+	D3D11_BUFFER_DESC cBd = { 0 };
+	cBd.ByteWidth = sizeof(camera->gViewProjection);
+	cBd.Usage = D3D11_USAGE_DYNAMIC;
+	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBd.MiscFlags = 0;
+	cBd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSd = { &camera->gViewProjection, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
-		&cbd,
-		&csd,
+		&cBd,
+		&cSd,
 		&(camera->pViewProjectionBuffer)
 	);
 
@@ -247,18 +277,18 @@ void Graphics::addEntity(BaseEntity* entity){
 
 	/// CONSTANT BUFFER	
 	// Create buffer on GPU side.
-	D3D11_BUFFER_DESC cbd = { 0 };
-	cbd.ByteWidth = sizeof(entity->gConstBuffer);
-	cbd.Usage = D3D11_USAGE_DYNAMIC;
-	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbd.MiscFlags = 0;
-	cbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA csd = { &(entity->gConstBuffer), 0, 0 };
+	D3D11_BUFFER_DESC cBd = { 0 };
+	cBd.ByteWidth = sizeof(entity->gEntityConstBuffer);
+	cBd.Usage = D3D11_USAGE_DYNAMIC;
+	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBd.MiscFlags = 0;
+	cBd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSd = { &(entity->gEntityConstBuffer), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
-		&cbd,
-		&csd,
-		&(entity->pConstantBuffer)
+		&cBd,
+		&cSd,
+		&(entity->pEntityConstantBuffer)
 	);
 
 	/// VERTEX BUFFER
@@ -307,21 +337,21 @@ void Graphics::drawEntity(BaseEntity* entity){
 	if(entity->shouldUpdateData){
 		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 		this->pDeviceContext->Map(
-			entity->pConstantBuffer.Get(),
+			entity->pEntityConstantBuffer.Get(),
 			0,
 			D3D11_MAP_WRITE_DISCARD,
 			0,
 			&mappedResource
 		);
-		memcpy(mappedResource.pData, &entity->gConstBuffer, sizeof(entity->gConstBuffer));
-		this->pDeviceContext->Unmap(entity->pConstantBuffer.Get(), 0);
+		memcpy(mappedResource.pData, &entity->gEntityConstBuffer, sizeof(entity->gEntityConstBuffer));
+		this->pDeviceContext->Unmap(entity->pEntityConstantBuffer.Get(), 0);
 	}
 
 	// Bind entity's constant buffer to first (index 0) slot.
 	this->pDeviceContext->VSSetConstantBuffers(
 		0,
 		1,
-		entity->pConstantBuffer.GetAddressOf()
+		entity->pEntityConstantBuffer.GetAddressOf()
 	);
 
 	// Vertex buffer

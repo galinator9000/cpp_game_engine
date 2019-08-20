@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity/Structs.h"
+#include "Structs.h"
 
 #include <wrl.h>
 #include <d3d11.h>

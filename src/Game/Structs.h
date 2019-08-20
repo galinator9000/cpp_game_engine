@@ -150,11 +150,19 @@ struct Vertex {
 	Color color;
 };
 
-// Structs for GPU side.
-struct ConstantBuffer {
+// Each entity holds this.
+// Basically transform matrix.
+struct EntityConstantBuffer {
 	dx::XMFLOAT4X4 worldMatrix;
 };
 
+// Each light object holds this, light's direction and intensity.
+struct LightConstantBuffer {
+	dx::XMFLOAT3 direction;
+	float intensity;
+};
+
+// Each camera object holds this, camera's position and projection information held.
 struct ViewProjectionMatrices {
 	dx::XMFLOAT4X4 viewMatrix;
 	dx::XMFLOAT4X4 projectionMatrix;

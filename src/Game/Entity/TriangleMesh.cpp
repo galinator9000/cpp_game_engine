@@ -40,7 +40,7 @@ void TriangleMesh::Update(bool initial) {
 void TriangleMesh::updateConstantBuffer() {
 	// Update constant buffer that held on class.
 	dx::XMStoreFloat4x4(
-		&(this->gConstBuffer.worldMatrix),
+		&(this->gEntityConstBuffer.worldMatrix),
 		dx::XMMatrixTranspose(
 			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
 			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *

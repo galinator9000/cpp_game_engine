@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#include "Light/DirectionalLight.h"
+
 Game::Game(World* pWorld){
 	this->pWorld = pWorld;
 }
@@ -51,6 +53,9 @@ void Game::Setup(){
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube.fbx")){
 		this->pWorld->addEntity(tMesh);
 	}
+
+	DirectionalLight* dirLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);
+	this->pWorld->addLight(dirLight);
 }
 
 void Game::Update(){

@@ -40,6 +40,13 @@ void World::addEntity(BaseEntity* bEntity){
 	this->pGfx->addEntity(bEntity);
 }
 
+// Light
+void World::addLight(DirectionalLight* light, bool activate) {
+	light->id = (unsigned int) allLights.size();
+	allLights.push_back(light);
+	this->pGfx->addLight(light, activate);
+}
+
 // Camera
 void World::addCamera(Camera* camera, bool setAsMain){
 	camera->id = (unsigned int) allCameras.size();

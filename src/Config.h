@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity/Structs.h"
+#include "Structs.h"
 
 const auto WND_TITLE = L"Direct3D";
 const int WIDTH = 1024;
