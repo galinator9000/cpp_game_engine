@@ -50,7 +50,7 @@ void Game::Setup(){
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
 		{ 0, 0, 0 }
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")){
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small_smooth.fbx")){
 		this->pWorld->addEntity(tMesh);
 	}
 

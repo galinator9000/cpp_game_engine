@@ -31,7 +31,7 @@ struct VSOut {
 };
 
 // Constant vectors
-static const float4 ambient = float4(0.15f, 0.15f, 0.15f, 0);
+static const float4 ambient = float4(0.10f, 0.10f, 0.10f, 0);
 
 VSOut main(VSIn vsIn){
 	VSOut vsOut;
