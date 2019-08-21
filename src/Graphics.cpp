@@ -186,9 +186,9 @@ void Graphics::addLight(DirectionalLight* light, bool activate) {
 }
 
 void Graphics::activateLight(DirectionalLight* light) {
-	// Bind constant buffer that holds light direction, position and intensity to first (index 0 ) slot of the Pixel Shader.
-	this->pDeviceContext->PSSetConstantBuffers(
-		0,
+	// Bind constant buffer that holds light direction, position and intensity to third (index 2) slot of the Vertex Shader.
+	this->pDeviceContext->VSSetConstantBuffers(
+		2,
 		1,
 		light->pLightConstantBuffer.GetAddressOf()
 	);

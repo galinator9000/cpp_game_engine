@@ -34,7 +34,7 @@ void Mouse::hideCursor(){
 	int rCursor;
 	do {
 		rCursor = ShowCursor(false);
-	} while (rCursor > 0);
+	} while (rCursor >= 0);
 }
 
 void Mouse::showCursor(){

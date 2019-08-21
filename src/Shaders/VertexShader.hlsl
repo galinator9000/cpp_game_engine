@@ -9,6 +9,12 @@ cbuffer ViewProjectionMatrices : register(b1) {
 	matrix projectionMatrix;
 };
 
+// Light direction and intensity values.
+cbuffer LightConstantBuffer : register(b2) {
+	float3 direction;
+	float intensity;
+};
+
 // Input structure of the Vertex shader.
 struct VSIn {
 	float3 position : Position;
@@ -19,11 +25,13 @@ struct VSIn {
 // Output structure of the Vertex shader.
 struct VSOut {
 	// These values will be passed to pixel shader.
-	float3 normal : Normal;
 	float4 color : Color;
 
 	float4 position : SV_Position;
 };
+
+// Constant vectors
+static const float4 ambient = float4(0.15f, 0.15f, 0.15f, 0);
 
 VSOut main(VSIn vsIn){
 	VSOut vsOut;
@@ -37,9 +45,16 @@ VSOut main(VSIn vsIn){
 	finalVector = mul(finalVector, projectionMatrix);
 	vsOut.position = finalVector;
 
-	// Fill values that will be passed to pixel shader.
-	vsOut.normal = mul(vsIn.normal, (float3x3) worldMatrix);
-	vsOut.color = vsIn.color;
+	// Light calculation.
+	float3 rotatedNormal = mul(vsIn.normal, (float3x3) worldMatrix);
+
+	float4 diffuse = intensity * max(0.0f, dot(-direction, rotatedNormal));
+
+	// Add ambient light & blend the color of the entity.
+	vsOut.color = saturate(
+		(diffuse) * vsIn.color
+	);
+	vsOut.color.a = 1.0f;
 
 	return vsOut;
 }

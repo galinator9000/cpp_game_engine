@@ -82,6 +82,16 @@ void Camera::Rotate(float yaw, float pitch) {
 	this->rotation.x += pitch;
 	this->rotation.y += yaw;
 
+	// Clip Pitch (Rotation on X axis) value to
+	// -PI/2 and PI/2 in radians
+	// -90 and 90 in degrees
+	if (this->rotation.x >= dx::XM_PI / 2) {
+		this->rotation.x = dx::XM_PI * 0.4999f;
+	}
+	else if (this->rotation.x <= -(dx::XM_PI / 2)) {
+		this->rotation.x = -(dx::XM_PI * 0.4999f);
+	}
+
 	// Update looking direction vector
 	dx::XMStoreFloat3(
 		&this->lookDirection,
