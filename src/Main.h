@@ -17,6 +17,4 @@
 #include "Game.h"
 #include "World.h"
 
-#define _DEBUGGING TRUE
-
 #include "Config.h"

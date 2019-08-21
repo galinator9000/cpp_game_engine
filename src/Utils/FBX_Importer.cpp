@@ -33,49 +33,81 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 		}
 	}
 
-	// Collect all vertices.
-	FbxVector4* fbxVertices = mesh->GetControlPoints();
-
-	for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++){
-		// Process every vertex in this polygon (triangle)
-		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-			int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
-			_vertices->push_back(
-				{
-					// Position of the Vertex
-					{
-						// Swap Y and Z axes.
-						(float) fbxVertices[controlPointIndex].mData[0],
-						(float) fbxVertices[controlPointIndex].mData[2],
-						(float) fbxVertices[controlPointIndex].mData[1]
-					},
-					// Fill normals and colors of the Vertex with zeros temporarily.
-					{
-						0,0,0
-					},
-					// Fill colors with white as default.
-					{
-						1.0f, 1.0f, 1.0f, 1.0f
-					}
-				}
-			);
-		}
-	}
-
-	// Collect all indices.
-	for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
-		// Process every vertex in this polygon (triangle)
-		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-			_indices->push_back(
-				(unsigned int) polygonIndex * 3 + (2-vertexIndex)
-			);
-		}
-	}
-
-	// Collect normals from the mesh.
+	// Get values that indicates how normals are represented in the mesh.
+	// If faces of the mesh shares vertices, that means one vertex has more than one normal vector.
+	// If that's the case, we duplicate the vertices and make faces independent from each other.
 	FbxGeometryElementNormal* fbxNormalElement = mesh->GetElementNormal(0);
 	FbxLayerElement::EMappingMode fbxNormalMapMode = fbxNormalElement->GetMappingMode();
 	FbxLayerElement::EReferenceMode fbxNormalReferenceMode = fbxNormalElement->GetReferenceMode();
+
+	// Collect all vertices.
+	FbxVector4* fbxVertices = mesh->GetControlPoints();
+
+	switch (fbxNormalMapMode) {
+		// Comments are from Autodesk FBX SDK
+
+		// The mapping is undetermined.
+		case FbxGeometryElement::eNone:
+			return false;
+			break;
+
+		// There will be one mapping coordinate for each surface control point/vertex.
+		case FbxGeometryElement::eByControlPoint:
+			break;
+
+		// There will be one mapping coordinate for each vertex, for every polygon of which it is a part.
+		// This means that a vertex will have as many mapping coordinates as polygons of which it is a part.
+		case FbxGeometryElement::eByPolygonVertex:
+			// Collect all vertices.
+			for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
+				// Process every vertex in this polygon (triangle)
+				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+					int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+					_vertices->push_back(
+						{
+							// Position of the Vertex
+							{
+								// Swap Y and Z axes.
+								(float)fbxVertices[controlPointIndex].mData[0],
+								(float)fbxVertices[controlPointIndex].mData[2],
+								(float)fbxVertices[controlPointIndex].mData[1]
+							},
+						// Fill normals and colors of the Vertex with zeros temporarily.
+						{
+							0,0,0
+						},
+						// Fill colors with white as default.
+						{
+							1.0f, 1.0f, 1.0f, 1.0f
+						}
+						}
+					);
+				}
+			}
+			// Collect all indices.
+			for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
+				// Process every vertex in this polygon (triangle)
+				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+					_indices->push_back(
+						(unsigned int)polygonIndex * 3 + (2 - vertexIndex)
+					);
+				}
+			}
+			break;
+
+		// There can be only one mapping coordinate for the whole polygon.
+		case FbxGeometryElement::eByPolygon:
+			break;
+
+		// There will be one mapping coordinate for each unique edge in the mesh.
+		// This is meant to be used with smoothing layer elements.
+		case FbxGeometryElement::eByEdge:
+			break;
+
+		// There can be only one mapping coordinate for the whole surface.
+		case FbxGeometryElement::eAllSame:
+			break;
+	}
 
 	int indexByPolygonVertex = 0;
 	switch (fbxNormalMapMode) {
@@ -86,7 +118,6 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 			break;
 
 		// There will be one mapping coordinate for each surface control point/vertex.
-		// UNSUPPORTED
 		case FbxGeometryElement::eByControlPoint:
 			break;
 			/*
@@ -150,7 +181,6 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 					_vertices->at(indexByPolygonVertex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
 				}
 			}
-
 			break;
 
 		// There can be only one mapping coordinate for the whole polygon.

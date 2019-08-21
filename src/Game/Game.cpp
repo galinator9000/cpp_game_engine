@@ -37,7 +37,7 @@ void Game::Setup(){
 			{ 0.1f, 0.1f, 0.1f },
 			{ i * 0.01f, 5.0f + (i * 0.5f), 6.0f },
 			{ 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.5f, 1.0f },
+			{ 0.0f, 0.0f, 1.0f, 1.0f },
 			{ 0, 0, 0 }
 		);
 		this->pWorld->addEntity(box2);
@@ -47,10 +47,10 @@ void Game::Setup(){
 		{ 1.0f, 1.0f, 1.0f },
 		{ 0, 0, 0 },
 		{ 0.0f, 0.0f, 0.0f },
-		{ 1.0f, 0.2f, 0.2f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
 		{ 0, 0, 0 }
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\sphere.fbx")){
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")){
 		this->pWorld->addEntity(tMesh);
 	}
 

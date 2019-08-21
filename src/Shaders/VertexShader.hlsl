@@ -9,12 +9,6 @@ cbuffer ViewProjectionMatrices : register(b1) {
 	matrix projectionMatrix;
 };
 
-// Light direction and intensity values.
-cbuffer LightConstantBuffer : register(b2){
-    float3 direction;
-    float intensity;
-};
-
 // Input structure of the Vertex shader.
 struct VSIn {
 	float3 position : Position;
@@ -24,33 +18,28 @@ struct VSIn {
 
 // Output structure of the Vertex shader.
 struct VSOut {
-    float4 color : Color;
-	float4 pos : SV_Position;
+	// These values will be passed to pixel shader.
+	float3 normal : Normal;
+	float4 color : Color;
+
+	float4 position : SV_Position;
 };
 
-VSOut main(VSIn vertex){
-	VSOut vso;
+VSOut main(VSIn vsIn){
+	VSOut vsOut;
 
-	// Final position vector
+	// Position vector
 	float4 finalVector;
 	finalVector = mul(
-		float4(vertex.position.x, vertex.position.y, vertex.position.z, 1.0f), worldMatrix
+		float4(vsIn.position.x, vsIn.position.y, vsIn.position.z, 1.0f), worldMatrix
 	);
 	finalVector = mul(finalVector, viewMatrix);
 	finalVector = mul(finalVector, projectionMatrix);
-	vso.pos = finalVector;
+	vsOut.position = finalVector;
 
-    // Directional light calculation
-    float diffuse = intensity * dot(clamp(vertex.normal, 0.0f, 1.0f), -direction);
+	// Fill values that will be passed to pixel shader.
+	vsOut.normal = mul(vsIn.normal, (float3x3) worldMatrix);
+	vsOut.color = vsIn.color;
 
-    // Blend color and light.
-    vso.color = vertex.color * diffuse;
-
-    // Add ambient light.
-    vso.color += float4(0.15f, 0.15f, 0.15f, 1.0f);
-
-    // Clamp values.
-    vso.color = clamp(vso.color, 0.0f, 1.0f);
-
-	return vso;
+	return vsOut;
 }

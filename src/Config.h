@@ -1,6 +1,8 @@
 #pragma once
 #include "Structs.h"
 
+#define _DEBUGGING FALSE
+
 const auto WND_TITLE = L"Direct3D";
 const int WIDTH = 1024;
 const int HEIGHT = 768;
@@ -8,5 +10,7 @@ const int REFRESH_RATE = 60;
 const int FOV = 90;
 
 // Gray background color.
-//const Color BACKGROUND_COLOR = Color(0.14f, 0.14f, 0.14f, 1.0f);
-const Color BACKGROUND_COLOR = Color(0, 0, 0, 1);
+const Color BACKGROUND_COLOR = Color(0.14f, 0.14f, 0.14f, 1.0f);
+
+// Black background color.
+//const Color BACKGROUND_COLOR = Color(0, 0, 0, 1);

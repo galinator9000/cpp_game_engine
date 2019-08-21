@@ -165,7 +165,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 }
 
 void Graphics::addLight(DirectionalLight* light, bool activate) {
-	// Create buffer for View and Projection matrices on GPU side.
+	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
@@ -186,9 +186,9 @@ void Graphics::addLight(DirectionalLight* light, bool activate) {
 }
 
 void Graphics::activateLight(DirectionalLight* light) {
-	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
-	this->pDeviceContext->VSSetConstantBuffers(
-		2,
+	// Bind constant buffer that holds light direction, position and intensity to first (index 0 ) slot of the Pixel Shader.
+	this->pDeviceContext->PSSetConstantBuffers(
+		0,
 		1,
 		light->pLightConstantBuffer.GetAddressOf()
 	);
