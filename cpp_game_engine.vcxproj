@@ -247,6 +247,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClCompile Include="src\Game\Entity\Primitives\Box.cpp" />
     <ClCompile Include="src\Game\Entity\BaseEntity.cpp" />
     <ClCompile Include="src\Game\Light\DirectionalLight.cpp" />
+    <ClCompile Include="src\Game\Light\PointLight.cpp" />
     <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Graphics.cpp" />
     <ClCompile Include="src\Exception.cpp" />

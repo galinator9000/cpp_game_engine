@@ -164,7 +164,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Graphics::addLight(DirectionalLight* light, bool activate) {
+void Graphics::addLight(PointLight* light, bool activate) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
@@ -185,7 +185,7 @@ void Graphics::addLight(DirectionalLight* light, bool activate) {
 	}
 }
 
-void Graphics::activateLight(DirectionalLight* light) {
+void Graphics::activateLight(PointLight* light) {
 	// Bind constant buffer that holds light direction, position and intensity to third (index 2) slot of the Vertex Shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		2,

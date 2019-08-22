@@ -8,6 +8,7 @@
 // Base class for all entities
 #include "Entity/BaseEntity.h"
 #include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
 
 class World{
 public:
@@ -20,8 +21,7 @@ public:
 	void addEntity(BaseEntity* bEntity);
 
 	// Light functions
-	void addLight(DirectionalLight* light, bool activate=true);
-	void activateLight(DirectionalLight* light);
+	void addLight(PointLight* light, bool activate=true);
 
 	// Camera functions
 	void addCamera(Camera* camera, bool setAsMain=false);
@@ -38,7 +38,7 @@ private:
 	std::vector<BaseEntity*> allEntities;
 
 	// List for keeping track of lights.
-	std::vector<DirectionalLight*> allLights;
+	std::vector<PointLight*> allLights;
 
 	// List for keeping track of cameras.
 	std::vector<Camera*> allCameras;

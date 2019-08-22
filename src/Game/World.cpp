@@ -41,7 +41,7 @@ void World::addEntity(BaseEntity* bEntity){
 }
 
 // Light
-void World::addLight(DirectionalLight* light, bool activate) {
+void World::addLight(PointLight* light, bool activate) {
 	light->id = (unsigned int) allLights.size();
 	allLights.push_back(light);
 	this->pGfx->addLight(light, activate);

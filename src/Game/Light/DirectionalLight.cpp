@@ -6,6 +6,4 @@ DirectionalLight::DirectionalLight(Vector3 direction, float intensity) {
 
 	this->gLightConstBuffer.direction = this->gDirection;
 	this->gLightConstBuffer.intensity = this->gIntensity;
-
-	this->type = LIGHT_TYPE::DIRECTIONAL;
 }

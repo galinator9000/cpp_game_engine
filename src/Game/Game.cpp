@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
 
 Game::Game(World* pWorld){
 	this->pWorld = pWorld;
@@ -25,7 +26,7 @@ void Game::Setup(){
 	Box* box = new Box(
 		{ 1.5f, 0.05f, 1.5f },
 		{ 0.0f, 2.0f, 6.0f },
-		{ 0.0f, 0.0f, 0.0f },
+		{ 0, 0, 0 },
 		{ 0.0f, 1.0f, 0.0f, 1.0f },
 		{ 0, 0, 0 }
 	);
@@ -36,26 +37,26 @@ void Game::Setup(){
 		Box* box2 = new Box(
 			{ 0.1f, 0.1f, 0.1f },
 			{ i * 0.01f, 5.0f + (i * 0.5f), 6.0f },
-			{ 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 1.0f, 1.0f },
+			{ 0, 0, 0 },
+			{ 0, 0, 1, 1 },
 			{ 0, 0, 0 }
 		);
 		this->pWorld->addEntity(box2);
 	}
 
 	TriangleMesh* tMesh = new TriangleMesh(
-		{ 1.0f, 1.0f, 1.0f },
+		{ 1, 1, 1 },
 		{ 0, 0, 0 },
-		{ 0.0f, 0.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		{ 0, 0, 0 },
+		{ 1, 1, 1, 1 },
 		{ 0, 0, 0 }
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small_smooth.fbx")){
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\suzanne.fbx")){
 		this->pWorld->addEntity(tMesh);
 	}
 
-	DirectionalLight* dirLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);
-	this->pWorld->addLight(dirLight);
+	PointLight* pointLight = new PointLight(Vector3(-3, 3, -3), 1.0f);
+	this->pWorld->addLight(pointLight);
 }
 
 void Game::Update(){

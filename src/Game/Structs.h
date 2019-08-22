@@ -54,6 +54,34 @@ struct Vector3 {
 		);
 	}
 
+	float maximum() {
+		float maxVal = -INFINITY;
+
+		if (this->x > maxVal) {
+			maxVal = this->x;
+		}if (this->y > maxVal) {
+			maxVal = this->y;
+		}if (this->z > maxVal) {
+			maxVal = this->z;
+		}
+
+		return maxVal;
+	}
+
+	float minimum() {
+		float minVal = INFINITY;
+
+		if (this->x < minVal) {
+			minVal = this->x;
+		}if (this->y < minVal) {
+			minVal = this->y;
+		}if (this->z < minVal) {
+			minVal = this->z;
+		}
+
+		return minVal;
+	}
+
 	float x;
 	float y;
 	float z;
@@ -116,6 +144,38 @@ struct Vector4 {
 		);
 	}
 
+	float maximum() {
+		float maxVal = -INFINITY;
+
+		if (this->x > maxVal) {
+			maxVal = this->x;
+		}if (this->y > maxVal) {
+			maxVal = this->y;
+		}if (this->z > maxVal) {
+			maxVal = this->z;
+		}if (this->w > maxVal) {
+			maxVal = this->w;
+		}
+
+		return maxVal;
+	}
+
+	float minimum() {
+		float minVal = INFINITY;
+
+		if (this->x < minVal) {
+			minVal = this->x;
+		}if (this->y < minVal) {
+			minVal = this->y;
+		}if (this->z < minVal) {
+			minVal = this->z;
+		}if (this->w < minVal) {
+			minVal = this->w;
+		}
+
+		return minVal;
+	}
+
 	float x;
 	float y;
 	float z;
@@ -156,9 +216,15 @@ struct EntityConstantBuffer {
 	dx::XMFLOAT4X4 worldMatrix;
 };
 
-// Each light object holds this, light's direction and intensity.
-struct LightConstantBuffer {
+// Directional light object holds this, light's direction and intensity.
+struct DirectionalLightConstantBuffer {
 	dx::XMFLOAT3 direction;
+	float intensity;
+};
+
+// Point light object holds this, light's position and intensity.
+struct PointLightConstantBuffer {
+	dx::XMFLOAT3 position;
 	float intensity;
 };
 

@@ -8,14 +8,9 @@
 using namespace DirectX;
 namespace wrl = Microsoft::WRL;
 
-enum LIGHT_TYPE {
-	DIRECTIONAL
-};
-
 class DirectionalLight {
 public:
 	unsigned int id;
-	unsigned int type;
 
 	DirectionalLight(Vector3 direction, float intensity);
 
@@ -23,6 +18,6 @@ public:
 	dx::XMFLOAT3 gDirection;
 	float gIntensity;
 
-	LightConstantBuffer gLightConstBuffer;
+	DirectionalLightConstantBuffer gLightConstBuffer;
 	wrl::ComPtr<ID3D11Buffer> pLightConstantBuffer;
 };
