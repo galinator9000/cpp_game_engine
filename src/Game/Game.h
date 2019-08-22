@@ -2,8 +2,9 @@
 
 // Game world
 #include "World.h"
-
 #include "Config.h"
+#include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
 
 class Game{
 public:

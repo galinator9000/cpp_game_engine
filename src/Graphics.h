@@ -1,14 +1,11 @@
 #pragma once
 #include "Config.h"
 #include "Camera.h"
+#include "Timer.h"
 #include "Structs.h"
 #include "Entity/BaseEntity.h"
 #include "Entity/Shapes.h"
-
-#include "Light/DirectionalLight.h"
-#include "Light/PointLight.h"
-
-#include "Timer.h"
+#include "Light/Light.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
@@ -50,9 +47,9 @@ public:
 	void drawEntity(BaseEntity* entity);
 
 	// Light
-	void addLight(PointLight* light, bool activate);
-	void activateLight(PointLight* light);
-	void updateLight(PointLight* light);
+	void addLight(Light* light, bool activate);
+	void activateLight(Light* light);
+	void updateLight(Light* light);
 	
 	// Camera
 	void addCamera(Camera* camera, bool setAsMain);

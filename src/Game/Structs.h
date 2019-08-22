@@ -216,16 +216,12 @@ struct EntityConstantBuffer {
 	dx::XMFLOAT4X4 worldMatrix;
 };
 
-// Directional light object holds this, light's direction and intensity.
-struct DirectionalLightConstantBuffer {
+// Light object holds this, light's intensity, direction and position values.
+struct LightConstantBuffer {
+	float intensity;
 	dx::XMFLOAT3 direction;
-	float intensity;
-};
-
-// Point light object holds this, light's position and intensity.
-struct PointLightConstantBuffer {
 	dx::XMFLOAT3 position;
-	float intensity;
+	unsigned int type;
 };
 
 // Each camera object holds this, camera's position and projection information held.

@@ -1,4 +1,5 @@
 #pragma once
+#include "Light/Light.h"
 #include "Structs.h"
 
 #include <wrl.h>
@@ -8,21 +9,7 @@
 using namespace DirectX;
 namespace wrl = Microsoft::WRL;
 
-class PointLight {
+class PointLight : public Light {
 public:
-	unsigned int id;
-
 	PointLight(Vector3 position, float intensity);
-	void Update(bool initial=false);
-	void setPosition(Vector3 newPosition);
-	void setIntensity(float intensity);
-	void updateConstantBuffer();
-
-	// Graphics
-	dx::XMFLOAT3 gPosition;
-	float gIntensity;
-
-	PointLightConstantBuffer gLightConstBuffer;
-	wrl::ComPtr<ID3D11Buffer> pLightConstantBuffer;
-	bool shouldUpdateData;
 };

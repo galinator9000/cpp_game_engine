@@ -12,7 +12,7 @@ void World::Update(){
 
 	// Update all light objects.
 	for (unsigned int l = 0; l < allLights.size(); l++) {
-		PointLight* light = allLights[l];
+		Light* light = allLights[l];
 
 		if (light == NULL) {
 			continue;
@@ -56,10 +56,14 @@ void World::addEntity(BaseEntity* bEntity){
 }
 
 // Light
-void World::addLight(PointLight* light, bool activate) {
+void World::addLight(Light* light, bool activate) {
 	light->id = (unsigned int) allLights.size();
 	allLights.push_back(light);
 	this->pGfx->addLight(light, activate);
+}
+
+void World::setLight(Light* light) {
+	this->pGfx->activateLight(light);
 }
 
 // Camera

@@ -1,11 +1,11 @@
 #include "FBX_Importer.h"
 
-FbxManager* FBX_Importer::fbxSdkManager = FbxManager::Create();
-FbxImporter* FBX_Importer::fbxImporter = FbxImporter::Create(fbxSdkManager, "");
-
 bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, std::vector<unsigned int>* _indices) {
+	FbxManager* fbxSdkManager = FbxManager::Create();
+	FbxImporter* fbxImporter = FbxImporter::Create(fbxSdkManager, "");
+
 	// Load file.
-	if (!FBX_Importer::fbxImporter->Initialize(fileName, -1, FBX_Importer::fbxSdkManager->GetIOSettings())) {
+	if (!fbxImporter->Initialize(fileName, -1, fbxSdkManager->GetIOSettings())) {
 		std::ostringstream myStream;
 		myStream << fileName;
 		myStream << " failed to load." << "\n";
@@ -16,9 +16,9 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 	}
 
 	// Create scene object.
-	FbxScene* fbxScene = FbxScene::Create(FBX_Importer::fbxSdkManager, "scene");
-	FBX_Importer::fbxImporter->Import(fbxScene);
-	FBX_Importer::fbxImporter->Destroy();
+	FbxScene* fbxScene = FbxScene::Create(fbxSdkManager, "scene");
+	fbxImporter->Import(fbxScene);
+	fbxImporter->Destroy();
 	
 	// Get mesh from scene object.
 	FbxMesh* mesh = fbxScene->GetRootNode()->GetChild(0)->GetMesh();

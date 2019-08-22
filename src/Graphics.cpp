@@ -190,9 +190,10 @@ void Graphics::beginFrame() {
 void Graphics::endFrame() {
 	this->gFrameCounter += 1;
 
-	if (this->gTimer.Peek() > 1.0f) {
+	// Update this information every 250 millisecond.
+	if (this->gTimer.Peek() > 0.25f) {
 		// Calculate FPS.
-		this->gCurrentFPS = (unsigned int)(float)this->gFrameCounter / this->gTimer.Peek();
+		this->gCurrentFPS = (unsigned int) (float)this->gFrameCounter / this->gTimer.Peek();
 
 		// Log current FPS.
 		std::ostringstream myStream;
@@ -328,7 +329,7 @@ void Graphics::drawEntity(BaseEntity* entity){
 }
 
 // Light
-void Graphics::addLight(PointLight* light, bool activate) {
+void Graphics::addLight(Light* light, bool activate) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
@@ -349,7 +350,7 @@ void Graphics::addLight(PointLight* light, bool activate) {
 	}
 }
 
-void Graphics::activateLight(PointLight* light) {
+void Graphics::activateLight(Light* light) {
 	// Bind constant buffer that holds light direction, position and intensity to third (index 2) slot of the Vertex Shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		2,
@@ -358,7 +359,7 @@ void Graphics::activateLight(PointLight* light) {
 	);
 }
 
-void Graphics::updateLight(PointLight* light) {
+void Graphics::updateLight(Light* light) {
 	if (light->shouldUpdateData) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 		this->pDeviceContext->Map(

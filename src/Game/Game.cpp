@@ -1,8 +1,5 @@
 #include "Game.h"
 
-#include "Light/DirectionalLight.h"
-#include "Light/PointLight.h"
-
 Game::Game(World* pWorld){
 	this->pWorld = pWorld;
 }
@@ -44,6 +41,7 @@ void Game::Setup(){
 		this->pWorld->addEntity(box2);
 	}
 
+	// Suzanne model
 	TriangleMesh* tMesh = new TriangleMesh(
 		{ 1, 1, 1 },
 		{ 0, 0, 0 },
@@ -55,16 +53,30 @@ void Game::Setup(){
 		this->pWorld->addEntity(tMesh);
 	}
 
-	PointLight* pointLight = new PointLight(Vector3(-3, 3, -3), 1.0f);
+	TriangleMesh* tMesh2 = new TriangleMesh(
+		{ 1, 1, 1 },
+		{ 0, 0, 10 },
+		{ 0, 0, 0 },
+		{ 1, 1, 1, 1 },
+		{ 0, 0, 0 }
+	);
+	if (tMesh2->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
+		this->pWorld->addEntity(tMesh2);
+	}
+
+	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
 	this->pWorld->addLight(pointLight);
+
+	//DirectionalLight* directionalLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);
+	//this->pWorld->addLight(directionalLight);
 }
 
 void Game::Update(){
-	float cosx = cos(timer.Peek() * 6.28f) * 10.0f;
-	float siny = sin(-timer.Peek() * 6.28f) * 10.0f;
+	float cosx = cos(timer.Peek() * 6.28f) * 5.0f;
+	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
 	
 	this->pWorld->allLights.at(0)->setPosition(
-		{ cosx, 0, siny }
+		{ cosx, siny, siny }
 	);
 
 	if (timer.Peek() > 1.0f) {

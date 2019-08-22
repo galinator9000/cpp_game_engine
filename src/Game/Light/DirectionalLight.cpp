@@ -1,9 +1,11 @@
 #include "DirectionalLight.h"
 
 DirectionalLight::DirectionalLight(Vector3 direction, float intensity) {
-	this->gDirection = dx::XMFLOAT3(direction.x, direction.y, direction.z);
-	this->gIntensity = intensity;
+	this->type = LIGHT_TYPE::DIRECTIONAL_LIGHT;
 
-	this->gLightConstBuffer.direction = this->gDirection;
-	this->gLightConstBuffer.intensity = this->gIntensity;
+	this->gIntensity = intensity;
+	this->gDirection = dx::XMFLOAT3(direction.x, direction.y, direction.z);
+	this->gPosition = dx::XMFLOAT3(0, 0, 0);
+
+	this->Update(true);
 }

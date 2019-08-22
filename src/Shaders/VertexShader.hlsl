@@ -9,18 +9,14 @@ cbuffer ViewProjectionMatrices : register(b1) {
 	matrix projectionMatrix;
 };
 
-// Light buffers.
-// Directional Light direction and intensity values.
-/*cbuffer DirectionalLightConstantBuffer : register(b2) {
+// Light intensity, direction and position values.
+cbuffer LightConstantBuffer : register(b2) {
+	float lightIntensity;
 	float3 lightDirection;
-	float lightIntensity;
-}; */
-
-// Point Light position and intensity values.
-cbuffer PointLightConstantBuffer : register(b2) {
 	float3 lightPosition;
-	float lightIntensity;
+	unsigned int lightType;
 };
+
 // Attenuation calculation values for Point Light.
 static const float attenuation_constant = 1.0f;
 static const float attenuation_linear = 0.014;
@@ -41,7 +37,12 @@ struct VSOut {
 	float4 position : SV_Position;
 };
 
-// Constant vectors
+// Constant values
+// Current processed light type.
+static const unsigned int DIRECTIONAL_LIGHT = 0;
+static const unsigned int POINT_LIGHT = 1;
+
+// Ambient value for light calculation.
 static const float4 ambient = float4(0.10f, 0.10f, 0.10f, 0);
 
 VSOut main(VSIn vsIn){
@@ -56,22 +57,27 @@ VSOut main(VSIn vsIn){
 	finalVector = mul(finalVector, projectionMatrix);
 	vsOut.position = finalVector;
 
+	//// Light calculation per-vertex.
 	// Rotate the normals.
 	float3 rotatedNormal = mul(vsIn.normal, (float3x3) worldMatrix);
 
-	//// Directional Light calculation.
-	//float4 diffuse = lightIntensity * max(0.0f, dot(-lightDirection, rotatedNormal));
+	float4 diffuse = float4(0, 0, 0, 0);
+	// Directional Light calculation.
+	if (lightType == DIRECTIONAL_LIGHT) {
+		diffuse = lightIntensity * max(0.0f, dot(-lightDirection, rotatedNormal));
+	}
+	// Point Light calculation.
+	else if (lightType == POINT_LIGHT) {
+		float3 vertexToLight = (float3) float4(lightPosition, 1.0f) - mul(float4(vsIn.position, 1.0f), worldMatrix);
+		float distVertexToLight = length(vertexToLight);
+		float3 directionVertexToLight = normalize(vertexToLight);
 
-	//// Point Light calculation.
-	float3 vertexToLight = (float3) float4(lightPosition, 1.0f) - mul(float4(vsIn.position, 1.0f), worldMatrix);
-	float distVertexToLight = length(vertexToLight);
-	float3 directionVertexToLight = vertexToLight / distVertexToLight;
+		// Attenuation calculation.
+		float attenuation = attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight));
+		diffuse = lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, rotatedNormal));
+	}
 
-	// Attenuation calculation.
-	float attenuation = attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight));
-	float4 diffuse = lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, rotatedNormal));
-
-	// Add ambient light & blend the color of the entity.
+	//// Add ambient light & blend the color of the entity.
 	vsOut.color = saturate(
 		(diffuse + ambient) * vsIn.color
 	);

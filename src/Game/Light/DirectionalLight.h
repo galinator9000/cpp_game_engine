@@ -1,4 +1,5 @@
 #pragma once
+#include "Light/Light.h"
 #include "Structs.h"
 
 #include <wrl.h>
@@ -8,16 +9,7 @@
 using namespace DirectX;
 namespace wrl = Microsoft::WRL;
 
-class DirectionalLight {
+class DirectionalLight : public Light {
 public:
-	unsigned int id;
-
 	DirectionalLight(Vector3 direction, float intensity);
-
-	// Graphics
-	dx::XMFLOAT3 gDirection;
-	float gIntensity;
-
-	DirectionalLightConstantBuffer gLightConstBuffer;
-	wrl::ComPtr<ID3D11Buffer> pLightConstantBuffer;
 };
