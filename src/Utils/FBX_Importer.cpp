@@ -10,6 +10,7 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 		myStream << fileName;
 		myStream << " failed to load." << "\n";
 		OutputDebugStringA(myStream.str().c_str());
+		std::cout << myStream.str().c_str();
 
 		return false;
 	}
@@ -29,6 +30,8 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 			myStream << fileName;
 			myStream << " contains polygons with more than 3 vertices." << "\n";
 			OutputDebugStringA(myStream.str().c_str());
+			std::cout << myStream.str().c_str();
+
 			return false;
 		}
 	}

@@ -30,10 +30,6 @@ public:
 	// Main camera pointer.
 	Camera* activeCamera;
 
-private:
-	Graphics* pGfx;
-	Physics* pPhy;
-
 	// List for keeping track of entities.
 	std::vector<BaseEntity*> allEntities;
 
@@ -42,4 +38,8 @@ private:
 
 	// List for keeping track of cameras.
 	std::vector<Camera*> allCameras;
+
+private:
+	Graphics* pGfx;
+	Physics* pPhy;
 };

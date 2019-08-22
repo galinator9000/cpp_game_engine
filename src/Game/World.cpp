@@ -6,16 +6,31 @@ World::World(Graphics* pGfx, Physics* pPhy){
 }
 
 void World::Update(){
+	//// Update section.
 	// Step and update physics of the world.
 	this->pPhy->Update();
+
+	// Update all light objects.
+	for (unsigned int l = 0; l < allLights.size(); l++) {
+		PointLight* light = allLights[l];
+
+		if (light == NULL) {
+			continue;
+		}
+
+		light->Update();
+		this->pGfx->updateLight(light);
+	}
 
 	// Update active camera.
 	this->activeCamera->Update();
 	this->pGfx->updateCamera(this->activeCamera);
 
+	//// Draw section.
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
 
+	// Update and draw all entities.
 	for (unsigned int e = 0; e < allEntities.size(); e++){
 		BaseEntity* ent = allEntities[e];
 

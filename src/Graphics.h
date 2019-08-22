@@ -8,6 +8,8 @@
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
 
+#include "Timer.h"
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
 #include <d3d11.h>
@@ -17,11 +19,17 @@
 #include <iostream>
 #include <vector>
 
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <sstream>
+
 // Macro for handling HRESULT graphics errors from Direct3D API calls.
 #define GFX_ERROR_CHECK(hr)
 
 class Graphics{
 public:
+	////// DIRECTX SETUP AND GENERAL FUNCTIONS SECTION
 	Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRESH_RATE);
 	~Graphics() {
 		/*this->pVertexShader->Release();
@@ -36,6 +44,7 @@ public:
 	void endFrame();
 	void Clear(Color c = {0.0f, 0.0f, 0.0f, 1.0f});
 
+	////// GAME ENGINE SECTION
 	// Entity
 	void addEntity(BaseEntity* entity);
 	void drawEntity(BaseEntity* entity);
@@ -43,6 +52,7 @@ public:
 	// Light
 	void addLight(PointLight* light, bool activate);
 	void activateLight(PointLight* light);
+	void updateLight(PointLight* light);
 	
 	// Camera
 	void addCamera(Camera* camera, bool setAsMain);
@@ -51,6 +61,11 @@ public:
 
 	unsigned int gWidth;
 	unsigned int gHeight;
+
+	// Timer instance for calculating FPS.
+	Timer gTimer;
+	unsigned short gFrameCounter = 0;
+	unsigned int gCurrentFPS = 0;
 private:
 	HRESULT hr;
 

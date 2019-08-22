@@ -238,6 +238,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClInclude Include="src\Utils\OBJ_Loader.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\Game\World.h" />
+    <ClInclude Include="src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Game\Entity\TriangleMesh.cpp" />
@@ -257,6 +258,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClCompile Include="src\Utils\FBX_Importer.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\Game\World.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cpp_game_engine.rc" />

@@ -3,6 +3,8 @@
 namespace wrl = Microsoft::WRL;
 namespace dx = DirectX;
 
+////// DIRECTX SETUP AND GENERAL FUNCTIONS SECTION
+
 Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRESH_RATE){
 	this->gWidth = WIDTH;
 	this->gHeight = HEIGHT;
@@ -164,87 +166,12 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Graphics::addLight(PointLight* light, bool activate) {
-	// Create buffer for holding light direction, position and intensity values on GPU side.
-	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
-	cBd.Usage = D3D11_USAGE_DYNAMIC;
-	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBd.MiscFlags = 0;
-	cBd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA cSd = { &light->gLightConstBuffer, 0, 0 };
-	this->hr = this->pDevice->CreateBuffer(
-		&cBd,
-		&cSd,
-		&(light->pLightConstantBuffer)
-	);
-
-	if (activate) {
-		this->activateLight(light);
-	}
-}
-
-void Graphics::activateLight(PointLight* light) {
-	// Bind constant buffer that holds light direction, position and intensity to third (index 2) slot of the Vertex Shader.
-	this->pDeviceContext->VSSetConstantBuffers(
-		2,
-		1,
-		light->pLightConstantBuffer.GetAddressOf()
-	);
-}
-
-void Graphics::addCamera(Camera* camera, bool setAsMAin){
-	// Create buffer for View and Projection matrices on GPU side.
-	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = sizeof(camera->gViewProjection);
-	cBd.Usage = D3D11_USAGE_DYNAMIC;
-	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBd.MiscFlags = 0;
-	cBd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA cSd = { &camera->gViewProjection, 0, 0 };
-	this->hr = this->pDevice->CreateBuffer(
-		&cBd,
-		&cSd,
-		&(camera->pViewProjectionBuffer)
-	);
-
-	if(setAsMAin){
-		this->setCamera(camera);
-	}
-}
-
-void Graphics::setCamera(Camera* camera){
-	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
-	this->pDeviceContext->VSSetConstantBuffers(
-		1,
-		1,
-		camera->pViewProjectionBuffer.GetAddressOf()
-	);
-}
-
-void Graphics::updateCamera(Camera* camera) {
-	if (camera->shouldUpdateData) {
-		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-		this->pDeviceContext->Map(
-			camera->pViewProjectionBuffer.Get(),
-			0,
-			D3D11_MAP_WRITE_DISCARD,
-			0,
-			&mappedResource
-		);
-		memcpy(mappedResource.pData, &camera->gViewProjection, sizeof(camera->gViewProjection));
-		this->pDeviceContext->Unmap(camera->pViewProjectionBuffer.Get(), 0);
-	}
-}
-
 // Clears target view with specified RGBA color, if not specified, does it with black color.
-void Graphics::Clear(Color c){
+void Graphics::Clear(Color c) {
 	// Clear back buffer.
 	this->pDeviceContext->ClearRenderTargetView(
 		this->pRenderTargetView.Get(),
-		new float[4]{c.r, c.g, c.b, c.a}
+		new float[4]{ c.r, c.g, c.b, c.a }
 	);
 
 	// Clear Z-buffer.
@@ -256,14 +183,34 @@ void Graphics::Clear(Color c){
 	);
 }
 
-void Graphics::beginFrame(){
+void Graphics::beginFrame() {
 	this->Clear(BACKGROUND_COLOR);
 }
 
-void Graphics::endFrame(){
+void Graphics::endFrame() {
+	this->gFrameCounter += 1;
+
+	if (this->gTimer.Peek() > 1.0f) {
+		// Calculate FPS.
+		this->gCurrentFPS = (unsigned int)(float)this->gFrameCounter / this->gTimer.Peek();
+
+		// Log current FPS.
+		std::ostringstream myStream;
+		myStream << "FPS: ";
+		myStream << this->gCurrentFPS << "\n";
+		OutputDebugStringA(myStream.str().c_str());
+		std::cout << myStream.str().c_str();
+
+		// Reset counters.
+		this->gTimer.Reset();
+		this->gFrameCounter = 0;
+	}
+
 	this->hr = this->pSwapChain->Present(1, 0);
 }
 
+////// GAME ENGINE SECTION
+// Entity
 void Graphics::addEntity(BaseEntity* entity){
 	switch (entity->type) {
 		case ENTITY_TYPE::PLANE:
@@ -378,4 +325,96 @@ void Graphics::drawEntity(BaseEntity* entity){
 		0,
 		0
 	);
+}
+
+// Light
+void Graphics::addLight(PointLight* light, bool activate) {
+	// Create buffer for holding light direction, position and intensity values on GPU side.
+	D3D11_BUFFER_DESC cBd = { 0 };
+	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
+	cBd.Usage = D3D11_USAGE_DYNAMIC;
+	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBd.MiscFlags = 0;
+	cBd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSd = { &light->gLightConstBuffer, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cBd,
+		&cSd,
+		&(light->pLightConstantBuffer)
+	);
+
+	if (activate) {
+		this->activateLight(light);
+	}
+}
+
+void Graphics::activateLight(PointLight* light) {
+	// Bind constant buffer that holds light direction, position and intensity to third (index 2) slot of the Vertex Shader.
+	this->pDeviceContext->VSSetConstantBuffers(
+		2,
+		1,
+		light->pLightConstantBuffer.GetAddressOf()
+	);
+}
+
+void Graphics::updateLight(PointLight* light) {
+	if (light->shouldUpdateData) {
+		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+		this->pDeviceContext->Map(
+			light->pLightConstantBuffer.Get(),
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&mappedResource
+		);
+		memcpy(mappedResource.pData, &light->gLightConstBuffer, sizeof(light->gLightConstBuffer));
+		this->pDeviceContext->Unmap(light->pLightConstantBuffer.Get(), 0);
+	}
+}
+
+// Camera
+void Graphics::addCamera(Camera* camera, bool setAsMAin) {
+	// Create buffer for View and Projection matrices on GPU side.
+	D3D11_BUFFER_DESC cBd = { 0 };
+	cBd.ByteWidth = sizeof(camera->gViewProjection);
+	cBd.Usage = D3D11_USAGE_DYNAMIC;
+	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBd.MiscFlags = 0;
+	cBd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSd = { &camera->gViewProjection, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cBd,
+		&cSd,
+		&(camera->pViewProjectionBuffer)
+	);
+
+	if (setAsMAin) {
+		this->setCamera(camera);
+	}
+}
+
+void Graphics::setCamera(Camera* camera) {
+	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
+	this->pDeviceContext->VSSetConstantBuffers(
+		1,
+		1,
+		camera->pViewProjectionBuffer.GetAddressOf()
+	);
+}
+
+void Graphics::updateCamera(Camera* camera) {
+	if (camera->shouldUpdateData) {
+		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+		this->pDeviceContext->Map(
+			camera->pViewProjectionBuffer.Get(),
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&mappedResource
+		);
+		memcpy(mappedResource.pData, &camera->gViewProjection, sizeof(camera->gViewProjection));
+		this->pDeviceContext->Unmap(camera->pViewProjectionBuffer.Get(), 0);
+	}
 }

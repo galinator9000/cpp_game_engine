@@ -11,5 +11,6 @@ public:
 	void Setup();
 	void Update();
 
+	Timer timer;
 	World* pWorld;
 };

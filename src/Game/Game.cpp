@@ -60,5 +60,14 @@ void Game::Setup(){
 }
 
 void Game::Update(){
+	float cosx = cos(timer.Peek() * 6.28f) * 10.0f;
+	float siny = sin(-timer.Peek() * 6.28f) * 10.0f;
+	
+	this->pWorld->allLights.at(0)->setPosition(
+		{ cosx, 0, siny }
+	);
 
+	if (timer.Peek() > 1.0f) {
+		timer.Reset();
+	}
 }

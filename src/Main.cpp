@@ -38,11 +38,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Main loop of the engine
 	while (pMainWnd->ProcessMessages()){
-		// Update section
+		//// Update section
 		pWorld->Update();
 		pGame->Update();
 
-		// Input handling section
+		//// Input handling section
 		// Keyboard
 		if (pKeyb->isKeyPressed(VK_ESCAPE)) {
 			pMouse->freeCursor();
@@ -92,7 +92,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			pWorld->activeCamera->Rotate((float) pMouse->rawAccumulateX, (float)pMouse->rawAccumulateY);
 		}
 
-		// Resetting section.
+		//// Reset section.
 		pMouse->resetRawAccumulate();
 	}
 
