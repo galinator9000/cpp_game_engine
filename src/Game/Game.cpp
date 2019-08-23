@@ -53,6 +53,7 @@ void Game::Setup(){
 		this->pWorld->addEntity(tMesh);
 	}
 
+	// Deer
 	TriangleMesh* tMesh2 = new TriangleMesh(
 		{ 1, 1, 1 },
 		{ 0, 0, 10 },
@@ -62,6 +63,30 @@ void Game::Setup(){
 	);
 	if (tMesh2->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
 		this->pWorld->addEntity(tMesh2);
+	}
+
+	// Cube
+	TriangleMesh* tMesh3 = new TriangleMesh(
+		{ 1, 1, 1 },
+		{ 10, 0, 0 },
+		{ 0, 0, 0 },
+		{ 1, 1, 1, 1 },
+		{ 0, 0, 0 }
+	);
+	if (tMesh3->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube.fbx")) {
+		this->pWorld->addEntity(tMesh3);
+	}
+
+	// Cube but sharp
+	TriangleMesh* tMesh4 = new TriangleMesh(
+		{ 1, 1, 1 },
+		{ -10, 0, 0 },
+		{ 0, 0, 0 },
+		{ 1, 1, 1, 1 },
+		{ 0, 0, 0 }
+	);
+	if (tMesh4->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube_sharp.fbx")) {
+		this->pWorld->addEntity(tMesh4);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
