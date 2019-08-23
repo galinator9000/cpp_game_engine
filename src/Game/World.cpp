@@ -7,11 +7,7 @@ World::World(Graphics* pGfx, Physics* pPhy){
 }
 
 void World::Setup() {
-	TextureSampler* ts = new TextureSampler();
-	this->pGfx->createTextureSampler(ts, true);
 
-	Texture* tex = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.jpg");
-	this->pGfx->createTexture(tex);
 }
 
 void World::Update(){
@@ -90,4 +86,16 @@ void World::addCamera(Camera* camera, bool setAsMain){
 void World::setCamera(Camera* camera) {
 	this->activeCamera = camera;
 	this->pGfx->setCamera(this->activeCamera);
+}
+
+// Texture
+void World::createTexture(Texture* texture) {
+	allTextures.push_back(texture);
+	this->pGfx->createTextureDDS(texture);
+}
+
+void World::createTextureSampler(TextureSampler* textureSampler){
+	textureSampler->id = allTextureSamplers.size();
+	allTextureSamplers.push_back(textureSampler);
+	this->pGfx->createTextureSampler(textureSampler);
 }

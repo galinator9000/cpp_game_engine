@@ -28,17 +28,19 @@ public:
 	void addCamera(Camera* camera, bool setAsMain=false);
 	void setCamera(Camera* camera);
 
+	// Texture functions
+	void createTexture(Texture* texture);
+	void createTextureSampler(TextureSampler* textureSampler);
+
 	// Main camera pointer.
 	Camera* activeCamera;
 
-	// List for keeping track of entities.
+	// List for keeping track of various objects in world.
 	std::vector<BaseEntity*> allEntities;
-
-	// List for keeping track of lights.
 	std::vector<Light*> allLights;
-
-	// List for keeping track of cameras.
 	std::vector<Camera*> allCameras;
+	std::vector<Texture*> allTextures;
+	std::vector<TextureSampler*> allTextureSamplers;
 
 private:
 	Graphics* pGfx;

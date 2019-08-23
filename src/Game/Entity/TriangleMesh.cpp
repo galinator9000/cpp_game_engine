@@ -24,12 +24,12 @@ TriangleMesh::~TriangleMesh() {}
 
 void TriangleMesh::Update(bool initial) {
 	// Skip static and sleeping dynamic entities.
-	this->shouldUpdateData = true;
+	this->shouldUpdateGPUData = true;
 
 	if (!initial) {
 		// Static check.
 		if (!this->isDynamic) {
-			this->shouldUpdateData = false;
+			this->shouldUpdateGPUData = false;
 			return;
 		}
 	}

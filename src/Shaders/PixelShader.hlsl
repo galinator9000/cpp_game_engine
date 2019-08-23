@@ -59,11 +59,18 @@ PSOut main(PSIn psIn){
 		diffuse = lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 	}
 
-	//Texture.Sample(Sampler, psIn.texture_UV);
+	float4 texture_or_solid;
+
+	// If sampled texture color is pure black, use entity color..
+	// This is actually stupid if your texture has pure black color. (0,0,0)
+	texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
+	if (!all(texture_or_solid)) {
+		texture_or_solid = psIn.color;
+	}
 
 	//// Add ambient light & blend the color of the entity.
 	psOut.color = saturate(
-		(diffuse + ambient) * psIn.color
+		(diffuse + ambient) * texture_or_solid
 	);
 	psOut.color.a = 1.0f;
 

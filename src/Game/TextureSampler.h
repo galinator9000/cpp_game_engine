@@ -15,6 +15,7 @@ namespace wrl = Microsoft::WRL;
 class TextureSampler{
 public:
 	TextureSampler();
+	unsigned int id;
 
 	wrl::ComPtr<ID3D11SamplerState> pSamplerState;
 };

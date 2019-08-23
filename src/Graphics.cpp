@@ -278,12 +278,9 @@ void Graphics::drawEntity(BaseEntity* entity){
 			break;
 	}
 
-	// Bind buffers to pipeline.
-	// Constant buffer
-
 	// Update subresource of the constant buffer on GPU side.
 	// ONLY if it should.
-	if(entity->shouldUpdateData){
+	if (entity->shouldUpdateGPUData) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 		this->pDeviceContext->Map(
 			entity->pEntityConstantBuffer.Get(),
@@ -296,7 +293,9 @@ void Graphics::drawEntity(BaseEntity* entity){
 		this->pDeviceContext->Unmap(entity->pEntityConstantBuffer.Get(), 0);
 	}
 
-	// Bind entity's constant buffer to first (index 0) slot.
+	//// Binding Buffers
+	// Constant buffer
+	// Bind entity's constant buffer to first (index 0) slot of the Vertex Shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		0,
 		1,
@@ -320,6 +319,41 @@ void Graphics::drawEntity(BaseEntity* entity){
 		DXGI_FORMAT_R32_UINT,
 		0
 	);
+
+	//// Binding Texture & Samplers
+	// Bind these, only if entity uses textures.
+	if (entity->useTexture) {
+		// Bind entity's shader resource view (texture) to first (index 0) resource slot of the Pixel Shader.
+		this->pDeviceContext->PSSetShaderResources(
+			0,
+			1,
+			entity->texture->pShaderResourceView.GetAddressOf()
+		);
+
+		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
+		this->pDeviceContext->PSSetSamplers(
+			0,
+			1,
+			entity->textureSampler->pSamplerState.GetAddressOf()
+		);
+	}else {
+		ID3D11ShaderResourceView* nullShaderResourceView = { nullptr };
+		ID3D11SamplerState* nullSamplerState = { nullptr };
+
+		// Bind entity's shader resource view (texture) to first (index 0) resource slot of the Pixel Shader.
+		this->pDeviceContext->PSSetShaderResources(
+			0,
+			1,
+			&nullShaderResourceView
+		);
+
+		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
+		this->pDeviceContext->PSSetSamplers(
+			0,
+			1,
+			&nullSamplerState
+		);
+	}
 
 	// Draw the entity..
 	this->pDeviceContext->DrawIndexed(
@@ -421,35 +455,18 @@ void Graphics::updateCamera(Camera* camera) {
 	}
 }
 
-// Texturing
-void Graphics::createTexture(Texture* texture) {
-	D3D11_TEXTURE2D_DESC texDesc = {};
-	texDesc.Width = 1600;
-	texDesc.Height = 1600;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	D3D11_SUBRESOURCE_DATA texSubd = { 0, 0, 0 };
-	this->hr = this->pDevice->CreateTexture2D(
-		&texDesc,
-		&texSubd,
-		&texture->pTexture
-	);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	this->hr = this->pDevice->CreateShaderResourceView(
-		texture->pResource.Get(),
-		&srvDesc,
-		&texture->pShaderResourceView
+// Texture
+void Graphics::createTextureDDS(Texture* texture) {
+	this->hr = CreateDDSTextureFromFile(
+		this->pDevice.Get(),
+		this->pDeviceContext.Get(),
+		texture->fileName.c_str(),
+		texture->pResource.GetAddressOf(),
+		texture->pShaderResourceView.GetAddressOf()
 	);
 }
 
-void Graphics::createTextureSampler(TextureSampler* textureSampler, bool bindToPipeline) {
+void Graphics::createTextureSampler(TextureSampler* textureSampler) {
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -462,18 +479,5 @@ void Graphics::createTextureSampler(TextureSampler* textureSampler, bool bindToP
 	this->hr = this->pDevice->CreateSamplerState(
 		&sampDesc,
 		&textureSampler->pSamplerState
-	);
-
-	if (bindToPipeline) {
-		this->setTextureSampler(textureSampler);
-	}
-}
-
-void Graphics::setTextureSampler(TextureSampler* textureSampler) {
-	// Bind sampler state to first (index 0) slot of Pixel shader.
-	this->pDeviceContext->PSSetSamplers(
-		0,
-		1,
-		textureSampler->pSamplerState.GetAddressOf()
 	);
 }

@@ -11,12 +11,14 @@
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
+#pragma comment(lib, "DirectXTK.lib")
 #include <d3d11.h>
 #include "d3dcompiler.h"
 #include <DirectXMath.h>
 #include <wrl.h>
 #include <iostream>
 #include <vector>
+#include "DDSTextureLoader.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -59,9 +61,8 @@ public:
 	void updateCamera(Camera* camera);
 
 	// Texturing
-	void createTexture(Texture* texture);
-	void createTextureSampler(TextureSampler* textureSampler, bool bindToPipeline=false);
-	void setTextureSampler(TextureSampler* textureSampler);
+	void createTextureDDS(Texture* texture);
+	void createTextureSampler(TextureSampler* textureSampler);
 
 	unsigned int gWidth;
 	unsigned int gHeight;

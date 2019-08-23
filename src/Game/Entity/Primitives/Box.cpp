@@ -32,17 +32,17 @@ Box::~Box(){}
 
 void Box::Update(bool initial){
 	// Skip static and sleeping dynamic entities.
-	this->shouldUpdateData = true;
+	this->shouldUpdateGPUData = true;
 
 	if(!initial){
 		// Static check.
 		if(!this->isDynamic){
-			this->shouldUpdateData = false;
+			this->shouldUpdateGPUData = false;
 			return;
 		}
 		// Dynamic and sleeping check.
 		if(this->isDynamic && this->rigidDynamic->isSleeping()){
-			this->shouldUpdateData = false;
+			this->shouldUpdateGPUData = false;
 			return;
 		}
 	}

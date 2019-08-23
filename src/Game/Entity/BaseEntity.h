@@ -7,6 +7,8 @@
 #include <algorithm>
 
 #include "Structs.h"
+#include "Texture.h"
+#include "TextureSampler.h"
 
 using namespace physx;
 namespace dx = DirectX;
@@ -28,16 +30,23 @@ public:
 	unsigned int type;
 	bool isDynamic;
 
-	// Physics
+	//// Physics
 	static PxPhysics* ppxPhysics;
 	PxActor* pActor = NULL;
 	PxShape* pShape = NULL;
 
-	// Graphics
+	//// Graphics
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
 	Color gColor;
+
+	// Texture
+	Texture* texture;
+	TextureSampler* textureSampler;
+	virtual void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler, bool clearColor=true);
+	virtual void detachTextureAndSampler();
+	bool useTexture;
 
 	// Vertex & index
 	Vertex* gVertices;
@@ -49,7 +58,7 @@ public:
 	// Constant buffer
 	EntityConstantBuffer gEntityConstBuffer;
 	virtual void updateConstantBuffer();
-	bool shouldUpdateData;
+	bool shouldUpdateGPUData;
 
 	wrl::ComPtr<ID3D11Buffer> pEntityConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;

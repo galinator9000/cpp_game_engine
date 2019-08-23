@@ -41,6 +41,12 @@ void Game::Setup(){
 		this->pWorld->addEntity(box2);
 	}
 
+	// Create Texture objects to attach to entities.
+	Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
+	this->pWorld->createTexture(texture);
+	TextureSampler* textureSampler = new TextureSampler();
+	this->pWorld->createTextureSampler(textureSampler);
+
 	// Suzanne model
 	TriangleMesh* tMesh1 = new TriangleMesh(
 		{ 1, 1, 1 },
@@ -89,7 +95,6 @@ void Game::Setup(){
 		this->pWorld->addEntity(tMesh4);
 	}
 
-	// Textured plane
 	TriangleMesh* tMesh5 = new TriangleMesh(
 		{ 1, 1, 1 },
 		{ 0, 0, -10 },
@@ -100,6 +105,13 @@ void Game::Setup(){
 	if (tMesh5->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_plane.fbx")) {
 		this->pWorld->addEntity(tMesh5);
 	}
+
+	// Apply loaded texture and sampler to all triangle meshes.
+	tMesh1->attachTextureAndSampler(texture, textureSampler);
+	tMesh2->attachTextureAndSampler(texture, textureSampler);
+	tMesh3->attachTextureAndSampler(texture, textureSampler);
+	tMesh4->attachTextureAndSampler(texture, textureSampler);
+	tMesh5->attachTextureAndSampler(texture, textureSampler);
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
 	this->pWorld->addLight(pointLight);
