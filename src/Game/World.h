@@ -14,6 +14,7 @@ public:
 	World(Graphics* pGfx, Physics* pPhy);
 
 	// General
+	void Setup();
 	void Update();
 
 	// Entity functions

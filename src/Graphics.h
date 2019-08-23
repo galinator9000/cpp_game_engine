@@ -3,6 +3,8 @@
 #include "Camera.h"
 #include "Timer.h"
 #include "Structs.h"
+#include "Texture.h"
+#include "TextureSampler.h"
 #include "Entity/BaseEntity.h"
 #include "Entity/Shapes.h"
 #include "Light/Light.h"
@@ -55,6 +57,11 @@ public:
 	void addCamera(Camera* camera, bool setAsMain);
 	void setCamera(Camera* camera);
 	void updateCamera(Camera* camera);
+
+	// Texturing
+	void createTexture(Texture* texture);
+	void createTextureSampler(TextureSampler* textureSampler, bool bindToPipeline=false);
+	void setTextureSampler(TextureSampler* textureSampler);
 
 	unsigned int gWidth;
 	unsigned int gHeight;

@@ -3,6 +3,15 @@
 World::World(Graphics* pGfx, Physics* pPhy){
 	this->pGfx = pGfx;
 	this->pPhy = pPhy;
+	this->Setup();
+}
+
+void World::Setup() {
+	TextureSampler* ts = new TextureSampler();
+	this->pGfx->createTextureSampler(ts, true);
+
+	Texture* tex = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.jpg");
+	this->pGfx->createTexture(tex);
 }
 
 void World::Update(){

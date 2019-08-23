@@ -65,24 +65,44 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 			for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
 				// Process every vertex in this polygon (triangle)
 				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+
+					// Get the control point index of the current vertex.
 					int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+
+					// Get the UV coordinates of the current vertex for texture.
+					FbxVector2 texture_UV;
+					bool unmapped;
+					bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, "UVMap", texture_UV, unmapped);
+
+					float texture_U = 0;
+					float texture_V = 0;
+
+					if (result && !unmapped) {
+						texture_U = (float) texture_UV.mData[0];
+						texture_V = (float) texture_UV.mData[1];
+					}
+
 					_vertices->push_back(
 						{
 							// Position of the Vertex
 							{
 								// Swap Y and Z axes.
-								(float)fbxVertices[controlPointIndex].mData[0],
-								(float)fbxVertices[controlPointIndex].mData[2],
-								(float)fbxVertices[controlPointIndex].mData[1]
+								(float) fbxVertices[controlPointIndex].mData[0],
+								(float) fbxVertices[controlPointIndex].mData[2],
+								(float) fbxVertices[controlPointIndex].mData[1]
 							},
-						// Fill normals and colors of the Vertex with zeros temporarily.
-						{
-							0,0,0
-						},
-						// Fill colors with white as default.
-						{
-							1.0f, 1.0f, 1.0f, 1.0f
-						}
+							// Fill normals and colors of the Vertex with zeros temporarily.
+							{
+								0,0,0
+							},
+							// Fill colors with white as default.
+							{
+								1.0f, 1.0f, 1.0f, 1.0f
+							},
+							// Texture UV coordinates of the Vertex
+							{
+								texture_U, texture_V
+							}
 						}
 					);
 				}

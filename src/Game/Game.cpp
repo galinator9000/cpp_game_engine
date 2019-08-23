@@ -42,15 +42,15 @@ void Game::Setup(){
 	}
 
 	// Suzanne model
-	TriangleMesh* tMesh = new TriangleMesh(
+	TriangleMesh* tMesh1 = new TriangleMesh(
 		{ 1, 1, 1 },
 		{ 0, 0, 0 },
 		{ 0, 0, 0 },
 		{ 1, 1, 1, 1 },
 		{ 0, 0, 0 }
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\suzanne.fbx")){
-		this->pWorld->addEntity(tMesh);
+	if (tMesh1->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\suzanne.fbx")){
+		this->pWorld->addEntity(tMesh1);
 	}
 
 	// Deer
@@ -58,7 +58,7 @@ void Game::Setup(){
 		{ 1, 1, 1 },
 		{ 0, 0, 10 },
 		{ 0, 0, 0 },
-		{ 1, 1, 1, 1 },
+		{ 0, 1, 1, 1 },
 		{ 0, 0, 0 }
 	);
 	if (tMesh2->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
@@ -70,7 +70,7 @@ void Game::Setup(){
 		{ 1, 1, 1 },
 		{ 10, 0, 0 },
 		{ 0, 0, 0 },
-		{ 1, 1, 1, 1 },
+		{ 1, 0, 1, 1 },
 		{ 0, 0, 0 }
 	);
 	if (tMesh3->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube.fbx")) {
@@ -82,11 +82,23 @@ void Game::Setup(){
 		{ 1, 1, 1 },
 		{ -10, 0, 0 },
 		{ 0, 0, 0 },
-		{ 1, 1, 1, 1 },
+		{ 1, 1, 0, 1 },
 		{ 0, 0, 0 }
 	);
 	if (tMesh4->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube_sharp.fbx")) {
 		this->pWorld->addEntity(tMesh4);
+	}
+
+	// Textured plane
+	TriangleMesh* tMesh5 = new TriangleMesh(
+		{ 1, 1, 1 },
+		{ 0, 0, -10 },
+		{ 0, 0, 0 },
+		{ 0, 1, 1, 1 },
+		{ 0, 0, 0 }
+	);
+	if (tMesh5->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_plane.fbx")) {
+		this->pWorld->addEntity(tMesh5);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
@@ -97,6 +109,7 @@ void Game::Setup(){
 }
 
 void Game::Update(){
+	// Circular motion around 0,0,0 for point light.
 	float cosx = cos(timer.Peek() * 6.28f) * 5.0f;
 	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
 	

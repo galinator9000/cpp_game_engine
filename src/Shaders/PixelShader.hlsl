@@ -1,6 +1,10 @@
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
 
+Texture2D Texture : register(t0);
+SamplerState Sampler : register(s0);
+
+//// Light calculation.
 // Light intensity, direction and position values.
 cbuffer LightConstantBuffer : register(b0) {
 	float lightIntensity;
@@ -23,6 +27,7 @@ struct PSIn {
 	float4 positionPS : Position;
 	float3 normal : Normal;
 	float4 color : Color;
+	float2 texture_UV : TextureUV;
 };
 
 // Output structure of the Pixel shader.
@@ -53,6 +58,8 @@ PSOut main(PSIn psIn){
 		float attenuation = attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight));
 		diffuse = lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 	}
+
+	//Texture.Sample(Sampler, psIn.texture_UV);
 
 	//// Add ambient light & blend the color of the entity.
 	psOut.color = saturate(

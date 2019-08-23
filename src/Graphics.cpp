@@ -150,7 +150,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
@@ -418,4 +419,61 @@ void Graphics::updateCamera(Camera* camera) {
 		memcpy(mappedResource.pData, &camera->gViewProjection, sizeof(camera->gViewProjection));
 		this->pDeviceContext->Unmap(camera->pViewProjectionBuffer.Get(), 0);
 	}
+}
+
+// Texturing
+void Graphics::createTexture(Texture* texture) {
+	D3D11_TEXTURE2D_DESC texDesc = {};
+	texDesc.Width = 1600;
+	texDesc.Height = 1600;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	D3D11_SUBRESOURCE_DATA texSubd = { 0, 0, 0 };
+	this->hr = this->pDevice->CreateTexture2D(
+		&texDesc,
+		&texSubd,
+		&texture->pTexture
+	);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	this->hr = this->pDevice->CreateShaderResourceView(
+		texture->pResource.Get(),
+		&srvDesc,
+		&texture->pShaderResourceView
+	);
+}
+
+void Graphics::createTextureSampler(TextureSampler* textureSampler, bool bindToPipeline) {
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.MipLODBias = 0;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = 0;
+
+	this->hr = this->pDevice->CreateSamplerState(
+		&sampDesc,
+		&textureSampler->pSamplerState
+	);
+
+	if (bindToPipeline) {
+		this->setTextureSampler(textureSampler);
+	}
+}
+
+void Graphics::setTextureSampler(TextureSampler* textureSampler) {
+	// Bind sampler state to first (index 0) slot of Pixel shader.
+	this->pDeviceContext->PSSetSamplers(
+		0,
+		1,
+		textureSampler->pSamplerState.GetAddressOf()
+	);
 }

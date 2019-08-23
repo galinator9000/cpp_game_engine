@@ -3,6 +3,79 @@
 
 namespace dx = DirectX;
 
+struct Vector2 {
+	Vector2() {
+		this->x = 0;
+		this->y = 0;
+	}
+
+	Vector2(float x, float y) {
+		this->x = x;
+		this->y = y;
+	}
+
+	// Operators
+	bool operator==(const Vector2& other) {
+		return (this->x == other.x) && (this->y == other.y);
+	}
+
+	// Element wise calculations
+	Vector2 operator+(const Vector2& other) {
+		return Vector2(
+			this->x + other.x,
+			this->y + other.y
+		);
+	}
+
+	Vector2 operator-(const Vector2& other) {
+		return Vector2(
+			this->x - other.x,
+			this->y - other.y
+		);
+	}
+
+	Vector2 operator/(const Vector2& other) {
+		return Vector2(
+			this->x / other.x,
+			this->y / other.y
+		);
+	}
+
+	Vector2 operator*(const Vector2& other) {
+		return Vector2(
+			this->x * other.x,
+			this->y * other.y
+		);
+	}
+
+	float maximum() {
+		float maxVal = -INFINITY;
+
+		if (this->x > maxVal) {
+			maxVal = this->x;
+		}if (this->y > maxVal) {
+			maxVal = this->y;
+		}
+
+		return maxVal;
+	}
+
+	float minimum() {
+		float minVal = INFINITY;
+
+		if (this->x < minVal) {
+			minVal = this->x;
+		}if (this->y < minVal) {
+			minVal = this->y;
+		}
+
+		return minVal;
+	}
+
+	float x;
+	float y;
+};
+
 struct Vector3 {
 	Vector3() {
 		this->x = 0;
@@ -208,6 +281,7 @@ struct Vertex {
 	Vector3 position;
 	Vector3 normal;
 	Color color;
+	Vector2 TextureUV;
 };
 
 // Each entity holds this.
