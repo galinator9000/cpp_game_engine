@@ -46,6 +46,11 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 	// Collect all vertices.
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
 
+	// Get first UV set.
+	FbxStringList uvNames;
+	mesh->GetUVSetNames(uvNames);
+	const char* uvName = uvNames[0];
+
 	switch (fbxNormalMapMode) {
 		// Comments are from Autodesk FBX SDK
 
@@ -72,14 +77,14 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 					// Get the UV coordinates of the current vertex for texture.
 					FbxVector2 texture_UV;
 					bool unmapped;
-					bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, "UVMap", texture_UV, unmapped);
+					bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, uvName, texture_UV, unmapped);
 
 					float texture_U = 0;
 					float texture_V = 0;
 
 					if (result && !unmapped) {
 						texture_U = (float) texture_UV.mData[0];
-						texture_V = (float) texture_UV.mData[1];
+						texture_V = 1.0f - (float) texture_UV.mData[1];
 					}
 
 					_vertices->push_back(

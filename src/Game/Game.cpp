@@ -14,7 +14,7 @@ void Game::Setup(){
 	pWorld->addCamera(pCamera, true);
 
 	// Add static ground.
-	Plane* ground = new Plane(
+	/*Plane* ground = new Plane(
 		Vector3(10.0f, 10.0f, 0)
 	);
 	this->pWorld->addEntity(ground);
@@ -39,81 +39,27 @@ void Game::Setup(){
 			{ 0, 0, 0 }
 		);
 		this->pWorld->addEntity(box2);
-	}
+	}*/
 
-	// Create Texture objects to attach to entities.
-	Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
-	this->pWorld->createTexture(texture);
-	TextureSampler* textureSampler = new TextureSampler();
-	this->pWorld->createTextureSampler(textureSampler);
-
-	// Suzanne model
-	TriangleMesh* tMesh1 = new TriangleMesh(
+	// Load textured cube model.
+	TriangleMesh* cubeTMesh = new TriangleMesh(
 		{ 1, 1, 1 },
-		{ 0, 0, 0 },
+		{ 0, 0, 10 },
 		{ 0, 0, 0 },
 		{ 1, 1, 1, 1 },
 		{ 0, 0, 0 }
 	);
-	if (tMesh1->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\suzanne.fbx")){
-		this->pWorld->addEntity(tMesh1);
+	if (cubeTMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_sharp_cube.fbx")) {
+		this->pWorld->addEntity(cubeTMesh);
+
+		Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
+		this->pWorld->createTexture(texture);
+		TextureSampler* textureSampler = new TextureSampler();
+		this->pWorld->createTextureSampler(textureSampler);
+		cubeTMesh->attachTextureAndSampler(texture, textureSampler);
 	}
 
-	// Deer
-	TriangleMesh* tMesh2 = new TriangleMesh(
-		{ 1, 1, 1 },
-		{ 0, 0, 10 },
-		{ 0, 0, 0 },
-		{ 0, 1, 1, 1 },
-		{ 0, 0, 0 }
-	);
-	if (tMesh2->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
-		this->pWorld->addEntity(tMesh2);
-	}
-
-	// Cube
-	TriangleMesh* tMesh3 = new TriangleMesh(
-		{ 1, 1, 1 },
-		{ 10, 0, 0 },
-		{ 0, 0, 0 },
-		{ 1, 0, 1, 1 },
-		{ 0, 0, 0 }
-	);
-	if (tMesh3->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube.fbx")) {
-		this->pWorld->addEntity(tMesh3);
-	}
-
-	// Cube but sharp
-	TriangleMesh* tMesh4 = new TriangleMesh(
-		{ 1, 1, 1 },
-		{ -10, 0, 0 },
-		{ 0, 0, 0 },
-		{ 1, 1, 0, 1 },
-		{ 0, 0, 0 }
-	);
-	if (tMesh4->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\cube_sharp.fbx")) {
-		this->pWorld->addEntity(tMesh4);
-	}
-
-	TriangleMesh* tMesh5 = new TriangleMesh(
-		{ 1, 1, 1 },
-		{ 0, 0, -10 },
-		{ 0, 0, 0 },
-		{ 0, 1, 1, 1 },
-		{ 0, 0, 0 }
-	);
-	if (tMesh5->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_plane.fbx")) {
-		this->pWorld->addEntity(tMesh5);
-	}
-
-	// Apply loaded texture and sampler to all triangle meshes.
-	tMesh1->attachTextureAndSampler(texture, textureSampler);
-	tMesh2->attachTextureAndSampler(texture, textureSampler);
-	tMesh3->attachTextureAndSampler(texture, textureSampler);
-	tMesh4->attachTextureAndSampler(texture, textureSampler);
-	tMesh5->attachTextureAndSampler(texture, textureSampler);
-
-	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
+	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 2.0f);
 	this->pWorld->addLight(pointLight);
 
 	//DirectionalLight* directionalLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);
