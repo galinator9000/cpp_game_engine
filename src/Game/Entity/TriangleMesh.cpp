@@ -8,7 +8,7 @@ TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Col
 
 	// Graphics
 	this->entityMaterial.color = color;
-	this->entityMaterial.specularPower = 20.0f;
+	this->entityMaterial.specularPower = 15.0f;
 	this->entityMaterial.specularIntensity = 3.0f;
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);

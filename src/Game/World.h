@@ -1,5 +1,5 @@
 #pragma once
-#define MAX_LIGHT_COUNT 1
+#define MAX_LIGHT_COUNT 16
 
 #include <vector>
 
@@ -17,14 +17,14 @@ public:
 
 	// General
 	void Setup();
+	void Reset();
 	void Update();
 
 	// Entity functions
 	void addEntity(BaseEntity* bEntity);
 
 	// Light functions
-	bool addLight(Light* light, bool activate=true);
-	void setLight(Light* light);
+	bool addLight(Light* light);
 
 	// Camera functions
 	void addCamera(Camera* camera, bool setAsMain=false);
@@ -43,6 +43,11 @@ public:
 	std::vector<Camera*> allCameras;
 	std::vector<Texture*> allTextures;
 	std::vector<TextureSampler*> allTextureSamplers;
+
+	// Buffers for providing multiple lights at the same time.
+	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
+	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
+	bool shouldUpdateGPUData = false;
 
 private:
 	Graphics* pGfx;

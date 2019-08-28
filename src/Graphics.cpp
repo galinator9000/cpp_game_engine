@@ -193,7 +193,7 @@ void Graphics::endFrame() {
 	// Update this information every 250 millisecond.
 	if (this->gTimer.Peek() > 0.25f) {
 		// Calculate FPS.
-		this->gCurrentFPS = (unsigned int) (float)this->gFrameCounter / this->gTimer.Peek();
+		this->gCurrentFPS = (unsigned int) ((float) this->gFrameCounter / this->gTimer.Peek());
 
 		// Log current FPS.
 		std::ostringstream myStream;
@@ -230,8 +230,6 @@ void Graphics::addEntity(BaseEntity* entity){
 	cBdVS.Usage = D3D11_USAGE_DYNAMIC;
 	cBdVS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBdVS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBdVS.MiscFlags = 0;
-	cBdVS.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA cSdVS = { &(entity->gEntityVSConstantBuffer), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBdVS,
@@ -245,8 +243,6 @@ void Graphics::addEntity(BaseEntity* entity){
 	cBdPS.Usage = D3D11_USAGE_DYNAMIC;
 	cBdPS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBdPS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBdPS.MiscFlags = 0;
-	cBdPS.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA cSdPS = { &(entity->gEntityPSConstantBuffer), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBdPS,
@@ -275,8 +271,6 @@ void Graphics::addEntity(BaseEntity* entity){
 	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity->gIndexCount;
 	iBd.Usage = D3D11_USAGE_DEFAULT;
 	iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	iBd.CPUAccessFlags = 0u;
-	iBd.MiscFlags = 0u;
 	D3D11_SUBRESOURCE_DATA iSd = { entity->gIndices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&iBd,
@@ -381,7 +375,7 @@ void Graphics::updateEntity(BaseEntity* entity) {
 	if (entity->shouldUpdateGPUData) {
 		// Update constant buffer of entity for Vertex Shader.
 		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-		this->pDeviceContext->Map(
+		this->hr = this->pDeviceContext->Map(
 			entity->pEntityVSConstantBuffer.Get(),
 			0,
 			D3D11_MAP_WRITE_DISCARD,
@@ -393,7 +387,7 @@ void Graphics::updateEntity(BaseEntity* entity) {
 
 		// Update constant buffer of entity for Pixel Shader.
 		mappedResource = { 0 };
-		this->pDeviceContext->Map(
+		this->hr = this->pDeviceContext->Map(
 			entity->pEntityPSConstantBuffer.Get(),
 			0,
 			D3D11_MAP_WRITE_DISCARD,
@@ -406,49 +400,43 @@ void Graphics::updateEntity(BaseEntity* entity) {
 }
 
 // Light
-void Graphics::createLight(Light* light, bool activate) {
+// Create buffers that will contain multiple lights at the same time.
+void Graphics::createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = sizeof(light->gLightConstantBuffer);
+	cBd.ByteWidth = (unsigned int) (sizeof(*gAllLights) * lightCount);
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
 	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBd.MiscFlags = 0;
-	cBd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA cSd = { &light->gLightConstantBuffer, 0, 0 };
+	D3D11_SUBRESOURCE_DATA cSd = { gAllLights, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBd,
 		&cSd,
-		&(light->pLightConstantBuffer)
+		pAllLights->GetAddressOf()
 	);
-
-	if (activate) {
-		this->activateLight(light);
-	}
 }
 
-void Graphics::activateLight(Light* light) {
-	// Bind constant buffer that holds light direction, position and intensity to first (index 0) slot of the Pixel Shader.
+// Update buffer that contains multiple lights at the same time.
+void Graphics::updateLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights) {
+	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+	this->hr = this->pDeviceContext->Map(
+		pAllLights,
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mappedResource
+	);
+	memcpy(mappedResource.pData, gAllLights, (unsigned int) (sizeof(*gAllLights) * lightCount));
+	this->pDeviceContext->Unmap(pAllLights, 0);
+}
+
+// Bind buffer that contains all lights in world.
+void Graphics::bindLightsBuffer(ID3D11Buffer* pAllLights) {
 	this->pDeviceContext->PSSetConstantBuffers(
 		1,
 		1,
-		light->pLightConstantBuffer.GetAddressOf()
+		&pAllLights
 	);
-}
-
-void Graphics::updateLight(Light* light) {
-	if (light->shouldUpdateData) {
-		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-		this->pDeviceContext->Map(
-			light->pLightConstantBuffer.Get(),
-			0,
-			D3D11_MAP_WRITE_DISCARD,
-			0,
-			&mappedResource
-		);
-		memcpy(mappedResource.pData, &light->gLightConstantBuffer, sizeof(light->gLightConstantBuffer));
-		this->pDeviceContext->Unmap(light->pLightConstantBuffer.Get(), 0);
-	}
 }
 
 // Camera
@@ -459,8 +447,6 @@ void Graphics::addCamera(Camera* camera, bool setAsMAin) {
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
 	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBd.MiscFlags = 0;
-	cBd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA cSd = { &camera->gCameraVSConstantBuffer, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBd,
@@ -485,7 +471,7 @@ void Graphics::activateCamera(Camera* camera) {
 void Graphics::updateCamera(Camera* camera) {
 	if (camera->shouldUpdateGPUData) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-		this->pDeviceContext->Map(
+		this->hr = this->pDeviceContext->Map(
 			camera->pCameraVSConstantBuffer.Get(),
 			0,
 			D3D11_MAP_WRITE_DISCARD,

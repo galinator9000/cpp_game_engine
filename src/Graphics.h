@@ -52,9 +52,9 @@ public:
 	void updateEntity(BaseEntity* entity);
 
 	// Light
-	void createLight(Light* light, bool activate);
-	void activateLight(Light* light);
-	void updateLight(Light* light);
+	void createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);
+	void updateLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights);
+	void bindLightsBuffer(ID3D11Buffer* pAllLights);
 	
 	// Camera
 	void addCamera(Camera* camera, bool setAsMain);

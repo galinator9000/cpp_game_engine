@@ -3,7 +3,7 @@
 // Set light's intensity.
 void Light::setIntensity(float intensity){
 	this->gIntensity = intensity;
-	this->Update();
+	this->hasChanged = true;
 }
 
 // Set light's direction.
@@ -13,7 +13,7 @@ void Light::setDirection(Vector3 newDirection) {
 	}
 
 	this->gDirection = dx::XMFLOAT3(newDirection.x, newDirection.y, newDirection.z);
-	this->Update();
+	this->hasChanged = true;
 }
 
 // Set light's position.
@@ -23,17 +23,20 @@ void Light::setPosition(Vector3 newPosition) {
 	}
 
 	this->gPosition = dx::XMFLOAT3(newPosition.x, newPosition.y, newPosition.z);
-	this->Update();
+	this->hasChanged = true;
 }
 
-void Light::Update(bool initial) {
-	this->updateConstantBuffer();
+void Light::Reset() {
+	this->hasChanged = false;
+}
+
+void Light::Update() {
+	if (this->hasChanged) {
+		this->updateConstantBuffer();
+		this->hasChanged = false;
+	}
 }
 
 void Light::updateConstantBuffer() {
-	this->gLightConstantBuffer.type = this->type;
-	this->gLightConstantBuffer.intensity = this->gIntensity;
-	this->gLightConstantBuffer.direction = this->gDirection;
-	this->gLightConstantBuffer.position = this->gPosition;
-	this->shouldUpdateData = true;
+	this->shouldUpdateGPUData = true;
 }

@@ -51,22 +51,22 @@ void Game::Setup(){
 
 	TriangleMesh* tMesh = new TriangleMesh(
 		{1,1,1},
-		{0,0,10},
+		{0,0,0},
 		{0,0,0},
 		{0,0,1,1},
 		{1,1,1}
 	);
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
 		// Attach texture to entity and add it to world.
-		//tMesh->attachTextureAndSampler(texture, textureSampler);
+		tMesh->attachTextureAndSampler(texture, textureSampler);
 		this->pWorld->addEntity(tMesh);
 	}
 
+	DirectionalLight* directionalLight = new DirectionalLight(Vector3(-1.0f, 1.0f, -1.0f), 1.0f);
+	this->pWorld->addLight(directionalLight);
+
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
 	this->pWorld->addLight(pointLight);
-
-	//DirectionalLight* directionalLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);
-	//this->pWorld->addLight(directionalLight);
 }
 
 void Game::Update(){
@@ -74,7 +74,8 @@ void Game::Update(){
 	float cosx = cos(timer.Peek() * 6.28f) * 5.0f;
 	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
 	
-	//this->pWorld->allLights.at(0)->setPosition({ cosx, siny, siny });
+	//this->pWorld->allLights.at(0)->setDirection({ cosx, siny, cosx });
+	//this->pWorld->allLights.at(1)->setPosition({ cosx, siny, 0.0f });
 
 	if (timer.Peek() > 1.0f) {
 		timer.Reset();

@@ -31,6 +31,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Create world.
 	World* pWorld = new World(pGfx, pPhy);
+	pWorld->Setup();
 
 	// Use engine
 	Game* pGame = new Game(pWorld);
@@ -94,6 +95,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 		//// Reset section.
 		pMouse->resetRawAccumulate();
+		pWorld->Reset();
 	}
 
 	return 0;

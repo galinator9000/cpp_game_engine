@@ -23,15 +23,14 @@ public:
 	void setDirection(Vector3 newDirection);
 	void setPosition(Vector3 newPosition);
 
-	void Update(bool initial = false);
+	void Update();
+	void Reset();
 	void updateConstantBuffer();
-	bool shouldUpdateData;
+	bool shouldUpdateGPUData = false;
+	bool hasChanged = false;
 
 	// Graphics
 	float gIntensity;
 	dx::XMFLOAT3 gDirection;
 	dx::XMFLOAT3 gPosition;
-
-	LightPSConstantBuffer gLightConstantBuffer;
-	wrl::ComPtr<ID3D11Buffer> pLightConstantBuffer;
 };

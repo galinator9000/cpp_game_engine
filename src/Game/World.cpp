@@ -7,7 +7,22 @@ World::World(Graphics* pGfx, Physics* pPhy){
 }
 
 void World::Setup() {
+	// Create buffer that will hold multiple lights.
+	// Set undefined lights' intensity to -1.
+	for (unsigned int light = 0; light<MAX_LIGHT_COUNT; light++) {
+		gAllLightConstantBuffers[light].intensity = -1.0f;
+	}
 
+	this->pGfx->createLightsBuffer(
+		&this->gAllLightConstantBuffers[0],
+		MAX_LIGHT_COUNT,
+		&this->pAllLightConstantBuffers
+	);
+	this->pGfx->bindLightsBuffer(this->pAllLightConstantBuffers.Get());
+}
+
+void World::Reset() {
+	this->shouldUpdateGPUData = false;
 }
 
 void World::Update(){
@@ -24,7 +39,27 @@ void World::Update(){
 		}
 
 		light->Update();
-		this->pGfx->updateLight(light);
+
+		if (light->shouldUpdateGPUData) {
+			// Update data for each light.
+			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
+			this->gAllLightConstantBuffers[light->id].direction = light->gDirection;
+			this->gAllLightConstantBuffers[light->id].position = light->gPosition;
+			this->gAllLightConstantBuffers[light->id].type = light->type;
+
+			light->shouldUpdateGPUData = false;
+			this->shouldUpdateGPUData = true;
+		}
+	}
+
+	// Update lights buffer on GPU side.
+	if (this->shouldUpdateGPUData) {
+		this->pGfx->updateLightsBuffer(
+			&this->gAllLightConstantBuffers[0],
+			MAX_LIGHT_COUNT,
+			this->pAllLightConstantBuffers.Get()
+		);
+		this->shouldUpdateGPUData = false;
 	}
 
 	// Update active camera.
@@ -50,6 +85,17 @@ void World::Update(){
 	}
 
 	this->pGfx->endFrame();
+
+	//// Reset section
+	for (unsigned int l = 0; l < allLights.size(); l++) {
+		Light* light = allLights.at(l);
+
+		if (light == NULL) {
+			continue;
+		}
+
+		light->Reset();
+	}
 }
 
 // Entity
@@ -62,20 +108,15 @@ void World::addEntity(BaseEntity* bEntity){
 }
 
 // Light
-bool World::addLight(Light* light, bool activate) {
+bool World::addLight(Light* light) {
 	if (allLights.size() >= MAX_LIGHT_COUNT) {
 		return false;
 	}
 
 	light->id = (unsigned int) allLights.size();
 	allLights.push_back(light);
-	this->pGfx->createLight(light, activate);
 
 	return true;
-}
-
-void World::setLight(Light* light) {
-	this->pGfx->activateLight(light);
 }
 
 // Camera
