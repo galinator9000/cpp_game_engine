@@ -17,7 +17,7 @@ void World::Update(){
 
 	// Update all light objects.
 	for (unsigned int l = 0; l < allLights.size(); l++) {
-		Light* light = allLights[l];
+		Light* light = allLights.at(l);
 
 		if (light == NULL) {
 			continue;
@@ -37,15 +37,16 @@ void World::Update(){
 
 	// Update and draw all entities.
 	for (unsigned int e = 0; e < allEntities.size(); e++){
-		BaseEntity* ent = allEntities[e];
+		BaseEntity* ent = allEntities.at(e);
 
 		if(ent == NULL){
 			continue;
 		}
 
 		ent->Update();
-
+		this->pGfx->updateEntity(ent);
 		this->pGfx->drawEntity(ent);
+		ent->Reset();
 	}
 
 	this->pGfx->endFrame();
@@ -85,7 +86,7 @@ void World::addCamera(Camera* camera, bool setAsMain){
 
 void World::setCamera(Camera* camera) {
 	this->activeCamera = camera;
-	this->pGfx->setCamera(this->activeCamera);
+	this->pGfx->activateCamera(this->activeCamera);
 }
 
 // Texture

@@ -49,6 +49,7 @@ public:
 	// Entity
 	void addEntity(BaseEntity* entity);
 	void drawEntity(BaseEntity* entity);
+	void updateEntity(BaseEntity* entity);
 
 	// Light
 	void addLight(Light* light, bool activate);
@@ -57,7 +58,7 @@ public:
 	
 	// Camera
 	void addCamera(Camera* camera, bool setAsMain);
-	void setCamera(Camera* camera);
+	void activateCamera(Camera* camera);
 	void updateCamera(Camera* camera);
 
 	// Texturing

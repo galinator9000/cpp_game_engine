@@ -39,9 +39,12 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 	// Get values that indicates how normals are represented in the mesh.
 	// If faces of the mesh shares vertices, that means one vertex has more than one normal vector.
 	// If that's the case, we duplicate the vertices and make faces independent from each other.
-	FbxGeometryElementNormal* fbxNormalElement = mesh->GetElementNormal(0);
+	FbxGeometryElementNormal* fbxNormalElement = mesh->GetElementNormal();
 	FbxLayerElement::EMappingMode fbxNormalMapMode = fbxNormalElement->GetMappingMode();
 	FbxLayerElement::EReferenceMode fbxNormalReferenceMode = fbxNormalElement->GetReferenceMode();
+
+	//FbxGeometryElementNormal* fbxMaterialElement = mesh->GetElementMaterialCount();
+	int asd = mesh->GetElementMaterialCount();
 
 	// Collect all vertices.
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
@@ -99,10 +102,6 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 							// Fill normals and colors of the Vertex with zeros temporarily.
 							{
 								0,0,0
-							},
-							// Fill colors with white as default.
-							{
-								1.0f, 1.0f, 1.0f, 1.0f
 							},
 							// Texture UV coordinates of the Vertex
 							{

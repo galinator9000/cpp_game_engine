@@ -23,7 +23,9 @@ const enum ENTITY_TYPE{
 class BaseEntity{
 public:
 	~BaseEntity();
-	virtual void Update(bool initial=false);
+	virtual void Update(){};
+	virtual void Reset();
+	virtual void setColor(Color color);
 
 	// Derived classes will set these values.
 	unsigned int id;
@@ -39,28 +41,31 @@ public:
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
-	Color gColor;
+	dx::XMFLOAT3 gColor;
 
 	// Texture
 	Texture* texture;
 	TextureSampler* textureSampler;
-	virtual void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler, bool clearColor=true);
+	virtual void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler);
 	virtual void detachTextureAndSampler();
-	bool useTexture;
+	bool useTexture = false;
 
 	// Vertex & index
 	Vertex* gVertices;
 	unsigned int* gIndices;
 	unsigned int gVertexCount;
 	unsigned int gIndexCount;
-	virtual void gCreateVerticesAndIndices();
+	virtual void gCreateVerticesAndIndices(){};
 
 	// Constant buffer
-	EntityConstantBuffer gEntityConstBuffer;
+	EntityVSConstantBuffer gEntityVSConstantBuffer;
+	EntityPSConstantBuffer gEntityPSConstantBuffer;
 	virtual void updateConstantBuffer();
 	bool shouldUpdateGPUData;
+	bool dataChanged;
 
-	wrl::ComPtr<ID3D11Buffer> pEntityConstantBuffer;
+	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
+	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
 	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
 };

@@ -41,22 +41,25 @@ void Game::Setup(){
 		this->pWorld->addEntity(box2);
 	}*/
 
-	// Load textured cube model.
-	TriangleMesh* cubeTMesh = new TriangleMesh(
-		{ 1, 1, 1 },
-		{ 0, 0, 10 },
-		{ 0, 0, 0 },
-		{ 1, 1, 1, 1 },
-		{ 0, 0, 0 }
-	);
-	if (cubeTMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_sharp_cube.fbx")) {
-		this->pWorld->addEntity(cubeTMesh);
+	// Create texture objects.
+	Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
+	TextureSampler* textureSampler = new TextureSampler();
 
-		Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
-		this->pWorld->createTexture(texture);
-		TextureSampler* textureSampler = new TextureSampler();
-		this->pWorld->createTextureSampler(textureSampler);
-		cubeTMesh->attachTextureAndSampler(texture, textureSampler);
+	// Create texture on GPU side.
+	this->pWorld->createTexture(texture);
+	this->pWorld->createTextureSampler(textureSampler);
+
+	TriangleMesh* tMesh = new TriangleMesh(
+		{1,1,1},
+		{0,0,10},
+		{0,0,0},
+		{1,1,0,1},
+		{1,1,1}
+	);
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_sharp_cube.fbx")) {
+		// Attach texture to entity and add it to world.
+		tMesh->attachTextureAndSampler(texture, textureSampler);
+		this->pWorld->addEntity(tMesh);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 2.0f);

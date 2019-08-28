@@ -280,14 +280,18 @@ struct Color {
 struct Vertex {
 	Vector3 position;
 	Vector3 normal;
-	Color color;
 	Vector2 TextureUV;
 };
 
-// Each entity holds this.
-// Basically transform matrix.
-struct EntityConstantBuffer {
+// Entity constant buffer for Vertex Shader.
+struct EntityVSConstantBuffer {
 	dx::XMFLOAT4X4 worldMatrix;
+};
+
+// Entity constant buffer for Pixel Shader.
+struct EntityPSConstantBuffer {
+	dx::XMFLOAT3 color;
+	bool useTexture;
 };
 
 // Light object holds this, light's intensity, direction and position values.

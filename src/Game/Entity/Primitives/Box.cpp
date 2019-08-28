@@ -14,7 +14,7 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 	this->pActor = this->rigidDynamic;
 
 	// Graphics
-	this->gColor = color;
+	this->gColor = XMFLOAT3(color.r, color.g, color.b);
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
@@ -25,16 +25,15 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 	this->type = ENTITY_TYPE::BOX;
 	this->isDynamic = true;
 
-	this->Update(true);
+	this->dataChanged = true;
+	this->Update();
 }
 
 Box::~Box(){}
 
-void Box::Update(bool initial){
+void Box::Update(){
 	// Skip static and sleeping dynamic entities.
-	this->shouldUpdateGPUData = true;
-
-	if(!initial){
+	if(!this->dataChanged){
 		// Static check.
 		if(!this->isDynamic){
 			this->shouldUpdateGPUData = false;
@@ -60,63 +59,47 @@ void Box::Update(bool initial){
 	this->updateConstantBuffer();
 }
 
-void Box::updateConstantBuffer() {
-	// Update constant buffer that held on class.
-	dx::XMStoreFloat4x4(
-		&(this->gEntityConstBuffer.worldMatrix),
-		dx::XMMatrixTranspose(
-			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
-			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
-			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z)
-		)
-	);
-}
-
 void Box::gCreateVerticesAndIndices() {
 	// 3D Cube vertices
 	Vertex _vertices[] = {
 		// Default color: White
 		// Front (Normal -Z)
-		{{ -1.0f, -1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, -1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, 1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, 1.0f, -1.0f }, {0, 0, -1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, -1.0f, -1.0f }, {0, 0, -1}},
+		{{ 1.0f, -1.0f, -1.0f }, {0, 0, -1}},
+		{{ -1.0f, 1.0f, -1.0f }, {0, 0, -1}},
+		{{ 1.0f, 1.0f, -1.0f }, {0, 0, -1}},
 
 		// Back (Normal +Z)
-		{{ 1.0f, -1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, -1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, 1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, 1.0f, 1.0f }, {0, 0, 1}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, -1.0f, 1.0f }, {0, 0, 1}},
+		{{ -1.0f, -1.0f, 1.0f }, {0, 0, 1}},
+		{{ 1.0f, 1.0f, 1.0f }, {0, 0, 1}},
+		{{ -1.0f, 1.0f, 1.0f }, {0, 0, 1}},
 
 		// Right (Normal +X)
-		{{ 1.0f, -1.0f, -1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, -1.0f, 1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, 1.0f, -1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, 1.0f, 1.0f }, {1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ 1.0f, -1.0f, -1.0f }, {1, 0, 0}},
+		{{ 1.0f, -1.0f, 1.0f }, {1, 0, 0}},
+		{{ 1.0f, 1.0f, -1.0f }, {1, 0, 0}},
+		{{ 1.0f, 1.0f, 1.0f }, {1, 0, 0}},
 
 		// Left (Normal -X)
-		{{ -1.0f, -1.0f, 1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, -1.0f, -1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, 1.0f, 1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, 1.0f, -1.0f }, {-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, -1.0f, 1.0f }, {-1, 0, 0}},
+		{{ -1.0f, -1.0f, -1.0f }, {-1, 0, 0}},
+		{{ -1.0f, 1.0f, 1.0f }, {-1, 0, 0}},
+		{{ -1.0f, 1.0f, -1.0f }, {-1, 0, 0}},
 
 		// Top (Normal +Y)
-		{{ -1.0f, 1.0f, -1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, 1.0f, -1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, 1.0f, 1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, 1.0f, 1.0f }, {0, 1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, 1.0f, -1.0f }, {0, 1, 0}},
+		{{ 1.0f, 1.0f, -1.0f }, {0, 1, 0}},
+		{{ -1.0f, 1.0f, 1.0f }, {0, 1, 0}},
+		{{ 1.0f, 1.0f, 1.0f }, {0, 1, 0}},
 
 		// Bottom (Normal -Y)
-		{{ -1.0f, -1.0f, 1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, -1.0f, 1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ -1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
-		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{ -1.0f, -1.0f, 1.0f }, {0, -1, 0}},
+		{{ 1.0f, -1.0f, 1.0f }, {0, -1, 0}},
+		{{ -1.0f, -1.0f, -1.0f }, {0, -1, 0}},
+		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}},
 	};
 	this->gVertexCount = (UINT) std::size(_vertices);
-
-	for (unsigned int v = 0; v < this->gVertexCount; v++) {
-		_vertices[v].color = this->gColor;
-	}
 
 	Vertex* vertices = new Vertex[this->gVertexCount];
 	std::copy(_vertices, _vertices + this->gVertexCount, vertices);

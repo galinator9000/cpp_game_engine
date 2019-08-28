@@ -150,7 +150,6 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
@@ -225,19 +224,34 @@ void Graphics::addEntity(BaseEntity* entity){
 	entity->gCreateVerticesAndIndices();
 
 	/// CONSTANT BUFFER	
-	// Create buffer on GPU side.
-	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = sizeof(entity->gEntityConstBuffer);
-	cBd.Usage = D3D11_USAGE_DYNAMIC;
-	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBd.MiscFlags = 0;
-	cBd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA cSd = { &(entity->gEntityConstBuffer), 0, 0 };
+	// Create constant buffer on GPU side for Vertex Shader.
+	D3D11_BUFFER_DESC cBdVS = { 0 };
+	cBdVS.ByteWidth = sizeof(entity->gEntityVSConstantBuffer);
+	cBdVS.Usage = D3D11_USAGE_DYNAMIC;
+	cBdVS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBdVS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBdVS.MiscFlags = 0;
+	cBdVS.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSdVS = { &(entity->gEntityVSConstantBuffer), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
-		&cBd,
-		&cSd,
-		&(entity->pEntityConstantBuffer)
+		&cBdVS,
+		&cSdVS,
+		&(entity->pEntityVSConstantBuffer)
+	);
+
+	// Create constant buffer on GPU side for Pixel Shader.
+	D3D11_BUFFER_DESC cBdPS = { 0 };
+	cBdPS.ByteWidth = sizeof(entity->gEntityPSConstantBuffer);
+	cBdPS.Usage = D3D11_USAGE_DYNAMIC;
+	cBdPS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBdPS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cBdPS.MiscFlags = 0;
+	cBdPS.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cSdPS = { &(entity->gEntityPSConstantBuffer), 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cBdPS,
+		&cSdPS,
+		&(entity->pEntityPSConstantBuffer)
 	);
 
 	/// VERTEX BUFFER
@@ -278,28 +292,20 @@ void Graphics::drawEntity(BaseEntity* entity){
 			break;
 	}
 
-	// Update subresource of the constant buffer on GPU side.
-	// ONLY if it should.
-	if (entity->shouldUpdateGPUData) {
-		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-		this->pDeviceContext->Map(
-			entity->pEntityConstantBuffer.Get(),
-			0,
-			D3D11_MAP_WRITE_DISCARD,
-			0,
-			&mappedResource
-		);
-		memcpy(mappedResource.pData, &entity->gEntityConstBuffer, sizeof(entity->gEntityConstBuffer));
-		this->pDeviceContext->Unmap(entity->pEntityConstantBuffer.Get(), 0);
-	}
-
 	//// Binding Buffers
 	// Constant buffer
-	// Bind entity's constant buffer to first (index 0) slot of the Vertex Shader.
+	// Bind entity's constant buffer for Vertex Shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		0,
 		1,
-		entity->pEntityConstantBuffer.GetAddressOf()
+		entity->pEntityVSConstantBuffer.GetAddressOf()
+	);
+
+	// Bind entity's constant buffer for Pixel Shader.
+	this->pDeviceContext->PSSetConstantBuffers(
+		0,
+		1,
+		entity->pEntityPSConstantBuffer.GetAddressOf()
 	);
 
 	// Vertex buffer
@@ -363,6 +369,42 @@ void Graphics::drawEntity(BaseEntity* entity){
 	);
 }
 
+void Graphics::updateEntity(BaseEntity* entity) {
+	switch (entity->type) {
+	case ENTITY_TYPE::PLANE:
+		return;
+		break;
+	}
+
+	// Update subresource of the constant buffer on GPU side.
+	// ONLY if it should.
+	if (entity->shouldUpdateGPUData) {
+		// Update constant buffer of entity for Vertex Shader.
+		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+		this->pDeviceContext->Map(
+			entity->pEntityVSConstantBuffer.Get(),
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&mappedResource
+		);
+		memcpy(mappedResource.pData, &entity->gEntityVSConstantBuffer, sizeof(entity->gEntityVSConstantBuffer));
+		this->pDeviceContext->Unmap(entity->pEntityVSConstantBuffer.Get(), 0);
+
+		// Update constant buffer of entity for Pixel Shader.
+		mappedResource = { 0 };
+		this->pDeviceContext->Map(
+			entity->pEntityPSConstantBuffer.Get(),
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&mappedResource
+		);
+		memcpy(mappedResource.pData, &entity->gEntityPSConstantBuffer, sizeof(entity->gEntityPSConstantBuffer));
+		this->pDeviceContext->Unmap(entity->pEntityPSConstantBuffer.Get(), 0);
+	}
+}
+
 // Light
 void Graphics::addLight(Light* light, bool activate) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
@@ -388,7 +430,7 @@ void Graphics::addLight(Light* light, bool activate) {
 void Graphics::activateLight(Light* light) {
 	// Bind constant buffer that holds light direction, position and intensity to first (index 0) slot of the Pixel Shader.
 	this->pDeviceContext->PSSetConstantBuffers(
-		0,
+		1,
 		1,
 		light->pLightConstantBuffer.GetAddressOf()
 	);
@@ -427,11 +469,11 @@ void Graphics::addCamera(Camera* camera, bool setAsMAin) {
 	);
 
 	if (setAsMAin) {
-		this->setCamera(camera);
+		this->activateCamera(camera);
 	}
 }
 
-void Graphics::setCamera(Camera* camera) {
+void Graphics::activateCamera(Camera* camera) {
 	// Bind constant buffer that holds View and Projection matrices to second (index 1) slot of Vertex shader.
 	this->pDeviceContext->VSSetConstantBuffers(
 		1,

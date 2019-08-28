@@ -1,12 +1,17 @@
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
 
+// Provided by entity object.
 Texture2D Texture : register(t0);
 SamplerState Sampler : register(s0);
+cbuffer EntityPSConstantBuffer : register(b0) {
+	float3 entityColor;
+	bool entityUseTexture;
+};
 
 //// Light calculation.
 // Light intensity, direction and position values.
-cbuffer LightConstantBuffer : register(b0) {
+cbuffer LightConstantBuffer : register(b1) {
 	float lightIntensity;
 	float3 lightDirection;
 	float3 lightPosition;
@@ -26,7 +31,6 @@ static const float4 ambient = float4(0.10f, 0.10f, 0.10f, 0);
 struct PSIn {
 	float4 positionPS : Position;
 	float3 normal : Normal;
-	float4 color : Color;
 	float2 texture_UV : TextureUV;
 };
 
@@ -59,13 +63,12 @@ PSOut main(PSIn psIn){
 		diffuse = lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 	}
 
+	// Use solid color of entity or texture?
 	float4 texture_or_solid;
-
-	// If sampled texture color is pure black, use entity color..
-	// This is actually stupid if your texture has pure black color. (0,0,0)
-	texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
-	if (!all(texture_or_solid)) {
-		texture_or_solid = psIn.color;
+	if (entityUseTexture) {
+		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
+	}else {
+		texture_or_solid = float4(entityColor, 1.0f);
 	}
 
 	//// Add ambient light & blend the color of the entity.

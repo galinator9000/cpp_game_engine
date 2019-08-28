@@ -7,7 +7,7 @@ TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Col
 	PxQuat rotationQuaternion;
 
 	// Graphics
-	this->gColor = color;
+	this->gColor = XMFLOAT3(color.r, color.g, color.b);
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
 	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
@@ -17,16 +17,15 @@ TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Col
 	this->type = ENTITY_TYPE::TRIANGLE_MESH;
 	this->isDynamic = false;
 
-	this->Update(true);
+	this->dataChanged = true;
+	this->Update();
 }
 
 TriangleMesh::~TriangleMesh() {}
 
-void TriangleMesh::Update(bool initial) {
+void TriangleMesh::Update() {
 	// Skip static and sleeping dynamic entities.
-	this->shouldUpdateGPUData = true;
-
-	if (!initial) {
+	if (!this->dataChanged) {
 		// Static check.
 		if (!this->isDynamic) {
 			this->shouldUpdateGPUData = false;
@@ -35,18 +34,6 @@ void TriangleMesh::Update(bool initial) {
 	}
 
 	this->updateConstantBuffer();
-}
-
-void TriangleMesh::updateConstantBuffer() {
-	// Update constant buffer that held on class.
-	dx::XMStoreFloat4x4(
-		&(this->gEntityConstBuffer.worldMatrix),
-		dx::XMMatrixTranspose(
-			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
-			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
-			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z)
-		)
-	);
 }
 
 bool TriangleMesh::LoadFBX(const char* fileName){
@@ -66,7 +53,6 @@ bool TriangleMesh::LoadFBX(const char* fileName){
 
 	for (int v = 0; v < _vertices->size(); v++) {
 		vertices[v] = _vertices->at(v);
-		vertices[v].color = this->gColor;
 	}
 	for (int i = 0; i < _indices->size(); i++) {
 		indices[i] = _indices->at(i);
