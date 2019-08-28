@@ -32,6 +32,6 @@ public:
 	dx::XMFLOAT3 gDirection;
 	dx::XMFLOAT3 gPosition;
 
-	LightConstantBuffer gLightConstBuffer;
+	LightPSConstantBuffer gLightConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pLightConstantBuffer;
 };

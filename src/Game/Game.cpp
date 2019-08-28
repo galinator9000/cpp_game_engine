@@ -53,16 +53,16 @@ void Game::Setup(){
 		{1,1,1},
 		{0,0,10},
 		{0,0,0},
-		{1,1,0,1},
+		{0,0,1,1},
 		{1,1,1}
 	);
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_sharp_cube.fbx")) {
 		// Attach texture to entity and add it to world.
-		tMesh->attachTextureAndSampler(texture, textureSampler);
+		//tMesh->attachTextureAndSampler(texture, textureSampler);
 		this->pWorld->addEntity(tMesh);
 	}
 
-	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 2.0f);
+	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
 	this->pWorld->addLight(pointLight);
 
 	//DirectionalLight* directionalLight = new DirectionalLight(Vector3(1.0f, -1.0f, 1.0f), 1.0f);

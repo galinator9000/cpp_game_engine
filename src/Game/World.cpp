@@ -62,10 +62,16 @@ void World::addEntity(BaseEntity* bEntity){
 }
 
 // Light
-void World::addLight(Light* light, bool activate) {
+bool World::addLight(Light* light, bool activate) {
+	if (allLights.size() >= MAX_LIGHT_COUNT) {
+		return false;
+	}
+
 	light->id = (unsigned int) allLights.size();
 	allLights.push_back(light);
-	this->pGfx->addLight(light, activate);
+	this->pGfx->createLight(light, activate);
+
+	return true;
 }
 
 void World::setLight(Light* light) {
@@ -96,7 +102,7 @@ void World::createTexture(Texture* texture) {
 }
 
 void World::createTextureSampler(TextureSampler* textureSampler){
-	textureSampler->id = allTextureSamplers.size();
+	textureSampler->id = (unsigned int) allTextureSamplers.size();
 	allTextureSamplers.push_back(textureSampler);
 	this->pGfx->createTextureSampler(textureSampler);
 }

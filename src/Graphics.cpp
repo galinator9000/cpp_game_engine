@@ -406,16 +406,16 @@ void Graphics::updateEntity(BaseEntity* entity) {
 }
 
 // Light
-void Graphics::addLight(Light* light, bool activate) {
+void Graphics::createLight(Light* light, bool activate) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = sizeof(light->gLightConstBuffer);
+	cBd.ByteWidth = sizeof(light->gLightConstantBuffer);
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
 	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cBd.MiscFlags = 0;
 	cBd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA cSd = { &light->gLightConstBuffer, 0, 0 };
+	D3D11_SUBRESOURCE_DATA cSd = { &light->gLightConstantBuffer, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBd,
 		&cSd,
@@ -446,7 +446,7 @@ void Graphics::updateLight(Light* light) {
 			0,
 			&mappedResource
 		);
-		memcpy(mappedResource.pData, &light->gLightConstBuffer, sizeof(light->gLightConstBuffer));
+		memcpy(mappedResource.pData, &light->gLightConstantBuffer, sizeof(light->gLightConstantBuffer));
 		this->pDeviceContext->Unmap(light->pLightConstantBuffer.Get(), 0);
 	}
 }

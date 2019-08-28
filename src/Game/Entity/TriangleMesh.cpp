@@ -7,7 +7,10 @@ TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Col
 	PxQuat rotationQuaternion;
 
 	// Graphics
-	this->gColor = XMFLOAT3(color.r, color.g, color.b);
+	this->entityMaterial.color = color;
+	this->entityMaterial.specularPower = 10.0f;
+	this->entityMaterial.specularIntensity = 2.0f;
+
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
 	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
@@ -41,7 +44,7 @@ bool TriangleMesh::LoadFBX(const char* fileName){
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
 
 	// Load .FBX file to our vectors.
-	if (!FBX_Importer::Load(fileName, _vertices, _indices)) {
+	if (!FBX_Importer::Load(&this->entityMaterial, fileName, _vertices, _indices)) {
 		return false;
 	}
 

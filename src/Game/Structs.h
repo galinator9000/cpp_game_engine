@@ -283,6 +283,13 @@ struct Vertex {
 	Vector2 TextureUV;
 };
 
+struct EntityMaterial {
+	Color color;
+	float specularIntensity;
+	float specularPower;
+};
+
+//// Graphics
 // Entity constant buffer for Vertex Shader.
 struct EntityVSConstantBuffer {
 	dx::XMFLOAT4X4 worldMatrix;
@@ -292,10 +299,11 @@ struct EntityVSConstantBuffer {
 struct EntityPSConstantBuffer {
 	dx::XMFLOAT3 color;
 	bool useTexture;
+	dx::XMFLOAT4 specularHighlight;
 };
 
-// Light object holds this, light's intensity, direction and position values.
-struct LightConstantBuffer {
+// Each light object holds this, light's intensity, direction and position values.
+struct LightPSConstantBuffer {
 	float intensity;
 	dx::XMFLOAT3 direction;
 	dx::XMFLOAT3 position;

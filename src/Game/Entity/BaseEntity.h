@@ -41,7 +41,7 @@ public:
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
-	dx::XMFLOAT3 gColor;
+	EntityMaterial entityMaterial;
 
 	// Texture
 	Texture* texture;

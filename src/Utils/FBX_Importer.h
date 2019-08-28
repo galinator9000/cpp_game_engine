@@ -13,5 +13,5 @@
 
 class FBX_Importer {
 public:
-	static bool Load(const char* fileName, std::vector<Vertex>*, std::vector<unsigned int>*);
+	static bool Load(EntityMaterial* entityMaterial, const char* fileName, std::vector<Vertex>*, std::vector<unsigned int>*);
 };

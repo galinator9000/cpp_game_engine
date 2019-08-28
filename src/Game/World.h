@@ -1,4 +1,6 @@
 #pragma once
+#define MAX_LIGHT_COUNT 1
+
 #include <vector>
 
 #include "Graphics.h"
@@ -21,7 +23,7 @@ public:
 	void addEntity(BaseEntity* bEntity);
 
 	// Light functions
-	void addLight(Light* light, bool activate=true);
+	bool addLight(Light* light, bool activate=true);
 	void setLight(Light* light);
 
 	// Camera functions

@@ -25,7 +25,7 @@ void BaseEntity::detachTextureAndSampler() {
 }
 
 void BaseEntity::setColor(Color color) {
-	this->gColor = XMFLOAT3(color.r, color.g, color.b);
+	this->entityMaterial.color = color;
 	this->dataChanged = true;
 }
 
@@ -45,9 +45,17 @@ void BaseEntity::updateConstantBuffer(){
 		)
 	);
 
-	// Update PS constant buffer.
-	this->gEntityPSConstantBuffer.color = this->gColor;
+	//// Update PS constant buffer.
+	// Material information.
+	this->gEntityPSConstantBuffer.color = XMFLOAT3(
+		this->entityMaterial.color.r,
+		this->entityMaterial.color.g,
+		this->entityMaterial.color.b
+	);
 	this->gEntityPSConstantBuffer.useTexture = this->useTexture;
+
+	this->gEntityPSConstantBuffer.specularHighlight.x = this->entityMaterial.specularPower;
+	this->gEntityPSConstantBuffer.specularHighlight.y = this->entityMaterial.specularIntensity;
 
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;

@@ -1,6 +1,6 @@
 #include "FBX_Importer.h"
 
-bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, std::vector<unsigned int>* _indices) {
+bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, std::vector<Vertex>* _vertices, std::vector<unsigned int>* _indices) {
 	FbxManager* fbxSdkManager = FbxManager::Create();
 	FbxImporter* fbxImporter = FbxImporter::Create(fbxSdkManager, "");
 
@@ -21,7 +21,8 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 	fbxImporter->Destroy();
 	
 	// Get mesh from scene object.
-	FbxMesh* mesh = fbxScene->GetRootNode()->GetChild(0)->GetMesh();
+	FbxNode* rootNode = fbxScene->GetRootNode();
+	FbxMesh* mesh = rootNode->GetChild(0)->GetMesh();
 
 	// Check if mesh contains non-triangles.
 	for (int p = 0; p < mesh->GetPolygonCount(); p++) {
@@ -43,10 +44,7 @@ bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, st
 	FbxLayerElement::EMappingMode fbxNormalMapMode = fbxNormalElement->GetMappingMode();
 	FbxLayerElement::EReferenceMode fbxNormalReferenceMode = fbxNormalElement->GetReferenceMode();
 
-	//FbxGeometryElementNormal* fbxMaterialElement = mesh->GetElementMaterialCount();
-	int asd = mesh->GetElementMaterialCount();
-
-	// Collect all vertices.
+	// Get vertices (control points).
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
 
 	// Get first UV set.

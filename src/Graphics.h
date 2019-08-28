@@ -52,7 +52,7 @@ public:
 	void updateEntity(BaseEntity* entity);
 
 	// Light
-	void addLight(Light* light, bool activate);
+	void createLight(Light* light, bool activate);
 	void activateLight(Light* light);
 	void updateLight(Light* light);
 	

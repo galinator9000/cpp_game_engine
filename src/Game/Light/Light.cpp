@@ -31,9 +31,9 @@ void Light::Update(bool initial) {
 }
 
 void Light::updateConstantBuffer() {
-	this->gLightConstBuffer.type = this->type;
-	this->gLightConstBuffer.intensity = this->gIntensity;
-	this->gLightConstBuffer.direction = this->gDirection;
-	this->gLightConstBuffer.position = this->gPosition;
+	this->gLightConstantBuffer.type = this->type;
+	this->gLightConstantBuffer.intensity = this->gIntensity;
+	this->gLightConstantBuffer.direction = this->gDirection;
+	this->gLightConstantBuffer.position = this->gPosition;
 	this->shouldUpdateData = true;
 }

@@ -14,7 +14,9 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 	this->pActor = this->rigidDynamic;
 
 	// Graphics
-	this->gColor = XMFLOAT3(color.r, color.g, color.b);
+	this->entityMaterial.color = color;
+	this->entityMaterial.specularPower = 10.0f;
+	this->entityMaterial.specularIntensity = 0.6f;
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);

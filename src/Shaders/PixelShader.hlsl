@@ -1,5 +1,6 @@
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
+#define MAX_LIGHT_COUNT 16
 
 // Provided by entity object.
 Texture2D Texture : register(t0);
@@ -7,15 +8,20 @@ SamplerState Sampler : register(s0);
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float3 entityColor;
 	bool entityUseTexture;
+	float4 specularHighlight;
 };
 
 //// Light calculation.
 // Light intensity, direction and position values.
-cbuffer LightConstantBuffer : register(b1) {
+struct Light {
 	float lightIntensity;
 	float3 lightDirection;
 	float3 lightPosition;
 	unsigned int lightType;
+};
+
+cbuffer LightConstantBuffer : register(b1) {
+	Light lights[MAX_LIGHT_COUNT];
 };
 
 // Constant values
@@ -25,7 +31,7 @@ static const float attenuation_linear = 0.014;
 static const float attenuation_quadratic = 0.0007;
 
 // Ambient value for light calculation.
-static const float4 ambient = float4(0.10f, 0.10f, 0.10f, 0);
+static const float3 ambient = float3(0.10f, 0.10f, 0.10f);
 
 // Input structure of the Pixel shader.
 struct PSIn {
@@ -47,21 +53,40 @@ PSOut main(PSIn psIn){
 	// Normalizing normal input vector because Rasterizer stage interpolates it.
 	float3 normalizedNormal = normalize(psIn.normal);
 
-	float4 diffuse = float4(0, 0, 0, 0);
+	// Vertex and Light vector calculations.
+	float3 vertexToLight = lights[0].lightPosition - (float3) psIn.positionPS;
+	float distVertexToLight = length(vertexToLight);
+	float3 directionVertexToLight = normalize(vertexToLight);
+
+	float3 diffuse = float3(0, 0, 0);
 	// Directional Light calculation.
-	if (lightType == DIRECTIONAL_LIGHT) {
-		diffuse = lightIntensity * max(0.0f, dot(-lightDirection, normalizedNormal));
+	if (lights[0].lightType == DIRECTIONAL_LIGHT) {
+		diffuse = lights[0].lightIntensity * max(0.0f, dot(-lights[0].lightDirection, normalizedNormal));
 	}
 	// Point Light calculation.
-	else if (lightType == POINT_LIGHT) {
-		float3 vertexToLight = (float3) float4(lightPosition, 1.0f) - psIn.positionPS;
-		float distVertexToLight = length(vertexToLight);
-		float3 directionVertexToLight = normalize(vertexToLight);
-
+	else if (lights[0].lightType == POINT_LIGHT) {
 		// Attenuation calculation.
 		float attenuation = attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight));
-		diffuse = lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
+		diffuse = lights[0].lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 	}
+
+	// Specular highlight calculation.
+	float3 specular = float3(0, 0, 0);
+	float specularPower = specularHighlight.x;
+	float specularIntensity = specularHighlight.y;
+
+	float3 w_vector = normalizedNormal * dot(directionVertexToLight, normalizedNormal);
+	float3 reflectionVector = w_vector * 2.0f - directionVertexToLight;
+	specular = lights[0].lightIntensity * specularIntensity * pow(
+		max(
+			0.0f,
+			dot(
+				normalize(reflectionVector),
+				normalize((float3) psIn.positionPS)
+			)
+		),
+		specularPower
+	);
 
 	// Use solid color of entity or texture?
 	float4 texture_or_solid;
@@ -72,10 +97,12 @@ PSOut main(PSIn psIn){
 	}
 
 	//// Add ambient light & blend the color of the entity.
-	psOut.color = saturate(
-		(diffuse + ambient) * texture_or_solid
+	psOut.color = float4(
+		saturate(
+			(diffuse + ambient + specular) * (float3) texture_or_solid
+		),
+		1.0f
 	);
-	psOut.color.a = 1.0f;
 
 	return psOut;
 }
