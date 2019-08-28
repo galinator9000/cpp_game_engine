@@ -27,7 +27,7 @@ Camera::Camera(Vector3 pos, unsigned int fov, float aspectRatio){
 		this->camPosition.z + this->lookDirection.z
 	);
 
-	this->Update(true);
+	this->updateConstantBuffer();
 }
 
 void Camera::Move(Vector3 moveDir, bool moveFast){
@@ -115,17 +115,13 @@ void Camera::Rotate(float yaw, float pitch) {
 	this->hasChanged = true;
 }
 
-void Camera::Update(bool initial){
-	this->shouldUpdateData = false;
-
-	if (initial){
-		this->updateConstantBuffer();
-	}
+void Camera::Update(){
+	this->shouldUpdateGPUData = false;
 
 	if (this->hasChanged) {
 		this->hasChanged = false;
 		this->updateConstantBuffer();
-		this->shouldUpdateData = true;
+		this->shouldUpdateGPUData = true;
 	}
 }
 
@@ -133,7 +129,7 @@ void Camera::updateConstantBuffer() {
 	// Update constant buffer that held on class.
 	// View matrix
 	dx::XMStoreFloat4x4(
-		&this->gViewProjection.viewMatrix,
+		&this->gCameraVSConstantBuffer.viewMatrix,
 		dx::XMMatrixTranspose(
 			dx::XMMatrixLookAtLH(
 				dx::XMLoadFloat3(&this->camPosition),
@@ -145,7 +141,7 @@ void Camera::updateConstantBuffer() {
 
 	// Projection
 	dx::XMStoreFloat4x4(
-		&this->gViewProjection.projectionMatrix,
+		&this->gCameraVSConstantBuffer.projectionMatrix,
 		dx::XMMatrixTranspose(
 			dx::XMMatrixPerspectiveFovLH(
 			((float)this->gFieldOfView / 360) * (2.0f * dx::XM_PI),
@@ -155,4 +151,9 @@ void Camera::updateConstantBuffer() {
 			)
 		)
 	);
+
+	// Position of the camera.
+	gCameraVSConstantBuffer.cameraPosition.x = this->camPosition.x;
+	gCameraVSConstantBuffer.cameraPosition.y = this->camPosition.y;
+	gCameraVSConstantBuffer.cameraPosition.z = this->camPosition.z;
 }

@@ -16,7 +16,7 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 	// Graphics
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 10.0f;
-	this->entityMaterial.specularIntensity = 0.6f;
+	this->entityMaterial.specularIntensity = 0.5f;
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
@@ -27,8 +27,7 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 	this->type = ENTITY_TYPE::BOX;
 	this->isDynamic = true;
 
-	this->dataChanged = true;
-	this->Update();
+	this->updateConstantBuffer();
 }
 
 Box::~Box(){}

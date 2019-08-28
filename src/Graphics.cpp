@@ -455,17 +455,17 @@ void Graphics::updateLight(Light* light) {
 void Graphics::addCamera(Camera* camera, bool setAsMAin) {
 	// Create buffer for View and Projection matrices on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = sizeof(camera->gViewProjection);
+	cBd.ByteWidth = sizeof(camera->gCameraVSConstantBuffer);
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
 	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cBd.MiscFlags = 0;
 	cBd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA cSd = { &camera->gViewProjection, 0, 0 };
+	D3D11_SUBRESOURCE_DATA cSd = { &camera->gCameraVSConstantBuffer, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBd,
 		&cSd,
-		&(camera->pViewProjectionBuffer)
+		&(camera->pCameraVSConstantBuffer)
 	);
 
 	if (setAsMAin) {
@@ -478,22 +478,22 @@ void Graphics::activateCamera(Camera* camera) {
 	this->pDeviceContext->VSSetConstantBuffers(
 		1,
 		1,
-		camera->pViewProjectionBuffer.GetAddressOf()
+		camera->pCameraVSConstantBuffer.GetAddressOf()
 	);
 }
 
 void Graphics::updateCamera(Camera* camera) {
-	if (camera->shouldUpdateData) {
+	if (camera->shouldUpdateGPUData) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 		this->pDeviceContext->Map(
-			camera->pViewProjectionBuffer.Get(),
+			camera->pCameraVSConstantBuffer.Get(),
 			0,
 			D3D11_MAP_WRITE_DISCARD,
 			0,
 			&mappedResource
 		);
-		memcpy(mappedResource.pData, &camera->gViewProjection, sizeof(camera->gViewProjection));
-		this->pDeviceContext->Unmap(camera->pViewProjectionBuffer.Get(), 0);
+		memcpy(mappedResource.pData, &camera->gCameraVSConstantBuffer, sizeof(camera->gCameraVSConstantBuffer));
+		this->pDeviceContext->Unmap(camera->pCameraVSConstantBuffer.Get(), 0);
 	}
 }
 

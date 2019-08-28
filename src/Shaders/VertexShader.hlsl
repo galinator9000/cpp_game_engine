@@ -4,9 +4,10 @@ cbuffer EntityVSConstantBuffer : register(b0) {
 };
 
 // View and Projection matrices provided by active camera object.
-cbuffer ViewProjectionMatrices : register(b1) {
+cbuffer CameraVSConstantBuffer : register(b1) {
 	matrix viewMatrix;
 	matrix projectionMatrix;
+	float4 cameraPosition;
 };
 
 // Input structure of the Vertex shader.
@@ -19,9 +20,11 @@ struct VSIn {
 // Output structure of the Vertex shader.
 struct VSOut {
 	// These values will be passed to pixel shader.
-	float4 positionPS : Position;
+	float3 positionPS : Position;
 	float3 normal : Normal;
 	float2 texture_UV : TextureUV;
+	float4 eyePosition : EyePosition;
+	matrix viewMatrix : ViewMatrix;
 
 	float4 position : SV_Position;
 };
@@ -39,12 +42,13 @@ VSOut main(VSIn vsIn){
 	vsOut.position = finalVector;
 
 	//// These values will be passed to pixel shader.
-	vsOut.positionPS = mul(float4(vsIn.position, 1.0f), worldMatrix);
-
+	vsOut.positionPS = mul(float4(vsIn.position, 1.0f), worldMatrix).xyz;
 	// Rotate the normals.
 	// When this normal vector passed to pixel shader, it will be interpolated by rasterizer.
 	vsOut.normal = mul(vsIn.normal, (float3x3) worldMatrix);
 	vsOut.texture_UV = vsIn.texture_UV;
+	vsOut.eyePosition = cameraPosition;
+	vsOut.viewMatrix = viewMatrix;
 
 	return vsOut;
 }

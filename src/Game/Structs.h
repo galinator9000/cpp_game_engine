@@ -311,7 +311,8 @@ struct LightPSConstantBuffer {
 };
 
 // Each camera object holds this, camera's position and projection information held.
-struct ViewProjectionMatrices {
+struct CameraVSConstantBuffer {
 	dx::XMFLOAT4X4 viewMatrix;
 	dx::XMFLOAT4X4 projectionMatrix;
+	dx::XMFLOAT4 cameraPosition;
 };

@@ -35,9 +35,11 @@ static const float3 ambient = float3(0.10f, 0.10f, 0.10f);
 
 // Input structure of the Pixel shader.
 struct PSIn {
-	float4 positionPS : Position;
+	float3 positionPS : Position;
 	float3 normal : Normal;
 	float2 texture_UV : TextureUV;
+	float4 eyePosition : EyePosition;
+	matrix viewMatrix : ViewMatrix;
 };
 
 // Output structure of the Pixel shader.
@@ -54,9 +56,12 @@ PSOut main(PSIn psIn){
 	float3 normalizedNormal = normalize(psIn.normal);
 
 	// Vertex and Light vector calculations.
-	float3 vertexToLight = lights[0].lightPosition - (float3) psIn.positionPS;
+	float3 vertexToLight = lights[0].lightPosition - psIn.positionPS;
 	float distVertexToLight = length(vertexToLight);
 	float3 directionVertexToLight = normalize(vertexToLight);
+
+	// Attenuation calculation.
+	float attenuation = attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight));
 
 	float3 diffuse = float3(0, 0, 0);
 	// Directional Light calculation.
@@ -65,8 +70,6 @@ PSOut main(PSIn psIn){
 	}
 	// Point Light calculation.
 	else if (lights[0].lightType == POINT_LIGHT) {
-		// Attenuation calculation.
-		float attenuation = attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight));
 		diffuse = lights[0].lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 	}
 
@@ -75,14 +78,17 @@ PSOut main(PSIn psIn){
 	float specularPower = specularHighlight.x;
 	float specularIntensity = specularHighlight.y;
 
-	float3 w_vector = normalizedNormal * dot(directionVertexToLight, normalizedNormal);
-	float3 reflectionVector = w_vector * 2.0f - directionVertexToLight;
-	specular = lights[0].lightIntensity * specularIntensity * pow(
+	float3 reflectionVector = reflect(
+		-vertexToLight,
+		normalizedNormal
+	);
+	
+	specular = attenuation * lights[0].lightIntensity * specularIntensity * pow(
 		max(
 			0.0f,
 			dot(
 				normalize(reflectionVector),
-				normalize((float3) psIn.positionPS)
+				normalize(psIn.eyePosition.xyz - psIn.positionPS)
 			)
 		),
 		specularPower
@@ -99,7 +105,7 @@ PSOut main(PSIn psIn){
 	//// Add ambient light & blend the color of the entity.
 	psOut.color = float4(
 		saturate(
-			(diffuse + ambient + specular) * (float3) texture_or_solid
+			(diffuse + ambient + specular) * texture_or_solid.xyz
 		),
 		1.0f
 	);

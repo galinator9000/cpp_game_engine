@@ -8,7 +8,7 @@
 class Camera{
 public:
 	Camera(Vector3 pos, unsigned int fov, float aspectRatio);
-	void Update(bool initial=false);
+	void Update();
 	void updateConstantBuffer();
 
 	unsigned int id;
@@ -28,9 +28,9 @@ public:
 	float currentRotationSpeed = initialRotationSpeed;
 
 	// GPU side
-	ViewProjectionMatrices gViewProjection;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pViewProjectionBuffer;
-	bool shouldUpdateData = false;
+	CameraVSConstantBuffer gCameraVSConstantBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pCameraVSConstantBuffer;
+	bool shouldUpdateGPUData = false;
 	bool hasChanged = false;
 
 	dx::XMFLOAT3 lookDirection;

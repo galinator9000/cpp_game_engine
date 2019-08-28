@@ -8,8 +8,8 @@ TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Col
 
 	// Graphics
 	this->entityMaterial.color = color;
-	this->entityMaterial.specularPower = 10.0f;
-	this->entityMaterial.specularIntensity = 2.0f;
+	this->entityMaterial.specularPower = 20.0f;
+	this->entityMaterial.specularIntensity = 3.0f;
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
@@ -20,8 +20,7 @@ TriangleMesh::TriangleMesh(Vector3 size, Vector3 position, Vector3 rotation, Col
 	this->type = ENTITY_TYPE::TRIANGLE_MESH;
 	this->isDynamic = false;
 
-	this->dataChanged = true;
-	this->Update();
+	this->updateConstantBuffer();
 }
 
 TriangleMesh::~TriangleMesh() {}

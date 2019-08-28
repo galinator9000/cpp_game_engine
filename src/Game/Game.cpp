@@ -56,7 +56,7 @@ void Game::Setup(){
 		{0,0,1,1},
 		{1,1,1}
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\textured_sharp_cube.fbx")) {
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
 		// Attach texture to entity and add it to world.
 		//tMesh->attachTextureAndSampler(texture, textureSampler);
 		this->pWorld->addEntity(tMesh);
@@ -74,9 +74,7 @@ void Game::Update(){
 	float cosx = cos(timer.Peek() * 6.28f) * 5.0f;
 	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
 	
-	this->pWorld->allLights.at(0)->setPosition(
-		{ cosx, siny, siny }
-	);
+	//this->pWorld->allLights.at(0)->setPosition({ cosx, siny, siny });
 
 	if (timer.Peek() > 1.0f) {
 		timer.Reset();
