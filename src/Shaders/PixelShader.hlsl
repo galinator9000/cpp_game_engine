@@ -65,10 +65,10 @@ PSOut main(PSIn psIn){
 		}
 
 		float3 diffuse = float3(0, 0, 0);
-		float3 specular = float3(0,0,0);
+		float3 specular = float3(0, 0, 0);
 
 		// Vertex and Light vector calculations.
-		float3 vertexToLight;
+		float3 vertexToLight = float3(0, 0, 0);
 		switch (allLights[light].type) {
 			case DIRECTIONAL_LIGHT:
 				vertexToLight = -allLights[light].direction;

@@ -60,3 +60,21 @@ void BaseEntity::updateConstantBuffer(){
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;
 }
+
+void BaseEntity::Translate(Vector3 translationVector){
+	this->gPosition.x += translationVector.x;
+	this->gPosition.y += translationVector.y;
+	this->gPosition.z += translationVector.z;
+	this->dataChanged = true;
+}
+
+void BaseEntity::Rotate(Vector3 rotationVector){
+	this->dataChanged = true;
+}
+
+void BaseEntity::Scale(Vector3 scalingVector){
+	this->gSize.x += scalingVector.x;
+	this->gSize.y += scalingVector.y;
+	this->gSize.z += scalingVector.z;
+	this->dataChanged = true;
+}

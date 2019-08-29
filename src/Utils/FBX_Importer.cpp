@@ -19,10 +19,35 @@ bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, st
 	FbxScene* fbxScene = FbxScene::Create(fbxSdkManager, "scene");
 	fbxImporter->Import(fbxScene);
 	fbxImporter->Destroy();
-	
-	// Get mesh from scene object.
+
+	//// Process scene.
 	FbxNode* rootNode = fbxScene->GetRootNode();
-	FbxMesh* mesh = rootNode->GetChild(0)->GetMesh();
+
+	// Walk scene and print out all nodes.
+	FBX_Importer::printNode(rootNode);
+	
+	// Check if any mesh exist on current scene.
+	int meshChildNodeIndex = -1;
+	for (int c = 0; c < rootNode->GetChildCount(); c++) {
+		if (rootNode->GetChild(c)->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eMesh) {
+			meshChildNodeIndex = c;
+			break;
+		}
+	}
+
+	if (meshChildNodeIndex == -1) {
+		std::ostringstream myStream;
+		myStream << fileName;
+		myStream << ": There isn't a mesh node in current scene." << "\n";
+		OutputDebugStringA(myStream.str().c_str());
+		std::cout << myStream.str().c_str();
+
+		return false;
+	}
+
+	// Get mesh from scene object.
+	FbxNode* node = rootNode->GetChild(meshChildNodeIndex);
+	FbxMesh* mesh = node->GetMesh();
 
 	// Check if mesh contains non-triangles.
 	for (int p = 0; p < mesh->GetPolygonCount(); p++) {
@@ -224,3 +249,21 @@ bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, st
 
 	return true;
 };
+
+// Walks the node child-by-child and works recursively.
+// Function simply prints out name and child count of the node.
+void FBX_Importer::printNode(FbxNode* node, unsigned int level) {
+	std::ostringstream myStream;
+
+	if (level > 0) {
+		myStream << '^' << std::string(level, '-');
+	}
+	myStream << node->GetName() << ", " << node->GetChildCount() << "\n";
+
+	OutputDebugStringA(myStream.str().c_str());
+	std::cout << myStream.str().c_str();
+
+	for (int c=0; c < node->GetChildCount(); c++) {
+		FBX_Importer::printNode(node->GetChild(c), level+1);
+	}
+}

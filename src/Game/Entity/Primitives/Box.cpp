@@ -55,7 +55,7 @@ void Box::Update(){
 	this->gRotationQ.x = tm.q.x;
 	this->gRotationQ.y = tm.q.y;
 	this->gRotationQ.z = tm.q.z;
-	this->gRotationQ.w = tm.q.w;	
+	this->gRotationQ.w = tm.q.w;
 
 	this->updateConstantBuffer();
 }

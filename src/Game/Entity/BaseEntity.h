@@ -43,6 +43,10 @@ public:
 	dx::XMFLOAT4 gRotationQ;
 	EntityMaterial entityMaterial;
 
+	void Translate(Vector3 translationVector);
+	void Rotate(Vector3 rotationVector);
+	void Scale(Vector3 scalingVector);
+
 	// Texture
 	Texture* texture;
 	TextureSampler* textureSampler;
