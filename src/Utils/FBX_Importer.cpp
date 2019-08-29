@@ -1,8 +1,11 @@
 #include "FBX_Importer.h"
 
-bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, std::vector<Vertex>* _vertices, std::vector<unsigned int>* _indices) {
+bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, std::vector<unsigned int>* _indices) {
 	FbxManager* fbxSdkManager = FbxManager::Create();
 	FbxImporter* fbxImporter = FbxImporter::Create(fbxSdkManager, "");
+
+	// Status object for holding errors.
+	FbxStatus status;
 
 	// Load file.
 	if (!fbxImporter->Initialize(fileName, -1, fbxSdkManager->GetIOSettings())) {
@@ -22,7 +25,6 @@ bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, st
 
 	//// Process scene.
 	FbxNode* rootNode = fbxScene->GetRootNode();
-
 	// Walk scene and print out all nodes.
 	FBX_Importer::printNode(rootNode);
 	
@@ -41,13 +43,14 @@ bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, st
 		myStream << ": There isn't a mesh node in current scene." << "\n";
 		OutputDebugStringA(myStream.str().c_str());
 		std::cout << myStream.str().c_str();
-
 		return false;
 	}
 
+	//// Process mesh.
 	// Get mesh from scene object.
-	FbxNode* node = rootNode->GetChild(meshChildNodeIndex);
-	FbxMesh* mesh = node->GetMesh();
+	FbxNode* baseNode = rootNode->GetChild(0);
+	FbxNode* meshNode = rootNode->GetChild(meshChildNodeIndex);
+	FbxMesh* mesh = meshNode->GetMesh();
 
 	// Check if mesh contains non-triangles.
 	for (int p = 0; p < mesh->GetPolygonCount(); p++) {
@@ -57,11 +60,67 @@ bool FBX_Importer::Load(EntityMaterial* entityMaterial, const char* fileName, st
 			myStream << " contains polygons with more than 3 vertices." << "\n";
 			OutputDebugStringA(myStream.str().c_str());
 			std::cout << myStream.str().c_str();
-
 			return false;
 		}
 	}
 
+	//// Process the deformer of the mesh. (Skeleton)
+	int meshDeformerCount = mesh->GetDeformerCount();
+
+	if (meshDeformerCount > 0) {
+		FbxDeformer* meshDeformer = mesh->GetDeformer(0);
+		FbxDeformer::EDeformerType meshDeformerType = meshDeformer->GetDeformerType();
+
+		// Check mesh deformer type if it is supported.
+		if (meshDeformerType == FbxDeformer::eSkin) {
+			FbxSkin* skin = (FbxSkin*) mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
+			int skinClusterCount = skin->GetClusterCount();
+			FbxCluster* skinCluster;
+
+			FbxNode* linkNode;
+			FbxCluster::ELinkMode linkMode;
+
+			// Process each cluster.
+			for (int c=0; c < skinClusterCount; c++) {
+				skinCluster = skin->GetCluster(c);
+
+				// Get joint of the cluster.
+				linkNode = skinCluster->GetLink();
+				linkMode = skinCluster->GetLinkMode();
+
+				switch (linkMode) {
+					case FbxCluster::eNormalize:
+
+
+						break;
+					case FbxCluster::eAdditive: break;
+					case FbxCluster::eTotalOne: break;
+				}
+			}
+
+		}else {
+			/*
+			Other mesh deformer types are:
+				FbxDeformer::eBlendShape:
+				FbxDeformer::eUnknown:
+				FbxDeformer::eVertexCache:
+			*/
+
+			std::ostringstream myStream;
+			myStream << fileName;
+			myStream << ": Mesh deformer found but deformer type is not supported." << "\n";
+			OutputDebugStringA(myStream.str().c_str());
+			std::cout << myStream.str().c_str();
+		}
+	}else {
+		std::ostringstream myStream;
+		myStream << fileName;
+		myStream << ": There isn't any mesh deformer binded to mesh." << "\n";
+		OutputDebugStringA(myStream.str().c_str());
+		std::cout << myStream.str().c_str();
+	}
+
+	//// Process all vertices, indices, normals (per-vertex), and UV values from the mesh.
 	// Get values that indicates how normals are represented in the mesh.
 	// If faces of the mesh shares vertices, that means one vertex has more than one normal vector.
 	// If that's the case, we duplicate the vertices and make faces independent from each other.

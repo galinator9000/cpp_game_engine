@@ -56,7 +56,7 @@ void Game::Setup(){
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 }
 	);
-	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Triangle.fbx")) {
+	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		tMesh->attachTextureAndSampler(texture, textureSampler);
 		this->pWorld->addEntity(tMesh);
 	}
@@ -72,9 +72,6 @@ void Game::Update(){
 	// Circular motion around 0,0,0 for point light.
 	float cosx = cos(timer.Peek() * 6.28f) * 5.0f;
 	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
-
-	this->pWorld->allEntities.at(0)->Translate({ cosx * 0.1f, siny * 0.1f, 0.0f});
-	this->pWorld->allEntities.at(0)->Scale({ siny * 0.01f, 0.0f, siny * 0.05f });
 	
 	//this->pWorld->allLights.at(0)->setDirection({ cosx, siny, cosx });
 	this->pWorld->allLights.at(1)->setPosition({ cosx, siny, 0.0f });

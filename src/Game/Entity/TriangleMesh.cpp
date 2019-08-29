@@ -43,7 +43,7 @@ bool TriangleMesh::LoadFBX(const char* fileName){
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
 
 	// Load .FBX file to our vectors.
-	if (!FBX_Importer::Load(&this->entityMaterial, fileName, _vertices, _indices)) {
+	if (!FBX_Importer::Load(fileName, _vertices, _indices)) {
 		return false;
 	}
 
