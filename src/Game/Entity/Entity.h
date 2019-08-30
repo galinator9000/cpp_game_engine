@@ -21,10 +21,10 @@ const enum ENTITY_TYPE{
 	TRIANGLE_MESH
 };
 
-class Entity{
+class Entity {
 public:
 	Entity(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material);
-	virtual void Update(){};
+	void Update();
 	virtual void Reset();
 	virtual void setColor(Color color);
 
@@ -54,9 +54,9 @@ public:
 	virtual void detachTextureAndSampler();
 	bool useTexture = false;
 
-	// Mesh and joint information.
+	// Mesh
 	Mesh* mesh;
-	virtual void attachMesh(Mesh* mesh);
+	virtual void attachMesh(Mesh* entityMesh);
 
 	// Constant buffer
 	EntityVSConstantBuffer gEntityVSConstantBuffer;

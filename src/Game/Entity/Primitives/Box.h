@@ -1,5 +1,5 @@
-#pragma once
-#include "Entity/BaseEntity.h"
+/*#pragma once
+#include "Entity/Entity.h"
 #include "Structs.h"
 
 using namespace DirectX;
@@ -15,4 +15,4 @@ public:
 
 	// Graphics
 	void gCreateVerticesAndIndices();
-};
+};*/

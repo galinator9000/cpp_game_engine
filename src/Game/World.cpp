@@ -72,7 +72,7 @@ void World::Update(){
 
 	// Update and draw all entities.
 	for (unsigned int e = 0; e < allEntities.size(); e++){
-		BaseEntity* ent = allEntities.at(e);
+		Entity* ent = allEntities.at(e);
 
 		if(ent == NULL){
 			continue;
@@ -99,7 +99,7 @@ void World::Update(){
 }
 
 // Entity
-void World::addEntity(BaseEntity* bEntity){
+void World::addEntity(Entity* bEntity){
 	bEntity->id = (unsigned int) allEntities.size();
 	allEntities.push_back(bEntity);
 	

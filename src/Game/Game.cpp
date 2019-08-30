@@ -13,34 +13,6 @@ void Game::Setup(){
 	);
 	pWorld->addCamera(pCamera, true);
 
-	// Add static ground.
-	/*Plane* ground = new Plane(
-		Vector3(10.0f, 10.0f, 0)
-	);
-	this->pWorld->addEntity(ground);
-
-	// Add dynamic cube.
-	Box* box = new Box(
-		{ 1.5f, 0.05f, 1.5f },
-		{ 0.0f, 2.0f, 6.0f },
-		{ 0, 0, 0 },
-		{ 0.0f, 1.0f, 0.0f, 1.0f },
-		{ 0, 0, 0 }
-	);
-	this->pWorld->addEntity(box);
-
-	// Add small cubes
-	for (int i = 1; i < 150; i++) {
-		Box* box2 = new Box(
-			{ 0.1f, 0.1f, 0.1f },
-			{ i * 0.01f, 5.0f + (i * 0.5f), 6.0f },
-			{ 0, 0, 0 },
-			{ 0, 0, 1, 1 },
-			{ 0, 0, 0 }
-		);
-		this->pWorld->addEntity(box2);
-	}*/
-
 	// Create texture objects.
 	Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
 	TextureSampler* textureSampler = new TextureSampler();
@@ -49,16 +21,32 @@ void Game::Setup(){
 	this->pWorld->createTexture(texture);
 	this->pWorld->createTextureSampler(textureSampler);
 
-	TriangleMesh* tMesh = new TriangleMesh(
-		{ 1,1,1 },
+	Entity* entity = new Entity(
+		{ 0.1f,0.1f,0.1f },
 		{ 0,0,10 },
 		{ 0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 }
 	);
+	// Scale up second entity.
+	Entity* entity2 = new Entity(
+		{ 0.3f, 0.3f,0.3f },
+		{ 0,0,20 },
+		{ 0,0,0 },
+		{ 0.66f, 1.0f, 0.66f, 1 },
+		{ 1,1,1 }
+	);
+	Mesh* tMesh = new Mesh();
+
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
-		tMesh->attachTextureAndSampler(texture, textureSampler);
-		this->pWorld->addEntity(tMesh);
+		// Attach texture and mesh to entities.
+		entity->attachMesh(tMesh);
+		entity2->attachMesh(tMesh);
+
+		entity->attachTextureAndSampler(texture, textureSampler);
+
+		this->pWorld->addEntity(entity);
+		this->pWorld->addEntity(entity2);
 	}
 
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(-1.0f, 1.0f, -1.0f), 1.0f);

@@ -1,4 +1,4 @@
-#include "BaseEntity.h"
+#include "Entity.h"
 #include "Shapes.h"
 
 PxPhysics* Entity::ppxPhysics;
@@ -13,44 +13,13 @@ Entity::Entity(Vector3 size, Vector3 position, Vector3 rotation, Color color, Ve
 
 	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
-	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
+	//this->gRotationQ = dx::XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
 	this->gRotationQ = dx::XMFLOAT4(0, 0, 0, 0);
 
 	// Set properties of the entity.
 	this->isDynamic = false;
 
 	this->updateConstantBuffer();
-}
-
-void Entity::attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler){
-	this->texture = texture;
-	this->textureSampler = textureSampler;
-	this->useTexture = true;
-
-	this->dataChanged = true;
-}
-
-void Entity::detachTextureAndSampler() {
-	this->texture = NULL;
-	this->textureSampler = NULL;
-	this->useTexture = false;
-
-	this->dataChanged = true;
-}
-
-void Entity::attachMesh(Mesh* mesh) {
-	this->mesh = mesh;
-	this->dataChanged = true;
-}
-
-void Entity::setColor(Color color) {
-	this->entityMaterial.color = color;
-	this->dataChanged = true;
-}
-
-void Entity::Reset() {
-	this->dataChanged = false;
-	this->shouldUpdateGPUData = false;
 }
 
 void Entity::Update() {
@@ -66,7 +35,7 @@ void Entity::Update() {
 	this->updateConstantBuffer();
 }
 
-void Entity::updateConstantBuffer(){
+void Entity::updateConstantBuffer() {
 	// Update VS constant buffer.
 	dx::XMStoreFloat4x4(
 		&(this->gEntityVSConstantBuffer.worldMatrix),
@@ -91,6 +60,36 @@ void Entity::updateConstantBuffer(){
 
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;
+}
+
+void Entity::Reset() {
+	this->dataChanged = false;
+	this->shouldUpdateGPUData = false;
+}
+
+void Entity::attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler){
+	this->texture = texture;
+	this->textureSampler = textureSampler;
+	this->useTexture = true;
+
+	this->dataChanged = true;
+}
+
+void Entity::detachTextureAndSampler() {
+	this->texture = NULL;
+	this->textureSampler = NULL;
+	this->useTexture = false;
+
+	this->dataChanged = true;
+}
+
+void Entity::attachMesh(Mesh* mesh) {
+	this->mesh = mesh;
+}
+
+void Entity::setColor(Color color) {
+	this->entityMaterial.color = color;
+	this->dataChanged = true;
 }
 
 void Entity::Translate(Vector3 translationVector){

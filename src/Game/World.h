@@ -8,7 +8,7 @@
 #include "Camera.h"
 
 // Base class for all entities
-#include "Entity/BaseEntity.h"
+#include "Entity/Entity.h"
 #include "Light/Light.h"
 
 class World{
@@ -21,7 +21,7 @@ public:
 	void Update();
 
 	// Entity functions
-	void addEntity(BaseEntity* bEntity);
+	void addEntity(Entity* bEntity);
 
 	// Light functions
 	bool addLight(Light* light);
@@ -38,7 +38,7 @@ public:
 	Camera* activeCamera;
 
 	// List for keeping track of various objects in world.
-	std::vector<BaseEntity*> allEntities;
+	std::vector<Entity*> allEntities;
 	std::vector<Light*> allLights;
 	std::vector<Camera*> allCameras;
 	std::vector<Texture*> allTextures;

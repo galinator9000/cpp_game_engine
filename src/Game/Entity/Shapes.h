@@ -1,6 +1,6 @@
 #pragma once
 
 // Base class for basic shapes
-#include "TriangleMesh.h"
+#include "Mesh/Mesh.h"
 #include "Primitives/Box.h"
 #include "Primitives/Plane.h"

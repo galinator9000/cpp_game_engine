@@ -1,4 +1,4 @@
-#include "Box.h"
+/*#include "Box.h"
 
 Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material) {
 	this->pShape = this->ppxPhysics->createShape(
@@ -131,4 +131,4 @@ void Box::gCreateVerticesAndIndices() {
 	unsigned int* indices = new unsigned int[this->gIndexCount];
 	std::copy(_indices, _indices + this->gIndexCount, indices);
 	this->gIndices = indices;
-}
+}*/

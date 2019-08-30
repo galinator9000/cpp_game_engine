@@ -5,7 +5,7 @@
 #include "Structs.h"
 #include "Texture.h"
 #include "TextureSampler.h"
-#include "Entity/BaseEntity.h"
+#include "Entity/Entity.h"
 #include "Entity/Shapes.h"
 #include "Light/Light.h"
 
@@ -47,9 +47,9 @@ public:
 
 	////// GAME ENGINE SECTION
 	// Entity
-	void addEntity(BaseEntity* entity);
-	void drawEntity(BaseEntity* entity);
-	void updateEntity(BaseEntity* entity);
+	void addEntity(Entity* entity);
+	void drawEntity(Entity* entity);
+	void updateEntity(Entity* entity);
 
 	// Light
 	void createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);

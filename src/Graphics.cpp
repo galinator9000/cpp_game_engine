@@ -212,16 +212,10 @@ void Graphics::endFrame() {
 
 ////// GAME ENGINE SECTION
 // Entity
-void Graphics::addEntity(BaseEntity* entity){
-	switch (entity->type) {
-		case ENTITY_TYPE::PLANE:
-			return;
-			break;
-	}
-
+void Graphics::addEntity(Entity* entity){
 	// Build vertex and index buffer elements depending on shape of the object,
 	// fill them in the entity object's "indices" and "vertices" arrays.
-	entity->gCreateVerticesAndIndices();
+	entity->mesh->gCreateVerticesAndIndices();
 
 	/// CONSTANT BUFFER	
 	// Create constant buffer on GPU side for Vertex Shader.
@@ -254,10 +248,10 @@ void Graphics::addEntity(BaseEntity* entity){
 	// Build vertex buffer on GPU side.
 	D3D11_BUFFER_DESC vBd = { 0 };
 	vBd.StructureByteStride = sizeof(Vertex);
-	vBd.ByteWidth = (UINT) vBd.StructureByteStride * entity->gVertexCount;
+	vBd.ByteWidth = (UINT) vBd.StructureByteStride * entity->mesh->gVertexCount;
 	vBd.Usage = D3D11_USAGE_DEFAULT;
 	vBd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA vSd = { entity->gVertices, 0, 0 };
+	D3D11_SUBRESOURCE_DATA vSd = { entity->mesh->gVertices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&vBd,
 		&vSd,
@@ -268,10 +262,10 @@ void Graphics::addEntity(BaseEntity* entity){
 	// Create index buffer on GPU side.
 	D3D11_BUFFER_DESC iBd = { 0 };
 	iBd.StructureByteStride = sizeof(unsigned int);
-	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity->gIndexCount;
+	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity->mesh->gIndexCount;
 	iBd.Usage = D3D11_USAGE_DEFAULT;
 	iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA iSd = { entity->gIndices, 0, 0 };
+	D3D11_SUBRESOURCE_DATA iSd = { entity->mesh->gIndices, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&iBd,
 		&iSd,
@@ -279,13 +273,7 @@ void Graphics::addEntity(BaseEntity* entity){
 	);
 }
 
-void Graphics::drawEntity(BaseEntity* entity){
-	switch (entity->type) {
-		case ENTITY_TYPE::PLANE:
-			return;
-			break;
-	}
-
+void Graphics::drawEntity(Entity* entity){
 	//// Binding Buffers
 	// Constant buffer
 	// Bind entity's constant buffer for Vertex Shader.
@@ -357,19 +345,13 @@ void Graphics::drawEntity(BaseEntity* entity){
 
 	// Draw the entity..
 	this->pDeviceContext->DrawIndexed(
-		(UINT) entity->gIndexCount,
+		(UINT) entity->mesh->gIndexCount,
 		0,
 		0
 	);
 }
 
-void Graphics::updateEntity(BaseEntity* entity) {
-	switch (entity->type) {
-	case ENTITY_TYPE::PLANE:
-		return;
-		break;
-	}
-
+void Graphics::updateEntity(Entity* entity) {
 	// Update subresource of the constant buffer on GPU side.
 	// ONLY if it should.
 	if (entity->shouldUpdateGPUData) {

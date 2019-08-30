@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity/BaseEntity.h"
+#include "Entity/Entity.h"
 #include "Entity/Shapes.h"
 
 #include <Windows.h>
@@ -15,7 +15,7 @@ public:
 	~Physics();
 
 	void Update();
-	bool addEntity(BaseEntity* bEntity);
+	bool addEntity(Entity* bEntity);
 
 	// PhysX variables
 public:
