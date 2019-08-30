@@ -1,12 +1,11 @@
 #include "Box.h"
 
-Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material) {
+Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material) {
 	this->pShape = this->ppxPhysics->createShape(
 		PxBoxGeometry(PxVec3(size.x, size.y, size.z)),
 		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
 	);
 
-	PxQuat rotationQuaternion;
 	PxTransform transform(PxVec3(position.x, position.y, position.z));
 	this->rigidDynamic = this->ppxPhysics->createRigidDynamic(transform);
 	this->rigidDynamic->attachShape(*pShape);
@@ -20,8 +19,7 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
-	//this->gRotationQ = XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
-	this->gRotationQ = XMFLOAT4(0, 0, 0, 0);
+	this->gRotationQ = XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
 
 	// Set properties of the entity.
 	this->isDynamic = true;

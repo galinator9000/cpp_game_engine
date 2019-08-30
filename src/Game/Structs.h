@@ -298,6 +298,7 @@ struct EntityMaterial {
 //// Graphics
 // Entity constant buffer for Vertex Shader.
 struct EntityVSConstantBuffer {
+	// Transformation matrix for entity.
 	dx::XMFLOAT4X4 worldMatrix;
 };
 

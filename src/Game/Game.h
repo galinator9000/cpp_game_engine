@@ -12,6 +12,9 @@ public:
 	void Setup();
 	void Update();
 
+	Entity* animatedEntity;
+	Entity* parentBoxEntity;
+
 	Timer timer;
 	World* pWorld;
 };

@@ -6,18 +6,20 @@ PxPhysics* Entity::ppxPhysics;
 // Default constructor.
 Entity::Entity(){}
 
-Entity::Entity(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material) {
-	PxQuat rotationQuaternion;
-
+Entity::Entity(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material, Mesh* mesh) {
 	// Graphics
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 15.0f;
 	this->entityMaterial.specularIntensity = 3.0f;
+	this->mesh = mesh;
 
+	// Local transformation values.
 	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
-	//this->gRotationQ = dx::XMFLOAT4(rotationQuaternion.x, rotationQuaternion.y, rotationQuaternion.z, rotationQuaternion.w);
-	this->gRotationQ = dx::XMFLOAT4(0, 0, 0, 0);
+	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
+
+	// Pivot point position is relative to model space.
+	this->gPivotPoint = dx::XMFLOAT3(-1, 1, -1);
 
 	// Set properties of the entity.
 	this->isDynamic = false;
@@ -40,9 +42,11 @@ void Entity::Update() {
 
 void Entity::updateConstantBuffer() {
 	// Update VS constant buffer.
+	// Update world matrix.
 	dx::XMStoreFloat4x4(
 		&(this->gEntityVSConstantBuffer.worldMatrix),
 		dx::XMMatrixTranspose(
+			// Local
 			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
 			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
 			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z)
@@ -70,6 +74,7 @@ void Entity::Reset() {
 	this->shouldUpdateGPUData = false;
 }
 
+// Texture
 void Entity::attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler){
 	this->texture = texture;
 	this->textureSampler = textureSampler;
@@ -86,6 +91,7 @@ void Entity::detachTextureAndSampler() {
 	this->dataChanged = true;
 }
 
+// Mesh
 bool Entity::attachMesh(Mesh* mesh) {
 	if (this->mesh == NULL) {
 		this->mesh = mesh;
@@ -94,6 +100,35 @@ bool Entity::attachMesh(Mesh* mesh) {
 	return false;
 }
 
+// Hierarchy system
+void Entity::attachChild(Entity* child){
+	this->childEntities.push_back(child);
+	child->parentEntity = this;
+
+	this->dataChanged = true;
+	child->dataChanged = true;
+}
+
+void Entity::detachChild(Entity* child){
+	this->childEntities.erase(
+		std::remove(this->childEntities.begin(), this->childEntities.end(), child),
+		this->childEntities.end()
+	);
+	child->parentEntity = NULL;
+
+	this->dataChanged = true;
+	child->dataChanged = true;
+}
+
+Entity* Entity::getChild(int childIndex) {
+	return this->childEntities.at(childIndex);
+}
+
+unsigned int Entity::getChildCount() {
+	return (unsigned int) this->childEntities.size();
+}
+
+// General
 void Entity::setColor(Color color) {
 	this->entityMaterial.color = color;
 	this->dataChanged = true;
@@ -106,13 +141,13 @@ void Entity::Translate(Vector3 translationVector){
 	this->dataChanged = true;
 }
 
-void Entity::Rotate(Vector3 rotationVector){
+void Entity::Rotate(Vector4 rotationVector){
 	this->dataChanged = true;
 }
 
 void Entity::Scale(Vector3 scalingVector){
-	this->gSize.x += scalingVector.x;
-	this->gSize.y += scalingVector.y;
-	this->gSize.z += scalingVector.z;
+	this->gSize.x *= scalingVector.x;
+	this->gSize.y *= scalingVector.y;
+	this->gSize.z *= scalingVector.z;
 	this->dataChanged = true;
 }

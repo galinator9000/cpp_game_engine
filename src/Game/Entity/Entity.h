@@ -25,7 +25,7 @@ class Entity {
 public:
 	// Default constructor.
 	Entity();
-	Entity(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material);
+	Entity(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material, Mesh* mesh=NULL);
 	virtual void Update();
 	virtual void Reset();
 	virtual void setColor(Color color);
@@ -43,10 +43,11 @@ public:
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
+	dx::XMFLOAT3 gPivotPoint;
 	EntityMaterial entityMaterial;
 
 	void Translate(Vector3 translationVector);
-	void Rotate(Vector3 rotationVector);
+	void Rotate(Vector4 rotationVector);
 	void Scale(Vector3 scalingVector);
 
 	// Texture
@@ -55,6 +56,14 @@ public:
 	virtual void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler);
 	virtual void detachTextureAndSampler();
 	bool useTexture = false;
+
+	// Hierarchy system
+	Entity* parentEntity;
+	std::vector<Entity*> childEntities;
+	void attachChild(Entity* child);
+	void detachChild(Entity* child);
+	Entity* getChild(int childIndex);
+	unsigned int getChildCount();
 
 	// Mesh
 	Mesh* mesh;
