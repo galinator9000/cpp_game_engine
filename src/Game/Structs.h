@@ -277,10 +277,16 @@ struct Color {
 	float a;
 };
 
+// Each vertex on every mesh is represented by this struct.
 struct Vertex {
 	Vector3 position;
 	Vector3 normal;
 	Vector2 TextureUV;
+};
+
+// Each joint on mesh is represented by this struct.
+struct Joint {
+	unsigned int parentId;
 };
 
 struct EntityMaterial {

@@ -1,6 +1,12 @@
 #include "FBX_Importer.h"
 
-bool FBX_Importer::Load(const char* fileName, std::vector<Vertex>* _vertices, std::vector<unsigned int>* _indices) {
+bool FBX_Importer::Load(
+		const char* fileName,
+		std::vector<Vertex>* _vertices,
+		std::vector<unsigned int>* _indices,
+		std::vector<Joint>* _joints
+	)
+{
 	FbxManager* fbxSdkManager = FbxManager::Create();
 	FbxImporter* fbxImporter = FbxImporter::Create(fbxSdkManager, "");
 

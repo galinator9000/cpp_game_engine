@@ -6,9 +6,10 @@
 bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
+	std::vector<Joint>* _joints = new std::vector<Joint>();
 
 	// Load .FBX file to our vectors.
-	if (!FBX_Importer::Load(fileName, _vertices, _indices)) {
+	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints)) {
 		return false;
 	}
 
@@ -104,4 +105,12 @@ void Mesh::createBoxShape() {
 	unsigned int* indices = new unsigned int[this->gIndexCount];
 	std::copy(_indices, _indices + this->gIndexCount, indices);
 	this->gIndices = indices;
+}
+
+bool Mesh::attachMeshDeformer(MeshDeformer* meshDeformer) {
+	if (this->meshDeformer == NULL) {
+		this->meshDeformer = meshDeformer;
+		return true;
+	}
+	return false;
 }

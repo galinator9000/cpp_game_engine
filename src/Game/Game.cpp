@@ -19,6 +19,8 @@ void Game::Setup(){
 	this->pWorld->createTexture(texture);
 	this->pWorld->createTextureSampler(textureSampler);
 
+	// Add boxes.
+	/*
 	Box* box;
 	Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxShape();
@@ -34,33 +36,26 @@ void Game::Setup(){
 		box->attachTextureAndSampler(texture, textureSampler);
 		this->pWorld->addEntity(box);
 	}
+	*/
 
 	Entity* entity = new Entity(
-		{ 0.1f,0.1f,0.1f },
+		{ 0.025f,0.025f,0.025f },
 		{ 0,0,10 },
 		{ 0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 }
 	);
-	// Scale up second entity.
-	Entity* entity2 = new Entity(
-		{ 0.3f, 0.3f,0.3f },
-		{ 0,0,20 },
-		{ 0,0,0 },
-		{ 0.66f, 1.0f, 0.66f, 1 },
-		{ 1,1,1 }
-	);
 	Mesh* tMesh = new Mesh();
+	MeshDeformer* tMeshDeformer = new MeshDeformer();
 
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		// Attach texture and mesh to entities.
-		entity->attachMesh(tMesh);
-		entity2->attachMesh(tMesh);
+		tMesh->attachMeshDeformer(tMeshDeformer);
 
+		entity->attachMesh(tMesh);
 		entity->attachTextureAndSampler(texture, textureSampler);
 
 		this->pWorld->addEntity(entity);
-		this->pWorld->addEntity(entity2);
 	}
 
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(-1.0f, 1.0f, -1.0f), 1.0f);

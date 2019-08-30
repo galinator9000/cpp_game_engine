@@ -216,6 +216,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\MeshDeformer.h" />
     <ClInclude Include="src\Game\Entity\Mesh\Mesh.h" />
     <ClInclude Include="src\Game\Light\Light.h" />
     <ClInclude Include="src\Config.h" />
@@ -244,6 +245,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClInclude Include="src\Game\TextureSampler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\MeshDeformer.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Game\Light\Light.cpp" />
     <ClCompile Include="src\Game\Game.cpp" />
