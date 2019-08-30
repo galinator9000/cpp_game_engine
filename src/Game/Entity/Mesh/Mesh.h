@@ -14,7 +14,9 @@ public:
 	unsigned int* gIndices;
 	unsigned int gVertexCount;
 	unsigned int gIndexCount;
-	virtual void gCreateVerticesAndIndices(){};
+
+	// Shapes
+	void createBoxShape();
 
 	// Graphics
 	bool LoadFBX(const char* fileName);

@@ -16,10 +16,24 @@ void Game::Setup(){
 	// Create texture objects.
 	Texture* texture = new Texture("texture0", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
 	TextureSampler* textureSampler = new TextureSampler();
-
-	// Create texture on GPU side.
 	this->pWorld->createTexture(texture);
 	this->pWorld->createTextureSampler(textureSampler);
+
+	Box* box;
+	Mesh* boxMesh = new Mesh();
+	boxMesh->createBoxShape();
+	for (int i = 0; i < 50; i++) {
+		box = new Box(
+			{ 0.1f,0.1f,0.1f },
+			{ i*0.1f,i*0.5f, -10 + (i*0.3f) },
+			{ 0,0,0 },
+			{ 0.0f, 0.66f, 1, 1 },
+			{ 1,1,1 }
+		);
+		box->attachMesh(boxMesh);
+		box->attachTextureAndSampler(texture, textureSampler);
+		this->pWorld->addEntity(box);
+	}
 
 	Entity* entity = new Entity(
 		{ 0.1f,0.1f,0.1f },

@@ -23,8 +23,10 @@ const enum ENTITY_TYPE{
 
 class Entity {
 public:
+	// Default constructor.
+	Entity();
 	Entity(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material);
-	void Update();
+	virtual void Update();
 	virtual void Reset();
 	virtual void setColor(Color color);
 
@@ -56,7 +58,7 @@ public:
 
 	// Mesh
 	Mesh* mesh;
-	virtual void attachMesh(Mesh* entityMesh);
+	virtual bool attachMesh(Mesh* entityMesh);
 
 	// Constant buffer
 	EntityVSConstantBuffer gEntityVSConstantBuffer;

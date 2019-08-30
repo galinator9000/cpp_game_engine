@@ -33,3 +33,75 @@ bool Mesh::LoadFBX(const char* fileName) {
 
 	return true;
 }
+
+void Mesh::createBoxShape() {
+	// 3D Cube vertices
+	Vertex _vertices[] = {
+		// Front (Normal -Z)
+		{{ -1.0f, -1.0f, -1.0f }, {0, 0, -1}, {0,0}},
+		{{ 1.0f, -1.0f, -1.0f }, {0, 0, -1}, {0,1}},
+		{{ -1.0f, 1.0f, -1.0f }, {0, 0, -1}, {1,0}},
+		{{ 1.0f, 1.0f, -1.0f }, {0, 0, -1}, {1,1}},
+
+		// Back (Normal +Z)
+		{{ 1.0f, -1.0f, 1.0f }, {0, 0, 1}, {0,0}},
+		{{ -1.0f, -1.0f, 1.0f }, {0, 0, 1}, {0,1}},
+		{{ 1.0f, 1.0f, 1.0f }, {0, 0, 1}, {1,0}},
+		{{ -1.0f, 1.0f, 1.0f }, {0, 0, 1}, {1,1}},
+
+		// Right (Normal +X)
+		{{ 1.0f, -1.0f, -1.0f }, {1, 0, 0}, {0,0}},
+		{{ 1.0f, -1.0f, 1.0f }, {1, 0, 0}, {0,1}},
+		{{ 1.0f, 1.0f, -1.0f }, {1, 0, 0}, {1,0}},
+		{{ 1.0f, 1.0f, 1.0f }, {1, 0, 0}, {1,1}},
+
+		// Left (Normal -X)
+		{{ -1.0f, -1.0f, 1.0f }, {-1, 0, 0}, {0,0}},
+		{{ -1.0f, -1.0f, -1.0f }, {-1, 0, 0}, {0,1}},
+		{{ -1.0f, 1.0f, 1.0f }, {-1, 0, 0}, {1,0}},
+		{{ -1.0f, 1.0f, -1.0f }, {-1, 0, 0}, {1,1}},
+
+		// Top (Normal +Y)
+		{{ -1.0f, 1.0f, -1.0f }, {0, 1, 0}, {0,0}},
+		{{ 1.0f, 1.0f, -1.0f }, {0, 1, 0}, {0,1}},
+		{{ -1.0f, 1.0f, 1.0f }, {0, 1, 0}, {1,0}},
+		{{ 1.0f, 1.0f, 1.0f }, {0, 1, 0}, {1,1}},
+
+		// Bottom (Normal -Y)
+		{{ -1.0f, -1.0f, 1.0f }, {0, -1, 0}, {0,0}},
+		{{ 1.0f, -1.0f, 1.0f }, {0, -1, 0}, {0,1}},
+		{{ -1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1,0}},
+		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1,1}},
+	};
+	this->gVertexCount = (UINT)std::size(_vertices);
+
+	Vertex* vertices = new Vertex[this->gVertexCount];
+	std::copy(_vertices, _vertices + this->gVertexCount, vertices);
+	this->gVertices = vertices;
+
+	// 3D Cube indices
+	unsigned int _indices[] = {
+		// Front
+		0,2,1, 2,3,1,
+
+		// Back
+		4,6,5, 6,7,5,
+
+		// Right
+		8,10,9, 10,11,9,
+
+		// Left
+		12,14,13, 14,15,13,
+
+		// Top
+		16,18,17, 18,19,17,
+
+		// Bottom
+		20,22,21, 22,23,21
+	};
+	this->gIndexCount = (UINT)std::size(_indices);
+
+	unsigned int* indices = new unsigned int[this->gIndexCount];
+	std::copy(_indices, _indices + this->gIndexCount, indices);
+	this->gIndices = indices;
+}

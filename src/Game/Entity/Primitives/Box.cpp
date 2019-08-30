@@ -1,4 +1,4 @@
-/*#include "Box.h"
+#include "Box.h"
 
 Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material) {
 	this->pShape = this->ppxPhysics->createShape(
@@ -24,13 +24,10 @@ Box::Box(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 
 	this->gRotationQ = XMFLOAT4(0, 0, 0, 0);
 
 	// Set properties of the entity.
-	this->type = ENTITY_TYPE::BOX;
 	this->isDynamic = true;
 
 	this->updateConstantBuffer();
 }
-
-Box::~Box(){}
 
 void Box::Update(){
 	// Skip static and sleeping dynamic entities.
@@ -59,76 +56,3 @@ void Box::Update(){
 
 	this->updateConstantBuffer();
 }
-
-void Box::gCreateVerticesAndIndices() {
-	// 3D Cube vertices
-	Vertex _vertices[] = {
-		// Default color: White
-		// Front (Normal -Z)
-		{{ -1.0f, -1.0f, -1.0f }, {0, 0, -1}},
-		{{ 1.0f, -1.0f, -1.0f }, {0, 0, -1}},
-		{{ -1.0f, 1.0f, -1.0f }, {0, 0, -1}},
-		{{ 1.0f, 1.0f, -1.0f }, {0, 0, -1}},
-
-		// Back (Normal +Z)
-		{{ 1.0f, -1.0f, 1.0f }, {0, 0, 1}},
-		{{ -1.0f, -1.0f, 1.0f }, {0, 0, 1}},
-		{{ 1.0f, 1.0f, 1.0f }, {0, 0, 1}},
-		{{ -1.0f, 1.0f, 1.0f }, {0, 0, 1}},
-
-		// Right (Normal +X)
-		{{ 1.0f, -1.0f, -1.0f }, {1, 0, 0}},
-		{{ 1.0f, -1.0f, 1.0f }, {1, 0, 0}},
-		{{ 1.0f, 1.0f, -1.0f }, {1, 0, 0}},
-		{{ 1.0f, 1.0f, 1.0f }, {1, 0, 0}},
-
-		// Left (Normal -X)
-		{{ -1.0f, -1.0f, 1.0f }, {-1, 0, 0}},
-		{{ -1.0f, -1.0f, -1.0f }, {-1, 0, 0}},
-		{{ -1.0f, 1.0f, 1.0f }, {-1, 0, 0}},
-		{{ -1.0f, 1.0f, -1.0f }, {-1, 0, 0}},
-
-		// Top (Normal +Y)
-		{{ -1.0f, 1.0f, -1.0f }, {0, 1, 0}},
-		{{ 1.0f, 1.0f, -1.0f }, {0, 1, 0}},
-		{{ -1.0f, 1.0f, 1.0f }, {0, 1, 0}},
-		{{ 1.0f, 1.0f, 1.0f }, {0, 1, 0}},
-
-		// Bottom (Normal -Y)
-		{{ -1.0f, -1.0f, 1.0f }, {0, -1, 0}},
-		{{ 1.0f, -1.0f, 1.0f }, {0, -1, 0}},
-		{{ -1.0f, -1.0f, -1.0f }, {0, -1, 0}},
-		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}},
-	};
-	this->gVertexCount = (UINT) std::size(_vertices);
-
-	Vertex* vertices = new Vertex[this->gVertexCount];
-	std::copy(_vertices, _vertices + this->gVertexCount, vertices);
-	this->gVertices = vertices;
-	
-	// 3D Cube indices
-	unsigned int _indices[] = {
-		// Front
-		0,2,1, 2,3,1,
-
-		// Back
-		4,6,5, 6,7,5,
-
-		// Right
-		8,10,9, 10,11,9,
-
-		// Left
-		12,14,13, 14,15,13,
-
-		// Top
-		16,18,17, 18,19,17,
-
-		// Bottom
-		20,22,21, 22,23,21
-	};
-	this->gIndexCount = (UINT) std::size(_indices);
-
-	unsigned int* indices = new unsigned int[this->gIndexCount];
-	std::copy(_indices, _indices + this->gIndexCount, indices);
-	this->gIndices = indices;
-}*/

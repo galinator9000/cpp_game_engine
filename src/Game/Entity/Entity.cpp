@@ -3,6 +3,9 @@
 
 PxPhysics* Entity::ppxPhysics;
 
+// Default constructor.
+Entity::Entity(){}
+
 Entity::Entity(Vector3 size, Vector3 position, Vector3 rotation, Color color, Vector3 material) {
 	PxQuat rotationQuaternion;
 
@@ -83,8 +86,12 @@ void Entity::detachTextureAndSampler() {
 	this->dataChanged = true;
 }
 
-void Entity::attachMesh(Mesh* mesh) {
-	this->mesh = mesh;
+bool Entity::attachMesh(Mesh* mesh) {
+	if (this->mesh == NULL) {
+		this->mesh = mesh;
+		return true;
+	}
+	return false;
 }
 
 void Entity::setColor(Color color) {

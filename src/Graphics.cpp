@@ -213,10 +213,6 @@ void Graphics::endFrame() {
 ////// GAME ENGINE SECTION
 // Entity
 void Graphics::addEntity(Entity* entity){
-	// Build vertex and index buffer elements depending on shape of the object,
-	// fill them in the entity object's "indices" and "vertices" arrays.
-	entity->mesh->gCreateVerticesAndIndices();
-
 	/// CONSTANT BUFFER	
 	// Create constant buffer on GPU side for Vertex Shader.
 	D3D11_BUFFER_DESC cBdVS = { 0 };

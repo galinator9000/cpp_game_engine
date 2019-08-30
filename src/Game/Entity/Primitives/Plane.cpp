@@ -1,4 +1,4 @@
-/*#include "Plane.h"
+#include "Plane.h"
 
 Plane::Plane(Vector3 material){
 	this->pActor = PxCreatePlane(
@@ -8,6 +8,5 @@ Plane::Plane(Vector3 material){
 	);
 
 	// Set properties of the entity.
-	this->type = ENTITY_TYPE::PLANE;
 	this->isDynamic = false;
-}*/
+}
