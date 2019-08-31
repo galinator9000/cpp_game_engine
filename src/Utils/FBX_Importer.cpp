@@ -110,6 +110,16 @@ bool FBX_Importer::Load(
 							joint->parentJoint->childJoints.push_back(joint);
 						}
 					}
+
+					// Fill vertices' index and weight values.
+					int clusterVertexCount = cluster->GetControlPointIndicesCount();
+					int* clusterVertexIndices = cluster->GetControlPointIndices();
+					double* clusterVertexWeights = cluster->GetControlPointWeights();
+
+					for (int v = 0; v < clusterVertexCount; v++) {
+						int controlPointIndex = clusterVertexIndices[v];
+						joint->controlPointIndexWeightPair[controlPointIndex] = clusterVertexWeights[controlPointIndex];
+					}
 					
 					// Push joint to vector array.
 					_joints->push_back(*joint);
@@ -207,7 +217,9 @@ bool FBX_Importer::Load(
 							// Texture UV coordinates of the Vertex
 							{
 								texture_U, texture_V
-							}
+							},
+							// Control Point index of the Vertex
+							(unsigned int) controlPointIndex
 						}
 					);
 				}

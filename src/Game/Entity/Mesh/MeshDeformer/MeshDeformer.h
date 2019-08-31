@@ -9,6 +9,8 @@
 
 class MeshDeformer{
 public:
+	void Update();
+
 	// Joints
 	Joint* gJoints;
 	unsigned int gJointCount;

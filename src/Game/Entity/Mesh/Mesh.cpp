@@ -3,6 +3,12 @@
 // Utils
 #include "Utils/FBX_Importer.h"
 
+void Mesh::Update() {
+	if (this->meshDeformer != NULL) {
+		this->meshDeformer->Update();
+	}
+}
+
 bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();

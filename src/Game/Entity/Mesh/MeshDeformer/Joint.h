@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace dx = DirectX;
 
@@ -16,4 +17,6 @@ public:
 
 	Joint* parentJoint;
 	std::vector<Joint*> childJoints;
+
+	std::map<int, double> controlPointIndexWeightPair;
 };

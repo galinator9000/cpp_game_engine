@@ -32,6 +32,11 @@ Entity::Entity(
 }
 
 void Entity::Update() {
+	// Update mesh.
+	if (this->mesh != NULL) {
+		this->mesh->Update();
+	}
+
 	// Skip static and sleeping dynamic entities.
 	if (!this->dataChanged) {
 		// Static check.

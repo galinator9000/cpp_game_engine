@@ -10,6 +10,8 @@
 
 class Mesh{
 public:
+	void Update();
+
 	// Vertex & index
 	Vertex* gVertices;
 	unsigned int* gIndices;

@@ -285,6 +285,9 @@ struct Vertex {
 	Vector3 position;
 	Vector3 normal;
 	Vector2 TextureUV;
+
+	// Value that comes from FBX API
+	unsigned int controlPointIndex = 0;
 };
 
 struct EntityMaterial {
