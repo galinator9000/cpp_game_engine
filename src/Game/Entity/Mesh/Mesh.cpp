@@ -52,6 +52,9 @@ bool Mesh::LoadFBX(const char* fileName) {
 			joints[j] = _joints->at(j);
 		}
 		this->meshDeformer->gJoints = joints;
+
+		// Update matrices on joints.
+		this->meshDeformer->calculateMatrices();
 	}
 
 	delete _vertices;

@@ -10,11 +10,18 @@ cbuffer CameraVSConstantBuffer : register(b1) {
 	float4 cameraPosition;
 };
 
+// Joint matrices provided by mesh deformer,
+// if any deformer attached to current processed entity's mesh.
+cbuffer MeshDeformerVSConstantBuffer : register(b2) {
+	matrix jointMatrix;
+};
+
 // Input structure of the Vertex shader.
 struct VSIn {
 	float3 position : Position;
 	float3 normal : Normal;
 	float2 texture_UV : TextureUV;
+	unsigned int vertexIndex : VertexIndex;
 };
 
 // Output structure of the Vertex shader.

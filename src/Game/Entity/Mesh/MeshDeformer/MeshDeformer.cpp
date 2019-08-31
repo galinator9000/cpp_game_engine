@@ -5,3 +5,48 @@ void MeshDeformer::Update() {
 		
 	}
 }
+
+Joint* MeshDeformer::getRootJoint() {
+	for (unsigned int j = 0; j < this->gJointCount; j++) {
+		if (this->gJoints[j].isRoot) {
+			return &(this->gJoints[j]);
+		}
+	}
+	return NULL;
+}
+
+bool MeshDeformer::calculateMatrices() {
+	//calculateToRootMatrices();
+	return true;
+}
+
+/*bool MeshDeformer::calculateToRootMatrices() {
+	Joint* rootJoint = this->getRootJoint();
+
+	if (rootJoint == NULL) {
+		return false;
+	}
+
+	dx::XMFLOAT4X4* identityMatrix = new dx::XMFLOAT4X4();
+	dx::XMStoreFloat4x4(
+		identityMatrix,
+		dx::XMMatrixIdentity()
+	);
+
+	calculateToRootMatrixRecursive(
+		rootJoint,
+		identityMatrix
+	);
+	return true;
+}
+
+void MeshDeformer::calculateToRootMatrixRecursive(Joint* joint, dx::XMFLOAT4X4* parentMatrix) {
+	joint->transformLinkMatrix;
+
+	for (unsigned int j = 0; j < joint->childJoints.size(); j++) {
+		calculateToRootMatrixRecursive(
+			joint->childJoints[j],
+			joint->transformMatrix
+		);
+	}
+}*/

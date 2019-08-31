@@ -8,6 +8,8 @@
 #include "Structs.h"
 #include "MeshDeformer/MeshDeformer.h"
 
+namespace wrl = Microsoft::WRL;
+
 class Mesh{
 public:
 	void Update();
@@ -24,6 +26,11 @@ public:
 
 	// Graphics
 	bool LoadFBX(const char* fileName);
+
+	// Constant buffers on GPU side
+	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
+	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
+	bool hasGPUBuffers;
 
 	// Shapes
 	void createBoxShape();

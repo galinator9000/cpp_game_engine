@@ -100,11 +100,22 @@ void Game::Setup(){
 		{0, 3, 0}
 	);
 
+	Entity* animatedEntity2 = new Entity(
+		{ 0.025f, 0.025f, 0.025f },
+		{ 0,0,15 },
+		{ 0,0,0,0 },
+		{ 0, 0, 0.66f, 1 },
+		{ 1,1,1 },
+		tMesh,
+		{ 0, 0, 0 }
+	);
+
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		// Attach mesh and texture to entity.
 		animatedEntity->attachTextureAndSampler(texture, textureSampler);
 
 		this->pWorld->addEntity(animatedEntity);
+		this->pWorld->addEntity(animatedEntity2);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);

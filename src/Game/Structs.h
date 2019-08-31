@@ -287,7 +287,7 @@ struct Vertex {
 	Vector2 TextureUV;
 
 	// Value that comes from FBX API
-	unsigned int controlPointIndex = 0;
+	unsigned int index = 0;
 };
 
 struct EntityMaterial {
@@ -308,6 +308,11 @@ struct EntityPSConstantBuffer {
 	dx::XMFLOAT3 color;
 	bool useTexture;
 	dx::XMFLOAT4 specularHighlight;
+};
+
+// Mesh Deformer constant buffer for Vertex Shader.
+struct MeshDeformerVSConstantBuffer {
+	dx::XMFLOAT4X4 jointMatrix;
 };
 
 // Each light object holds this, light's intensity, direction and position values.

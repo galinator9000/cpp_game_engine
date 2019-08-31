@@ -94,9 +94,12 @@ bool FBX_Importer::Load(
 					Joint* joint = new Joint();
 					joint->id = c;
 					joint->name = jointNode->GetName();
+					joint->parentJoint = NULL;
+
+					// Fill matrices of the joint object.
 					joint->transformMatrix = FBX_Importer::MatrixFBXtoDX(transformMatrix);
 					joint->transformLinkMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix);
-					joint->parentJoint = NULL;
+					joint->globalBindposeInverseMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse() * transformMatrix);
 
 					// If joint node has parent, record it's pointer.
 					FbxNode* parentNode = jointNode->GetParent();
@@ -109,6 +112,10 @@ bool FBX_Importer::Load(
 							// Right? RIGHT??
 							joint->parentJoint->childJoints.push_back(joint);
 						}
+						// If joint node has no parent, it's the root node.
+						else {
+							joint->isRoot = true;
+						}
 					}
 
 					// Fill vertices' index and weight values.
@@ -116,9 +123,10 @@ bool FBX_Importer::Load(
 					int* clusterVertexIndices = cluster->GetControlPointIndices();
 					double* clusterVertexWeights = cluster->GetControlPointWeights();
 
+					// Pair vertex index with weight value.
 					for (int v = 0; v < clusterVertexCount; v++) {
 						int controlPointIndex = clusterVertexIndices[v];
-						joint->controlPointIndexWeightPair[controlPointIndex] = clusterVertexWeights[controlPointIndex];
+						joint->vertexIndexWeightPair[controlPointIndex] = clusterVertexWeights[v];
 					}
 					
 					// Push joint to vector array.

@@ -83,6 +83,4 @@ public:
 
 	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;
-	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
-	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
 };

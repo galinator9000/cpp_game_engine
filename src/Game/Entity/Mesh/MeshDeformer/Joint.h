@@ -12,11 +12,19 @@ public:
 	unsigned int id;
 	std::string name;
 
+	bool isRoot = false;
+
+	// World -> JointLocal matrix.
 	dx::XMFLOAT4X4* transformMatrix;
+
+	// JointLocal -> World matrix.
 	dx::XMFLOAT4X4* transformLinkMatrix;
+
+	// World bind pose matrix.
+	dx::XMFLOAT4X4* globalBindposeInverseMatrix;
 
 	Joint* parentJoint;
 	std::vector<Joint*> childJoints;
 
-	std::map<int, double> controlPointIndexWeightPair;
+	std::map<int, double> vertexIndexWeightPair;
 };

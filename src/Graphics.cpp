@@ -150,7 +150,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"VertexIndex", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
@@ -212,7 +213,12 @@ void Graphics::endFrame() {
 
 ////// GAME ENGINE SECTION
 // Entity
-void Graphics::addEntity(Entity* entity){
+bool Graphics::addEntity(Entity* entity){
+	// Check if entity has any mesh object attached to it.
+	if (entity->mesh == NULL) {
+		return false;
+	}
+
 	/// CONSTANT BUFFER	
 	// Create constant buffer on GPU side for Vertex Shader.
 	D3D11_BUFFER_DESC cBdVS = { 0 };
@@ -227,7 +233,6 @@ void Graphics::addEntity(Entity* entity){
 		&(entity->pEntityVSConstantBuffer)
 	);
 
-	// Create constant buffer on GPU side for Pixel Shader.
 	D3D11_BUFFER_DESC cBdPS = { 0 };
 	cBdPS.ByteWidth = sizeof(entity->gEntityPSConstantBuffer);
 	cBdPS.Usage = D3D11_USAGE_DYNAMIC;
@@ -240,33 +245,61 @@ void Graphics::addEntity(Entity* entity){
 		&(entity->pEntityPSConstantBuffer)
 	);
 
-	/// VERTEX BUFFER
-	// Build vertex buffer on GPU side.
-	D3D11_BUFFER_DESC vBd = { 0 };
-	vBd.StructureByteStride = sizeof(Vertex);
-	vBd.ByteWidth = (UINT) vBd.StructureByteStride * entity->mesh->gVertexCount;
-	vBd.Usage = D3D11_USAGE_DEFAULT;
-	vBd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA vSd = { entity->mesh->gVertices, 0, 0 };
-	this->hr = this->pDevice->CreateBuffer(
-		&vBd,
-		&vSd,
-		&(entity->pVertexBuffer)
-	);
+	// If attached mesh doesn't have GPU buffers yet, create it.
+	// Otherwise, use the one that exists there.
+	// Create constant buffer on GPU side for Pixel Shader.
+	if (!entity->mesh->hasGPUBuffers) {
+		// Vertex and Index buffers provided by mesh object.
+		/// VERTEX BUFFER
+		// Build vertex buffer on GPU side.
+		D3D11_BUFFER_DESC vBd = { 0 };
+		vBd.StructureByteStride = sizeof(Vertex);
+		vBd.ByteWidth = (UINT)vBd.StructureByteStride * entity->mesh->gVertexCount;
+		vBd.Usage = D3D11_USAGE_DEFAULT;
+		vBd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		D3D11_SUBRESOURCE_DATA vSd = { entity->mesh->gVertices, 0, 0 };
+		this->hr = this->pDevice->CreateBuffer(
+			&vBd,
+			&vSd,
+			&(entity->mesh->pVertexBuffer)
+		);
 
-	/// INDEX BUFFER
-	// Create index buffer on GPU side.
-	D3D11_BUFFER_DESC iBd = { 0 };
-	iBd.StructureByteStride = sizeof(unsigned int);
-	iBd.ByteWidth = (UINT) iBd.StructureByteStride * entity->mesh->gIndexCount;
-	iBd.Usage = D3D11_USAGE_DEFAULT;
-	iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA iSd = { entity->mesh->gIndices, 0, 0 };
-	this->hr = this->pDevice->CreateBuffer(
-		&iBd,
-		&iSd,
-		&(entity->pIndexBuffer)
-	);
+		/// INDEX BUFFER
+		// Create index buffer on GPU side.
+		D3D11_BUFFER_DESC iBd = { 0 };
+		iBd.StructureByteStride = sizeof(unsigned int);
+		iBd.ByteWidth = (UINT)iBd.StructureByteStride * entity->mesh->gIndexCount;
+		iBd.Usage = D3D11_USAGE_DEFAULT;
+		iBd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		D3D11_SUBRESOURCE_DATA iSd = { entity->mesh->gIndices, 0, 0 };
+		this->hr = this->pDevice->CreateBuffer(
+			&iBd,
+			&iSd,
+			&(entity->mesh->pIndexBuffer)
+		);
+
+		// Attached mesh has GPU buffers from now on.
+		entity->mesh->hasGPUBuffers = true;
+	}
+
+	// If mesh deformer is attached to mesh, create buffers for it.
+	if (entity->mesh->meshDeformer != NULL) {
+		/// MESH DEFORMER CONSTANT BUFFER
+		// Create constant buffer on GPU side for Vertex Shader.
+		D3D11_BUFFER_DESC mdcBdVS = { 0 };
+		mdcBdVS.ByteWidth = sizeof(entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer);
+		mdcBdVS.Usage = D3D11_USAGE_DYNAMIC;
+		mdcBdVS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		mdcBdVS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		D3D11_SUBRESOURCE_DATA mdcSdVS = { &(entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer), 0, 0 };
+		this->hr = this->pDevice->CreateBuffer(
+			&mdcBdVS,
+			&mdcSdVS,
+			&(entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer)
+		);
+	}
+
+	return true;
 }
 
 void Graphics::drawEntity(Entity* entity){
@@ -292,14 +325,14 @@ void Graphics::drawEntity(Entity* entity){
 	this->pDeviceContext->IASetVertexBuffers(
 		0,
 		1,
-		entity->pVertexBuffer.GetAddressOf(),
+		entity->mesh->pVertexBuffer.GetAddressOf(),
 		&pStrides,
 		&pOffsets
 	);
 
 	// Index buffer
 	this->pDeviceContext->IASetIndexBuffer(
-		entity->pIndexBuffer.Get(),
+		entity->mesh->pIndexBuffer.Get(),
 		DXGI_FORMAT_R32_UINT,
 		0
 	);
@@ -336,6 +369,16 @@ void Graphics::drawEntity(Entity* entity){
 			0,
 			1,
 			&nullSamplerState
+		);
+	}
+
+	// If mesh deformer is attached to mesh, set buffers to Vertex Shader.
+	if (entity->mesh->meshDeformer != NULL) {
+		// Bind entity's mesh's deformer buffer to third (index 2) slot of the Vertex Shader.
+		this->pDeviceContext->VSSetConstantBuffers(
+			2,
+			1,
+			entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer.GetAddressOf()
 		);
 	}
 

@@ -47,7 +47,7 @@ public:
 
 	////// GAME ENGINE SECTION
 	// Entity
-	void addEntity(Entity* entity);
+	bool addEntity(Entity* entity);
 	void drawEntity(Entity* entity);
 	void updateEntity(Entity* entity);
 
