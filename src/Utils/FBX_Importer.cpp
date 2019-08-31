@@ -72,52 +72,46 @@ bool FBX_Importer::Load(
 
 	//// Process the deformer of the mesh. (Skeleton)
 	if (_joints != NULL) {
-		int meshDeformerCount = mesh->GetDeformerCount();
-
-		if (meshDeformerCount > 0) {
-			FbxDeformer* meshDeformer = mesh->GetDeformer(0);
-			FbxDeformer::EDeformerType meshDeformerType = meshDeformer->GetDeformerType();
-
+		if (mesh->GetDeformerCount() > 0) {
 			// Check mesh deformer type if it is supported.
-			if (meshDeformerType == FbxDeformer::eSkin) {
+			if (mesh->GetDeformer(0)->GetDeformerType() == FbxDeformer::eSkin) {
 				FbxSkin* skin = (FbxSkin*) mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
-				int skinClusterCount = skin->GetClusterCount();
 
-				// Process each cluster.
-				for (int c = 0; c < skinClusterCount; c++) {
-					FbxCluster* skinCluster = skin->GetCluster(c);
+				// Process each cluster of the deformer.
+				for (int c = 0; c < skin->GetClusterCount(); c++) {
+					FbxCluster* cluster = skin->GetCluster(c);
 
 					// Get joint of the cluster.
-					FbxNode* linkNode = skinCluster->GetLink();
-					FbxCluster::ELinkMode linkMode = skinCluster->GetLinkMode();
-
-					FbxNodeAttribute::EType linkNodeType = linkNode->GetNodeAttribute()->GetAttributeType();
-					const char* linkNodeName = linkNode->GetName();
-
-					// Create Joint object.
-					Joint* joint = new Joint;
-					joint->id = c;
-					joint->name = linkNodeName;
+					FbxNode* jointNode = cluster->GetLink();
+					FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
 
 					FbxAMatrix transformMatrix;
 					FbxAMatrix transformLinkMatrix;
-					skinCluster->GetTransformMatrix(transformMatrix);
-					skinCluster->GetTransformLinkMatrix(transformLinkMatrix);
+					cluster->GetTransformMatrix(transformMatrix);
+					cluster->GetTransformLinkMatrix(transformLinkMatrix);
 
-					/*
-					int asd = skinCluster->GetControlPointIndicesCount();
-					double* asd2 = skinCluster->GetControlPointWeights();
-					int* asd3 = skinCluster->GetControlPointIndices();
-					*/
+					// Create Joint object.
+					Joint* joint = new Joint();
+					joint->id = c;
+					joint->name = jointNode->GetName();
+					joint->transformMatrix = FBX_Importer::MatrixFBXtoDX(transformMatrix);
+					joint->transformLinkMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix);
+					joint->parentJoint = NULL;
 
-					switch (linkMode) {
-						case FbxCluster::eNormalize:
-							break;
-						case FbxCluster::eAdditive: break;
-						case FbxCluster::eTotalOne: break;
+					// If joint node has parent, record it's pointer.
+					FbxNode* parentNode = jointNode->GetParent();
+					if (parentNode != NULL) {
+						// If this value is NULL, then this joint don't have parent.
+						joint->parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
+
+						if (joint->parentJoint != NULL) {
+							// If a joint has parent, it's child of it's parent.
+							// Right? RIGHT??
+							joint->parentJoint->childJoints.push_back(joint);
+						}
 					}
 					
-					// Add joint to vector.
+					// Push joint to vector array.
 					_joints->push_back(*joint);
 				}
 			}
@@ -350,4 +344,26 @@ void FBX_Importer::printNode(FbxNode* node, unsigned int level) {
 	for (int c=0; c < node->GetChildCount(); c++) {
 		FBX_Importer::printNode(node->GetChild(c), level+1);
 	}
+}
+
+Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint>* _joints) {
+	for (int j = 0; j < _joints->size(); j++) {
+		if (std::string(jointName).compare(_joints->at(j).name) == 0) {
+			return &(_joints->at(j));
+		}
+	}
+	return NULL;
+}
+
+// Converts FBX matrix to DirectX matrix.
+dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix matrix4x4) {
+	dx::XMFLOAT4X4* DXMATRIX = new dx::XMFLOAT4X4;
+
+	for (int i = 0; i<4; i++) {
+		for (int j = 0; j < 4; j++) {
+			(*DXMATRIX)(i, j) = (float) matrix4x4.Get(i, j);
+		}
+	}
+
+	return DXMATRIX;
 }

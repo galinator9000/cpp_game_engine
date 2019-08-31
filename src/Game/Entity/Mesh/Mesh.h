@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "Structs.h"
-#include "MeshDeformer.h"
+#include "MeshDeformer/MeshDeformer.h"
 
 class Mesh{
 public:
@@ -16,7 +16,7 @@ public:
 	unsigned int gVertexCount;
 	unsigned int gIndexCount;
 
-	// Deformer (Skeleton)
+	// Mesh deformer (Skeleton)
 	MeshDeformer* meshDeformer;
 	bool attachMeshDeformer(MeshDeformer* meshDeformer);
 

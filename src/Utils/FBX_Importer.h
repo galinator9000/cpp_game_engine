@@ -20,4 +20,6 @@ public:
 		std::vector<Joint>* _joints
 	);
 	static void printNode(FbxNode* node, unsigned int level=0);
+	static Joint* getJointByName(const char* jointName, std::vector<Joint>* _joints);
+	static dx::XMFLOAT4X4* MatrixFBXtoDX(FbxAMatrix matrix4x4);
 };

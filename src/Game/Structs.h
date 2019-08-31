@@ -1,4 +1,6 @@
 #pragma once
+#include "Entity/Mesh/MeshDeformer/Joint.h"
+
 #include <string>
 #include <DirectXMath.h>
 
@@ -283,13 +285,6 @@ struct Vertex {
 	Vector3 position;
 	Vector3 normal;
 	Vector2 TextureUV;
-};
-
-// Each joint on mesh deformer is represented by this struct.
-struct Joint {
-	unsigned int id;
-	std::string name;
-	Joint* parent;
 };
 
 struct EntityMaterial {

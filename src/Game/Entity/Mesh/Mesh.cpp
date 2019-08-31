@@ -7,6 +7,8 @@ bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
 
+	// If any deformer is attached to this mesh,
+	// fill it's values.
 	std::vector<Joint>* _joints = NULL;
 	if (this->meshDeformer != NULL) {
 		_joints = new std::vector<Joint>();
