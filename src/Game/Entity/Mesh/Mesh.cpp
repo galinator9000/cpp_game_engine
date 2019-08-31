@@ -6,31 +6,49 @@
 bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
-	std::vector<Joint>* _joints = new std::vector<Joint>();
+
+	std::vector<Joint>* _joints = NULL;
+	if (this->meshDeformer != NULL) {
+		_joints = new std::vector<Joint>();
+	}
 
 	// Load .FBX file to our vectors.
 	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints)) {
 		return false;
 	}
 
-	this->gVertexCount = (UINT)_vertices->size();
-	this->gIndexCount = (UINT)_indices->size();
+	this->gVertexCount = (UINT) _vertices->size();
+	this->gIndexCount = (UINT) _indices->size();
+	if (this->meshDeformer != NULL) {
+		this->meshDeformer->gJointCount = (UINT) _joints->size();
+	}
 
+	// Vertices
 	Vertex* vertices = new Vertex[this->gVertexCount];
-	unsigned int* indices = new unsigned int[this->gIndexCount];
-
 	for (int v = 0; v < _vertices->size(); v++) {
 		vertices[v] = _vertices->at(v);
 	}
+	this->gVertices = vertices;
+
+	// Indices
+	unsigned int* indices = new unsigned int[this->gIndexCount];
 	for (int i = 0; i < _indices->size(); i++) {
 		indices[i] = _indices->at(i);
 	}
-
-	this->gVertices = vertices;
 	this->gIndices = indices;
+
+	// Joints
+	if (this->meshDeformer != NULL) {
+		Joint* joints = new Joint[this->meshDeformer->gJointCount];
+		for (int j = 0; j < _joints->size(); j++) {
+			joints[j] = _joints->at(j);
+		}
+		this->meshDeformer->gJoints = joints;
+	}
 
 	delete _vertices;
 	delete _indices;
+	delete _joints;
 
 	return true;
 }

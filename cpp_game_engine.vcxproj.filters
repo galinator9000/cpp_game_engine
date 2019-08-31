@@ -96,7 +96,7 @@
     <ClInclude Include="src\Game\Entity\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\MeshDeformer.h">
+    <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -164,7 +164,7 @@
     <ClCompile Include="src\Game\Entity\Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\MeshDeformer.cpp">
+    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

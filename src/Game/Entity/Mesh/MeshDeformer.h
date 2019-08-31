@@ -9,6 +9,7 @@
 
 class MeshDeformer{
 public:
-	// Vertex & index
+	// Joints
 	Joint* gJoints;
+	unsigned int gJointCount;
 };

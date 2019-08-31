@@ -71,59 +71,78 @@ bool FBX_Importer::Load(
 	}
 
 	//// Process the deformer of the mesh. (Skeleton)
-	int meshDeformerCount = mesh->GetDeformerCount();
+	if (_joints != NULL) {
+		int meshDeformerCount = mesh->GetDeformerCount();
 
-	if (meshDeformerCount > 0) {
-		FbxDeformer* meshDeformer = mesh->GetDeformer(0);
-		FbxDeformer::EDeformerType meshDeformerType = meshDeformer->GetDeformerType();
+		if (meshDeformerCount > 0) {
+			FbxDeformer* meshDeformer = mesh->GetDeformer(0);
+			FbxDeformer::EDeformerType meshDeformerType = meshDeformer->GetDeformerType();
 
-		// Check mesh deformer type if it is supported.
-		if (meshDeformerType == FbxDeformer::eSkin) {
-			FbxSkin* skin = (FbxSkin*) mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
-			int skinClusterCount = skin->GetClusterCount();
-			FbxCluster* skinCluster;
+			// Check mesh deformer type if it is supported.
+			if (meshDeformerType == FbxDeformer::eSkin) {
+				FbxSkin* skin = (FbxSkin*) mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
+				int skinClusterCount = skin->GetClusterCount();
 
-			FbxNode* linkNode;
-			FbxCluster::ELinkMode linkMode;
+				// Process each cluster.
+				for (int c = 0; c < skinClusterCount; c++) {
+					FbxCluster* skinCluster = skin->GetCluster(c);
 
-			// Process each cluster.
-			for (int c=0; c < skinClusterCount; c++) {
-				skinCluster = skin->GetCluster(c);
+					// Get joint of the cluster.
+					FbxNode* linkNode = skinCluster->GetLink();
+					FbxCluster::ELinkMode linkMode = skinCluster->GetLinkMode();
 
-				// Get joint of the cluster.
-				linkNode = skinCluster->GetLink();
-				linkMode = skinCluster->GetLinkMode();
+					FbxNodeAttribute::EType linkNodeType = linkNode->GetNodeAttribute()->GetAttributeType();
+					const char* linkNodeName = linkNode->GetName();
 
-				switch (linkMode) {
-					case FbxCluster::eNormalize:
+					// Create Joint object.
+					Joint* joint = new Joint;
+					joint->id = c;
+					joint->name = linkNodeName;
 
+					FbxAMatrix transformMatrix;
+					FbxAMatrix transformLinkMatrix;
+					skinCluster->GetTransformMatrix(transformMatrix);
+					skinCluster->GetTransformLinkMatrix(transformLinkMatrix);
 
-						break;
-					case FbxCluster::eAdditive: break;
-					case FbxCluster::eTotalOne: break;
+					/*
+					int asd = skinCluster->GetControlPointIndicesCount();
+					double* asd2 = skinCluster->GetControlPointWeights();
+					int* asd3 = skinCluster->GetControlPointIndices();
+					*/
+
+					switch (linkMode) {
+						case FbxCluster::eNormalize:
+							break;
+						case FbxCluster::eAdditive: break;
+						case FbxCluster::eTotalOne: break;
+					}
+					
+					// Add joint to vector.
+					_joints->push_back(*joint);
 				}
 			}
+			else {
+				/*
+				Other mesh deformer types are:
+					FbxDeformer::eBlendShape:
+					FbxDeformer::eUnknown:
+					FbxDeformer::eVertexCache:
+				*/
 
-		}else {
-			/*
-			Other mesh deformer types are:
-				FbxDeformer::eBlendShape:
-				FbxDeformer::eUnknown:
-				FbxDeformer::eVertexCache:
-			*/
-
+				std::ostringstream myStream;
+				myStream << fileName;
+				myStream << ": Mesh deformer found but deformer type is not supported." << "\n";
+				OutputDebugStringA(myStream.str().c_str());
+				std::cout << myStream.str().c_str();
+			}
+		}
+		else {
 			std::ostringstream myStream;
 			myStream << fileName;
-			myStream << ": Mesh deformer found but deformer type is not supported." << "\n";
+			myStream << ": There isn't any mesh deformer binded to mesh." << "\n";
 			OutputDebugStringA(myStream.str().c_str());
 			std::cout << myStream.str().c_str();
 		}
-	}else {
-		std::ostringstream myStream;
-		myStream << fileName;
-		myStream << ": There isn't any mesh deformer binded to mesh." << "\n";
-		OutputDebugStringA(myStream.str().c_str());
-		std::cout << myStream.str().c_str();
 	}
 
 	//// Process all vertices, indices, normals (per-vertex), and UV values from the mesh.

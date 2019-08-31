@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <DirectXMath.h>
 
 namespace dx = DirectX;
@@ -284,9 +285,11 @@ struct Vertex {
 	Vector2 TextureUV;
 };
 
-// Each joint on mesh is represented by this struct.
+// Each joint on mesh deformer is represented by this struct.
 struct Joint {
-	unsigned int parentId;
+	unsigned int id;
+	std::string name;
+	Joint* parent;
 };
 
 struct EntityMaterial {

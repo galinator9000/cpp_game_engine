@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "Structs.h"
-#include "MeshDeformer/MeshDeformer.h"
+#include "MeshDeformer.h"
 
 class Mesh{
 public:
@@ -20,9 +20,9 @@ public:
 	MeshDeformer* meshDeformer;
 	bool attachMeshDeformer(MeshDeformer* meshDeformer);
 
-	// Shapes
-	void createBoxShape();
-
 	// Graphics
 	bool LoadFBX(const char* fileName);
+
+	// Shapes
+	void createBoxShape();
 };

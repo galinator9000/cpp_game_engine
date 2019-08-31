@@ -25,7 +25,12 @@ class Entity {
 public:
 	// Default constructor.
 	Entity();
-	Entity(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material, Mesh* mesh=NULL);
+	Entity(
+		Vector3 size, Vector3 position, Vector4 rotationQ,
+		Color color, Vector3 material,
+		Mesh* mesh = NULL,
+		Vector3 rotationPivotPoint = Vector3(0,0,0)
+	);
 	virtual void Update();
 	virtual void Reset();
 	virtual void setColor(Color color);
@@ -43,11 +48,11 @@ public:
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
-	dx::XMFLOAT3 gPivotPoint;
+	dx::XMFLOAT3 gRotationPivotPoint;
 	EntityMaterial entityMaterial;
 
 	void Translate(Vector3 translationVector);
-	void Rotate(Vector4 rotationVector);
+	void rotateQuaternion(Vector4 rotationVector);
 	void Scale(Vector3 scalingVector);
 
 	// Texture

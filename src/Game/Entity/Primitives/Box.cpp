@@ -14,7 +14,7 @@ Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3
 
 	// Graphics
 	this->entityMaterial.color = color;
-	this->entityMaterial.specularPower = 10.0f;
+	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);

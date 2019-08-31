@@ -6,11 +6,15 @@ PxPhysics* Entity::ppxPhysics;
 // Default constructor.
 Entity::Entity(){}
 
-Entity::Entity(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material, Mesh* mesh) {
+Entity::Entity(
+	Vector3 size, Vector3 position, Vector4 rotationQ,
+	Color color, Vector3 material,
+	Mesh* mesh, Vector3 rotationPivotPoint
+){
 	// Graphics
 	this->entityMaterial.color = color;
-	this->entityMaterial.specularPower = 15.0f;
-	this->entityMaterial.specularIntensity = 3.0f;
+	this->entityMaterial.specularPower = 3.0f;
+	this->entityMaterial.specularIntensity = 0.5f;
 	this->mesh = mesh;
 
 	// Local transformation values.
@@ -18,8 +22,8 @@ Entity::Entity(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, V
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
 	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
 
-	// Pivot point position is relative to model space.
-	this->gPivotPoint = dx::XMFLOAT3(-1, 1, -1);
+	// Pivot point position for rotation is relative to model space.
+	this->gRotationPivotPoint = dx::XMFLOAT3(rotationPivotPoint.x, rotationPivotPoint.y, rotationPivotPoint.z);
 
 	// Set properties of the entity.
 	this->isDynamic = false;
@@ -41,15 +45,37 @@ void Entity::Update() {
 }
 
 void Entity::updateConstantBuffer() {
+	// Check if quaternion rotation axis is equal to zero.
+	if (dx::XMVector4Equal(dx::XMLoadFloat4(&this->gRotationQ), dx::XMVectorZero())) {
+		this->gRotationQ.x = 1.0f;
+	}
+
 	// Update VS constant buffer.
 	// Update world matrix.
 	dx::XMStoreFloat4x4(
 		&(this->gEntityVSConstantBuffer.worldMatrix),
 		dx::XMMatrixTranspose(
 			// Local
-			dx::XMMatrixScaling(this->gSize.x, this->gSize.y, this->gSize.z) *
-			dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&this->gRotationQ)) *
-			dx::XMMatrixTranslation(this->gPosition.x, this->gPosition.y, this->gPosition.z)
+			dx::XMMatrixScalingFromVector(dx::XMLoadFloat3(&this->gSize)) *
+
+			// Translate to pivot point.
+			dx::XMMatrixTranslation(-this->gRotationPivotPoint.x, -this->gRotationPivotPoint.y, -this->gRotationPivotPoint.z) *
+			dx::XMMatrixRotationQuaternion(
+				XMQuaternionRotationAxis(
+					dx::XMLoadFloat3(
+						&dx::XMFLOAT3(
+							this->gRotationQ.x,
+							this->gRotationQ.y,
+							this->gRotationQ.z
+						)
+					),
+					this->gRotationQ.w
+				)
+			) *
+			// Translate back to original point.
+			dx::XMMatrixTranslation(this->gRotationPivotPoint.x, this->gRotationPivotPoint.y, this->gRotationPivotPoint.z)*
+
+			dx::XMMatrixTranslationFromVector(dx::XMLoadFloat3(&this->gPosition))
 		)
 	);
 
@@ -141,7 +167,12 @@ void Entity::Translate(Vector3 translationVector){
 	this->dataChanged = true;
 }
 
-void Entity::Rotate(Vector4 rotationVector){
+void Entity::rotateQuaternion(Vector4 rotationQuaternionVector){
+	this->gRotationQ.x = rotationQuaternionVector.x;
+	this->gRotationQ.y = rotationQuaternionVector.y;
+	this->gRotationQ.z = rotationQuaternionVector.z;
+	this->gRotationQ.w = rotationQuaternionVector.w;
+
 	this->dataChanged = true;
 }
 
