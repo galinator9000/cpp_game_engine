@@ -4,6 +4,7 @@
 #include <wrl.h>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 #include "Structs.h"
 #include "MeshDeformer/MeshDeformer.h"

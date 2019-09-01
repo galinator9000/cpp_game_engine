@@ -1,4 +1,5 @@
 #define MAX_JOINT_COUNT 64
+#define MAX_JOINT_PER_VERTEX 4
 
 // World matrix is provided by the entity we are currently processing.
 cbuffer EntityVSConstantBuffer : register(b0) {
@@ -23,6 +24,10 @@ struct VSIn {
 	float3 position : Position;
 	float3 normal : Normal;
 	float2 texture_UV : TextureUV;
+
+	// Per-Vertex joint information, maximum 4 joint supported.
+	float4 jointWeights : JointWeights;
+	float4 jointIDs : JointIDs;
 };
 
 // Output structure of the Vertex shader.

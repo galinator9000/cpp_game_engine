@@ -4,7 +4,9 @@ bool FBX_Importer::Load(
 		const char* fileName,
 		std::vector<Vertex>* _vertices,
 		std::vector<unsigned int>* _indices,
-		std::vector<Joint>* _joints
+		std::vector<Joint>* _joints,
+		std::map<int, int>& _indexed_vertices,
+		std::map<int, std::map<int, double>>& _indexed_joint_weights
 	)
 {
 	FbxManager* fbxSdkManager = FbxManager::Create();
@@ -70,92 +72,6 @@ bool FBX_Importer::Load(
 		}
 	}
 
-	//// Process the deformer of the mesh. (Skeleton)
-	if (_joints != NULL) {
-		if (mesh->GetDeformerCount() > 0) {
-			// Check mesh deformer type if it is supported.
-			if (mesh->GetDeformer(0)->GetDeformerType() == FbxDeformer::eSkin) {
-				FbxSkin* skin = (FbxSkin*) mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
-
-				// Process each cluster of the deformer.
-				for (int c = 0; c < skin->GetClusterCount(); c++) {
-					FbxCluster* cluster = skin->GetCluster(c);
-
-					// Get joint of the cluster.
-					FbxNode* jointNode = cluster->GetLink();
-					FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
-
-					FbxAMatrix transformMatrix;
-					FbxAMatrix transformLinkMatrix;
-					cluster->GetTransformMatrix(transformMatrix);
-					cluster->GetTransformLinkMatrix(transformLinkMatrix);
-
-					// Create Joint object.
-					Joint* joint = new Joint();
-					joint->id = c;
-					joint->name = jointNode->GetName();
-					joint->parentJoint = NULL;
-
-					// Fill matrices of the joint object.
-					joint->transformMatrix = FBX_Importer::MatrixFBXtoDX(transformMatrix);
-					joint->transformLinkMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix);
-					joint->globalBindposeInverseMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse() * transformMatrix);
-
-					// If joint node has parent, record it's pointer.
-					FbxNode* parentNode = jointNode->GetParent();
-					if (parentNode != NULL) {
-						// If this value is NULL, then this joint don't have parent.
-						joint->parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
-
-						if (joint->parentJoint != NULL) {
-							// If a joint has parent, it's child of it's parent.
-							// Right? RIGHT??
-							joint->parentJoint->childJoints.push_back(joint);
-						}
-						// If joint node has no parent, it's the root node.
-						else {
-							joint->isRoot = true;
-						}
-					}
-
-					// Fill vertices' index and weight values.
-					int clusterVertexCount = cluster->GetControlPointIndicesCount();
-					int* clusterVertexIndices = cluster->GetControlPointIndices();
-					double* clusterVertexWeights = cluster->GetControlPointWeights();
-
-					// Pair vertex index with weight value.
-					for (int v = 0; v < clusterVertexCount; v++) {
-						int controlPointIndex = clusterVertexIndices[v];
-					}
-					
-					// Push joint to vector array.
-					_joints->push_back(*joint);
-				}
-			}
-			else {
-				/*
-				Other mesh deformer types are:
-					FbxDeformer::eBlendShape:
-					FbxDeformer::eUnknown:
-					FbxDeformer::eVertexCache:
-				*/
-
-				std::ostringstream myStream;
-				myStream << fileName;
-				myStream << ": Mesh deformer found but deformer type is not supported." << "\n";
-				OutputDebugStringA(myStream.str().c_str());
-				std::cout << myStream.str().c_str();
-			}
-		}
-		else {
-			std::ostringstream myStream;
-			myStream << fileName;
-			myStream << ": There isn't any mesh deformer binded to mesh." << "\n";
-			OutputDebugStringA(myStream.str().c_str());
-			std::cout << myStream.str().c_str();
-		}
-	}
-
 	//// Process all vertices, indices, normals (per-vertex), and UV values from the mesh.
 	// Get values that indicates how normals are represented in the mesh.
 	// If faces of the mesh shares vertices, that means one vertex has more than one normal vector.
@@ -207,26 +123,26 @@ bool FBX_Importer::Load(
 						texture_U = (float) texture_UV.mData[0];
 						texture_V = 1.0f - (float) texture_UV.mData[1];
 					}
-
-					_vertices->push_back(
+					Vertex* vertex = new Vertex{
+						// Position of the Vertex
 						{
-							// Position of the Vertex
-							{
-								// Swap Y and Z axes.
-								(float) fbxVertices[controlPointIndex].mData[0],
-								(float) fbxVertices[controlPointIndex].mData[2],
-								(float) fbxVertices[controlPointIndex].mData[1]
-							},
-							// Fill normals and colors of the Vertex with zeros temporarily.
-							{
-								0,0,0
-							},
-							// Texture UV coordinates of the Vertex
-							{
-								texture_U, texture_V
-							}
+							// Swap Y and Z axes.
+							(float)fbxVertices[controlPointIndex].mData[0],
+							(float)fbxVertices[controlPointIndex].mData[2],
+							(float)fbxVertices[controlPointIndex].mData[1]
+						},
+						// Fill normals and colors of the Vertex with zeros temporarily.
+						{
+							0,0,0
+						},
+						// Texture UV coordinates of the Vertex
+						{
+							texture_U, texture_V
 						}
-					);
+					};
+
+					_indexed_vertices[(int) _vertices->size()] = controlPointIndex;
+					_vertices->push_back(*vertex);
 				}
 			}
 			// Collect all indices.
@@ -234,7 +150,7 @@ bool FBX_Importer::Load(
 				// Process every vertex in this polygon (triangle)
 				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 					_indices->push_back(
-						(unsigned int)polygonIndex * 3 + (2 - vertexIndex)
+						(unsigned int) polygonIndex * 3 + (2 - vertexIndex)
 					);
 				}
 			}
@@ -340,6 +256,93 @@ bool FBX_Importer::Load(
 		// There can be only one mapping coordinate for the whole surface.
 		case FbxGeometryElement::eAllSame:
 			break;
+	}
+
+	//// Process the deformer of the mesh. (Skeleton)
+	if (_joints != NULL) {
+		if (mesh->GetDeformerCount() > 0) {
+			// Check mesh deformer type if it is supported.
+			if (mesh->GetDeformer(0)->GetDeformerType() == FbxDeformer::eSkin) {
+				FbxSkin* skin = (FbxSkin*)mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
+
+				// Process each cluster of the deformer.
+				for (int c = 0; c < skin->GetClusterCount(); c++) {
+					FbxCluster* cluster = skin->GetCluster(c);
+
+					// Get joint of the cluster.
+					FbxNode* jointNode = cluster->GetLink();
+					FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
+
+					FbxAMatrix transformMatrix;
+					FbxAMatrix transformLinkMatrix;
+					cluster->GetTransformMatrix(transformMatrix);
+					cluster->GetTransformLinkMatrix(transformLinkMatrix);
+
+					// Create Joint object.
+					Joint* joint = new Joint();
+					joint->id = c;
+					joint->name = jointNode->GetName();
+					joint->parentJoint = NULL;
+
+					// Fill matrices of the joint object.
+					joint->transformMatrix = FBX_Importer::MatrixFBXtoDX(transformMatrix);
+					joint->transformLinkMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix);
+					joint->globalBindposeInverseMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse() * transformMatrix);
+
+					// If joint node has parent, record it's pointer.
+					FbxNode* parentNode = jointNode->GetParent();
+					if (parentNode != NULL) {
+						// If this value is NULL, then this joint don't have parent.
+						joint->parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
+
+						if (joint->parentJoint != NULL) {
+							// If a joint has parent, it's child of it's parent.
+							// Right? RIGHT??
+							joint->parentJoint->childJoints.push_back(joint);
+						}
+						// If joint node has no parent, it's the root node.
+						else {
+							joint->isRoot = true;
+						}
+					}
+
+					// Fill vertices' index and weight values.
+					int clusterVertexCount = cluster->GetControlPointIndicesCount();
+					int* clusterVertexIndices = cluster->GetControlPointIndices();
+					double* clusterVertexWeights = cluster->GetControlPointWeights();
+
+					// Pair vertex index with weight value.
+					for (int v = 0; v < clusterVertexCount; v++) {
+						int controlPointIndex = clusterVertexIndices[v];
+						_indexed_joint_weights[controlPointIndex][joint->id] = clusterVertexWeights[v];
+					}
+
+					// Push joint to vector array.
+					_joints->push_back(*joint);
+				}
+			}
+			else {
+				/*
+				Other mesh deformer types are:
+					FbxDeformer::eBlendShape:
+					FbxDeformer::eUnknown:
+					FbxDeformer::eVertexCache:
+				*/
+
+				std::ostringstream myStream;
+				myStream << fileName;
+				myStream << ": Mesh deformer found but deformer type is not supported." << "\n";
+				OutputDebugStringA(myStream.str().c_str());
+				std::cout << myStream.str().c_str();
+			}
+		}
+		else {
+			std::ostringstream myStream;
+			myStream << fileName;
+			myStream << ": There isn't any mesh deformer binded to mesh." << "\n";
+			OutputDebugStringA(myStream.str().c_str());
+			std::cout << myStream.str().c_str();
+		}
 	}
 
 	return true;

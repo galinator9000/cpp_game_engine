@@ -7,6 +7,8 @@
 namespace dx = DirectX;
 
 #define MAX_JOINT_COUNT 64
+
+// This value should stay this way.
 #define MAX_JOINT_PER_VERTEX 4
 
 struct Vector2 {
@@ -290,8 +292,8 @@ struct Vertex {
 	Vector2 TextureUV;
 
 	// Joint ID and corresponding weights for vertex
-	unsigned int jointIDs[MAX_JOINT_PER_VERTEX];
-	double jointWeights[MAX_JOINT_PER_VERTEX];
+	float jointWeights[MAX_JOINT_PER_VERTEX];
+	float jointIDs[MAX_JOINT_PER_VERTEX];
 };
 
 struct EntityMaterial {
