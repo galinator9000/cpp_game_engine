@@ -2,7 +2,11 @@
 
 void MeshDeformer::Update() {
 	for (unsigned int j = 0; j < this->gJointCount; j++) {
-		
+		// Fill transform matrices that will be provided to Vertex Shader.
+		if (this->gJoints[j].dataChanged) {
+			this->gMeshDeformerVSConstantBuffer.jointsTransformMatrix[this->gJoints[j].id] = (*this->gJoints[j].transformMatrixVS);
+			this->shouldUpdateGPUData = true;
+		}
 	}
 }
 

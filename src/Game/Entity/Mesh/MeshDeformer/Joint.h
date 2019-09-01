@@ -14,17 +14,20 @@ public:
 
 	bool isRoot = false;
 
-	// World -> JointLocal matrix.
-	dx::XMFLOAT4X4* transformMatrix;
+	// Transformation matrix that will be provided to Vertex Shader for
+	// transforming related vertex relative to this joint's transformation.
+	dx::XMFLOAT4X4* transformMatrixVS;
 
 	// JointLocal -> World matrix.
+	dx::XMFLOAT4X4* transformMatrix;
 	dx::XMFLOAT4X4* transformLinkMatrix;
+	dx::XMFLOAT4X4* jointGlobalMatrix;
 
 	// World bind pose matrix.
 	dx::XMFLOAT4X4* globalBindposeInverseMatrix;
 
+	bool dataChanged = false;
+
 	Joint* parentJoint;
 	std::vector<Joint*> childJoints;
-
-	std::map<int, double> vertexIndexWeightPair;
 };

@@ -30,7 +30,7 @@ public:
 	// Constant buffers on GPU side
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
 	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
-	bool hasGPUBuffers;
+	bool hasGPUBuffers = false;
 
 	// Shapes
 	void createBoxShape();

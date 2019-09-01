@@ -6,6 +6,9 @@
 
 namespace dx = DirectX;
 
+#define MAX_JOINT_COUNT 64
+#define MAX_JOINT_PER_VERTEX 4
+
 struct Vector2 {
 	Vector2() {
 		this->x = 0;
@@ -286,8 +289,9 @@ struct Vertex {
 	Vector3 normal;
 	Vector2 TextureUV;
 
-	// Value that comes from FBX API
-	unsigned int index = 0;
+	// Joint ID and corresponding weights for vertex
+	unsigned int jointIDs[MAX_JOINT_PER_VERTEX];
+	double jointWeights[MAX_JOINT_PER_VERTEX];
 };
 
 struct EntityMaterial {
@@ -312,7 +316,7 @@ struct EntityPSConstantBuffer {
 
 // Mesh Deformer constant buffer for Vertex Shader.
 struct MeshDeformerVSConstantBuffer {
-	dx::XMFLOAT4X4 jointMatrix;
+	dx::XMFLOAT4X4 jointsTransformMatrix[MAX_JOINT_COUNT];
 };
 
 // Each light object holds this, light's intensity, direction and position values.

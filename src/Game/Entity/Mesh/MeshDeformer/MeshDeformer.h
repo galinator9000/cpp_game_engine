@@ -22,4 +22,6 @@ public:
 	// Constant buffer
 	MeshDeformerVSConstantBuffer gMeshDeformerVSConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pMeshDeformerVSConstantBuffer;
+	bool shouldUpdateGPUData = false;
+	bool dataChanged = false;
 };

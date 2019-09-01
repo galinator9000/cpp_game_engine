@@ -126,7 +126,6 @@ bool FBX_Importer::Load(
 					// Pair vertex index with weight value.
 					for (int v = 0; v < clusterVertexCount; v++) {
 						int controlPointIndex = clusterVertexIndices[v];
-						joint->vertexIndexWeightPair[controlPointIndex] = clusterVertexWeights[v];
 					}
 					
 					// Push joint to vector array.
@@ -225,9 +224,7 @@ bool FBX_Importer::Load(
 							// Texture UV coordinates of the Vertex
 							{
 								texture_U, texture_V
-							},
-							// Control Point index of the Vertex
-							(unsigned int) controlPointIndex
+							}
 						}
 					);
 				}

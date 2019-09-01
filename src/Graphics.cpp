@@ -150,8 +150,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"VertexIndex", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
@@ -417,6 +416,22 @@ void Graphics::updateEntity(Entity* entity) {
 		);
 		memcpy(mappedResource.pData, &entity->gEntityPSConstantBuffer, sizeof(entity->gEntityPSConstantBuffer));
 		this->pDeviceContext->Unmap(entity->pEntityPSConstantBuffer.Get(), 0);
+	}
+
+	if (entity->mesh->meshDeformer != NULL) {
+		if (entity->mesh->meshDeformer->shouldUpdateGPUData) {
+			// Update constant buffer of the deformer of the entity for Vertex Shader.
+			D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+			this->hr = this->pDeviceContext->Map(
+				entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer.Get(),
+				0,
+				D3D11_MAP_WRITE_DISCARD,
+				0,
+				&mappedResource
+			);
+			memcpy(mappedResource.pData, &entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer, sizeof(entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer));
+			this->pDeviceContext->Unmap(entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer.Get(), 0);
+		}
 	}
 }
 

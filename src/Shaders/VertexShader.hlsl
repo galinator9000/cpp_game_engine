@@ -1,3 +1,5 @@
+#define MAX_JOINT_COUNT 64
+
 // World matrix is provided by the entity we are currently processing.
 cbuffer EntityVSConstantBuffer : register(b0) {
 	matrix worldMatrix;
@@ -13,7 +15,7 @@ cbuffer CameraVSConstantBuffer : register(b1) {
 // Joint matrices provided by mesh deformer,
 // if any deformer attached to current processed entity's mesh.
 cbuffer MeshDeformerVSConstantBuffer : register(b2) {
-	matrix jointMatrix;
+	matrix jointsTransformMatrix[MAX_JOINT_COUNT];
 };
 
 // Input structure of the Vertex shader.
@@ -21,7 +23,6 @@ struct VSIn {
 	float3 position : Position;
 	float3 normal : Normal;
 	float2 texture_UV : TextureUV;
-	unsigned int vertexIndex : VertexIndex;
 };
 
 // Output structure of the Vertex shader.
