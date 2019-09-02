@@ -4,6 +4,7 @@
 // World matrix is provided by the entity we are currently processing.
 cbuffer EntityVSConstantBuffer : register(b0) {
 	matrix worldMatrix;
+	bool useMeshDeformer;
 };
 
 // View and Projection matrices provided by active camera object.
@@ -27,7 +28,7 @@ struct VSIn {
 
 	// Per-Vertex joint information, maximum 4 joint supported.
 	float4 jointWeights : JointWeights;
-	float4 jointIDs : JointIDs;
+	int4 jointIDs : JointIDs;
 };
 
 // Output structure of the Vertex shader.
@@ -54,24 +55,27 @@ VSOut main(VSIn vsIn){
 	VSOut vsOut;
 
 	//// Apply joint transforms.
-	// Take weighted sum of the joint transform matrices.
-	matrix weightedJointTransforms = identityMatrix;
-	for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-		int jointId = (int) vsIn.jointIDs[j];
+	// Check if current entity uses any mesh deformer.
+	float4 finalWorldPosition;
+	if (useMeshDeformer) {
+		finalWorldPosition = float4(0, 0, 0, 0);
 
-		// Current entity doesn't use mesh deformer.
-		if (jointId == -1) {
-			break;
+		for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
+			int jointId = vsIn.jointIDs[j];
+			float jointWeight = vsIn.jointWeights[j];
+
+			if (jointId == -1) {
+				// This and rest of the joints aren't used, break the loop.
+				break;
+			}
+
+			finalWorldPosition += mul(float4(vsIn.position, 1.0f), jointsTransformMatrix[jointId]) * jointWeight;
 		}
-
-		float jointWeight = vsIn.jointWeights[j];
-
-		weightedJointTransforms += jointsTransformMatrix[jointId] * jointWeight;
 	}
-
-	// Apply weighted joint transform matrix on model space.
-	float4 finalWorldPosition = float4(vsIn.position, 1.0f);
-	finalWorldPosition = mul(finalWorldPosition, weightedJointTransforms);
+	// If mesh deformer isn't used, just take incoming vertex position.
+	else {
+		finalWorldPosition = float4(vsIn.position, 1.0f);
+	}
 
 	//// Apply "Model, View, Projection" transform matrices.
 	// Apply "Model" matrix.
@@ -87,7 +91,7 @@ VSOut main(VSIn vsIn){
 	// Rotate the normals with joint and world matrices.
 	// When this normal vector passed to pixel shader, it will be interpolated by rasterizer.
 	float3 normal = vsIn.normal;
-	normal = mul(normal, (float3x3) weightedJointTransforms);
+	//normal = mul(normal, (float3x3) weightedJointTransforms);
 	normal = mul(normal, (float3x3) worldMatrix);
 	vsOut.normal = normal;
 

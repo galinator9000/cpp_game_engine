@@ -33,6 +33,8 @@ bool Mesh::LoadFBX(const char* fileName) {
 
 	// Process mesh deformer value if exists.
 	if (this->meshDeformer != NULL) {
+		this->useMeshDeformer = true;
+
 		this->meshDeformer->gJointCount = (UINT) _joints->size();
 
 		Joint* joints = new Joint[this->meshDeformer->gJointCount];
@@ -41,7 +43,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 		}
 		this->meshDeformer->gJoints = joints;
 
-		// Update matrices on joints.
+		// Update matrices on all joints.
 		this->meshDeformer->calculateMatrices();
 
 		int maxJointIndices[MAX_JOINT_PER_VERTEX];
@@ -53,7 +55,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 			addedJoints.clear();
 
 			// Reset local arrays.
-			memset(&maxJointIndices, 0, sizeof(int) * MAX_JOINT_PER_VERTEX);
+			memset(&maxJointIndices, -1, sizeof(int) * MAX_JOINT_PER_VERTEX);
 			memset(&maxJointWeights, 0, sizeof(double) * MAX_JOINT_PER_VERTEX);
 
 			// Sort joints by their weights.
@@ -84,7 +86,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 
 			// Fill vertex struct.
 			for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-				_vertices->at(v).jointIDs[j] = (float) maxJointIndices[j];
+				_vertices->at(v).jointIDs[j] = maxJointIndices[j];
 				_vertices->at(v).jointWeights[j] = (float) maxJointWeights[j];
 			}
 		}

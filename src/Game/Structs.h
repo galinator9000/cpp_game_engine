@@ -293,7 +293,7 @@ struct Vertex {
 
 	// Joint ID and corresponding weights for vertex
 	float jointWeights[MAX_JOINT_PER_VERTEX];
-	float jointIDs[MAX_JOINT_PER_VERTEX];
+	int jointIDs[MAX_JOINT_PER_VERTEX];
 };
 
 struct EntityMaterial {
@@ -307,6 +307,8 @@ struct EntityMaterial {
 struct EntityVSConstantBuffer {
 	// Transformation matrix for entity.
 	dx::XMFLOAT4X4 worldMatrix;
+	bool useMeshDeformer;
+	dx::XMFLOAT3 padding;
 };
 
 // Entity constant buffer for Pixel Shader.

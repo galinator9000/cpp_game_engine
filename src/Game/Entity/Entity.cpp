@@ -34,6 +34,7 @@ Entity::Entity(
 void Entity::Update() {
 	// Update mesh.
 	if (this->mesh != NULL) {
+		this->gEntityVSConstantBuffer.useMeshDeformer = this->mesh->useMeshDeformer;
 		this->mesh->Update();
 	}
 

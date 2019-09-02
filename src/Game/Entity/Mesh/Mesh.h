@@ -24,6 +24,7 @@ public:
 	// Mesh deformer (Skeleton)
 	MeshDeformer* meshDeformer;
 	bool attachMeshDeformer(MeshDeformer* meshDeformer);
+	bool useMeshDeformer = false;
 
 	// Graphics
 	bool LoadFBX(const char* fileName);

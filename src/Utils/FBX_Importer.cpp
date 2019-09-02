@@ -143,7 +143,7 @@ bool FBX_Importer::Load(
 
 					// Fill joint indices as -1 initially.
 					for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-						vertex->jointIDs[j] = -1.0f;
+						vertex->jointIDs[j] = 1;
 					}
 
 					_indexed_vertices[(int) _vertices->size()] = controlPointIndex;
@@ -290,9 +290,9 @@ bool FBX_Importer::Load(
 					joint->parentJoint = NULL;
 
 					// Fill matrices of the joint object.
-					joint->transformMatrix = FBX_Importer::MatrixFBXtoDX(transformMatrix);
-					joint->transformLinkMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix);
-					joint->globalBindposeInverseMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse() * transformMatrix);
+					joint->transformMatrix = *(FBX_Importer::MatrixFBXtoDX(transformMatrix));
+					joint->transformLinkMatrix = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
+					//joint->globalBindposeInverseMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse() * transformMatrix);
 
 					// If joint node has parent, record it's pointer.
 					FbxNode* parentNode = jointNode->GetParent();
