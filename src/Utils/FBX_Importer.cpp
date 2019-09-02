@@ -141,6 +141,11 @@ bool FBX_Importer::Load(
 						}
 					};
 
+					// Fill joint indices as -1 initially.
+					for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
+						vertex->jointIDs[j] = -1.0f;
+					}
+
 					_indexed_vertices[(int) _vertices->size()] = controlPointIndex;
 					_vertices->push_back(*vertex);
 				}

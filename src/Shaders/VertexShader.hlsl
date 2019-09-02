@@ -42,23 +42,55 @@ struct VSOut {
 	float4 position : SV_Position;
 };
 
+// Constant identity matrix.
+static const matrix identityMatrix = {
+	{ 1, 0, 0, 0 },
+	{ 0, 1, 0, 0 },
+	{ 0, 0, 1, 0 },
+	{ 0, 0, 0, 1 }
+};
+
 VSOut main(VSIn vsIn){
 	VSOut vsOut;
 
-	//// Position vector
-	float4 finalVector;
-	finalVector = mul(
-		float4(vsIn.position, 1.0f), worldMatrix
-	);
-	finalVector = mul(finalVector, viewMatrix);
-	finalVector = mul(finalVector, projectionMatrix);
-	vsOut.position = finalVector;
+	//// Apply joint transforms.
+	// Take weighted sum of the joint transform matrices.
+	matrix weightedJointTransforms = identityMatrix;
+	for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
+		int jointId = (int) vsIn.jointIDs[j];
 
-	//// These values will be passed to pixel shader.
-	vsOut.positionPS = mul(float4(vsIn.position, 1.0f), worldMatrix).xyz;
-	// Rotate the normals.
+		// Current entity doesn't use mesh deformer.
+		if (jointId == -1) {
+			break;
+		}
+
+		float jointWeight = vsIn.jointWeights[j];
+
+		weightedJointTransforms += jointsTransformMatrix[jointId] * jointWeight;
+	}
+
+	// Apply weighted joint transform matrix on model space.
+	float4 finalWorldPosition = float4(vsIn.position, 1.0f);
+	finalWorldPosition = mul(finalWorldPosition, weightedJointTransforms);
+
+	//// Apply "Model, View, Projection" transform matrices.
+	// Apply "Model" matrix.
+	finalWorldPosition = mul(finalWorldPosition, worldMatrix);
+
+	// Apply "View" and "Projection" transform matrices.
+	vsOut.position = mul(finalWorldPosition, viewMatrix);
+	vsOut.position = mul(vsOut.position, projectionMatrix);
+
+	// Pixel shader needs just world positions without Projection and View.
+	vsOut.positionPS = finalWorldPosition.xyz;
+
+	// Rotate the normals with joint and world matrices.
 	// When this normal vector passed to pixel shader, it will be interpolated by rasterizer.
-	vsOut.normal = mul(vsIn.normal, (float3x3) worldMatrix);
+	float3 normal = vsIn.normal;
+	normal = mul(normal, (float3x3) weightedJointTransforms);
+	normal = mul(normal, (float3x3) worldMatrix);
+	vsOut.normal = normal;
+
 	vsOut.texture_UV = vsIn.texture_UV;
 	vsOut.eyePosition = cameraPosition;
 	vsOut.viewMatrix = viewMatrix;

@@ -11,8 +11,8 @@ class Joint {
 public:
 	unsigned int id;
 	std::string name;
-
 	bool isRoot = false;
+	bool dataChanged = false;
 
 	// Transformation matrix that will be provided to Vertex Shader for
 	// transforming related vertex relative to this joint's transformation.
@@ -21,12 +21,9 @@ public:
 	// JointLocal -> World matrix.
 	dx::XMFLOAT4X4* transformMatrix;
 	dx::XMFLOAT4X4* transformLinkMatrix;
-	dx::XMFLOAT4X4* jointGlobalMatrix;
 
-	// World bind pose matrix.
+	// Inverse global bind pose matrix.
 	dx::XMFLOAT4X4* globalBindposeInverseMatrix;
-
-	bool dataChanged = false;
 
 	Joint* parentJoint;
 	std::vector<Joint*> childJoints;
