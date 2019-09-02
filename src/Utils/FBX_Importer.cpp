@@ -279,9 +279,39 @@ bool FBX_Importer::Load(
 					FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
 
 					FbxAMatrix transformMatrix;
-					FbxAMatrix transformLinkMatrix;
 					cluster->GetTransformMatrix(transformMatrix);
+
+					FbxAMatrix transformLinkMatrix;
 					cluster->GetTransformLinkMatrix(transformLinkMatrix);
+
+					FbxAMatrix inverseWorldMatrix = transformLinkMatrix.Inverse();
+					//FbxAMatrix inverseWorldMatrix = transformLinkMatrix.Inverse() * transformMatrix;
+
+					/*
+					// Joint matrix debugging.
+					const char* jointName = jointNode->GetName();
+					dx::XMMATRIX DX_transformMatrix = dx::XMLoadFloat4x4(FBX_Importer::MatrixFBXtoDX(transformMatrix));
+					dx::XMVECTOR scaling;
+					dx::XMVECTOR rotation;
+					dx::XMVECTOR translation;
+					dx::XMMatrixDecompose(
+						&scaling,
+						&rotation,
+						&translation,
+						DX_transformMatrix
+					);
+
+					dx::XMMATRIX DX_transformLinkMatrix = dx::XMLoadFloat4x4(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
+					dx::XMVECTOR scalingLink;
+					dx::XMVECTOR rotationLink;
+					dx::XMVECTOR translationLink;
+					dx::XMMatrixDecompose(
+						&scalingLink,
+						&rotationLink,
+						&translationLink,
+						DX_transformLinkMatrix
+					);
+					*/
 
 					// Create Joint object.
 					Joint* joint = new Joint();
@@ -290,9 +320,9 @@ bool FBX_Importer::Load(
 					joint->parentJoint = NULL;
 
 					// Fill matrices of the joint object.
-					joint->transformMatrix = *(FBX_Importer::MatrixFBXtoDX(transformMatrix));
-					joint->transformLinkMatrix = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
-					//joint->globalBindposeInverseMatrix = FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse() * transformMatrix);
+					joint->jointMatrix = *(FBX_Importer::MatrixFBXtoDX(inverseWorldMatrix * transformLinkMatrix));
+					joint->worldMatrix = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
+					joint->inverseWorldMatrix = *(FBX_Importer::MatrixFBXtoDX(inverseWorldMatrix));
 
 					// If joint node has parent, record it's pointer.
 					FbxNode* parentNode = jointNode->GetParent();

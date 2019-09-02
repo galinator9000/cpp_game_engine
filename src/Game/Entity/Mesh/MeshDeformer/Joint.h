@@ -10,22 +10,18 @@ namespace dx = DirectX;
 class Joint {
 public:
 	Joint();
+	void Update();
+
 	unsigned int id;
 	std::string name;
 	bool isRoot = false;
 	bool dataChanged = true;
 
-	// Transformation matrix that transforms from joint's space to model's space.
+	// Transformation matrix that will affect vertices which this joint influences.
 	dx::XMFLOAT4X4 jointMatrix;
 
-	// Transformation matrix that transforms from joint's space to parent joint's space.
-	dx::XMFLOAT4X4 toParentSpaceMatrix;
-
-	// Transformation matrix that transforms from joint's space to root joint's space.
-	dx::XMFLOAT4X4 toRootSpaceMatrix;
-
-	dx::XMFLOAT4X4 transformMatrix;
-	dx::XMFLOAT4X4 transformLinkMatrix;
+	dx::XMFLOAT4X4 worldMatrix;
+	dx::XMFLOAT4X4 inverseWorldMatrix;
 
 	Joint* parentJoint;
 	std::vector<Joint*> childJoints;

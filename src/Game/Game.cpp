@@ -91,7 +91,7 @@ void Game::Setup(){
 	tMesh->attachMeshDeformer(tMeshDeformer);
 
 	animatedEntity = new Entity(
-		{ 0.025f, 0.025f, 0.025f },
+		{ 1,1,1 },
 		{ 0,0,30 },
 		{ 0,0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
@@ -100,7 +100,7 @@ void Game::Setup(){
 		{0, 3, 0}
 	);
 
-	Entity* animatedEntity2 = new Entity(
+	Entity* nonAnimatedEntity = new Entity(
 		{ 0.025f, 0.025f, 0.025f },
 		{ 0,0,15 },
 		{ 0,0,0,0 },
@@ -115,7 +115,7 @@ void Game::Setup(){
 		animatedEntity->attachTextureAndSampler(texture, textureSampler);
 
 		this->pWorld->addEntity(animatedEntity);
-		this->pWorld->addEntity(animatedEntity2);
+		this->pWorld->addEntity(nonAnimatedEntity);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
@@ -135,7 +135,7 @@ void Game::Update(){
 	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
 
 	// Rotate animated entity.
-	this->animatedEntity->rotateQuaternion({ 1, 1, 0, timer.Peek() * 6.28f });
+	//this->animatedEntity->rotateQuaternion({ 1, 1, 0, timer.Peek() * 6.28f });
 
 	// Transform parent box.
 	this->parentBoxEntity->Translate({ 0.01f, 0, 0});

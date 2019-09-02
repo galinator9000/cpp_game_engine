@@ -64,7 +64,7 @@ VSOut main(VSIn vsIn){
 			int jointId = vsIn.jointIDs[j];
 			float jointWeight = vsIn.jointWeights[j];
 
-			if (jointId == -1) {
+			if (jointId == -1 || jointWeight < 0.0f) {
 				// This and rest of the joints aren't used, break the loop.
 				break;
 			}

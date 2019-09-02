@@ -42,9 +42,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 			joints[j] = _joints->at(j);
 		}
 		this->meshDeformer->gJoints = joints;
-
-		// Update matrices on all joints.
-		this->meshDeformer->calculateMatrices();
+		this->meshDeformer->Update();
 
 		int maxJointIndices[MAX_JOINT_PER_VERTEX];
 		double maxJointWeights[MAX_JOINT_PER_VERTEX];

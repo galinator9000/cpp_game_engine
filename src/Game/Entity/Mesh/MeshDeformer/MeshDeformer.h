@@ -12,8 +12,7 @@ namespace wrl = Microsoft::WRL;
 class MeshDeformer{
 public:
 	void Update();
-	bool calculateMatrices();
-	bool calculateToRootMatrices(Joint* baseJoint, dx::XMFLOAT4X4 parent_ToRootMatrix);
+	void updateConstantBuffer();
 
 	// Joints
 	Joint* gJoints;

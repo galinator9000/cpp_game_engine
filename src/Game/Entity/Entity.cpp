@@ -67,7 +67,7 @@ void Entity::updateConstantBuffer() {
 			// Translate to pivot point.
 			dx::XMMatrixTranslation(-this->gRotationPivotPoint.x, -this->gRotationPivotPoint.y, -this->gRotationPivotPoint.z) *
 			dx::XMMatrixRotationQuaternion(
-				XMQuaternionRotationAxis(
+				dx::XMQuaternionRotationAxis(
 					dx::XMLoadFloat3(
 						&dx::XMFLOAT3(
 							this->gRotationQ.x,
