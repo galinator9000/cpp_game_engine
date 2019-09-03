@@ -1,6 +1,9 @@
 #include "Joint.h"
 
-Joint::Joint() {
+Joint::Joint(int id, std::string name) {
+	this->id = id;
+	this->name = name;
+
 	// Initialize translation and rotation vectors.
 	this->position = dx::XMFLOAT3(0, 0, 0);
 	this->rotationQ = dx::XMFLOAT4(0, 0, 0, 0);
@@ -16,39 +19,36 @@ Joint::Joint() {
 void Joint::Update() {
 	// Rotate specific joints.
 	if (
-		std::string(this->name).compare("thigh.L") != 0 &&
-		std::string(this->name).compare("head") != 0 &&
-		std::string(this->name).compare("forearm.R") != 0
+		this->name.compare("neck") == 0 ||
+		this->name.compare("thigh.L") == 0 ||
+		this->name.compare("forearm.R") == 0
 	) {
-		return;
-	}
+		// Check if quaternion rotation axis is equal to zero.
+		if (dx::XMVector4Equal(dx::XMLoadFloat4(&this->rotationQ), dx::XMVectorZero())) {
+			this->rotationQ.y = 1.0f;
+		}
 
-	// Check if quaternion rotation axis is equal to zero.
-	if (dx::XMVector4Equal(dx::XMLoadFloat4(&this->rotationQ), dx::XMVectorZero())) {
-		this->rotationQ.y = 1.0f;
-	}
+		this->rotationQ.w += 0.01f;
+		this->rotationQ.w = (float) fmod(
+			(double) this->rotationQ.w,
+			(double) (dx::XM_PI * 2.0f)
+		);
 
-	// Rotate joint.
-	this->rotationQ.w += 0.01f;
-	this->rotationQ.w = (float) fmod(
-		(double) this->rotationQ.w,
-		(double) dx::XM_PI*2.0f
-	);
-
-	// Build transformation matrix that will be applied to vertex at joint space.
-	dx::XMStoreFloat4x4(
-		&this->jointTransformMatrix,
-		dx::XMMatrixRotationQuaternion(
-			dx::XMQuaternionRotationAxis(
-				dx::XMLoadFloat3(
-					&dx::XMFLOAT3(
-						this->rotationQ.x, this->rotationQ.y, this->rotationQ.z
-					)
-				),
-				this->rotationQ.w
+		// Build transformation matrix that will be applied to vertex at joint space.
+		dx::XMStoreFloat4x4(
+			&this->jointTransformMatrix,
+			dx::XMMatrixRotationQuaternion(
+				dx::XMQuaternionRotationAxis(
+					dx::XMLoadFloat3(
+						&dx::XMFLOAT3(
+							this->rotationQ.x, this->rotationQ.y, this->rotationQ.z
+						)
+					),
+					this->rotationQ.w
+				)
 			)
-		)
-	);
+		);
+	}
 
 	// Update final transformation matrix that will be applied to each vertex this joint influences.
 	dx::XMStoreFloat4x4(

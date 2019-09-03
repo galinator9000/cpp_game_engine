@@ -4,7 +4,7 @@ bool FBX_Importer::Load(
 		const char* fileName,
 		std::vector<Vertex>* _vertices,
 		std::vector<unsigned int>* _indices,
-		std::vector<Joint>* _joints,
+		std::vector<Joint*>* _joints,
 		std::map<int, int>& _indexed_vertices,
 		std::map<int, std::map<int, double>>& _indexed_joint_weights
 	)
@@ -285,9 +285,7 @@ bool FBX_Importer::Load(
 					cluster->GetTransformLinkMatrix(transformLinkMatrix);
 
 					// Create Joint object.
-					Joint* joint = new Joint();
-					joint->id = c;
-					joint->name = jointNode->GetName();
+					Joint* joint = new Joint(c, jointNode->GetName());
 
 					// Fill matrices of the joint object.
 					joint->toModelSpace = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
@@ -297,12 +295,12 @@ bool FBX_Importer::Load(
 					FbxNode* parentNode = jointNode->GetParent();
 					if (parentNode != NULL) {
 						// If this value is NULL, then this joint don't have parent.
-						joint->parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
+						Joint* parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
 
-						if (joint->parentJoint != NULL) {
+						if (parentJoint != NULL) {
 							// If a joint has parent, it's child of it's parent.
 							// Right? RIGHT??
-							joint->parentJoint->childJoints.push_back(joint);
+							parentJoint->childJointIDs.push_back(joint->id);
 						}
 						// If joint node has no parent, it's the root node.
 						else {
@@ -311,18 +309,14 @@ bool FBX_Importer::Load(
 					}
 
 					//// Fill vertices' joint index and weight values.
-					int clusterVertexCount = cluster->GetControlPointIndicesCount();
-					int* clusterVertexIndices = cluster->GetControlPointIndices();
-					double* clusterVertexWeights = cluster->GetControlPointWeights();
-
 					// Pair vertices' control point index with joint index-weight pair values.
-					for (int v = 0; v < clusterVertexCount; v++) {
-						int controlPointIndex = clusterVertexIndices[v];
-						_indexed_joint_weights[controlPointIndex][joint->id] = clusterVertexWeights[v];
+					for (int v = 0; v < cluster->GetControlPointIndicesCount(); v++) {
+						int controlPointIndex = cluster->GetControlPointIndices()[v];
+						_indexed_joint_weights[controlPointIndex][joint->id] = cluster->GetControlPointWeights()[v];
 					}
 
 					// Push joint to vector array.
-					_joints->push_back(*joint);
+					_joints->push_back(joint);
 				}
 			}
 			else {
@@ -370,10 +364,10 @@ void FBX_Importer::printNode(FbxNode* node, unsigned int level) {
 	}
 }
 
-Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint>* _joints) {
+Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint*>* _joints) {
 	for (int j = 0; j < _joints->size(); j++) {
-		if (std::string(jointName).compare(_joints->at(j).name) == 0) {
-			return &(_joints->at(j));
+		if (std::string(jointName).compare(_joints->at(j)->name) == 0) {
+			return _joints->at(j);
 		}
 	}
 	return NULL;

@@ -11,10 +11,11 @@ namespace wrl = Microsoft::WRL;
 
 class MeshDeformer{
 public:
+	void Setup();
 	void Update();
 
 	// Joints
-	Joint* gJoints;
+	Joint** gJoints;
 	unsigned int gJointCount;
 	Joint* getRootJoint();
 

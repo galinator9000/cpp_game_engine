@@ -12,7 +12,7 @@ void Mesh::Update() {
 bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
-	std::vector<Joint>* _joints = NULL;
+	std::vector<Joint*>* _joints = NULL;
 
 	std::map<int, int> _indexed_vertices;
 	std::map<int, std::map<int, double>> _indexed_joint_weights;
@@ -20,7 +20,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 	// If any deformer is attached to this mesh,
 	// fill it's values.
 	if (this->meshDeformer != NULL) {
-		_joints = new std::vector<Joint>();
+		_joints = new std::vector<Joint*>();
 	}
 
 	// Load .FBX file to our vectors.
@@ -37,11 +37,12 @@ bool Mesh::LoadFBX(const char* fileName) {
 
 		this->meshDeformer->gJointCount = (UINT) _joints->size();
 
-		Joint* joints = new Joint[this->meshDeformer->gJointCount];
+		Joint** joints = new Joint*[this->meshDeformer->gJointCount];
 		for (int j = 0; j < _joints->size(); j++) {
 			joints[j] = _joints->at(j);
 		}
 		this->meshDeformer->gJoints = joints;
+		this->meshDeformer->Setup();
 		this->meshDeformer->Update();
 
 		int maxJointIndices[MAX_JOINT_PER_VERTEX];
