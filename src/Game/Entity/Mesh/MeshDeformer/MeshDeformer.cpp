@@ -13,6 +13,13 @@ void MeshDeformer::Setup() {
 			this->gJoints[j]->childJoints.push_back(this->gJoints[childJointId]);
 		}
 	}
+
+	// Record root joint.
+	this->rootJoint = this->getRootJoint();
+
+	// Recalculate joint matrices.
+	// Obviously, root joint has no parent, we just pass identity matrix.
+	this->recalculateMatrices(this->rootJoint, &dx::XMMatrixIdentity());
 }
 
 void MeshDeformer::Update() {
@@ -21,14 +28,40 @@ void MeshDeformer::Update() {
 		this->gJoints[j]->Update();
 
 		if (this->gJoints[j]->dataChanged) {
-			this->gMeshDeformerVSConstantBuffer.jointsTransformMatrix[this->gJoints[j]->id] = this->gJoints[j]->jointMatrix;
+			this->gMeshDeformerVSConstantBuffer.jointsTransformMatrix[this->gJoints[j]->id] = this->gJoints[j]->jointModelTransformMatrix;
 			this->shouldUpdateGPUData = true;
 			this->gJoints[j]->dataChanged = false;
 		}
 	}
+
+	// Recalculate joint matrices.
+	// Obviously, root joint has no parent, we just pass identity matrix.
+	this->recalculateMatrices(this->rootJoint, &dx::XMMatrixIdentity());
 }
 
-// General
+// Recalculates joint matrices recursively.
+void MeshDeformer::recalculateMatrices(Joint* baseJoint, dx::XMMATRIX* parentModelTransform) {
+	// Calculate current joint's transform in model-space.
+	dx::XMMATRIX poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJoint->jointLocalTransformMatrix) * dx::XMLoadFloat4x4(&baseJoint->jointLocalBindTransform) * (*parentModelTransform);
+
+	// Iterate over child joints and recalculate their matrices too.
+	for (int cj = 0; cj < baseJoint->childJoints.size(); cj++) {
+		MeshDeformer::recalculateMatrices(
+			baseJoint->childJoints.at(cj),
+			&poseModelTransformMatrix
+		);
+	}
+
+	// Update final matrix that will be applied to vertices.
+	dx::XMStoreFloat4x4(
+		&baseJoint->jointModelTransformMatrix,
+		dx::XMMatrixTranspose(
+			dx::XMLoadFloat4x4(&baseJoint->jointBindPoseInverseMatrix) * poseModelTransformMatrix
+		)
+	);
+	baseJoint->dataChanged = true;
+}
+
 Joint* MeshDeformer::getRootJoint() {
 	for (unsigned int j = 0; j < this->gJointCount; j++) {
 		if (this->gJoints[j]->isRoot) {

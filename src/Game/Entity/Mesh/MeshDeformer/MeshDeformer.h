@@ -13,10 +13,12 @@ class MeshDeformer{
 public:
 	void Setup();
 	void Update();
+	static void recalculateMatrices(Joint* baseJoint, dx::XMMATRIX* jointLocalTransform);
 
 	// Joints
 	Joint** gJoints;
 	unsigned int gJointCount;
+	Joint* rootJoint;
 	Joint* getRootJoint();
 
 	// Constant buffer

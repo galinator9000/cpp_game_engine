@@ -57,12 +57,10 @@ VSOut main(VSIn vsIn){
 	//// Apply joint transforms.
 	// Check if current entity uses any mesh deformer.
 	float4 finalWorldPosition;
+	float3 finalNormal;
 	if (useMeshDeformer) {
 		finalWorldPosition = float4(0, 0, 0, 0);
-
-		// Only apply first joint.
-		// For debugging.
-		//finalWorldPosition += mul(float4(vsIn.position, 1.0f), jointsTransformMatrix[vsIn.jointIDs[0]]) * 1.0f;
+		finalNormal = float3(0, 0, 0);
 
 		for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
 			int jointId = vsIn.jointIDs[j];
@@ -73,12 +71,15 @@ VSOut main(VSIn vsIn){
 				break;
 			}
 
+			// Calculate position and normals using joint deform matrices and weight values.
 			finalWorldPosition += mul(float4(vsIn.position, 1.0f), jointsTransformMatrix[jointId]) * jointWeight;
+			finalNormal += mul(vsIn.normal, (float3x3) jointsTransformMatrix[jointId]) * jointWeight;
 		}
 	}
 	// If mesh deformer isn't used, just take incoming vertex position.
 	else {
 		finalWorldPosition = float4(vsIn.position, 1.0f);
+		finalNormal = vsIn.normal;
 	}
 
 	//// Apply "Model, View, Projection" transform matrices.
@@ -94,10 +95,8 @@ VSOut main(VSIn vsIn){
 
 	// Rotate the normals with joint and world matrices.
 	// When this normal vector passed to pixel shader, it will be interpolated by rasterizer.
-	float3 normal = vsIn.normal;
-	//normal = mul(normal, (float3x3) weightedJointTransforms);
-	normal = mul(normal, (float3x3) worldMatrix);
-	vsOut.normal = normal;
+	finalNormal = mul(finalNormal, (float3x3) worldMatrix);
+	vsOut.normal = finalNormal;
 
 	vsOut.texture_UV = vsIn.texture_UV;
 	vsOut.eyePosition = cameraPosition;

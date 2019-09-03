@@ -93,12 +93,12 @@ void Game::Setup(){
 
 	animatedEntity = new Entity(
 		{ 0.025f, 0.025f, 0.025f },
-		{ 0,0,10 },
+		{ 0,0,4 },
 		{ 0,0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 },
 		tMesh,
-		{0, 3, 0}
+		{0, 0, 0}
 	);
 
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
@@ -107,7 +107,7 @@ void Game::Setup(){
 		this->pWorld->addEntity(animatedEntity);
 	}
 
-	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
+	PointLight* pointLight = new PointLight(Vector3(0, 0, -10.0f), 1.0f);
 	this->pWorld->addLight(pointLight);
 
 	/*DirectionalLight* directionalLight = new DirectionalLight(Vector3(-1.0f, 1.0f, -1.0f), 1.0f);
@@ -124,10 +124,10 @@ void Game::Update(){
 	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
 
 	// Rotate animated entity.
-	//this->animatedEntity->rotateQuaternion({ 1, 1, 0, timer.Peek() * 6.28f });
+	//this->animatedEntity->rotateQuaternion({ 1, 0, 0, timer.Peek() * 6.28f });
 
 	// Transform parent box.
 	//this->parentBoxEntity->Translate({ 0.01f, 0, 0});
 	
-	this->pWorld->allLights.at(0)->setPosition({ cosx, siny, 0.0f });
+	//this->pWorld->allLights.at(0)->setPosition({ cosx, siny, 0.0f });
 }

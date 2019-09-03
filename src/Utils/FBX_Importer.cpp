@@ -288,8 +288,7 @@ bool FBX_Importer::Load(
 					Joint* joint = new Joint(c, jointNode->GetName());
 
 					// Fill matrices of the joint object.
-					joint->toModelSpace = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
-					joint->toJointSpace = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse()));
+					joint->jointBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse()));
 
 					// If joint node has parent, record it's pointer.
 					FbxNode* parentNode = jointNode->GetParent();
@@ -301,6 +300,16 @@ bool FBX_Importer::Load(
 							// If a joint has parent, it's child of it's parent.
 							// Right? RIGHT??
 							parentJoint->childJointIDs.push_back(joint->id);
+
+							// Calculate joint's bind pose transform relative to parent joint.
+							FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
+
+							FbxAMatrix parentTransformLinkMatrix;
+							parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
+
+							joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
+								parentTransformLinkMatrix.Inverse() * transformLinkMatrix
+							));
 						}
 						// If joint node has no parent, it's the root node.
 						else {
