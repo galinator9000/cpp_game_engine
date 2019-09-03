@@ -60,6 +60,10 @@ VSOut main(VSIn vsIn){
 	if (useMeshDeformer) {
 		finalWorldPosition = float4(0, 0, 0, 0);
 
+		// Only apply first joint.
+		// For debugging.
+		//finalWorldPosition += mul(float4(vsIn.position, 1.0f), jointsTransformMatrix[vsIn.jointIDs[0]]) * 1.0f;
+
 		for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
 			int jointId = vsIn.jointIDs[j];
 			float jointWeight = vsIn.jointWeights[j];

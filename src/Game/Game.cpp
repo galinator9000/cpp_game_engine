@@ -21,7 +21,7 @@ void Game::Setup(){
 	
 	//// Create box entities.
 	// This mesh will be shared between boxes.
-	Mesh* boxMesh = new Mesh();
+	/*Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxShape();
 
 	Entity* boxEntity;
@@ -84,6 +84,7 @@ void Game::Setup(){
 	);
 	this->pWorld->addEntity(boxEntity);
 	this->parentBoxEntity->attachChild(boxEntity);
+	*/
 
 	//// Load animated mesh.
 	Mesh* tMesh = new Mesh();
@@ -91,8 +92,8 @@ void Game::Setup(){
 	tMesh->attachMeshDeformer(tMeshDeformer);
 
 	animatedEntity = new Entity(
-		{ 1,1,1 },
-		{ 0,0,30 },
+		{ 0.025f, 0.025f, 0.025f },
+		{ 0,0,0 },
 		{ 0,0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 },
@@ -100,22 +101,10 @@ void Game::Setup(){
 		{0, 3, 0}
 	);
 
-	Entity* nonAnimatedEntity = new Entity(
-		{ 0.025f, 0.025f, 0.025f },
-		{ 0,0,15 },
-		{ 0,0,0,0 },
-		{ 0, 0, 0.66f, 1 },
-		{ 1,1,1 },
-		tMesh,
-		{ 0, 0, 0 }
-	);
-
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		// Attach mesh and texture to entity.
 		animatedEntity->attachTextureAndSampler(texture, textureSampler);
-
 		this->pWorld->addEntity(animatedEntity);
-		this->pWorld->addEntity(nonAnimatedEntity);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(-3.0f, 3.0f, -3.0f), 1.0f);
@@ -138,7 +127,7 @@ void Game::Update(){
 	//this->animatedEntity->rotateQuaternion({ 1, 1, 0, timer.Peek() * 6.28f });
 
 	// Transform parent box.
-	this->parentBoxEntity->Translate({ 0.01f, 0, 0});
+	//this->parentBoxEntity->Translate({ 0.01f, 0, 0});
 	
 	this->pWorld->allLights.at(0)->setPosition({ cosx, siny, 0.0f });
 }

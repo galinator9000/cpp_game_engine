@@ -12,7 +12,6 @@ namespace wrl = Microsoft::WRL;
 class MeshDeformer{
 public:
 	void Update();
-	void updateConstantBuffer();
 
 	// Joints
 	Joint* gJoints;

@@ -1,51 +1,67 @@
 #include "Joint.h"
 
 Joint::Joint() {
+	// Initialize translation and rotation vectors.
+	this->position = dx::XMFLOAT3(0, 0, 0);
+	this->rotationQ = dx::XMFLOAT4(0, 0, 0, 0);
+
 	// Initialize matrices with identity matrix.
 	dx::XMStoreFloat4x4(&this->jointMatrix, dx::XMMatrixIdentity());
-	dx::XMStoreFloat4x4(&this->worldMatrix, dx::XMMatrixIdentity());
-	dx::XMStoreFloat4x4(&this->inverseWorldMatrix, dx::XMMatrixIdentity());
+	dx::XMStoreFloat4x4(&this->jointTransformMatrix, dx::XMMatrixIdentity());
+
+	dx::XMStoreFloat4x4(&this->toModelSpace, dx::XMMatrixIdentity());
+	dx::XMStoreFloat4x4(&this->toJointSpace, dx::XMMatrixIdentity());
 }
 
 void Joint::Update() {
-	// Pick random joint.
-	if(false){
-	//if (std::string(this->name).compare("upper_arm.L") == 0) {
-		// Build arbitrary transformation matrix.
-		float x = 1.57f;
-		float y = 0.0f;
-		float z = 0.0f;
+	// Rotate specific joints.
+	if (
+		std::string(this->name).compare("thigh.L") != 0 &&
+		std::string(this->name).compare("head") != 0 &&
+		std::string(this->name).compare("forearm.R") != 0
+	) {
+		return;
+	}
 
-		dx::XMMATRIX localMatrix = dx::XMMatrixRotationQuaternion(
+	// Check if quaternion rotation axis is equal to zero.
+	if (dx::XMVector4Equal(dx::XMLoadFloat4(&this->rotationQ), dx::XMVectorZero())) {
+		this->rotationQ.y = 1.0f;
+	}
+
+	// Rotate joint.
+	this->rotationQ.w += 0.01f;
+	this->rotationQ.w = (float) fmod(
+		(double) this->rotationQ.w,
+		(double) dx::XM_PI*2.0f
+	);
+
+	// Build transformation matrix that will be applied to vertex at joint space.
+	dx::XMStoreFloat4x4(
+		&this->jointTransformMatrix,
+		dx::XMMatrixRotationQuaternion(
 			dx::XMQuaternionRotationAxis(
 				dx::XMLoadFloat3(
 					&dx::XMFLOAT3(
-						x, y, z
+						this->rotationQ.x, this->rotationQ.y, this->rotationQ.z
 					)
 				),
-				1.0f
+				this->rotationQ.w
 			)
-		);
+		)
+	);
 
-		// Update world matrix.
-		if (this->isRoot) {
-			dx::XMStoreFloat4x4(
-				&this->worldMatrix,
-				localMatrix
-			);
-		}
-		else {
-			dx::XMStoreFloat4x4(
-				&this->worldMatrix,
-				dx::XMLoadFloat4x4(&this->parentJoint->worldMatrix) * localMatrix
-			);
-		}
+	// Update final transformation matrix that will be applied to each vertex this joint influences.
+	dx::XMStoreFloat4x4(
+		&this->jointMatrix,
+		dx::XMMatrixTranspose(
+			// First transform vertex (which is in model space) to joint space.
+			dx::XMLoadFloat4x4(&this->toJointSpace) *
+			// Transform vertex relative to joint's position (0, 0, 0).
+			dx::XMLoadFloat4x4(&this->jointTransformMatrix) *
+			// Finally transform vertex back to model space.
+			dx::XMLoadFloat4x4(&this->toModelSpace)
+		)
+	);
 
-		// Update final transformation matrix.
-		dx::XMStoreFloat4x4(
-			&this->jointMatrix,
-			dx::XMLoadFloat4x4(&this->inverseWorldMatrix) * dx::XMLoadFloat4x4(&this->worldMatrix)
-		);
-		this->dataChanged = true;
-	}
+	this->dataChanged = true;
 }

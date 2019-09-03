@@ -141,9 +141,10 @@ bool FBX_Importer::Load(
 						}
 					};
 
-					// Fill joint indices as -1 initially.
+					// Fill joint indices and weights initially.
 					for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-						vertex->jointIDs[j] = 1;
+						vertex->jointIDs[j] = -1;
+						vertex->jointWeights[j] = 0.0f;
 					}
 
 					_indexed_vertices[(int) _vertices->size()] = controlPointIndex;
@@ -279,50 +280,18 @@ bool FBX_Importer::Load(
 					FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
 
 					FbxAMatrix transformMatrix;
-					cluster->GetTransformMatrix(transformMatrix);
-
 					FbxAMatrix transformLinkMatrix;
+					cluster->GetTransformMatrix(transformMatrix);
 					cluster->GetTransformLinkMatrix(transformLinkMatrix);
-
-					FbxAMatrix inverseWorldMatrix = transformLinkMatrix.Inverse();
-					//FbxAMatrix inverseWorldMatrix = transformLinkMatrix.Inverse() * transformMatrix;
-
-					/*
-					// Joint matrix debugging.
-					const char* jointName = jointNode->GetName();
-					dx::XMMATRIX DX_transformMatrix = dx::XMLoadFloat4x4(FBX_Importer::MatrixFBXtoDX(transformMatrix));
-					dx::XMVECTOR scaling;
-					dx::XMVECTOR rotation;
-					dx::XMVECTOR translation;
-					dx::XMMatrixDecompose(
-						&scaling,
-						&rotation,
-						&translation,
-						DX_transformMatrix
-					);
-
-					dx::XMMATRIX DX_transformLinkMatrix = dx::XMLoadFloat4x4(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
-					dx::XMVECTOR scalingLink;
-					dx::XMVECTOR rotationLink;
-					dx::XMVECTOR translationLink;
-					dx::XMMatrixDecompose(
-						&scalingLink,
-						&rotationLink,
-						&translationLink,
-						DX_transformLinkMatrix
-					);
-					*/
 
 					// Create Joint object.
 					Joint* joint = new Joint();
 					joint->id = c;
 					joint->name = jointNode->GetName();
-					joint->parentJoint = NULL;
 
 					// Fill matrices of the joint object.
-					joint->jointMatrix = *(FBX_Importer::MatrixFBXtoDX(inverseWorldMatrix * transformLinkMatrix));
-					joint->worldMatrix = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
-					joint->inverseWorldMatrix = *(FBX_Importer::MatrixFBXtoDX(inverseWorldMatrix));
+					joint->toModelSpace = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix));
+					joint->toJointSpace = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse()));
 
 					// If joint node has parent, record it's pointer.
 					FbxNode* parentNode = jointNode->GetParent();
@@ -341,12 +310,12 @@ bool FBX_Importer::Load(
 						}
 					}
 
-					// Fill vertices' index and weight values.
+					//// Fill vertices' joint index and weight values.
 					int clusterVertexCount = cluster->GetControlPointIndicesCount();
 					int* clusterVertexIndices = cluster->GetControlPointIndices();
 					double* clusterVertexWeights = cluster->GetControlPointWeights();
 
-					// Pair vertex index with weight value.
+					// Pair vertices' control point index with joint index-weight pair values.
 					for (int v = 0; v < clusterVertexCount; v++) {
 						int controlPointIndex = clusterVertexIndices[v];
 						_indexed_joint_weights[controlPointIndex][joint->id] = clusterVertexWeights[v];
@@ -411,14 +380,14 @@ Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint>* _
 }
 
 // Converts FBX matrix to DirectX matrix.
-dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix matrix4x4) {
-	dx::XMFLOAT4X4* DXMATRIX = new dx::XMFLOAT4X4;
+dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix fbxMatrix) {
+	dx::XMFLOAT4X4* dxMATRIX = new dx::XMFLOAT4X4;
 
 	for (int i = 0; i<4; i++) {
 		for (int j = 0; j < 4; j++) {
-			(*DXMATRIX)(i, j) = (float) matrix4x4.Get(i, j);
+			(*dxMATRIX)(i, j) = (float) fbxMatrix.Get(i, j);
 		}
 	}
 
-	return DXMATRIX;
+	return dxMATRIX;
 }

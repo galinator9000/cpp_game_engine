@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <math.h>
 
 namespace dx = DirectX;
 
@@ -19,10 +20,17 @@ public:
 
 	// Transformation matrix that will affect vertices which this joint influences.
 	dx::XMFLOAT4X4 jointMatrix;
+	dx::XMFLOAT4X4 jointTransformMatrix;
 
-	dx::XMFLOAT4X4 worldMatrix;
-	dx::XMFLOAT4X4 inverseWorldMatrix;
+	// Matrices that comes from FBX SDK
+	dx::XMFLOAT4X4 toModelSpace;
+	dx::XMFLOAT4X4 toJointSpace;
 
-	Joint* parentJoint;
+	// Position and rotation values of the joint,
+	// these values are relative to joint's pivot point.
+	dx::XMFLOAT3 position;
+	dx::XMFLOAT4 rotationQ;
+
+	Joint* parentJoint = NULL;
 	std::vector<Joint*> childJoints;
 };
