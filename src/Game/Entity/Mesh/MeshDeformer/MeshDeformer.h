@@ -24,14 +24,15 @@ public:
 
 	// Animation object that holds keyframes that holds each joint's transformation for the current pose.
 	Animation* currentAnimation = NULL;
-	int currentKeyframeIndex = 0;
+	unsigned int currentKeyframeIndex = 0;
+	bool isAnimating = false;
 	Timer timer;
 
 	// Joint transforms for each joint on skeleton.
 	// Remember, skeleton object is holding bind pose of the joints.
 	// This objects will define pose of the joints.
 	// And should exactly match with Skeleton's gJoints array.
-	JointTransform* gJointTransforms;
+	JointTransform** gJointTransforms;
 	unsigned int gJointCount;
 	int rootJointID;
 

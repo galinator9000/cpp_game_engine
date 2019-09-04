@@ -265,42 +265,46 @@ bool FBX_Importer::Load(
 			break;
 	}
 
-	// Process animation data for each joint while collecting joints.
+	//// Process animation data for each joint while collecting joints.
 	FbxTime::EMode timeMode = FbxTime::GetGlobalTimeMode();
-
+	 
 	// Get animation stack.
+	FbxLongLong startFrame;
+	FbxLongLong stopFrame;
 	FbxAnimStack* fbxAnimStack = fbxScene->GetCurrentAnimationStack();
-	const char* animStackName = fbxAnimStack->GetName();
-	FbxTakeInfo* animStackTakeInfo = fbxScene->GetTakeInfo(animStackName);
+	if (fbxAnimStack != NULL) {
+		const char* animStackName = fbxAnimStack->GetName();
+		FbxTakeInfo* animStackTakeInfo = fbxScene->GetTakeInfo(animStackName);
 
-	// Start and Stop points.
-	FbxTime startTime = animStackTakeInfo->mLocalTimeSpan.GetStart();
-	FbxTime stopTime = animStackTakeInfo->mLocalTimeSpan.GetStop();
-	FbxLongLong startFrame = startTime.GetFrameCount(timeMode);
-	FbxLongLong stopFrame = stopTime.GetFrameCount(timeMode);
+		// Start and Stop points.
+		FbxTime startTime = animStackTakeInfo->mLocalTimeSpan.GetStart();
+		FbxTime stopTime = animStackTakeInfo->mLocalTimeSpan.GetStop();
+		startFrame = startTime.GetFrameCount(timeMode);
+		stopFrame = stopTime.GetFrameCount(timeMode);
 
-	// Frame count and frame rate per-second.
-	FbxLongLong frameCount = (int) stopFrame - startFrame;
-	float frameRate = (float) FbxTime::GetFrameRate(timeMode);
+		// Frame count and frame rate per-second.
+		FbxLongLong frameCount = (int) stopFrame - startFrame;
+		float frameRate = (float) FbxTime::GetFrameRate(timeMode);
 
-	// Create animation objects.
-	int fbxAnimLayerCount = fbxAnimStack->GetMemberCount();
-	for (int animLayer = 0; animLayer < fbxAnimLayerCount; animLayer++) {
-		Animation* animation = new Animation();
-		animation->name = animStackName;
-		animation->frameRate = frameRate;
-		
-		// Create keyframe for every frame just for now.
-		for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
-			Keyframe* keyframe = new Keyframe((float)(frame / frameRate));
+		// Create animation objects.
+		int fbxAnimLayerCount = fbxAnimStack->GetMemberCount();
+		for (int animLayer = 0; animLayer < fbxAnimLayerCount; animLayer++) {
+			Animation* animation = new Animation();
+			animation->name = animStackName;
+			animation->frameRate = frameRate;
 
-			animation->gKeyFrames.push_back(keyframe);
+			// Create keyframe for every frame just for now.
+			for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
+				Keyframe* keyframe = new Keyframe((float)(frame / frameRate));
+
+				animation->gKeyFrames.push_back(keyframe);
+			}
+
+			animation->gKeyframeCount = (unsigned int) animation->gKeyFrames.size();
+			animation->duration = animation->gKeyframeCount / animation->frameRate;
+
+			_animations->push_back(animation);
 		}
-
-		animation->gKeyframeCount = (unsigned int) animation->gKeyFrames.size();
-		animation->duration = animation->gKeyframeCount / animation->frameRate;
-
-		_animations->push_back(animation);
 	}
 
 	//// Process the deformer of the mesh. (Skeleton)
@@ -326,7 +330,9 @@ bool FBX_Importer::Load(
 				Joint* joint = new Joint(c, jointNode->GetName());
 
 				// Fill matrices of the joint object.
-				joint->jointBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(transformLinkMatrix.Inverse()));
+				joint->jointBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
+					transformLinkMatrix.Inverse()
+				));
 
 				// If joint node has parent, record it's pointer.
 				FbxNode* parentNode = jointNode->GetParent();
@@ -363,16 +369,16 @@ bool FBX_Importer::Load(
 				}
 
 				// Process transforms of the joint during animation.
-				FbxTime animTime;
-				for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
-					animTime.SetFrame(frame, timeMode);
+				if (fbxAnimStack != NULL){
+					FbxTime animTime;
+					for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
+						animTime.SetFrame(frame, timeMode);
 
-					_animations->at(0)->gKeyFrames.at((int) frame)->setJointKeyframeMatrix(
-						joint->id,
-						FBX_Importer::MatrixFBXtoDX(
-							jointNode->EvaluateLocalTransform(animTime)
-						)
-					);
+						_animations->at(0)->gKeyFrames.at((int)frame)->setJointKeyframeMatrix(
+							joint->id,
+							FBX_Importer::MatrixFBXtoDX(jointNode->EvaluateLocalTransform(animTime))
+						);
+					}
 				}
 
 				// Push joint to vector array.
@@ -443,4 +449,28 @@ dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix fbxMatrix) {
 	}
 
 	return dxMATRIX;
+}
+
+// Converts FBX vector to DirectX vector.
+dx::XMFLOAT4* FBX_Importer::VectorFBXtoDX(FbxVector4 fbxVector) {
+	dx::XMFLOAT4* dxVECTOR = new dx::XMFLOAT4;
+
+	dxVECTOR->x = (float) fbxVector.mData[0];
+	dxVECTOR->y = (float) fbxVector.mData[1];
+	dxVECTOR->z = (float) fbxVector.mData[2];
+	dxVECTOR->w = (float) fbxVector.mData[3];
+
+	return dxVECTOR;
+}
+
+// Converts FBX quaternion to DirectX vector.
+dx::XMFLOAT4* FBX_Importer::QuatFBXtoDXVector(FbxQuaternion fbxQuat) {
+	dx::XMFLOAT4* dxVECTOR = new dx::XMFLOAT4;
+
+	dxVECTOR->x = (float) fbxQuat.mData[0];
+	dxVECTOR->y = (float) fbxQuat.mData[1];
+	dxVECTOR->z = (float) fbxQuat.mData[2];
+	dxVECTOR->w = (float) fbxQuat.mData[3];
+
+	return dxVECTOR;
 }

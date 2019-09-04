@@ -17,7 +17,7 @@ Entity::Entity(
 	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
 
-	// Attach mesh and mesh deformers if exists.
+	// Attach mesh if it is given to constructor.
 	if (mesh != NULL) {
 		this->attachMesh(mesh);
 	}

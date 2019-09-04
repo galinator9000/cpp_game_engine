@@ -25,5 +25,9 @@ public:
 	);
 	static void printNode(FbxNode* node, unsigned int level = 0);
 	static Joint* getJointByName(const char* jointName, std::vector<Joint*>* _joints);
-	static dx::XMFLOAT4X4* MatrixFBXtoDX(FbxAMatrix matrix4x4);
+
+	// FBX to DX matrix/vector conversions
+	static dx::XMFLOAT4X4* MatrixFBXtoDX(FbxAMatrix fbxMatrix);
+	static dx::XMFLOAT4* VectorFBXtoDX(FbxVector4 fbxVector);
+	static dx::XMFLOAT4* QuatFBXtoDXVector(FbxQuaternion fbxQuat);
 };

@@ -21,7 +21,7 @@ void Game::Setup(){
 	
 	//// Create box entities.
 	// This mesh will be shared between boxes.
-	Mesh* boxMesh = new Mesh();
+	/*Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxShape();
 
 	Entity* boxEntity;
@@ -83,11 +83,12 @@ void Game::Setup(){
 		boxMesh
 	);
 	this->pWorld->addEntity(boxEntity);
-	this->parentBoxEntity->attachChild(boxEntity);
+	this->parentBoxEntity->attachChild(boxEntity);*/
 
 	//// Load animated mesh.
 	Mesh* tMesh = new Mesh();
 	MeshDeformer* tMeshDeformer = new MeshDeformer();
+	MeshDeformer* tMeshDeformer2 = new MeshDeformer();
 
 	animatedEntity = new Entity(
 		{ 0.025f, 0.025f, 0.025f },
@@ -99,14 +100,43 @@ void Game::Setup(){
 		{0, 0, 0}
 	);
 
+	Entity* animatedEntity2 = new Entity(
+		{ 0.025f, 0.025f, 0.025f },
+		{ 0,0,15 },
+		{ 0,0,0,0 },
+		{ 0, 0, 0.66f, 1 },
+		{ 1,1,1 },
+		tMesh,
+		{ 0, 0, 0 }
+	);
+
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		// Attach mesh and texture to entity.
 		animatedEntity->attachTextureAndSampler(texture, textureSampler);
-		animatedEntity->attachMeshDeformer(tMeshDeformer);
 
-		animatedEntity->setAnimation("BaseMesh_Anim_Triangle|Root|Root|Idle|Root|Idle");
+		animatedEntity->attachMeshDeformer(tMeshDeformer);
+		animatedEntity2->attachMeshDeformer(tMeshDeformer2);
+
+		animatedEntity->setAnimation("Root|Root|Root|Idle|Root|Idle");
 
 		this->pWorld->addEntity(animatedEntity);
+		this->pWorld->addEntity(animatedEntity2);
+	}
+
+	Mesh* deerMesh = new Mesh();
+	Entity* deerEntity = new Entity(
+		{ 1,1,1 },
+		{ 15,0,15 },
+		{ 0,0,0,0 },
+		{ 0, 0, 0.66f, 1 },
+		{ 1,1,1 },
+		deerMesh,
+		{ 0, 0, 0 }
+	);
+	if (deerMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\deer_small.fbx")) {
+		// Attach mesh and texture to entity.
+		deerEntity->attachTextureAndSampler(texture, textureSampler);
+		this->pWorld->addEntity(deerEntity);
 	}
 
 	PointLight* pointLight = new PointLight(Vector3(0, 0, -10.0f), 1.0f);

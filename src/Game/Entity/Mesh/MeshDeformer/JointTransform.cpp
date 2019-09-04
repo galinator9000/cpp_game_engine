@@ -7,5 +7,5 @@ JointTransform::JointTransform() {
 
 	// Initialize matrices with identity matrix.
 	dx::XMStoreFloat4x4(&this->jointModelTransformMatrix, dx::XMMatrixIdentity());
-	dx::XMStoreFloat4x4(&this->jointLocalTransformMatrix, dx::XMMatrixTranslation(0, 0, 0));
+	dx::XMStoreFloat4x4(&this->jointLocalTransformMatrix, dx::XMMatrixIdentity());
 }
