@@ -16,6 +16,7 @@ public:
 	void recalculateMatrices(int baseJointID, dx::XMMATRIX* jointLocalTransform);
 
 	// Skeleton class which holds all joints' bindpose matrices.
+	// This pointer is given by entity while attaching deformer.
 	Skeleton* skeleton;
 
 	// Joint transforms for each joint on skeleton.

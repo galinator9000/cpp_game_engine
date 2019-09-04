@@ -21,7 +21,7 @@ void Game::Setup(){
 	
 	//// Create box entities.
 	// This mesh will be shared between boxes.
-	/*Mesh* boxMesh = new Mesh();
+	Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxShape();
 
 	Entity* boxEntity;
@@ -84,7 +84,6 @@ void Game::Setup(){
 	);
 	this->pWorld->addEntity(boxEntity);
 	this->parentBoxEntity->attachChild(boxEntity);
-	*/
 
 	//// Load animated mesh.
 	Mesh* tMesh = new Mesh();
@@ -92,7 +91,7 @@ void Game::Setup(){
 
 	animatedEntity = new Entity(
 		{ 0.025f, 0.025f, 0.025f },
-		{ 0,0,4 },
+		{ 0,0,25 },
 		{ 0,0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 },

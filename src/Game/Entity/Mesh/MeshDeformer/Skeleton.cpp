@@ -18,10 +18,6 @@ void Skeleton::Setup() {
 	this->rootJoint = this->getRootJoint();
 }
 
-void Skeleton::Update() {
-
-}
-
 Joint* Skeleton::getRootJoint() {
 	for (unsigned int j = 0; j < this->gJointCount; j++) {
 		if (this->gJoints[j]->isRoot) {

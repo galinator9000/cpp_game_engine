@@ -1,11 +1,11 @@
 #pragma once
+////// Represents joint hierarchy IN BIND POSE of the mesh.
 
 #include "Joint.h"
 
 class Skeleton{
 public:
 	void Setup();
-	void Update();
 
 	// Joints
 	Joint** gJoints;

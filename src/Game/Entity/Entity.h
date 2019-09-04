@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "Mesh/Mesh.h"
+#include "Mesh/MeshDeformer/MeshDeformer.h"
 #include "Structs.h"
 #include "Texture.h"
 #include "TextureSampler.h"
@@ -74,7 +75,7 @@ public:
 	Mesh* mesh;
 	virtual bool attachMesh(Mesh* entityMesh);
 
-	// Mesh deformer (Skeleton)
+	// Mesh deformer
 	MeshDeformer* meshDeformer;
 	bool attachMeshDeformer(MeshDeformer* meshDeformer);
 	bool useMeshDeformer = false;

@@ -3,10 +3,6 @@
 // Utils
 #include "Utils/FBX_Importer.h"
 
-void Mesh::Update() {
-
-}
-
 bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
@@ -20,18 +16,16 @@ bool Mesh::LoadFBX(const char* fileName) {
 		return false;
 	}
 
-	this->gVertexCount = (UINT) _vertices->size();
-	this->gIndexCount = (UINT) _indices->size();
+	//// Process Animation.
 
-	//// Process skeleton joints.
-	this->skeleton.gJointCount = (UINT) _joints->size();
-	Joint** joints = new Joint*[this->skeleton.gJointCount];
+	//// Process Skeleton
+	this->gSkeleton.gJointCount = (UINT) _joints->size();
+	Joint** joints = new Joint*[this->gSkeleton.gJointCount];
 	for (int j = 0; j < _joints->size(); j++) {
 		joints[j] = _joints->at(j);
 	}
-	this->skeleton.gJoints = joints;
-	this->skeleton.Setup();
-	this->skeleton.Update();
+	this->gSkeleton.gJoints = joints;
+	this->gSkeleton.Setup();
 
 	int maxJointIndices[MAX_JOINT_PER_VERTEX];
 	double maxJointWeights[MAX_JOINT_PER_VERTEX];
@@ -78,14 +72,16 @@ bool Mesh::LoadFBX(const char* fileName) {
 		}
 	}
 
-	// Vertices
+	//// Process Vertices
+	this->gVertexCount = (UINT)_vertices->size();
 	Vertex* vertices = new Vertex[this->gVertexCount];
 	for (int v = 0; v < _vertices->size(); v++) {
 		vertices[v] = _vertices->at(v);
 	}
 	this->gVertices = vertices;
 
-	// Indices
+	//// Process Indices
+	this->gIndexCount = (UINT)_indices->size();
 	unsigned int* indices = new unsigned int[this->gIndexCount];
 	for (int i = 0; i < _indices->size(); i++) {
 		indices[i] = _indices->at(i);

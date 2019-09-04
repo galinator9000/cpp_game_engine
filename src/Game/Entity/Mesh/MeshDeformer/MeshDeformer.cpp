@@ -6,8 +6,10 @@ void MeshDeformer::Setup() {
 
 	// Fill JointTransform objects data.
 	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
-		// Fill transform matrices that will be provided to Vertex Shader.
+		// Copy joint values from skeleton.
+		this->gJointTransforms[j].id = this->skeleton->gJoints[j]->id;
 		this->gJointTransforms[j].name = this->skeleton->gJoints[j]->name;
+		this->gJointTransforms[j].isRoot = this->skeleton->gJoints[j]->isRoot;
 	}
 
 	// Recalculate joint matrices.
@@ -29,7 +31,6 @@ void MeshDeformer::Update() {
 	}
 
 	// Recalculate joint matrices.
-	// Obviously, root joint has no parent, we just pass identity matrix.
 	this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
 }
 

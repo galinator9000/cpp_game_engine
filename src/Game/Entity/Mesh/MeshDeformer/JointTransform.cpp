@@ -24,11 +24,10 @@ void JointTransform::Update() {
 
 		this->rotationQ.w += 0.05f;
 		this->rotationQ.w = (float)fmod(
-			(double)this->rotationQ.w,
-			(double)(dx::XM_PI * 2.0f)
+			(double) this->rotationQ.w,
+			(double) (dx::XM_PI * 2.0f)
 		);
 
-		// Build transformation matrix that will be applied to vertex at joint space.
 		dx::XMStoreFloat4x4(
 			&this->jointLocalTransformMatrix,
 			dx::XMMatrixRotationQuaternion(

@@ -1,4 +1,6 @@
 #pragma once
+////// Represents each joint on Skeleton object IN BIND POSE of the mesh.
+
 #include <DirectXMath.h>
 #include <string>
 #include <vector>

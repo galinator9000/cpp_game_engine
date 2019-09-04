@@ -7,14 +7,12 @@
 #include <map>
 
 #include "Structs.h"
-#include "MeshDeformer/MeshDeformer.h"
+#include "MeshDeformer/Animation/Animation.h"
 
 namespace wrl = Microsoft::WRL;
 
 class Mesh{
 public:
-	void Update();
-
 	// Vertex & index
 	Vertex* gVertices;
 	unsigned int* gIndices;
@@ -22,7 +20,8 @@ public:
 	unsigned int gIndexCount;
 
 	// Skeleton class which holds all joints' bindpose matrices.
-	Skeleton skeleton;
+	Skeleton gSkeleton;
+	Animation* gAnimations;
 
 	// Graphics
 	bool LoadFBX(const char* fileName);

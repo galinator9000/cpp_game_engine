@@ -37,7 +37,6 @@ Entity::Entity(
 }
 
 void Entity::Update() {
-	this->mesh->Update();
 	if (this->useMeshDeformer) {
 		this->meshDeformer->Update();
 	}
@@ -144,7 +143,7 @@ bool Entity::attachMeshDeformer(MeshDeformer* meshDeformer) {
 		this->gEntityVSConstantBuffer.useMeshDeformer = this->useMeshDeformer;
 
 		// Give Skeleton information to MeshDeformer class from current Mesh.
-		this->meshDeformer->skeleton = &this->mesh->skeleton;
+		this->meshDeformer->skeleton = &this->mesh->gSkeleton;
 		this->meshDeformer->Setup();
 
 		return true;

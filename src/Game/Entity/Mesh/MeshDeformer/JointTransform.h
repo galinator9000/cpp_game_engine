@@ -14,7 +14,9 @@ public:
 	JointTransform();
 	void Update();
 
-	std::string name;
+	int id = -1;
+	std::string name = "";
+	bool isRoot = false;
 	bool dataChanged = true;
 
 	// Transformation matrix that will be provided to Vertex shader and will affect vertices which this joint influences.
