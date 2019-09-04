@@ -5,6 +5,7 @@ bool FBX_Importer::Load(
 		std::vector<Vertex>* _vertices,
 		std::vector<unsigned int>* _indices,
 		std::vector<Joint*>* _joints,
+		std::vector<Animation*>* _animations,
 		std::map<int, int>& _indexed_vertices,
 		std::map<int, std::map<int, double>>& _indexed_joint_weights
 	)
@@ -280,7 +281,27 @@ bool FBX_Importer::Load(
 
 	// Frame count and frame rate per-second.
 	FbxLongLong frameCount = (int) stopFrame - startFrame;
-	float frameRate = (float)FbxTime::GetFrameRate(timeMode);
+	float frameRate = (float) FbxTime::GetFrameRate(timeMode);
+
+	// Create animation objects.
+	int fbxAnimLayerCount = fbxAnimStack->GetMemberCount();
+	for (int animLayer = 0; animLayer < fbxAnimLayerCount; animLayer++) {
+		Animation* animation = new Animation();
+		animation->name = animStackName;
+		animation->frameRate = frameRate;
+		
+		// Create keyframe for every frame just for now.
+		for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
+			Keyframe* keyframe = new Keyframe((float)(frame / frameRate));
+
+			animation->gKeyFrames.push_back(keyframe);
+		}
+
+		animation->gKeyframeCount = (unsigned int) animation->gKeyFrames.size();
+		animation->duration = animation->gKeyframeCount / animation->frameRate;
+
+		_animations->push_back(animation);
+	}
 
 	//// Process the deformer of the mesh. (Skeleton)
 	if (mesh->GetDeformerCount() > 0) {
@@ -346,10 +367,12 @@ bool FBX_Importer::Load(
 				for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
 					animTime.SetFrame(frame, timeMode);
 
-					FbxAMatrix animLocalJointTransform = jointNode->EvaluateLocalTransform(animTime);
-					animLocalJointTransform.GetS();
-					animLocalJointTransform.GetQ();
-					animLocalJointTransform.GetT();
+					_animations->at(0)->gKeyFrames.at((int) frame)->setJointKeyframeMatrix(
+						joint->id,
+						FBX_Importer::MatrixFBXtoDX(
+							jointNode->EvaluateLocalTransform(animTime)
+						)
+					);
 				}
 
 				// Push joint to vector array.

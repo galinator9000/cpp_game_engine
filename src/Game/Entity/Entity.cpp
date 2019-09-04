@@ -151,6 +151,21 @@ bool Entity::attachMeshDeformer(MeshDeformer* meshDeformer) {
 	return false;
 }
 
+bool Entity::setAnimation(const char* animName) {
+	if (!this->useMeshDeformer || this->meshDeformer == NULL) {
+		return false;
+	}
+
+	Animation* animation = this->mesh->getAnimation(animName);
+	if (animation == NULL) {
+		return false;
+	}
+
+	this->meshDeformer->setAnimation(animation);
+
+	return true;
+}
+
 // Hierarchy system
 void Entity::attachChild(Entity* child){
 	this->childEntities.push_back(child);

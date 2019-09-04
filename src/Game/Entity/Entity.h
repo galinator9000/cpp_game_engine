@@ -72,12 +72,13 @@ public:
 	unsigned int getChildCount();
 
 	// Mesh
-	Mesh* mesh;
+	Mesh* mesh = NULL;
 	virtual bool attachMesh(Mesh* entityMesh);
 
 	// Mesh deformer
-	MeshDeformer* meshDeformer;
+	MeshDeformer* meshDeformer = NULL;
 	bool attachMeshDeformer(MeshDeformer* meshDeformer);
+	bool setAnimation(const char* animName);
 	bool useMeshDeformer = false;
 
 	// Constant buffer

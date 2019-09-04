@@ -111,6 +111,9 @@
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Exception.cpp">
@@ -189,6 +192,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

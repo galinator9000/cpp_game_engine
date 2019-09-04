@@ -12,7 +12,6 @@ namespace dx = DirectX;
 class JointTransform{
 public:
 	JointTransform();
-	void Update();
 
 	int id = -1;
 	std::string name = "";

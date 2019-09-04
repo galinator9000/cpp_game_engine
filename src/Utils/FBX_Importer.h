@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Structs.h"
+#include "Entity/Mesh/MeshDeformer/Animation/Animation.h"
 
 // Utils
 #include "fbxsdk.h"
@@ -18,10 +19,11 @@ public:
 		std::vector<Vertex>* _vertices,
 		std::vector<unsigned int>* _indices,
 		std::vector<Joint*>* _joints,
+		std::vector<Animation*>* _animations,
 		std::map<int, int>& _indexed_vertices,
 		std::map<int, std::map<int, double>>& _indexed_joint_weights
 	);
-	static void printNode(FbxNode* node, unsigned int level=0);
+	static void printNode(FbxNode* node, unsigned int level = 0);
 	static Joint* getJointByName(const char* jointName, std::vector<Joint*>* _joints);
 	static dx::XMFLOAT4X4* MatrixFBXtoDX(FbxAMatrix matrix4x4);
 };

@@ -21,7 +21,11 @@ public:
 
 	// Skeleton class which holds all joints' bindpose matrices.
 	Skeleton gSkeleton;
-	Animation* gAnimations;
+
+	// Animation class which holds keyframes.
+	Animation** gAnimations;
+	unsigned int gAnimationCount;
+	Animation* getAnimation(const char* animName);
 
 	// Graphics
 	bool LoadFBX(const char* fileName);

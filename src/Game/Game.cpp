@@ -104,6 +104,8 @@ void Game::Setup(){
 		animatedEntity->attachTextureAndSampler(texture, textureSampler);
 		animatedEntity->attachMeshDeformer(tMeshDeformer);
 
+		animatedEntity->setAnimation("BaseMesh_Anim_Triangle|Root|Root|Idle|Root|Idle");
+
 		this->pWorld->addEntity(animatedEntity);
 	}
 

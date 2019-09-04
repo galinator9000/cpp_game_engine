@@ -19,9 +19,19 @@ void MeshDeformer::Setup() {
 }
 
 void MeshDeformer::Update() {
+	// Keep animation progressing with usage of Timer.
+	if (this->currentAnimation != NULL) {
+		if (timer.Peek() > currentAnimation->duration) {
+			timer.Reset();
+		}
+		this->currentKeyframeIndex = (int)(timer.Peek() / currentAnimation->duration * currentAnimation->gKeyframeCount);
+	}
+
 	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
-		// Fill transform matrices that will be provided to Vertex Shader.
-		this->gJointTransforms[j].Update();
+		// If animation attached, apply current pose to joints.
+		if (this->currentAnimation != NULL) {
+			this->gJointTransforms[j].jointLocalTransformMatrix = *(this->currentAnimation->gKeyFrames[this->currentKeyframeIndex]->jointIDtransformMatrix[j]);
+		}
 
 		if (this->gJointTransforms[j].dataChanged) {
 			this->gMeshDeformerVSConstantBuffer.jointsTransformMatrix[this->skeleton->gJoints[j]->id] = this->gJointTransforms[j].jointModelTransformMatrix;
@@ -58,4 +68,8 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 		)
 	);
 	baseJointTransform->dataChanged = true;
+}
+
+void MeshDeformer::setAnimation(Animation* animation) {
+	this->currentAnimation = animation;
 }

@@ -7,16 +7,23 @@ bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
 	std::vector<Joint*>* _joints = new std::vector<Joint*>();
+	std::vector<Animation*>* _animations = new std::vector<Animation*>();
 
 	std::map<int, int> _indexed_vertices;
 	std::map<int, std::map<int, double>> _indexed_joint_weights;
 
 	// Load .FBX file to our vectors.
-	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints, _indexed_vertices, _indexed_joint_weights)) {
+	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints, _animations, _indexed_vertices, _indexed_joint_weights)) {
 		return false;
 	}
 
 	//// Process Animation.
+	this->gAnimationCount = (UINT)_animations->size();
+	Animation** animations = new Animation*[this->gAnimationCount];
+	for (int a = 0; a < _animations->size(); a++) {
+		animations[a] = _animations->at(a);
+	}
+	this->gAnimations = animations;
 
 	//// Process Skeleton
 	this->gSkeleton.gJointCount = (UINT) _joints->size();
@@ -165,4 +172,14 @@ void Mesh::createBoxShape() {
 	unsigned int* indices = new unsigned int[this->gIndexCount];
 	std::copy(_indices, _indices + this->gIndexCount, indices);
 	this->gIndices = indices;
+}
+
+// General
+Animation* Mesh::getAnimation(const char* animName) {
+	for (unsigned int a = 0; a < this->gAnimationCount; a++) {
+		if (!gAnimations[a]->name.compare(animName)) {
+			return gAnimations[a];
+		}
+	}
+	return NULL;
 }
