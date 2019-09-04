@@ -13,10 +13,18 @@ class MeshDeformer{
 public:
 	void Setup();
 	void Update();
-	static void recalculateMatrices(Joint* baseJoint, dx::XMMATRIX* jointLocalTransform);
+	void recalculateMatrices(int baseJointID, dx::XMMATRIX* jointLocalTransform);
 
 	// Skeleton class which holds all joints' bindpose matrices.
 	Skeleton* skeleton;
+
+	// Joint transforms for each joint on skeleton.
+	// Remember, skeleton object is holding bind pose of the joints.
+	// This objects will define pose of the joints.
+	// And should exactly match with Skeleton's gJoints array.
+	JointTransform* gJointTransforms;
+	unsigned int gJointCount;
+	int rootJointID;
 
 	// Constant buffer
 	MeshDeformerVSConstantBuffer gMeshDeformerVSConstantBuffer;
