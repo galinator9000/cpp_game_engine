@@ -89,7 +89,6 @@ void Game::Setup(){
 	//// Load animated mesh.
 	Mesh* tMesh = new Mesh();
 	MeshDeformer* tMeshDeformer = new MeshDeformer();
-	tMesh->attachMeshDeformer(tMeshDeformer);
 
 	animatedEntity = new Entity(
 		{ 0.025f, 0.025f, 0.025f },
@@ -104,6 +103,8 @@ void Game::Setup(){
 	if (tMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		// Attach mesh and texture to entity.
 		animatedEntity->attachTextureAndSampler(texture, textureSampler);
+		animatedEntity->attachMeshDeformer(tMeshDeformer);
+
 		this->pWorld->addEntity(animatedEntity);
 	}
 

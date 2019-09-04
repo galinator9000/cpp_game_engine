@@ -9,13 +9,18 @@ Entity::Entity(){}
 Entity::Entity(
 	Vector3 size, Vector3 position, Vector4 rotationQ,
 	Color color, Vector3 material,
-	Mesh* mesh, Vector3 rotationPivotPoint
+	Mesh* mesh,
+	Vector3 rotationPivotPoint
 ){
 	// Graphics
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
-	this->mesh = mesh;
+
+	// Attach mesh and mesh deformers if exists.
+	if (mesh != NULL) {
+		this->attachMesh(mesh);
+	}
 
 	// Local transformation values.
 	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
@@ -32,10 +37,9 @@ Entity::Entity(
 }
 
 void Entity::Update() {
-	// Update mesh.
-	if (this->mesh != NULL) {
-		this->gEntityVSConstantBuffer.useMeshDeformer = this->mesh->useMeshDeformer;
-		this->mesh->Update();
+	this->mesh->Update();
+	if (this->useMeshDeformer) {
+		this->meshDeformer->Update();
 	}
 
 	// Skip static and sleeping dynamic entities.
@@ -127,6 +131,22 @@ void Entity::detachTextureAndSampler() {
 bool Entity::attachMesh(Mesh* mesh) {
 	if (this->mesh == NULL) {
 		this->mesh = mesh;
+		return true;
+	}
+	return false;
+}
+
+// Mesh deformer
+bool Entity::attachMeshDeformer(MeshDeformer* meshDeformer) {
+	if (this->meshDeformer == NULL) {
+		this->meshDeformer = meshDeformer;
+		this->useMeshDeformer = true;
+		this->gEntityVSConstantBuffer.useMeshDeformer = this->useMeshDeformer;
+
+		// Give Skeleton information to MeshDeformer class from current Mesh.
+		this->meshDeformer->skeleton = &this->mesh->skeleton;
+		this->meshDeformer->Setup();
+
 		return true;
 	}
 	return false;

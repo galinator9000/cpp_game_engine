@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity/Mesh/MeshDeformer/Joint.h"
+#include "Entity/Mesh/MeshDeformer/Skeleton.h"
 
 #include <string>
 #include <DirectXMath.h>

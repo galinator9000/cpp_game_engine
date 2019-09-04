@@ -74,6 +74,11 @@ public:
 	Mesh* mesh;
 	virtual bool attachMesh(Mesh* entityMesh);
 
+	// Mesh deformer (Skeleton)
+	MeshDeformer* meshDeformer;
+	bool attachMeshDeformer(MeshDeformer* meshDeformer);
+	bool useMeshDeformer = false;
+
 	// Constant buffer
 	EntityVSConstantBuffer gEntityVSConstantBuffer;
 	EntityPSConstantBuffer gEntityPSConstantBuffer;

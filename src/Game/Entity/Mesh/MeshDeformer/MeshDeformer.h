@@ -15,11 +15,8 @@ public:
 	void Update();
 	static void recalculateMatrices(Joint* baseJoint, dx::XMMATRIX* jointLocalTransform);
 
-	// Joints
-	Joint** gJoints;
-	unsigned int gJointCount;
-	Joint* rootJoint;
-	Joint* getRootJoint();
+	// Skeleton class which holds all joints' bindpose matrices.
+	Skeleton* skeleton;
 
 	// Constant buffer
 	MeshDeformerVSConstantBuffer gMeshDeformerVSConstantBuffer;

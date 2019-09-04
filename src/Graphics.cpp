@@ -286,19 +286,19 @@ bool Graphics::addEntity(Entity* entity){
 	}
 
 	// If mesh deformer is attached to mesh, create buffers for it.
-	if (entity->mesh->meshDeformer != NULL) {
+	if (entity->meshDeformer != NULL) {
 		/// MESH DEFORMER CONSTANT BUFFER
 		// Create constant buffer on GPU side for Vertex Shader.
 		D3D11_BUFFER_DESC mdcBdVS = { 0 };
-		mdcBdVS.ByteWidth = sizeof(entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer);
+		mdcBdVS.ByteWidth = sizeof(entity->meshDeformer->gMeshDeformerVSConstantBuffer);
 		mdcBdVS.Usage = D3D11_USAGE_DYNAMIC;
 		mdcBdVS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		mdcBdVS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		D3D11_SUBRESOURCE_DATA mdcSdVS = { &(entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer), 0, 0 };
+		D3D11_SUBRESOURCE_DATA mdcSdVS = { &(entity->meshDeformer->gMeshDeformerVSConstantBuffer), 0, 0 };
 		this->hr = this->pDevice->CreateBuffer(
 			&mdcBdVS,
 			&mdcSdVS,
-			&(entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer)
+			&(entity->meshDeformer->pMeshDeformerVSConstantBuffer)
 		);
 	}
 
@@ -376,12 +376,12 @@ void Graphics::drawEntity(Entity* entity){
 	}
 
 	// If mesh deformer is attached to mesh, set buffers to Vertex Shader.
-	if (entity->mesh->meshDeformer != NULL) {
+	if (entity->meshDeformer != NULL) {
 		// Bind entity's mesh's deformer buffer to third (index 2) slot of the Vertex Shader.
 		this->pDeviceContext->VSSetConstantBuffers(
 			2,
 			1,
-			entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer.GetAddressOf()
+			entity->meshDeformer->pMeshDeformerVSConstantBuffer.GetAddressOf()
 		);
 	}
 
@@ -422,19 +422,19 @@ void Graphics::updateEntity(Entity* entity) {
 		this->pDeviceContext->Unmap(entity->pEntityPSConstantBuffer.Get(), 0);
 	}
 
-	if (entity->mesh->meshDeformer != NULL) {
-		if (entity->mesh->meshDeformer->shouldUpdateGPUData) {
+	if (entity->meshDeformer != NULL) {
+		if (entity->meshDeformer->shouldUpdateGPUData) {
 			// Update constant buffer of the deformer of the entity for Vertex Shader.
 			D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 			this->hr = this->pDeviceContext->Map(
-				entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer.Get(),
+				entity->meshDeformer->pMeshDeformerVSConstantBuffer.Get(),
 				0,
 				D3D11_MAP_WRITE_DISCARD,
 				0,
 				&mappedResource
 			);
-			memcpy(mappedResource.pData, &entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer, sizeof(entity->mesh->meshDeformer->gMeshDeformerVSConstantBuffer));
-			this->pDeviceContext->Unmap(entity->mesh->meshDeformer->pMeshDeformerVSConstantBuffer.Get(), 0);
+			memcpy(mappedResource.pData, &entity->meshDeformer->gMeshDeformerVSConstantBuffer, sizeof(entity->meshDeformer->gMeshDeformerVSConstantBuffer));
+			this->pDeviceContext->Unmap(entity->meshDeformer->pMeshDeformerVSConstantBuffer.Get(), 0);
 		}
 	}
 }

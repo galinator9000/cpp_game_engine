@@ -21,10 +21,8 @@ public:
 	unsigned int gVertexCount;
 	unsigned int gIndexCount;
 
-	// Mesh deformer (Skeleton)
-	MeshDeformer* meshDeformer;
-	bool attachMeshDeformer(MeshDeformer* meshDeformer);
-	bool useMeshDeformer = false;
+	// Skeleton class which holds all joints' bindpose matrices.
+	Skeleton skeleton;
 
 	// Graphics
 	bool LoadFBX(const char* fileName);

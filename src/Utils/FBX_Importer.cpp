@@ -300,10 +300,10 @@ bool FBX_Importer::Load(
 							// If a joint has parent, it's child of it's parent.
 							// Right? RIGHT??
 							parentJoint->childJointIDs.push_back(joint->id);
+							joint->parentJointID = parentJoint->id;
 
 							// Calculate joint's bind pose transform relative to parent joint.
 							FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
-
 							FbxAMatrix parentTransformLinkMatrix;
 							parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 
