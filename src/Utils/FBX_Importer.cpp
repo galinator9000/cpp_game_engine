@@ -7,7 +7,7 @@ bool FBX_Importer::Load(
 		std::vector<Joint*>* _joints,
 		std::vector<Animation*>* _animations,
 		std::map<int, int>& _indexed_vertices,
-		std::map<int, std::map<int, double>>& _indexed_joint_weights
+		std::map<int, std::map<int, float>>& _indexed_joint_weights
 	)
 {
 	FbxManager* fbxSdkManager = FbxManager::Create();
@@ -211,8 +211,8 @@ bool FBX_Importer::Load(
 				assert(normalIndex != -1);
 
 				_vertices->at(vertexIndex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
-				_vertices->at(vertexIndex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
-				_vertices->at(vertexIndex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+				_vertices->at(vertexIndex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+				_vertices->at(vertexIndex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
 			}
 			*/
 
@@ -323,22 +323,28 @@ bool FBX_Importer::Load(
 
 				FbxAMatrix transformMatrix;
 				FbxAMatrix transformLinkMatrix;
+				FbxAMatrix geometryTransformMatrix;
 				cluster->GetTransformMatrix(transformMatrix);
 				cluster->GetTransformLinkMatrix(transformLinkMatrix);
+
+				geometryTransformMatrix = FbxAMatrix(
+					meshNode->GetGeometricTranslation(FbxNode::eSourcePivot),
+					meshNode->GetGeometricRotation(FbxNode::eSourcePivot),
+					meshNode->GetGeometricScaling(FbxNode::eSourcePivot)
+				);
 
 				// Create Joint object.
 				Joint* joint = new Joint(c, jointNode->GetName());
 
 				// Fill matrices of the joint object.
+				// Current joint's matrix that transform model-space to joint-space.
+				// transformLinkMatrix is joint's position in model space.
 				joint->globalBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
 					transformLinkMatrix.Inverse()
 				));
 
 				// If joint node has parent, record it's pointer.
 				FbxNode* parentNode = jointNode->GetParent();
-
-				FbxAMatrix parentTransformLinkMatrix;
-				parentTransformLinkMatrix.SetIdentity();
 
 				if (parentNode != NULL) {
 					// If this value is NULL, then this joint don't have parent.
@@ -349,14 +355,6 @@ bool FBX_Importer::Load(
 						// Right? RIGHT??
 						parentJoint->childJointIDs.push_back(joint->id);
 						joint->parentJointID = parentJoint->id;
-
-						// Calculate joint's bind pose transform relative to parent joint.
-						FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
-						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
-
-						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
-							parentTransformLinkMatrix.Inverse() * transformLinkMatrix
-						));
 					}
 					// If joint node has no parent, it's the root node.
 					else {
@@ -366,9 +364,11 @@ bool FBX_Importer::Load(
 
 				// Fill vertices' joint index and weight values.
 				// Pair vertices' control point index with joint index-weight pair values.
+				int* jointControlPointIndices = cluster->GetControlPointIndices();
+				double* jointWeights = cluster->GetControlPointWeights();
 				for (int v = 0; v < cluster->GetControlPointIndicesCount(); v++) {
-					int controlPointIndex = cluster->GetControlPointIndices()[v];
-					_indexed_joint_weights[controlPointIndex][joint->id] = cluster->GetControlPointWeights()[v];
+					int controlPointIndex = jointControlPointIndices[v];
+					_indexed_joint_weights[controlPointIndex][joint->id] = (float) jointWeights[v];
 				}
 
 				// Process transforms of the joint during animation.
@@ -376,11 +376,15 @@ bool FBX_Importer::Load(
 					FbxTime animTime;
 					for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
 						animTime.SetFrame(frame, timeMode);
+						
+						// Get current joint's transformation in current time from the animation.
+						FbxAMatrix currentTransformOffset = meshNode->EvaluateGlobalTransform(animTime) * geometryTransformMatrix;
 
 						_animations->at(0)->gKeyFrames.at((int)frame)->setJointKeyframeMatrix(
 							joint->id,
 							FBX_Importer::MatrixFBXtoDX(
-							(parentTransformLinkMatrix.Inverse() * transformLinkMatrix).Inverse() * jointNode->EvaluateLocalTransform(animTime)
+								//(parentTransformLinkMatrix.Inverse() * transformLinkMatrix).Inverse() * jointNode->EvaluateLocalTransform(animTime)
+								jointNode->EvaluateLocalTransform(animTime)
 							)
 						);
 					}
@@ -447,6 +451,19 @@ Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint*>* 
 dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix fbxMatrix) {
 	dx::XMFLOAT4X4* dxMATRIX = new dx::XMFLOAT4X4;
 
+	// Decompose given matrix.
+	FbxVector4 rotation = fbxMatrix.GetR();
+	FbxVector4 translation = fbxMatrix.GetT();
+
+	// Apply necessary axis conversions.
+	rotation.Set(-rotation.mData[0], -rotation.mData[1], rotation.mData[2]);
+	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2]);
+
+	// Set them back.
+	fbxMatrix.SetR(rotation);
+	fbxMatrix.SetT(translation);
+
+	// Copy FBX matrix do DX matrix.
 	for (int i = 0; i<4; i++) {
 		for (int j = 0; j < 4; j++) {
 			(*dxMATRIX)(i, j) = (float) fbxMatrix.Get(i, j);
@@ -454,28 +471,4 @@ dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix fbxMatrix) {
 	}
 
 	return dxMATRIX;
-}
-
-// Converts FBX vector to DirectX vector.
-dx::XMFLOAT4* FBX_Importer::VectorFBXtoDX(FbxVector4 fbxVector) {
-	dx::XMFLOAT4* dxVECTOR = new dx::XMFLOAT4;
-
-	dxVECTOR->x = (float) fbxVector.mData[0];
-	dxVECTOR->y = (float) fbxVector.mData[1];
-	dxVECTOR->z = (float) fbxVector.mData[2];
-	dxVECTOR->w = (float) fbxVector.mData[3];
-
-	return dxVECTOR;
-}
-
-// Converts FBX quaternion to DirectX vector.
-dx::XMFLOAT4* FBX_Importer::QuatFBXtoDXVector(FbxQuaternion fbxQuat) {
-	dx::XMFLOAT4* dxVECTOR = new dx::XMFLOAT4;
-
-	dxVECTOR->x = (float) fbxQuat.mData[0];
-	dxVECTOR->y = (float) fbxQuat.mData[1];
-	dxVECTOR->z = (float) fbxQuat.mData[2];
-	dxVECTOR->w = (float) fbxQuat.mData[3];
-
-	return dxVECTOR;
 }

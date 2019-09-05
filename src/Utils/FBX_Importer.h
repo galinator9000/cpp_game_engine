@@ -21,13 +21,11 @@ public:
 		std::vector<Joint*>* _joints,
 		std::vector<Animation*>* _animations,
 		std::map<int, int>& _indexed_vertices,
-		std::map<int, std::map<int, double>>& _indexed_joint_weights
+		std::map<int, std::map<int, float>>& _indexed_joint_weights
 	);
 	static void printNode(FbxNode* node, unsigned int level = 0);
 	static Joint* getJointByName(const char* jointName, std::vector<Joint*>* _joints);
 
 	// FBX to DX matrix/vector conversions
 	static dx::XMFLOAT4X4* MatrixFBXtoDX(FbxAMatrix fbxMatrix);
-	static dx::XMFLOAT4* VectorFBXtoDX(FbxVector4 fbxVector);
-	static dx::XMFLOAT4* QuatFBXtoDXVector(FbxQuaternion fbxQuat);
 };

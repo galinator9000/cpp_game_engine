@@ -16,7 +16,15 @@ void MeshDeformer::Setup() {
 	// Recalculate joint matrices.
 	// Obviously, root joint has no parent, we just pass identity matrix.
 	this->rootJointID = this->skeleton->rootJoint->id;
-	this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
+	//this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
+	this->recalculateMatrices(
+		this->rootJointID,
+		&dx::XMMatrixRotationRollPitchYaw(
+			dx::XM_PIDIV2,
+			0.0f,
+			0.0f
+		)
+	);
 }
 
 void MeshDeformer::Update() {
@@ -35,36 +43,7 @@ void MeshDeformer::Update() {
 	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
 		// If animation attached, apply current pose to joints.
 		if (this->currentAnimation != NULL && this->isAnimating) {
-			this->gJointTransforms[j]->jointLocalTransformMatrix = *(this->currentAnimation->gKeyFrames[this->currentKeyframeIndex]->jointIDTransform[j]);
-		}
-		// Otherwise, apply arbitrary rotation.
-		else {
-			if (
-				!this->gJointTransforms[j]->name.compare("spine")
-				) {
-				if (this->timer.Peek() > 1.0f) {
-					this->timer.Reset();
-				}
-
-				float x, y, z;
-				x = 0;
-				y = 0;
-				z = 1;
-
-				dx::XMStoreFloat4x4(
-					&this->gJointTransforms[j]->jointLocalTransformMatrix,
-					dx::XMMatrixRotationQuaternion(
-						dx::XMQuaternionRotationAxis(
-							dx::XMLoadFloat3(
-								&dx::XMFLOAT3(
-									x, y, z
-								)
-							),
-							this->timer.Peek() * 6.28f
-						)
-					)
-				);
-			}
+			this->gJointTransforms[j]->jointAnimTransformMatrix = *(this->currentAnimation->gKeyFrames[this->currentKeyframeIndex]->jointIDTransform[j]);
 		}
 
 		if (this->gJointTransforms[j]->dataChanged) {
@@ -75,7 +54,15 @@ void MeshDeformer::Update() {
 	}
 
 	// Recalculate joint matrices.
-	this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
+	//this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
+	this->recalculateMatrices(
+		this->rootJointID,
+		&dx::XMMatrixRotationRollPitchYaw(
+			dx::XM_PIDIV2,
+			0.0f,
+			0.0f
+		)
+	);
 }
 
 // Recalculates joint matrices recursively.
@@ -84,8 +71,8 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 	Joint* baseJoint = this->skeleton->gJoints[baseJointID];
 	JointTransform* baseJointTransform = this->gJointTransforms[baseJointID];
 
-	dx::XMMATRIX poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointLocalTransformMatrix) * dx::XMLoadFloat4x4(&baseJoint->jointLocalBindTransform) * (*parentModelTransform);
-
+	dx::XMMATRIX poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) * (*parentModelTransform);
+	
 	// Iterate over child joints and recalculate their matrices too.
 	for (int cj = 0; cj < baseJoint->childJoints.size(); cj++) {
 		this->recalculateMatrices(

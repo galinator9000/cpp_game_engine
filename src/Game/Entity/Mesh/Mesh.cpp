@@ -10,7 +10,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 	std::vector<Animation*>* _animations = new std::vector<Animation*>();
 
 	std::map<int, int> _indexed_vertices;
-	std::map<int, std::map<int, double>> _indexed_joint_weights;
+	std::map<int, std::map<int, float>> _indexed_joint_weights;
 
 	// Load .FBX file to our vectors.
 	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints, _animations, _indexed_vertices, _indexed_joint_weights)) {
@@ -48,8 +48,8 @@ bool Mesh::LoadFBX(const char* fileName) {
 
 		// Sort joints by their weights.
 		for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-			std::map<int, double>* jointIndexWeightPair = &(_indexed_joint_weights[_indexed_vertices[v]]);
-			for (std::map<int, double>::iterator it = jointIndexWeightPair->begin();  it != jointIndexWeightPair->end(); it++) {
+			std::map<int, float>* jointIndexWeightPair = &(_indexed_joint_weights[_indexed_vertices[v]]);
+			for (std::map<int, float>::iterator it = jointIndexWeightPair->begin();  it != jointIndexWeightPair->end(); it++) {
 				if (
 					it->second > maxJointWeights[j] &&
 					!(std::find(addedJoints.begin(), addedJoints.end(), it->first) != addedJoints.end())
