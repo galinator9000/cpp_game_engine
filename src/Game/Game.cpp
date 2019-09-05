@@ -92,7 +92,7 @@ void Game::Setup(){
 
 	animatedEntity = new Entity(
 		{ 0.025f, 0.025f, 0.025f },
-		{ 0,0,0 },
+		{ 0,0,15 },
 		{ 0,0,0,0 },
 		{ 0.66f, 0.66f, 0.66f, 1 },
 		{ 1,1,1 },
@@ -120,7 +120,7 @@ void Game::Setup(){
 		animatedEntity->setAnimation("Root|Root|Root|Idle|Root|Idle");
 
 		this->pWorld->addEntity(animatedEntity);
-		//this->pWorld->addEntity(animatedEntity2);
+		this->pWorld->addEntity(animatedEntity2);
 	}
 
 	Mesh* deerMesh = new Mesh();

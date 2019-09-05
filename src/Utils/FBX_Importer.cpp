@@ -321,17 +321,8 @@ bool FBX_Importer::Load(
 				FbxNode* jointNode = cluster->GetLink();
 				FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
 
-				FbxAMatrix transformMatrix;
 				FbxAMatrix transformLinkMatrix;
-				FbxAMatrix geometryTransformMatrix;
-				cluster->GetTransformMatrix(transformMatrix);
 				cluster->GetTransformLinkMatrix(transformLinkMatrix);
-
-				geometryTransformMatrix = FbxAMatrix(
-					meshNode->GetGeometricTranslation(FbxNode::eSourcePivot),
-					meshNode->GetGeometricRotation(FbxNode::eSourcePivot),
-					meshNode->GetGeometricScaling(FbxNode::eSourcePivot)
-				);
 
 				// Create Joint object.
 				Joint* joint = new Joint(c, jointNode->GetName());
@@ -355,6 +346,15 @@ bool FBX_Importer::Load(
 						// Right? RIGHT??
 						parentJoint->childJointIDs.push_back(joint->id);
 						joint->parentJointID = parentJoint->id;
+
+						// Calculate joint's bind pose transform relative to parent joint.
+						FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
+						FbxAMatrix parentTransformLinkMatrix;
+						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
+
+						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
+							parentTransformLinkMatrix.Inverse() * transformLinkMatrix
+						));
 					}
 					// If joint node has no parent, it's the root node.
 					else {
@@ -378,12 +378,9 @@ bool FBX_Importer::Load(
 						animTime.SetFrame(frame, timeMode);
 						
 						// Get current joint's transformation in current time from the animation.
-						FbxAMatrix currentTransformOffset = meshNode->EvaluateGlobalTransform(animTime) * geometryTransformMatrix;
-
 						_animations->at(0)->gKeyFrames.at((int)frame)->setJointKeyframeMatrix(
 							joint->id,
 							FBX_Importer::MatrixFBXtoDX(
-								//(parentTransformLinkMatrix.Inverse() * transformLinkMatrix).Inverse() * jointNode->EvaluateLocalTransform(animTime)
 								jointNode->EvaluateLocalTransform(animTime)
 							)
 						);

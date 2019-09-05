@@ -26,4 +26,5 @@ public:
 
 	//// Matrices that comes from FBX SDK
 	dx::XMFLOAT4X4 globalBindPoseInverseMatrix;
+	dx::XMFLOAT4X4 jointLocalBindTransform;
 };

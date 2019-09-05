@@ -2,7 +2,7 @@
 
 void MeshDeformer::Setup() {
 	// Create JointTransform object array.
-	this->gJointTransforms = new JointTransform * [this->skeleton->gJointCount];
+	this->gJointTransforms = new JointTransform *[this->skeleton->gJointCount];
 
 	// Fill JointTransform objects data.
 	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
@@ -13,18 +13,10 @@ void MeshDeformer::Setup() {
 		this->gJointTransforms[j]->isRoot = this->skeleton->gJoints[j]->isRoot;
 	}
 
-	// Recalculate joint matrices.
-	// Obviously, root joint has no parent, we just pass identity matrix.
 	this->rootJointID = this->skeleton->rootJoint->id;
-	//this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
-	this->recalculateMatrices(
-		this->rootJointID,
-		&dx::XMMatrixRotationRollPitchYaw(
-			dx::XM_PIDIV2,
-			0.0f,
-			0.0f
-		)
-	);
+
+	// Set root joint's initial matrix to identity matrix.
+	this->rootInitialMatrix = dx::XMMatrixIdentity();
 }
 
 void MeshDeformer::Update() {
@@ -54,14 +46,9 @@ void MeshDeformer::Update() {
 	}
 
 	// Recalculate joint matrices.
-	//this->recalculateMatrices(this->rootJointID, &dx::XMMatrixIdentity());
 	this->recalculateMatrices(
 		this->rootJointID,
-		&dx::XMMatrixRotationRollPitchYaw(
-			dx::XM_PIDIV2,
-			0.0f,
-			0.0f
-		)
+		&this->rootInitialMatrix
 	);
 }
 
@@ -71,7 +58,13 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 	Joint* baseJoint = this->skeleton->gJoints[baseJointID];
 	JointTransform* baseJointTransform = this->gJointTransforms[baseJointID];
 
-	dx::XMMATRIX poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) * (*parentModelTransform);
+	dx::XMMATRIX poseModelTransformMatrix;
+	if (this->isAnimating) {
+		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) * (*parentModelTransform);
+	}
+	else {
+		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointLocalTransformMatrix) * dx::XMLoadFloat4x4(&baseJoint->jointLocalBindTransform) * (*parentModelTransform);
+	}
 	
 	// Iterate over child joints and recalculate their matrices too.
 	for (int cj = 0; cj < baseJoint->childJoints.size(); cj++) {
@@ -94,4 +87,12 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 void MeshDeformer::setAnimation(Animation* animation) {
 	this->currentAnimation = animation;
 	this->isAnimating = true;
+
+	// Update root joint's initial matrix used for recalculation function.
+	// Should 90 degree rotation in X axis for correcting rotation of the mesh.
+	this->rootInitialMatrix = dx::XMMatrixRotationRollPitchYaw(
+		dx::XM_PIDIV2,
+		0.0f,
+		0.0f
+	);
 }

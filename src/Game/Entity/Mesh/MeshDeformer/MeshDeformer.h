@@ -35,6 +35,7 @@ public:
 	JointTransform** gJointTransforms;
 	unsigned int gJointCount;
 	int rootJointID;
+	dx::XMMATRIX rootInitialMatrix;
 
 	// Constant buffer
 	MeshDeformerVSConstantBuffer gMeshDeformerVSConstantBuffer;

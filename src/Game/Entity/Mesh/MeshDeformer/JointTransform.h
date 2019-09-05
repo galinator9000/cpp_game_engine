@@ -22,4 +22,5 @@ public:
 	dx::XMFLOAT4X4 jointModelTransformMatrix;
 	// Transformation matrix that defines transform of the joint relative to parent joint.
 	dx::XMFLOAT4X4 jointAnimTransformMatrix;
+	dx::XMFLOAT4X4 jointLocalTransformMatrix;
 };
