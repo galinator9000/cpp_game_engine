@@ -3,9 +3,10 @@
 void MeshDeformer::Setup() {
 	// Create JointTransform object array.
 	this->gJointTransforms = new JointTransform *[this->skeleton->gJointCount];
+	this->gJointCount = this->skeleton->gJointCount;
 
 	// Fill JointTransform objects data.
-	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
+	for (unsigned int j = 0; j < this->gJointCount; j++) {
 		// Copy joint values from skeleton.
 		this->gJointTransforms[j] = new JointTransform();
 		this->gJointTransforms[j]->id = this->skeleton->gJoints[j]->id;
@@ -20,22 +21,10 @@ void MeshDeformer::Setup() {
 }
 
 void MeshDeformer::Update() {
-	// Keep animation progressing with usage of Timer.
-	if (this->currentAnimation != NULL && this->isAnimating) {
-		if (this->timer.Peek() > currentAnimation->duration) {
-			this->timer.Reset();
-		}
-		this->currentKeyframeIndex = (unsigned int)(this->timer.Peek() / currentAnimation->duration * currentAnimation->gKeyframeCount);
-
-		if (this->currentKeyframeIndex >= currentAnimation->gKeyframeCount) {
-			this->currentKeyframeIndex = currentAnimation->gKeyframeCount - 1;
-		}
-	}
-
 	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
 		// If animation attached, apply current pose to joints.
-		if (this->currentAnimation != NULL && this->isAnimating) {
-			this->gJointTransforms[j]->jointAnimTransformMatrix = *(this->currentAnimation->gKeyFrames[this->currentKeyframeIndex]->jointIDTransform[j]);
+		if (this->isAnimating) {
+			this->gAnimator->Update(this->gJointTransforms, this->gJointCount);
 		}
 
 		if (this->gJointTransforms[j]->dataChanged) {
@@ -85,7 +74,16 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 }
 
 void MeshDeformer::setAnimation(Animation* animation) {
-	this->currentAnimation = animation;
+	// If animator isn't created yet, create it.
+	if (animation == NULL) {
+		return;
+	}
+
+	if (this->gAnimator == NULL) {
+		this->gAnimator = new Animator();
+	}
+
+	this->gAnimator->setAnimation(animation);
 	this->isAnimating = true;
 
 	// Update root joint's initial matrix used for recalculation function.

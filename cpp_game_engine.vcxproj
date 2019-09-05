@@ -216,6 +216,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\JointTransform.h" />
@@ -250,6 +251,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClInclude Include="src\Game\TextureSampler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\JointTransform.cpp" />

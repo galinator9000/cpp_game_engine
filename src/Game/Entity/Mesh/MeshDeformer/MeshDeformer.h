@@ -5,8 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <Timer.h>
-#include "Animation/Animation.h"
+#include "Animation/Animator.h"
 #include "Structs.h"
 
 namespace wrl = Microsoft::WRL;
@@ -15,18 +14,16 @@ class MeshDeformer{
 public:
 	void Setup();
 	void Update();
-	void setAnimation(Animation* animation);
 	void recalculateMatrices(int baseJointID, dx::XMMATRIX* jointLocalTransform);
 
 	// Skeleton class which holds all joints' bindpose matrices.
 	// This pointer is given by entity while attaching deformer.
 	Skeleton* skeleton;
 
-	// Animation object that holds keyframes that holds each joint's transformation for the current pose.
-	Animation* currentAnimation = NULL;
-	unsigned int currentKeyframeIndex = 0;
+	// Animator class which takes keyframes, interpolates between them and sends matrices back.
+	Animator* gAnimator = NULL;
+	void setAnimation(Animation* animation);
 	bool isAnimating = false;
-	Timer timer;
 
 	// Joint transforms for each joint on skeleton.
 	// Remember, skeleton object is holding bind pose of the joints.
