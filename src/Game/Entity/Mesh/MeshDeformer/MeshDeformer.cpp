@@ -2,7 +2,7 @@
 
 void MeshDeformer::Setup() {
 	// Create JointTransform object array.
-	this->gJointTransforms = new JointTransform*[this->skeleton->gJointCount];
+	this->gJointTransforms = new JointTransform * [this->skeleton->gJointCount];
 
 	// Fill JointTransform objects data.
 	for (unsigned int j = 0; j < this->skeleton->gJointCount; j++) {
@@ -41,7 +41,7 @@ void MeshDeformer::Update() {
 		else {
 			if (
 				!this->gJointTransforms[j]->name.compare("spine")
-			) {
+				) {
 				if (this->timer.Peek() > 1.0f) {
 					this->timer.Reset();
 				}
@@ -98,7 +98,7 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 	dx::XMStoreFloat4x4(
 		&baseJointTransform->jointModelTransformMatrix,
 		dx::XMMatrixTranspose(
-			dx::XMLoadFloat4x4(&baseJoint->jointBindPoseInverseMatrix) * poseModelTransformMatrix
+			dx::XMLoadFloat4x4(&baseJoint->globalBindPoseInverseMatrix) * poseModelTransformMatrix
 		)
 	);
 	baseJointTransform->dataChanged = true;

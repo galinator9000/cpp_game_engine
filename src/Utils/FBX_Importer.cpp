@@ -330,12 +330,16 @@ bool FBX_Importer::Load(
 				Joint* joint = new Joint(c, jointNode->GetName());
 
 				// Fill matrices of the joint object.
-				joint->jointBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
+				joint->globalBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
 					transformLinkMatrix.Inverse()
 				));
 
 				// If joint node has parent, record it's pointer.
 				FbxNode* parentNode = jointNode->GetParent();
+
+				FbxAMatrix parentTransformLinkMatrix;
+				parentTransformLinkMatrix.SetIdentity();
+
 				if (parentNode != NULL) {
 					// If this value is NULL, then this joint don't have parent.
 					Joint* parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
@@ -348,7 +352,6 @@ bool FBX_Importer::Load(
 
 						// Calculate joint's bind pose transform relative to parent joint.
 						FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
-						FbxAMatrix parentTransformLinkMatrix;
 						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
@@ -376,7 +379,9 @@ bool FBX_Importer::Load(
 
 						_animations->at(0)->gKeyFrames.at((int)frame)->setJointKeyframeMatrix(
 							joint->id,
-							FBX_Importer::MatrixFBXtoDX(jointNode->EvaluateLocalTransform(animTime))
+							FBX_Importer::MatrixFBXtoDX(
+							(parentTransformLinkMatrix.Inverse() * transformLinkMatrix).Inverse() * jointNode->EvaluateLocalTransform(animTime)
+							)
 						);
 					}
 				}

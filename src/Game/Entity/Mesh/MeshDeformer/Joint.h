@@ -25,6 +25,6 @@ public:
 	std::vector<Joint*> childJoints;
 
 	//// Matrices that comes from FBX SDK
-	dx::XMFLOAT4X4 jointBindPoseInverseMatrix;
+	dx::XMFLOAT4X4 globalBindPoseInverseMatrix;
 	dx::XMFLOAT4X4 jointLocalBindTransform;
 };
