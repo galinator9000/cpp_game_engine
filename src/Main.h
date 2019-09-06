@@ -17,4 +17,5 @@
 #include "Game.h"
 #include "World.h"
 
+#include "Structs.h"
 #include "Config.h"

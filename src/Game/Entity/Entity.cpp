@@ -22,7 +22,11 @@ Entity::Entity(
 		this->attachMesh(mesh);
 	}
 
-	// Local transformation values.
+	// Check initial quaternion vector.
+	if (rotationQ == Vector4(0, 0, 0, 0)) {
+		rotationQ.x = 1.0f;
+	}
+
 	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
 	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
@@ -54,11 +58,6 @@ void Entity::Update() {
 }
 
 void Entity::updateConstantBuffer() {
-	// Check if quaternion rotation axis is equal to zero.
-	if (dx::XMVector4Equal(dx::XMLoadFloat4(&this->gRotationQ), dx::XMVectorZero())) {
-		this->gRotationQ.x = 1.0f;
-	}
-
 	// Update VS constant buffer.
 	// Update world matrix.
 	dx::XMStoreFloat4x4(
@@ -82,7 +81,7 @@ void Entity::updateConstantBuffer() {
 				)
 			) *
 			// Translate back to original point.
-			dx::XMMatrixTranslation(this->gRotationPivotPoint.x, this->gRotationPivotPoint.y, this->gRotationPivotPoint.z)*
+			dx::XMMatrixTranslation(this->gRotationPivotPoint.x, this->gRotationPivotPoint.y, this->gRotationPivotPoint.z) *
 
 			dx::XMMatrixTranslationFromVector(dx::XMLoadFloat3(&this->gPosition))
 		)
@@ -130,6 +129,7 @@ void Entity::detachTextureAndSampler() {
 bool Entity::attachMesh(Mesh* mesh) {
 	if (this->mesh == NULL) {
 		this->mesh = mesh;
+		this->isDrawable = true;
 		return true;
 	}
 	return false;

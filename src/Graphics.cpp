@@ -217,8 +217,7 @@ void Graphics::endFrame() {
 ////// GAME ENGINE SECTION
 // Entity
 bool Graphics::addEntity(Entity* entity){
-	// Check if entity has any mesh object attached to it.
-	if (entity->mesh == NULL) {
+	if (entity->mesh == NULL || !entity->isDrawable) {
 		return false;
 	}
 
@@ -306,6 +305,10 @@ bool Graphics::addEntity(Entity* entity){
 }
 
 void Graphics::drawEntity(Entity* entity){
+	if (entity->mesh == NULL || !entity->isDrawable) {
+		return;
+	}
+
 	//// Binding Buffers
 	// Constant buffer
 	// Bind entity's constant buffer for Vertex Shader.

@@ -61,7 +61,7 @@ bool FBX_Importer::Load(
 	FbxNode* meshNode = rootNode->GetChild(meshChildNodeIndex);
 	FbxMesh* mesh = meshNode->GetMesh();
 
-	// Check if mesh contains non-triangles.
+	// Check if mesh contains non-triangle polygons, if exists, triangulate entire mesh.
 	for (int p = 0; p < mesh->GetPolygonCount(); p++) {
 		if (mesh->GetPolygonSize(p) != 3) {
 			std::ostringstream myStream;
@@ -70,6 +70,13 @@ bool FBX_Importer::Load(
 			OutputDebugStringA(myStream.str().c_str());
 			std::cout << myStream.str().c_str();
 			return false;
+
+			// Triangulate the mesh.
+			/*FbxGeometryConverter fbxGeometryConverter(fbxSdkManager);
+			fbxGeometryConverter.Triangulate(
+				mesh,
+				true
+			);*/
 		}
 	}
 
@@ -276,6 +283,12 @@ bool FBX_Importer::Load(
 		const char* animStackName = fbxAnimStack->GetName();
 		FbxTakeInfo* animStackTakeInfo = fbxScene->GetTakeInfo(animStackName);
 
+		std::ostringstream myStream;
+		myStream << fileName;
+		myStream << ": Animation found: " << animStackName << "\n";
+		OutputDebugStringA(myStream.str().c_str());
+		std::cout << myStream.str().c_str();
+
 		// Start and Stop points.
 		FbxTime startTime = animStackTakeInfo->mLocalTimeSpan.GetStart();
 		FbxTime stopTime = animStackTakeInfo->mLocalTimeSpan.GetStop();
@@ -335,11 +348,11 @@ bool FBX_Importer::Load(
 				));
 
 				// If joint node has parent, record it's pointer.
-				FbxNode* parentNode = jointNode->GetParent();
+				FbxNode* parentJointNode = jointNode->GetParent();
 
-				if (parentNode != NULL) {
+				if (parentJointNode != NULL) {
 					// If this value is NULL, then this joint don't have parent.
-					Joint* parentJoint = FBX_Importer::getJointByName(parentNode->GetName(), _joints);
+					Joint* parentJoint = FBX_Importer::getJointByName(parentJointNode->GetName(), _joints);
 
 					if (parentJoint != NULL) {
 						// If a joint has parent, it's child of it's parent.

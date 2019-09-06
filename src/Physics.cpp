@@ -1,6 +1,6 @@
 #include "Physics.h"
 
-Physics::Physics(float gravity, float stepPerSecond) {
+Physics::Physics(Vector3 gravity, float stepPerSecond) {
 
 	// Set class values.
 	this->stepPerSecond = stepPerSecond;
@@ -10,13 +10,15 @@ Physics::Physics(float gravity, float stepPerSecond) {
 	if (this->pxFoundation == NULL) { OutputDebugStringA("PxCreateFoundation error"); }
 
 	// Create Visual Debugger.
-	pxPvd = PxCreatePvd(*(this->pxFoundation));
-	if (pxPvd == NULL) { OutputDebugStringA("PxCreatePvd error"); }
+	this->pxPvd = PxCreatePvd(*(this->pxFoundation));
+	if (this->pxPvd == NULL) {
+		OutputDebugStringA("PxCreatePvd error");
+	}
 	PxPvdTransport* pxTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
 	pxPvd->connect(*pxTransport, PxPvdInstrumentationFlag::eALL);
 
-	// Physics.
-	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*pxFoundation), PxTolerancesScale(), false, pxPvd);
+	// Create physics object.
+	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*pxFoundation), PxTolerancesScale(), false, this->pxPvd);
 	if (this->pxPhysics == NULL){OutputDebugStringA("PxCreatePhysics error");}
 
 	// CPU dispatcher.
@@ -24,7 +26,7 @@ Physics::Physics(float gravity, float stepPerSecond) {
 
 	// Scene.
 	PxSceneDesc pxSceneDesc = PxSceneDesc(this->pxPhysics->getTolerancesScale());
-	pxSceneDesc.gravity = PxVec3(0.0f, gravity, 0.0f);
+	pxSceneDesc.gravity = PxVec3(gravity.x, gravity.y, gravity.z);
 	pxSceneDesc.cpuDispatcher = pxDispatcher;
 	pxSceneDesc.filterShader = PxDefaultSimulationFilterShader;
 

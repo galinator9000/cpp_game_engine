@@ -39,6 +39,7 @@ public:
 	// Derived classes will set these values.
 	unsigned int id;
 	bool isDynamic;
+	bool isDrawable = false;
 
 	//// Physics
 	static PxPhysics* ppxPhysics;

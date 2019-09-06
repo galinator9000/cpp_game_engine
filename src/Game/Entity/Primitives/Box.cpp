@@ -1,12 +1,29 @@
 #include "Box.h"
 
-Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material) {
+Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3 material, Mesh* mesh) {
+	// Check initial quaternion vector.
+	if (rotationQ == Vector4(0, 0, 0, 0)) {
+		rotationQ.x = 1.0f;
+	}
+
+	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
+	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
+	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
+
+	// Create box shape.
 	this->pShape = this->ppxPhysics->createShape(
-		PxBoxGeometry(PxVec3(size.x, size.y, size.z)),
+		PxBoxGeometry(
+			PxVec3(this->gSize.x, this->gSize.y, this->gSize.z)
+		),
 		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
 	);
 
-	PxTransform transform(PxVec3(position.x, position.y, position.z));
+	// Create box actor.
+	PxTransform transform = PxTransform(
+		PxVec3(this->gPosition.x, this->gPosition.y, this->gPosition.z),
+		PxQuat(this->gRotationQ.x, this->gRotationQ.y, this->gRotationQ.z, this->gRotationQ.w)
+	);
+
 	this->rigidDynamic = this->ppxPhysics->createRigidDynamic(transform);
 	this->rigidDynamic->attachShape(*pShape);
 	PxRigidBodyExt::updateMassAndInertia(*(this->rigidDynamic), 10.0f);
@@ -16,6 +33,11 @@ Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
+
+	// Attach mesh if it is given to constructor.
+	if (mesh != NULL) {
+		this->attachMesh(mesh);
+	}
 
 	this->gSize = XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = XMFLOAT3(position.x, position.y, position.z);
@@ -29,17 +51,14 @@ Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3
 
 void Box::Update(){
 	// Skip static and sleeping dynamic entities.
-	if(!this->dataChanged){
-		// Static check.
-		if(!this->isDynamic){
-			this->shouldUpdateGPUData = false;
-			return;
-		}
-		// Dynamic and sleeping check.
-		if(this->isDynamic && this->rigidDynamic->isSleeping()){
-			this->shouldUpdateGPUData = false;
-			return;
-		}
+	if(!this->isDynamic){
+		this->shouldUpdateGPUData = false;
+		return;
+	}
+	// Dynamic and sleeping check.
+	if(this->isDynamic && this->rigidDynamic->isSleeping()){
+		this->shouldUpdateGPUData = false;
+		return;
 	}
 
 	// Integrate entities' physics position and rotation with graphics side.
@@ -47,10 +66,14 @@ void Box::Update(){
 	this->gPosition.x = tm.p.x;
 	this->gPosition.y = tm.p.y;
 	this->gPosition.z = tm.p.z;
-	this->gRotationQ.x = tm.q.x;
-	this->gRotationQ.y = tm.q.y;
-	this->gRotationQ.z = tm.q.z;
-	this->gRotationQ.w = tm.q.w;
+
+	// Get quaternion vector as radians.
+	PxVec3 axisVector;
+	tm.q.toRadiansAndUnitAxis(this->gRotationQ.w, axisVector);
+
+	this->gRotationQ.x = axisVector.x;
+	this->gRotationQ.y = axisVector.y;
+	this->gRotationQ.z = axisVector.z;
 
 	this->updateConstantBuffer();
 }

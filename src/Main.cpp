@@ -26,14 +26,13 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		HEIGHT,
 		REFRESH_RATE
 	);
-	Physics* pPhy = new Physics(-9.81f, 60.0f);
+	Physics* pPhy = new Physics({ 0.0f, -9.81f, 0.0f }, 60.0f);
 	Entity::ppxPhysics = pPhy->pxPhysics;
 
 	// Create world.
 	World* pWorld = new World(pGfx, pPhy);
 	pWorld->Setup();
 
-	// Use engine
 	Game* pGame = new Game(pWorld);
 	pGame->Setup();
 

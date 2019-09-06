@@ -71,8 +71,8 @@ void World::Update(){
 	this->pGfx->beginFrame();
 
 	// Update and draw all entities.
-	for (unsigned int e = 0; e < allEntities.size(); e++){
-		Entity* ent = allEntities.at(e);
+	for (unsigned int e = 0; e < this->allEntities.size(); e++){
+		Entity* ent = this->allEntities.at(e);
 
 		if(ent == NULL){
 			continue;
@@ -99,30 +99,30 @@ void World::Update(){
 }
 
 // Entity
-void World::addEntity(Entity* bEntity){
-	bEntity->id = (unsigned int) allEntities.size();
-	allEntities.push_back(bEntity);
+void World::addEntity(Entity* entity){
+	entity->id = (unsigned int)this->allEntities.size();
+	this->allEntities.push_back(entity);
 	
-	this->pPhy->addEntity(bEntity);
-	this->pGfx->addEntity(bEntity);
+	this->pPhy->addEntity(entity);
+	this->pGfx->addEntity(entity);
 }
 
 // Light
 bool World::addLight(Light* light) {
-	if (allLights.size() >= MAX_LIGHT_COUNT) {
+	if (this->allLights.size() >= MAX_LIGHT_COUNT) {
 		return false;
 	}
 
-	light->id = (unsigned int) allLights.size();
-	allLights.push_back(light);
+	light->id = (unsigned int)this->allLights.size();
+	this->allLights.push_back(light);
 
 	return true;
 }
 
 // Camera
 void World::addCamera(Camera* camera, bool setAsMain){
-	camera->id = (unsigned int) allCameras.size();
-	allCameras.push_back(camera);
+	camera->id = (unsigned int)this->allCameras.size();
+	this->allCameras.push_back(camera);
 
 	if(setAsMain){
 		this->setCamera(camera);
@@ -138,12 +138,12 @@ void World::setCamera(Camera* camera) {
 
 // Texture
 void World::createTexture(Texture* texture) {
-	allTextures.push_back(texture);
+	this->allTextures.push_back(texture);
 	this->pGfx->createTextureDDS(texture);
 }
 
 void World::createTextureSampler(TextureSampler* textureSampler){
-	textureSampler->id = (unsigned int) allTextureSamplers.size();
-	allTextureSamplers.push_back(textureSampler);
+	textureSampler->id = (unsigned int) this->allTextureSamplers.size();
+	this->allTextureSamplers.push_back(textureSampler);
 	this->pGfx->createTextureSampler(textureSampler);
 }
