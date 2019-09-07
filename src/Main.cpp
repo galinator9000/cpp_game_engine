@@ -23,7 +23,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	);
 	Physics* pPhy = new Physics({ 0.0f, -9.81f, 0.0f }, 60.0f);
 
-	// Entities creates their own physics representation.
+	// Entities creates their own physical representations.
 	Entity::ppxPhysics = pPhy->pxPhysics;
 
 	// Create world.

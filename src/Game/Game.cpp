@@ -90,17 +90,16 @@ void Game::Setup(){
 	}
 
 	// Add main camera to world.
-	pWorld->addCamera(&wMainCamera, true);
+	pWorld->addCamera(&wMainCamera);
 
 	// Add secondary camera.
-	Camera* pCamera = new Camera(
+	Camera* pEntityCamera = new Camera(
 		Vector3(0.0f, 0.0f, 0.0f),
 		FOV,
 		WIDTH / HEIGHT
 	);
-	pWorld->addCamera(pCamera, false);
-	// Make it follow the parent box.
-	pCamera->followEntity(parentBoxEntity, Vector3(0, 0, 10));
+	pEntityCamera->followEntity(animatedEntity, Vector3(0, 5, 0), Vector3(0, 0, 6));
+	pWorld->addCamera(pEntityCamera, true);
 
 	// Add lights to scene.
 	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 1.0f);

@@ -8,7 +8,7 @@
 
 class Camera{
 public:
-	Camera(Vector3 pos, unsigned int fov, float aspectRatio, Entity* followEntity=NULL, Vector3 followOffset=Vector3(0,0,0));
+	Camera(Vector3 pos, unsigned int fov, float aspectRatio);
 	void Update();
 	void updateConstantBuffer();
 
@@ -29,10 +29,11 @@ public:
 	float currentRotationSpeed = initialRotationSpeed;
 
 	// Entity following functionality
-	void followEntity(Entity* followEntity, Vector3 followOffset);
+	void followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followOffset);
 	void scaleFollowOffset(Vector3 scaling);
 	Entity* followedEntity = NULL;
-	Vector3 followOffset = Vector3();
+	Vector3 followEntityOffset = Vector3();
+	Vector3 entityCenterOffset = Vector3();
 	bool isFollowingEntity = false;
 
 	// GPU side

@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio, Entity* followEntity, Vector3 followOffset){
+Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio){
 	this->gFieldOfView = fov;
 	this->gAspectRatio = aspectRatio;
 
@@ -27,11 +27,6 @@ Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio, Entity* fo
 		this->camPosition.z + this->lookDirection.z
 	);
 
-	// If entity is provided to follow, set it.
-	if (followEntity != NULL) {
-		this->followEntity(followEntity, followOffset);
-	}
-
 	this->updateConstantBuffer();
 }
 
@@ -48,15 +43,20 @@ void Camera::Update() {
 void Camera::updateConstantBuffer() {
 	if (this->isFollowingEntity) {
 		// Set looking direction to entity's position.
-		this->camLookAt.x = this->followedEntity->gPosition.x;
-		this->camLookAt.y = this->followedEntity->gPosition.y;
-		this->camLookAt.z = this->followedEntity->gPosition.z;
+		this->camLookAt.x = this->followedEntity->gPosition.x + this->entityCenterOffset.x;
+		this->camLookAt.y = this->followedEntity->gPosition.y + this->entityCenterOffset.y;
+		this->camLookAt.z = this->followedEntity->gPosition.z + this->entityCenterOffset.z;
 
 		// Set camera's position to (entity's position + (follow offset * rotation)).
 		dx::XMStoreFloat3(
 			&this->camPosition,
 			dx::XMVector3Transform(
-				dx::XMVectorSet(this->followOffset.x, this->followOffset.y, this->followOffset.z, 0.0f),
+				dx::XMVectorSet(
+					this->entityCenterOffset.x + this->followEntityOffset.x,
+					this->entityCenterOffset.y + this->followEntityOffset.y,
+					this->entityCenterOffset.z + this->followEntityOffset.z,
+					0.0f
+				),
 				(
 					// Rotate offset by rotation values.
 					dx::XMMatrixRotationRollPitchYaw(
@@ -186,13 +186,13 @@ void Camera::Rotate(float xDelta, float yDelta) {
 		this->rotation.y += xDelta;
 
 		// Clip Pitch (Rotation on X axis) value to
-		// -PI/2 and PI/2 in radians
-		// -90 and 90 in degrees
-		if (this->rotation.x >= dx::XM_PI / 2) {
-			this->rotation.x = dx::XM_PI * 0.4999f;
+		// -PI/2 and 0 in radians
+		// -90 and 0 in degrees
+		if (this->rotation.x >= 0) {
+			this->rotation.x = -0.0001;
 		}
-		else if (this->rotation.x <= -(dx::XM_PI / 2)) {
-			this->rotation.x = -(dx::XM_PI * 0.4999f);
+		else if (this->rotation.x <= -(dx::XM_PI / 4)) {
+			this->rotation.x = -(dx::XM_PI * 0.2499f);
 		}
 	}
 	else {
@@ -214,17 +214,19 @@ void Camera::Rotate(float xDelta, float yDelta) {
 }
 
 // Entity following functionality.
-void Camera::followEntity(Entity* followEntity, Vector3 followOffset) {
+void Camera::followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followEntityOffset) {
 	this->followedEntity = followEntity;
-	this->followOffset = followOffset;
-	this->isFollowingEntity = true;
+	this->entityCenterOffset = entityCenterOffset;
+	this->followEntityOffset = followEntityOffset;
 
 	// Set values to initial values.
 	float currentMovementSpeed = initialMovementSpeed;
 	float currentRotationSpeed = initialRotationSpeed;
 	this->rotation = Vector3();
+
+	this->isFollowingEntity = true;
 }
 
 void Camera::scaleFollowOffset(Vector3 scaling) {
-	this->followOffset = this->followOffset * scaling;
+	this->followEntityOffset = this->followEntityOffset * scaling;
 }
