@@ -32,8 +32,8 @@ public:
 	void followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followOffset);
 	void scaleFollowOffset(Vector3 scaling);
 	Entity* followedEntity = NULL;
-	Vector3 followEntityOffset = Vector3();
-	Vector3 entityCenterOffset = Vector3();
+	dx::XMFLOAT3 followEntityOffset = dx::XMFLOAT3();
+	dx::XMFLOAT3 entityCenterOffset = dx::XMFLOAT3();
 	bool isFollowingEntity = false;
 
 	// GPU side

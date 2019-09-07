@@ -74,7 +74,7 @@ void Game::Setup(){
 	Mesh* animatedMesh = new Mesh();
 	MeshDeformer* animatedMeshDeformer = new MeshDeformer();
 
-	Entity* animatedEntity = new Entity(
+	animatedEntity = new Entity(
 		{0.025f, 0.025f, 0.025f},
 		{ 0, 0, 10},
 		{0,0,0,0},

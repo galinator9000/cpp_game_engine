@@ -189,7 +189,7 @@ void Camera::Rotate(float xDelta, float yDelta) {
 		// -PI/2 and 0 in radians
 		// -90 and 0 in degrees
 		if (this->rotation.x >= 0) {
-			this->rotation.x = -0.0001;
+			this->rotation.x = -0.0001f;
 		}
 		else if (this->rotation.x <= -(dx::XM_PI / 4)) {
 			this->rotation.x = -(dx::XM_PI * 0.2499f);
@@ -216,8 +216,8 @@ void Camera::Rotate(float xDelta, float yDelta) {
 // Entity following functionality.
 void Camera::followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followEntityOffset) {
 	this->followedEntity = followEntity;
-	this->entityCenterOffset = entityCenterOffset;
-	this->followEntityOffset = followEntityOffset;
+	this->entityCenterOffset = dx::XMFLOAT3(entityCenterOffset.x, entityCenterOffset.y, entityCenterOffset.z);
+	this->followEntityOffset = dx::XMFLOAT3(followEntityOffset.x, followEntityOffset.y, followEntityOffset.z);
 
 	// Set values to initial values.
 	float currentMovementSpeed = initialMovementSpeed;
@@ -228,5 +228,7 @@ void Camera::followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vect
 }
 
 void Camera::scaleFollowOffset(Vector3 scaling) {
-	this->followEntityOffset = this->followEntityOffset * scaling;
+	this->followEntityOffset.x = this->followEntityOffset.x * scaling.x;
+	this->followEntityOffset.y = this->followEntityOffset.y * scaling.y;
+	this->followEntityOffset.z = this->followEntityOffset.z * scaling.z;
 }

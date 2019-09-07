@@ -18,6 +18,8 @@ public:
 		WIDTH / HEIGHT
 	);
 
+	Entity* animatedEntity;
+
 	Entity* parentBoxEntity;
 	Entity* childBoxEntity1;
 	Entity* childBoxEntity2;
