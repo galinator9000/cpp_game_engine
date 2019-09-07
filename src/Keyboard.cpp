@@ -14,7 +14,6 @@ void Keyboard::OnKeyPress(WPARAM wParam, LPARAM lParam) {
 
 void Keyboard::OnKeyRelease(WPARAM wParam, LPARAM lParam) {
 	this->keyStatus[wParam] = false;
-
 }
 
 void Keyboard::OnChar(WPARAM wParam, LPARAM lParam) {

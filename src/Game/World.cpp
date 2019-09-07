@@ -136,6 +136,27 @@ void World::setCamera(Camera* camera) {
 	this->pGfx->activateCamera(this->activeCamera);
 }
 
+void World::switchCamera() {
+	// If there's only one camera, simply return.
+	if (this->allCameras.size() <= 1) {
+		return;
+	}
+
+	unsigned int nextCamID = this->activeCamera->id;
+	while(nextCamID <= (unsigned int) this->allCameras.size()-1){
+		nextCamID++;
+		if (nextCamID >= this->allCameras.size()) {
+			nextCamID = 0;
+		}
+
+		if (this->allCameras.at(nextCamID) != NULL) {
+			break;
+		}
+	}
+
+	this->setCamera(this->allCameras.at(nextCamID));
+}
+
 // Texture
 void World::createTexture(Texture* texture) {
 	this->allTextures.push_back(texture);

@@ -1,71 +1,237 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Plane">
-    <Position X="1" Y="0.75" Width="1.5" />
+  <Class Name="Animator" Collapsed="true">
+    <Position X="7" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACQAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Keyframe" Collapsed="true">
+    <Position X="5.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAEAAAAAQAAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Animation" Collapsed="true">
+    <Position X="5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAgAAAEIAAAAAAAAAAAAEA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="JointTransform" Collapsed="true">
+    <Position X="7" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAgAAAAABAAAAAAAAAFAAAAAAAAAAIAQgA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\JointTransform.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Skeleton" Collapsed="true">
+    <Position X="5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABCAAAAAAAAAAAAAAAAQAAAAAACAAAEAAAAAA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\Skeleton.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="gJoints" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Joint" Collapsed="true">
+    <Position X="5.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAEAAAAIAAAAgAAlAgAAABAAAAAAAgA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\Joint.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MeshDeformer" Collapsed="true">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <AssociationLine Name="gAnimator" Type="Animator" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.5" Y="1.062" />
+        <Point X="7.5" Y="1.312" />
+        <Point X="6.75" Y="1.312" />
+        <Point X="6.75" Y="1.625" />
+        <Point X="7" Y="1.625" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>ACQAAAABCAAgAUAgAAAAAMAAAAAAAgACAAggAABAAAA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\MeshDeformer\MeshDeformer.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="gAnimator" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Mesh" Collapsed="true">
+    <Position X="4.75" Y="0.5" Width="1.5" />
+    <AssociationLine Name="gSkeleton" Type="Skeleton" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="4.75" Y="0.953" />
+        <Point X="4.375" Y="0.953" />
+        <Point X="4.375" Y="1.437" />
+        <Point X="4.625" Y="1.437" />
+        <Point X="4.625" Y="3.125" />
+        <Point X="5" Y="3.125" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="gAnimations" Type="Animation" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.5" Y="1.062" />
+        <Point X="5.5" Y="1.25" />
+        <Point X="4.75" Y="1.25" />
+        <Point X="4.75" Y="1.537" />
+        <Point X="5" Y="1.537" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAIwAAAAAAAACCAAAoQgAAAAAAAAAAIAwA=</HashCode>
+      <FileName>src\Game\Entity\Mesh\Mesh.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="gSkeleton" />
+      <Field Name="gAnimations" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Light" Collapsed="true">
+    <Position X="1.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAQAABIAgAAABAAAAACAAAAKAAABAIACAAAAAAAAAgA=</HashCode>
+      <FileName>src\Game\Light\Light.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Game" Collapsed="true">
+    <Position X="2.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAACAAAAAAAAAgAAAAAAAiAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>src\Game\Game.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Camera" Collapsed="true">
+    <Position X="4.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAQaAQIAAKAAwAAAAACAIGAAEAAQEAACAAAAAQAAAoA=</HashCode>
+      <FileName>src\Game\Camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DirectionalLight" Collapsed="true">
+    <Position X="2.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Game\Light\DirectionalLight.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Plane" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
-      <FileName>src\Game\Plane.h</FileName>
+      <FileName>src\Game\Entity\Primitives\NonDrawable\Plane.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Box">
-    <Position X="4.5" Y="0.5" Width="1.75" />
+  <Class Name="Box" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAABAAAIAAYAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>src\Game\Box.h</FileName>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAAAIAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Game\Entity\Primitives\Box.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="BaseEntity">
-    <Position X="2.75" Y="0.5" Width="1.5" />
+  <Class Name="Entity" Collapsed="true">
+    <Position X="1.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>QAgAIAAAABAIwgAAAACBAACAAggBAwAAAEAAAAAAAgA=</HashCode>
-      <FileName>src\Game\BaseEntity.h</FileName>
+      <HashCode>ECQgAAIAABEhFgAAAYKgIAECAARBA2ACAEAEAwAoAgA=</HashCode>
+      <FileName>src\Game\Entity\Entity.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mesh" />
+      <Field Name="meshDeformer" />
+      <Field Name="texture" />
+      <Field Name="textureSampler" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="PointLight" Collapsed="true">
+    <Position X="1" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>src\Game\Light\PointLight.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Physics">
-    <Position X="7.75" Y="2.75" Width="1.5" />
+  <Class Name="Physics" Collapsed="true">
+    <Position X="1" Y="6.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EARAAAEIAAAAACCAAAIAAAAAAAAAAAAAAAAAAICAgAA=</HashCode>
       <FileName>src\Physics.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Graphics">
-    <Position X="9.5" Y="2.75" Width="2.75" />
+  <Class Name="Graphics" Collapsed="true">
+    <Position X="2.75" Y="6.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAAAAIAAiAAAACAAAAAAAAAACAABAAICBAgAABDABFE=</HashCode>
+      <HashCode>EAAIiIAgiAAAACAQEAAAAACACAABABICBCgAABDABFE=</HashCode>
       <FileName>src\Graphics.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Exception" Collapsed="true">
-    <Position X="0.75" Y="5.5" Width="1.5" />
+    <Position X="6.25" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
       <FileName>src\Exception.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Window" Collapsed="true">
-    <Position X="2.5" Y="5.5" Width="1.5" />
+  <Class Name="Keyboard" Collapsed="true">
+    <Position X="8" Y="6.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAEAQAAABAAAAAAIEAAAAAEAAAACAAASAAAAAA=</HashCode>
+      <HashCode>AggAAAAAAAAAAAAAAAAAAAAQAAAAYAAAABAAAAAAAAA=</HashCode>
+      <FileName>src\Keyboard.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Mouse" Collapsed="true">
+    <Position X="8" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AARAAAAAAAAAAgAAYUEAABQAACAAEgAxAAAA0AABQAA=</HashCode>
+      <FileName>src\Mouse.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FBX_Importer" Collapsed="true">
+    <Position X="8" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAgAQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Utils\FBX_Importer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Window" Collapsed="true">
+    <Position X="1" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEQQAAABQAQAAAIEAAAgAMAAAACAIASAAAAAA=</HashCode>
       <FileName>src\Window.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="World">
-    <Position X="7" Y="0.5" Width="4.5" />
+  <Class Name="World" Collapsed="true">
+    <Position X="2.75" Y="7.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAAAggBAAAAAAAAAAAAAAAAAAACAAAAAAAACAAAA=</HashCode>
+      <HashCode>AASCBAAgiBAABAoAAAAAAAAABIAQADACABAIAACAABA=</HashCode>
       <FileName>src\Game\World.h</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="pGfx" />
-      <Field Name="pPhy" />
-    </ShowAsAssociation>
   </Class>
-  <Enum Name="EXIT" Collapsed="true">
-    <Position X="4.25" Y="5.5" Width="1.5" />
+  <Class Name="Timer" Collapsed="true">
+    <Position X="8" Y="8.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
-      <FileName>src\Main.h</FileName>
+      <HashCode>AAAAAAAAAAAEBIAAAAAAAAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>src\Timer.h</FileName>
     </TypeIdentifier>
-  </Enum>
+  </Class>
+  <Class Name="Texture" Collapsed="true">
+    <Position X="9" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAiAAAAAAAAAQAAAAAAAAAAAAAAAAAAEIAAAAAAAA=</HashCode>
+      <FileName>src\Game\Texture.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TextureSampler" Collapsed="true">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgAAAAAAgA=</HashCode>
+      <FileName>src\Game\TextureSampler.h</FileName>
+    </TypeIdentifier>
+  </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

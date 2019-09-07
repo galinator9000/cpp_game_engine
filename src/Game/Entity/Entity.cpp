@@ -9,8 +9,7 @@ Entity::Entity(){}
 Entity::Entity(
 	Vector3 size, Vector3 position, Vector4 rotationQ,
 	Color color, Vector3 material,
-	Mesh* mesh,
-	Vector3 rotationPivotPoint
+	Mesh* mesh
 ){
 	// Graphics
 	this->entityMaterial.color = color;
@@ -30,9 +29,6 @@ Entity::Entity(
 	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
 	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
-
-	// Pivot point position for rotation is relative to model space.
-	this->gRotationPivotPoint = dx::XMFLOAT3(rotationPivotPoint.x, rotationPivotPoint.y, rotationPivotPoint.z);
 
 	// Set properties of the entity.
 	this->isDynamic = false;
@@ -66,8 +62,6 @@ void Entity::updateConstantBuffer() {
 			// Local
 			dx::XMMatrixScalingFromVector(dx::XMLoadFloat3(&this->gSize)) *
 
-			// Translate to pivot point.
-			dx::XMMatrixTranslation(-this->gRotationPivotPoint.x, -this->gRotationPivotPoint.y, -this->gRotationPivotPoint.z) *
 			dx::XMMatrixRotationQuaternion(
 				dx::XMQuaternionRotationAxis(
 					dx::XMLoadFloat3(
@@ -80,8 +74,6 @@ void Entity::updateConstantBuffer() {
 					this->gRotationQ.w
 				)
 			) *
-			// Translate back to original point.
-			dx::XMMatrixTranslation(this->gRotationPivotPoint.x, this->gRotationPivotPoint.y, this->gRotationPivotPoint.z) *
 
 			dx::XMMatrixTranslationFromVector(dx::XMLoadFloat3(&this->gPosition))
 		)
@@ -220,5 +212,6 @@ void Entity::Scale(Vector3 scalingVector){
 	this->gSize.x *= scalingVector.x;
 	this->gSize.y *= scalingVector.y;
 	this->gSize.z *= scalingVector.z;
+
 	this->dataChanged = true;
 }

@@ -29,8 +29,7 @@ public:
 	Entity(
 		Vector3 size, Vector3 position, Vector4 rotationQ,
 		Color color, Vector3 material,
-		Mesh* mesh = NULL,
-		Vector3 rotationPivotPoint = Vector3(0,0,0)
+		Mesh* mesh = NULL
 	);
 	virtual void Update();
 	virtual void Reset();
@@ -40,6 +39,7 @@ public:
 	unsigned int id;
 	bool isDynamic;
 	bool isDrawable = false;
+	bool dataChanged;
 
 	//// Physics
 	static PxPhysics* ppxPhysics;
@@ -50,7 +50,6 @@ public:
 	dx::XMFLOAT3 gSize;
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
-	dx::XMFLOAT3 gRotationPivotPoint;
 	EntityMaterial entityMaterial;
 
 	void Translate(Vector3 translationVector);
@@ -65,7 +64,7 @@ public:
 	bool useTexture = false;
 
 	// Hierarchy system
-	Entity* parentEntity;
+	Entity* parentEntity = NULL;
 	std::vector<Entity*> childEntities;
 	void attachChild(Entity* child);
 	void detachChild(Entity* child);
@@ -87,7 +86,6 @@ public:
 	EntityPSConstantBuffer gEntityPSConstantBuffer;
 	virtual void updateConstantBuffer();
 	bool shouldUpdateGPUData;
-	bool dataChanged;
 
 	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;

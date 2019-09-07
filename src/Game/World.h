@@ -29,6 +29,7 @@ public:
 	// Camera functions
 	void addCamera(Camera* camera, bool setAsMain=false);
 	void setCamera(Camera* camera);
+	void switchCamera();
 
 	// Texture functions
 	void createTexture(Texture* texture);

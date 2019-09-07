@@ -48,6 +48,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			pMouse->freeCursor();
 		}
 
+		// Switch camera with TAB
+		if (pKeyb->isKeyPressed(VK_TAB)) {
+			pWorld->switchCamera();
+		}
+
 		// Camera position
 		if (pKeyb->isKeyPressed('W') || pKeyb->isKeyPressed(VK_UP)) {
 			pWorld->activeCamera->Move(
