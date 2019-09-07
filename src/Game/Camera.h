@@ -20,13 +20,6 @@ public:
 	void Move(Vector3 moveDir, bool moveFast);
 	void Rotate(float x, float y);
 
-	// Local transformations
-	void moveCamera(Vector3 moveDir, bool moveFast);
-	void rotateCamera(float x, float y);
-
-	// Rotate around followed entity.
-	void rotateCameraEntity(float x, float y);
-
 	// Movement factors
 	const float fastMovementFactor = 1.02f;
 	bool wasMovingFast;
@@ -35,10 +28,11 @@ public:
 	float currentMovementSpeed = initialMovementSpeed;
 	float currentRotationSpeed = initialRotationSpeed;
 
-	// Entity to be followed
+	// Entity following functionality
 	void followEntity(Entity* followEntity, Vector3 followOffset);
+	void scaleFollowOffset(Vector3 scaling);
 	Entity* followedEntity = NULL;
-	Vector3 followOffset = Vector3(0, 0, 0);
+	Vector3 followOffset = Vector3();
 	bool isFollowingEntity = false;
 
 	// GPU side
@@ -47,8 +41,8 @@ public:
 	bool shouldUpdateGPUData = false;
 	bool hasChanged = false;
 
-	dx::XMFLOAT3 lookDirection;
-	dx::XMFLOAT3 rotation;
+	Vector3 rotation;
 	dx::XMFLOAT3 camPosition;
 	dx::XMFLOAT3 camLookAt;
+	dx::XMFLOAT3 lookDirection;
 };

@@ -6,6 +6,7 @@ class Window{
 public:
 	Window(HINSTANCE hInstance, LPCWSTR title, int width, int height);
 
+	void Setup(Keyboard* keyboard, Mouse* mouse);
 	void SetTitle(LPCWSTR title);
 	HWND GetHandler();
 	bool ProcessMessages();

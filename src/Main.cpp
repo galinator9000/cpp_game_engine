@@ -1,8 +1,6 @@
 #include "Main.h"
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-	// Setup engine
-
 	// Main window class
 	Window* pMainWnd = new Window(
 		hInstance,
@@ -14,12 +12,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Input to window
 	Keyboard* pKeyb = new Keyboard();
 	Mouse* pMouse = new Mouse();
+	pMainWnd->Setup(pKeyb, pMouse);
 
-	pMainWnd->keyb = pKeyb;
-	pMainWnd->mouse = pMouse;
-	pMainWnd->updateBounds();
-
-	// Create graphics and physics components
+	// Create graphics and physics component
 	Graphics* pGfx = new Graphics(
 		pMainWnd->GetHandler(),
 		WIDTH,
@@ -27,6 +22,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		REFRESH_RATE
 	);
 	Physics* pPhy = new Physics({ 0.0f, -9.81f, 0.0f }, 60.0f);
+
+	// Entities creates their own physics representation.
 	Entity::ppxPhysics = pPhy->pxPhysics;
 
 	// Create world.

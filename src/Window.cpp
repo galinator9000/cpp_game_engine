@@ -39,6 +39,12 @@ Window::Window(HINSTANCE hInstance, LPCWSTR title, int width, int height) {
 	RegisterRawInputDevices(&rid, 1, sizeof(rid));
 }
 
+void Window::Setup(Keyboard* keyboard, Mouse* mouse) {
+	this->keyb = keyboard;
+	this->mouse = mouse;
+	this->updateBounds();
+}
+
 LRESULT Window::WndProcSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (uMsg == WM_NCCREATE){
 		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
