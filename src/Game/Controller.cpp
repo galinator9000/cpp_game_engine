@@ -1,0 +1,71 @@
+#include "Controller.h"
+
+void Controller::Setup(World* world, Keyboard* keyb, Mouse* mouse) {
+	this->pWorld = world;
+	this->pKeyb = keyb;
+	this->pMouse = mouse;
+}
+
+void Controller::Update() {
+	// Keyboard
+	if (this->pKeyb->isKeyPressed(VK_ESCAPE)) {
+		this->pMouse->freeCursor();
+	}
+
+	// Switch camera with TAB
+	if (this->pKeyb->isKeyPressed(VK_TAB)) {
+		this->pWorld->switchCamera();
+	}
+
+	// Camera position
+	if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {
+		this->pWorld->activeCamera->Move(
+			Vector3(0.0f, 0.0f, 1.0f),
+			this->pKeyb->isKeyPressed(VK_CONTROL)
+		);
+	}
+	if (this->pKeyb->isKeyPressed('S') || this->pKeyb->isKeyPressed(VK_DOWN)) {
+		this->pWorld->activeCamera->Move(
+			Vector3(0.0f, 0.0f, -1.0f),
+			this->pKeyb->isKeyPressed(VK_CONTROL)
+		);
+	}
+	if (this->pKeyb->isKeyPressed('A') || this->pKeyb->isKeyPressed(VK_LEFT)) {
+		this->pWorld->activeCamera->Move(
+			Vector3(-1.0f, 0.0f, 0.0f),
+			this->pKeyb->isKeyPressed(VK_CONTROL)
+		);
+	}
+	if (this->pKeyb->isKeyPressed('D') || this->pKeyb->isKeyPressed(VK_RIGHT)) {
+		this->pWorld->activeCamera->Move(
+			Vector3(1.0f, 0.0f, 0.0f),
+			this->pKeyb->isKeyPressed(VK_CONTROL)
+		);
+	}
+	if (this->pKeyb->isKeyPressed(' ')) {
+		this->pWorld->activeCamera->Move(
+			Vector3(0.0f, 1.0f, 0.0f),
+			false
+		);
+	}
+	if (this->pKeyb->isKeyPressed('C')) {
+		this->pWorld->activeCamera->Move(
+			Vector3(0.0f, -1.0f, 0.0f),
+			false
+		);
+	}
+
+	// Mouse
+	// Camera rotation (Pitch, Yaw)
+	if (this->pMouse->rawAccumulateX != 0 || this->pMouse->rawAccumulateY != 0) {
+		this->pWorld->activeCamera->Rotate((float) this->pMouse->rawAccumulateX, (float) this->pMouse->rawAccumulateY);
+	}
+
+	if (this->pWorld->activeCamera->isFollowingEntity && this->pMouse->wheelRotateCountDirection != 0) {
+		this->pWorld->activeCamera->Zoom(this->pMouse->wheelRotateCountDirection);
+	}
+}
+
+void Controller::Reset() {
+	this->pMouse->Reset();
+}

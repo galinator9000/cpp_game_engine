@@ -9,10 +9,12 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		HEIGHT
 	);
 
+	// Controller class which is a wrapper for keyboard and mouse classes.
+	Controller* pController = new Controller();
+
 	// Input to window
 	Keyboard* pKeyb = new Keyboard();
 	Mouse* pMouse = new Mouse();
-	pMainWnd->Setup(pKeyb, pMouse);
 
 	// Create graphics and physics component
 	Graphics* pGfx = new Graphics(
@@ -26,76 +28,28 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Entities creates their own physical representations.
 	Entity::ppxPhysics = pPhy->pxPhysics;
 
-	// Create world.
+	// Create world and game classes.
+	// World is integrates physics and graphics components.
 	World* pWorld = new World(pGfx, pPhy);
 	pWorld->Setup();
 
+	// Game is setups scene.
 	Game* pGame = new Game(pWorld);
 	pGame->Setup();
 
+	// Connect window and controller with keyboard and mouse.
+	pMainWnd->Setup(pKeyb, pMouse);
+	pController->Setup(pWorld, pKeyb, pMouse);
+
 	// Main loop of the engine
 	while (pMainWnd->ProcessMessages()){
-		//// Update section
+		// Update section
 		pWorld->Update();
 		pGame->Update();
+		pController->Update();
 
-		//// Input handling section
-		// Keyboard
-		if (pKeyb->isKeyPressed(VK_ESCAPE)) {
-			pMouse->freeCursor();
-		}
-
-		// Switch camera with TAB
-		if (pKeyb->isKeyPressed(VK_TAB)) {
-			pWorld->switchCamera();
-		}
-
-		// Camera position
-		if (pKeyb->isKeyPressed('W') || pKeyb->isKeyPressed(VK_UP)) {
-			pWorld->activeCamera->Move(
-				Vector3(0.0f, 0.0f, 1.0f),
-				pKeyb->isKeyPressed(VK_CONTROL)
-			);
-		}
-		if (pKeyb->isKeyPressed('S') || pKeyb->isKeyPressed(VK_DOWN)) {
-			pWorld->activeCamera->Move(
-				Vector3(0.0f, 0.0f, -1.0f),
-				pKeyb->isKeyPressed(VK_CONTROL)
-			);
-		}
-		if (pKeyb->isKeyPressed('A') || pKeyb->isKeyPressed(VK_LEFT)) {
-			pWorld->activeCamera->Move(
-				Vector3(-1.0f, 0.0f, 0.0f),
-				pKeyb->isKeyPressed(VK_CONTROL)
-			);
-		}
-		if (pKeyb->isKeyPressed('D') || pKeyb->isKeyPressed(VK_RIGHT)) {
-			pWorld->activeCamera->Move(
-				Vector3(1.0f, 0.0f, 0.0f),
-				pKeyb->isKeyPressed(VK_CONTROL)
-			);
-		}
-		if (pKeyb->isKeyPressed(' ')) {
-			pWorld->activeCamera->Move(
-				Vector3(0.0f, 1.0f, 0.0f),
-				false
-			);
-		}
-		if (pKeyb->isKeyPressed('C')) {
-			pWorld->activeCamera->Move(
-				Vector3(0.0f, -1.0f, 0.0f),
-				false
-			);
-		}
-
-		// Mouse
-		// Camera rotation (Pitch, Yaw)
-		if(pMouse->rawAccumulateX != 0 || pMouse->rawAccumulateY != 0){
-			pWorld->activeCamera->Rotate((float) pMouse->rawAccumulateX, (float)pMouse->rawAccumulateY);
-		}
-
-		//// Reset section.
-		pMouse->resetRawAccumulate();
+		// Reset section
+		pController->Reset();
 		pWorld->Reset();
 	}
 

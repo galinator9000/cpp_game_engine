@@ -64,90 +64,85 @@ LRESULT Window::WndProcForward(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-	// Keyboard messages
-	// Key strokes
-	case WM_KEYDOWN:
-		this->keyb->OnKeyPress(wParam, lParam);
-		break;
-	case WM_KEYUP:
-		this->keyb->OnKeyRelease(wParam, lParam);
-		break;
+		// Keyboard messages
+		// Key strokes
+		case WM_KEYDOWN:
+			this->keyb->OnKeyPress(wParam, lParam);
+			break;
+		case WM_KEYUP:
+			this->keyb->OnKeyRelease(wParam, lParam);
+			break;
 
-	// Character
-	case WM_CHAR:
-		this->keyb->OnChar(wParam, lParam);
-		break;
-	case WM_UNICHAR:
-		this->keyb->OnChar(wParam, lParam);
-		break;
+		// Character
+		case WM_CHAR:
+			this->keyb->OnChar(wParam, lParam);
+			break;
+		case WM_UNICHAR:
+			this->keyb->OnChar(wParam, lParam);
+			break;
 
-	// Mouse messages
-	case WM_MOUSEMOVE:
-		this->mouse->OnMove(wParam, lParam);
-		break;
-	case WM_MOUSELEAVE:
-		this->mouse->OnLeave(wParam, lParam);
-		break;
-	case WM_MOUSEHOVER:
-		this->mouse->OnHover(wParam, lParam);
-		break;
-	case WM_LBUTTONDOWN: {
-		this->updateBounds();
-
-		// Confine cursor to current window's bounds.
-		this->mouse->confineCursor();
-		this->mouse->OnLeftPress(wParam, lParam);
-		break;
-	}
-	case WM_LBUTTONUP:
-		this->mouse->OnLeftRelease(wParam, lParam);
-		break;
-	case WM_RBUTTONDOWN:
-		this->mouse->OnRightPress(wParam, lParam);
-		break;
-	case WM_RBUTTONUP:
-		this->mouse->OnRightRelease(wParam, lParam);
-		break;
-	case WM_MOUSEWHEEL:
-		this->mouse->OnWheelMove(wParam, lParam);
-		break;
-
-	// Raw messages
-	case WM_INPUT: {
-		unsigned int pcbSize = 0;
-		GetRawInputData(
-			(HRAWINPUT) lParam,
-			RID_INPUT,
-			NULL,
-			&pcbSize,
-			sizeof(RAWINPUTHEADER)
-		);
-
-		byte* pData = new byte[pcbSize];
-		GetRawInputData(
-			(HRAWINPUT) lParam,
-			RID_INPUT,
-			pData,
-			&pcbSize,
-			sizeof(RAWINPUTHEADER)
-		);
-		RAWINPUT* raw = (RAWINPUT*) pData;
-
-		// Raw mouse handling
-		if (raw->header.dwType == RIM_TYPEMOUSE) {
-			this->mouse->OnMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+		// Mouse messages
+		case WM_MOUSEMOVE:
+			this->mouse->OnMove(wParam, lParam);
+			break;
+		case WM_LBUTTONDOWN: {
+			this->updateBounds();
+			// Confine cursor to current window's bounds.
+			this->mouse->confineCursor();
+			this->mouse->OnLeftPress(wParam, lParam);
+			break;
 		}
+		case WM_LBUTTONUP:
+			this->mouse->OnLeftRelease(wParam, lParam);
+			break;
+		case WM_RBUTTONDOWN:
+			this->mouse->OnRightPress(wParam, lParam);
+			break;
+		case WM_RBUTTONUP:
+			this->mouse->OnRightRelease(wParam, lParam);
+			break;
+		case WM_MOUSEWHEEL:
+			this->mouse->OnWheelMove(wParam, lParam);
+			break;
+		case WM_KILLFOCUS:
+			this->mouse->freeCursor();
+			break;
 
-		break;
-	};
+		// Raw messages
+		case WM_INPUT: {
+			unsigned int pcbSize = 0;
+			GetRawInputData(
+				(HRAWINPUT)lParam,
+				RID_INPUT,
+				NULL,
+				&pcbSize,
+				sizeof(RAWINPUTHEADER)
+			);
 
-	// Other messages
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
-		break;
+			byte* pData = new byte[pcbSize];
+			GetRawInputData(
+				(HRAWINPUT)lParam,
+				RID_INPUT,
+				pData,
+				&pcbSize,
+				sizeof(RAWINPUTHEADER)
+			);
+			RAWINPUT* raw = (RAWINPUT*)pData;
+
+			// Raw mouse handling
+			if (raw->header.dwType == RIM_TYPEMOUSE) {
+				this->mouse->OnMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+			}
+
+			break;
+		};
+		// Other messages
+		case WM_CLOSE:
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+			break;
 	}
 }
 

@@ -8,7 +8,7 @@ public:
 	Mouse();
 
 	// Game Engine
-	void resetRawAccumulate();
+	void Reset();
 	bool confineCursor();
 	bool freeCursor();
 	void hideCursor();
@@ -22,8 +22,6 @@ public:
 	void OnMove(WPARAM wParam, LPARAM lParam);
 	void OnMoveRaw(signed long deltaX, signed long deltaY);
 	void OnWheelMove(WPARAM wParam, LPARAM lParam);
-	void OnLeave(WPARAM wParam, LPARAM lParam);
-	void OnHover(WPARAM wParam, LPARAM lParam);
 
 	bool leftPressed = false;
 	bool rightPressed = false;
@@ -32,6 +30,9 @@ public:
 	unsigned int posY = 0;
 	signed long rawAccumulateX = 0;
 	signed long rawAccumulateY = 0;
+
+	signed short wheelAccumulate = 0;
+	int wheelRotateCountDirection;
 
 	LPRECT pRect;
 private:

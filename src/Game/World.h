@@ -30,13 +30,12 @@ public:
 	void addCamera(Camera* camera, bool setAsMain=false);
 	void setCamera(Camera* camera);
 	void switchCamera();
+	// Active camera pointer.
+	Camera* activeCamera = NULL;
 
 	// Texture functions
 	void createTexture(Texture* texture);
 	void createTextureSampler(TextureSampler* textureSampler);
-
-	// Main camera pointer.
-	Camera* activeCamera;
 
 	// List for keeping track of various objects in world.
 	std::vector<Entity*> allEntities;

@@ -227,8 +227,26 @@ void Camera::followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vect
 	this->isFollowingEntity = true;
 }
 
-void Camera::scaleFollowOffset(Vector3 scaling) {
-	this->followEntityOffset.x = this->followEntityOffset.x * scaling.x;
-	this->followEntityOffset.y = this->followEntityOffset.y * scaling.y;
-	this->followEntityOffset.z = this->followEntityOffset.z * scaling.z;
+void Camera::Zoom(int zoomDirection) {
+	if (this->isFollowingEntity){
+		// Calculate direction of the offset.
+		dx::XMFLOAT3 followEntityOffsetDirection;
+		dx::XMStoreFloat3(
+			&followEntityOffsetDirection,
+			dx::XMVector3Normalize(
+				dx::XMLoadFloat3(&this->followEntityOffset)
+			)
+		);
+
+		this->followEntityOffset.x += followEntityOffsetDirection.x * (zoomDirection * this->zoomFactor);
+		this->followEntityOffset.y += followEntityOffsetDirection.y * (zoomDirection * this->zoomFactor);
+		this->followEntityOffset.z += followEntityOffsetDirection.z * (zoomDirection * this->zoomFactor);
+
+		float distToCenter = abs(this->followEntityOffset.x) + abs(this->followEntityOffset.y) + abs(this->followEntityOffset.z);
+		if(distToCenter < this->minDistanceToEntity || distToCenter > this->maxDistanceToEntity) {
+			this->followEntityOffset.x -= followEntityOffsetDirection.x * (zoomDirection * this->zoomFactor);
+			this->followEntityOffset.y -= followEntityOffsetDirection.y * (zoomDirection * this->zoomFactor);
+			this->followEntityOffset.z -= followEntityOffsetDirection.z * (zoomDirection * this->zoomFactor);
+		}
+	}
 }

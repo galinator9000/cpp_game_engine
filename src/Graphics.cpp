@@ -483,7 +483,7 @@ void Graphics::bindLightsBuffer(ID3D11Buffer* pAllLights) {
 }
 
 // Camera
-void Graphics::addCamera(Camera* camera, bool setAsMAin) {
+void Graphics::addCamera(Camera* camera, bool setAsMain) {
 	// Create buffer for View and Projection matrices on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = sizeof(camera->gCameraVSConstantBuffer);
@@ -497,7 +497,7 @@ void Graphics::addCamera(Camera* camera, bool setAsMAin) {
 		&(camera->pCameraVSConstantBuffer)
 	);
 
-	if (setAsMAin) {
+	if (setAsMain) {
 		this->activateCamera(camera);
 	}
 }

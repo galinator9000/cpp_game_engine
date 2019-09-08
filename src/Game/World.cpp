@@ -124,7 +124,7 @@ void World::addCamera(Camera* camera, bool setAsMain){
 	camera->id = (unsigned int)this->allCameras.size();
 	this->allCameras.push_back(camera);
 
-	if(setAsMain){
+	if(setAsMain || this->activeCamera == NULL){
 		this->setCamera(camera);
 	}
 

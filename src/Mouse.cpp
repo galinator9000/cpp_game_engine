@@ -5,9 +5,11 @@ Mouse::Mouse(){
 }
 
 // Game Engine
-void Mouse::resetRawAccumulate(){
+void Mouse::Reset(){
 	this->rawAccumulateX = 0;
 	this->rawAccumulateY = 0;
+
+	this->wheelRotateCountDirection = 0;
 }
 
 bool Mouse::confineCursor(){
@@ -79,13 +81,14 @@ void Mouse::OnMoveRaw(signed long deltaX, signed long deltaY){
 }
 
 void Mouse::OnWheelMove(WPARAM wParam, LPARAM lParam){
-	
-}
+	this->wheelAccumulate += GET_WHEEL_DELTA_WPARAM(wParam);
 
-void Mouse::OnLeave(WPARAM wParam, LPARAM lParam){
-
-}
-
-void Mouse::OnHover(WPARAM wParam, LPARAM lParam){
-
+	while(this->wheelAccumulate >= WHEEL_DELTA) {
+		this->wheelAccumulate -= WHEEL_DELTA;
+		this->wheelRotateCountDirection--;
+	}
+	while(this->wheelAccumulate <= -WHEEL_DELTA) {
+		this->wheelAccumulate += WHEEL_DELTA;
+		this->wheelRotateCountDirection++;
+	}
 }

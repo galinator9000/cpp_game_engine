@@ -22,6 +22,7 @@ public:
 
 	// Movement factors
 	const float fastMovementFactor = 1.02f;
+	const float zoomFactor = 1.02f;
 	bool wasMovingFast;
 	const float initialMovementSpeed = 0.15f;
 	const float initialRotationSpeed = 0.005f;
@@ -30,8 +31,11 @@ public:
 
 	// Entity following functionality
 	void followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followOffset);
-	void scaleFollowOffset(Vector3 scaling);
+	void Zoom(int zoomDirection);
 	Entity* followedEntity = NULL;
+
+	const float minDistanceToEntity = 5.0f;
+	const float maxDistanceToEntity = 20.0f;
 	dx::XMFLOAT3 followEntityOffset = dx::XMFLOAT3();
 	dx::XMFLOAT3 entityCenterOffset = dx::XMFLOAT3();
 	bool isFollowingEntity = false;

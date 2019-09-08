@@ -44,6 +44,7 @@ void Animator::Update(JointTransform** jointTransforms, unsigned int gJointCount
 
 void Animator::setAnimation(Animation* animation) {
 	this->currentAnimation = animation;
+	this->timer.Reset();
 }
 
 dx::XMFLOAT4X4 Animator::interpolateTransformationMatrix(
