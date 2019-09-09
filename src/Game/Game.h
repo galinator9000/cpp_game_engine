@@ -3,12 +3,14 @@
 // Game world
 #include "World.h"
 #include "Config.h"
+#include "Controller.h"
+#include "Character/Character.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
 
 class Game{
 public:
-	Game(World* pWorld);
+	Game(World* pWorld, Controller* pMainController);
 	void Setup();
 	void Update();
 
@@ -20,12 +22,8 @@ public:
 
 	Entity* animatedEntity;
 
-	Entity* parentBoxEntity;
-	Entity* childBoxEntity1;
-	Entity* childBoxEntity2;
-	Entity* childBoxEntity3;
-	Entity* childBoxEntity4;
-
-	Timer timer;
+	// Base components for a scene.
 	World* pWorld;
+	Controller* pMainController;
+	Timer timer;
 };

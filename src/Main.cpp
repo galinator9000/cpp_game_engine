@@ -34,7 +34,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	pWorld->Setup();
 
 	// Game is setups scene.
-	Game* pGame = new Game(pWorld);
+	Game* pGame = new Game(pWorld, pController);
 	pGame->Setup();
 
 	// Connect window and controller with keyboard and mouse.

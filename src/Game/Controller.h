@@ -3,9 +3,10 @@
 #pragma comment(lib, "user32.lib")
 #include <Windowsx.h>
 
+#include "World.h"
 #include "Keyboard.h"
 #include "Mouse.h"
-#include "World.h"
+#include "Character/Character.h"
 
 class Controller{
 public:
@@ -16,4 +17,8 @@ public:
 	World* pWorld;
 	Keyboard* pKeyb;
 	Mouse* pMouse;
+
+	// Main character pointer
+	Character* pMainCharacter;
+	void setMainCharacter(Character* character);
 };

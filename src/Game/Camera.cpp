@@ -185,11 +185,9 @@ void Camera::Rotate(float xDelta, float yDelta) {
 		this->rotation.x -= yDelta;
 		this->rotation.y += xDelta;
 
-		// Clip Pitch (Rotation on X axis) value to
-		// -PI/2 and 0 in radians
-		// -90 and 0 in degrees
-		if (this->rotation.x >= 0) {
-			this->rotation.x = -0.0001f;
+		// Clip Pitch (Rotation on X axis) value.
+		if (this->rotation.x >= (dx::XM_PI / 6)) {
+			this->rotation.x = (dx::XM_PI * 0.1665f);
 		}
 		else if (this->rotation.x <= -(dx::XM_PI / 4)) {
 			this->rotation.x = -(dx::XM_PI * 0.2499f);
