@@ -31,8 +31,8 @@ void Game::Setup(){
 		{ 0, 0, 10},
 		{0,0,0,0},
 		{0.66f, 0.66f, 0.66f, 1},
-		{1,1,1},
-		animatedMesh
+		animatedMesh,
+		{ 1,1,1 }
 	);
 	if (animatedMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
 		animatedEntity->attachMeshDeformer(animatedMeshDeformer);

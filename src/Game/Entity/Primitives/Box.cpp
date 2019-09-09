@@ -10,25 +10,6 @@ Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
 	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
 
-	// Create box shape.
-	/*this->pShape = this->ppxPhysics->createShape(
-		PxBoxGeometry(
-			PxVec3(this->gSize.x, this->gSize.y, this->gSize.z)
-		),
-		*(this->ppxPhysics->createMaterial(material.x, material.y, material.z))
-	);
-
-	// Create box actor.
-	PxTransform transform = PxTransform(
-		PxVec3(this->gPosition.x, this->gPosition.y, this->gPosition.z),
-		PxQuat(this->gRotationQ.x, this->gRotationQ.y, this->gRotationQ.z, this->gRotationQ.w)
-	);
-
-	this->rigidDynamic = this->ppxPhysics->createRigidDynamic(transform);
-	this->rigidDynamic->attachShape(*pShape);
-	PxRigidBodyExt::updateMassAndInertia(*(this->rigidDynamic), 10.0f);
-	this->pActor = this->rigidDynamic;*/
-
 	// Graphics
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 3.0f;

@@ -6,30 +6,42 @@ Entity::Entity(){}
 
 Entity::Entity(
 	Vector3 size, Vector3 position, Vector4 rotationQ,
-	Color color, Vector3 material,
-	Mesh* mesh
+	Color color, Vector3 collisionMaterial,
+	Mesh* mesh,
+	CollisionShape* pCollisionShape = NULL,
+	CollisionActor* pCollisionActor = NULL
 ){
+	// Physics material information
+	this->collisionMaterial.staticFriction = collisionMaterial.x;
+	this->collisionMaterial.dynamicFriction = collisionMaterial.y;
+	this->collisionMaterial.restitution = collisionMaterial.z;
+
 	// Graphics
+	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
+	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
+	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
+
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
 
-	// Attach mesh if it is given to constructor.
+	// Attach mesh object if given.
 	if (mesh != NULL) {
 		this->attachMesh(mesh);
+	}
+
+	// Attach collision objects if given.
+	if (pCollisionShape != NULL) {
+		this->attachCollisionShape(pCollisionShape);
+	}
+	if (pCollisionActor != NULL) {
+		this->attachCollisionActor(pCollisionActor);
 	}
 
 	// Check initial quaternion vector.
 	if (rotationQ == Vector4(0, 0, 0, 0)) {
 		rotationQ.x = 1.0f;
 	}
-
-	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
-	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
-	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
-
-	// Set properties of the entity.
-	this->isDynamic = false;
 
 	this->updateConstantBuffer();
 }
@@ -217,4 +229,8 @@ void Entity::Scale(Vector3 scalingVector){
 //// Physics
 void Entity::attachCollisionShape(CollisionShape* collisionShape) {
 	this->pCollisionShape = collisionShape;
+}
+
+void Entity::attachCollisionActor(CollisionActor* collisionActor) {
+	this->pCollisionActor = collisionActor;
 }

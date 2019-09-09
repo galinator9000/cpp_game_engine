@@ -6,7 +6,7 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 	this->stepPerSecond = stepPerSecond;
 
 	// Create foundation for PhysX.
-	this->pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, this->pxAllocator, this->pxErrorCallback);
+	this->pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, this->pxAllocator, this->pErrorCallback);
 	if (this->pxFoundation == NULL) { OutputDebugStringA("PxCreateFoundation error"); }
 
 	// Create Visual Debugger.
@@ -53,10 +53,49 @@ void Physics::Update(){
 }
 
 bool Physics::addEntity(Entity* pEntity){
-	if (pEntity->pCollisionShape == NULL) {
+	if (pEntity->pCollisionActor == NULL) {
 		return false;
 	}
 
-	this->pxScene->addActor(*(pEntity->pActor));
+	// Material
+	pEntity->pCollisionShape->pMaterial = this->pxPhysics->createMaterial(
+		pEntity->collisionMaterial.staticFriction,
+		pEntity->collisionMaterial.dynamicFriction,
+		pEntity->collisionMaterial.restitution
+	);
+
+	// Shape
+	pEntity->pCollisionShape->pShape = this->pxPhysics->createShape(
+		*(pEntity->pCollisionShape->pGeometry),
+		*(pEntity->pCollisionShape->pMaterial)
+	);
+
+	// Dynamic actor
+	PxActor* rigidActor;
+	PxTransform rigidActorTransform = PxTransform(
+		PxVec3(pEntity->gPosition.x, pEntity->gPosition.y, pEntity->gPosition.z),
+		PxQuat(pEntity->gRotationQ.x, pEntity->gRotationQ.y, pEntity->gRotationQ.z, pEntity->gRotationQ.w)
+	);
+	if (pEntity->pCollisionActor->isDynamic) {
+		PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(rigidActorTransform);
+		rigidDynamicActor->attachShape(*(pEntity->pCollisionShape->pShape));
+
+		PxRigidBodyExt::updateMassAndInertia(*rigidDynamicActor, pEntity->collisionMaterial.density);
+		rigidActor = rigidDynamicActor;
+	}
+	// Static actor
+	else {
+		PxRigidStatic* rigidStaticActor = this->pxPhysics->createRigidStatic(rigidActorTransform);
+		rigidStaticActor->attachShape(*(pEntity->pCollisionShape->pShape));
+
+		rigidActor = rigidStaticActor;
+	}
+
+	// Attach rigid actor
+	pEntity->pCollisionActor->pActor = rigidActor;
+
+	this->pxScene->addActor(
+		*(pEntity->pCollisionActor->pActor)
+	);
 	return true;
 }

@@ -8,7 +8,8 @@
 
 #include "Mesh/Mesh.h"
 #include "Mesh/MeshDeformer/MeshDeformer.h"
-#include "CollisionShape/CollisionShape.h"
+#include "Collision/CollisionShape.h"
+#include "Collision/CollisionActor.h"
 #include "Structs.h"
 #include "Texture.h"
 #include "TextureSampler.h"
@@ -29,8 +30,10 @@ public:
 	Entity();
 	Entity(
 		Vector3 size, Vector3 position, Vector4 rotationQ,
-		Color color, Vector3 material,
-		Mesh* mesh = NULL
+		Color color, Vector3 collisionMaterial,
+		Mesh* mesh = NULL,
+		CollisionShape* pCollisionShape = NULL,
+		CollisionActor* pCollisionActor = NULL
 	);
 	virtual void Update();
 	virtual void Reset();
@@ -38,7 +41,6 @@ public:
 
 	// Derived classes will set these values.
 	unsigned int id;
-	bool isDynamic;
 	bool isDrawable = false;
 	bool dataChanged;
 
@@ -47,6 +49,7 @@ public:
 	dx::XMFLOAT3 gPosition;
 	dx::XMFLOAT4 gRotationQ;
 	EntityMaterial entityMaterial;
+	CollisionMaterial collisionMaterial;
 
 	void Translate(Vector3 translationVector);
 	void rotateQuaternion(Vector4 rotationVector);
@@ -87,9 +90,9 @@ public:
 	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;
 
 	//// Physics
+	bool isDynamic;
 	CollisionShape* pCollisionShape = NULL;
+	CollisionActor* pCollisionActor = NULL;
 	virtual void attachCollisionShape(CollisionShape* collisionShape);
-
-	PxActor* pActor = NULL;
-	PxRigidDynamic* rigidDynamic;
+	virtual void attachCollisionActor(CollisionActor* collisionActor);
 };

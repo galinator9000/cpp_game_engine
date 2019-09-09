@@ -123,7 +123,10 @@
     <ClInclude Include="src\Game\Entity\Primitives\NonDrawable\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Game\Entity\CollisionShape\CollisionShape.h">
+    <ClInclude Include="src\Game\Entity\Collision\CollisionShape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\Entity\Collision\CollisionActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -218,7 +221,10 @@
     <ClCompile Include="src\Game\Entity\Primitives\NonDrawable\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Game\Entity\CollisionShape\CollisionShape.cpp">
+    <ClCompile Include="src\Game\Entity\Collision\CollisionShape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Entity\Collision\CollisionActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

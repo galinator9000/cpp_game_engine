@@ -328,6 +328,21 @@ struct EntityMaterial {
 	float specularPower;
 };
 
+struct CollisionMaterial {
+	CollisionMaterial() {
+		this->staticFriction = 1.0f;
+		this->dynamicFriction = 1.0f;
+		this->restitution = 0.0f;
+		this->density = 10.0f;
+	}
+
+	float staticFriction;
+	float dynamicFriction;
+	float restitution;
+	float density;
+};
+
+
 //// Graphics
 // Entity constant buffer for Vertex Shader.
 struct EntityVSConstantBuffer {

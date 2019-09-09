@@ -1,11 +1,11 @@
 #pragma once
-#include "Entity/Entity.h"
-#include "Entity/Shapes.h"
-
+#include "PxPhysicsAPI.h"
 #include <Windows.h>
 #include <sstream>
+#include <string>
 
-#include "PxPhysicsAPI.h"
+#include "Entity/Entity.h"
+#include "Entity/Shapes.h"
 
 using namespace physx;
 
@@ -27,9 +27,19 @@ private:
 
 	// Default objects
 	PxDefaultAllocator pxAllocator;
-	PxDefaultErrorCallback pxErrorCallback;
+	PhysicsErrorCallback pErrorCallback;
 
 	// PhysX main object pointers
 	PxFoundation* pxFoundation;
 	PxPvd* pxPvd;
+};
+
+class PhysicsErrorCallback : public PxErrorCallback {
+	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) {
+		std::ostringstream myStream;
+		myStream << std::string(message);
+
+		OutputDebugStringA(myStream.str().c_str());
+		std::cout << myStream.str().c_str();
+	}
 };
