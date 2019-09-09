@@ -4,6 +4,5 @@
 
 class Plane : public Entity{
 public:
-	// Physics
 	Plane(Vector3 normals, Vector3 material);
 };

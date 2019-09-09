@@ -8,6 +8,7 @@
 
 #include "Mesh/Mesh.h"
 #include "Mesh/MeshDeformer/MeshDeformer.h"
+#include "CollisionShape/CollisionShape.h"
 #include "Structs.h"
 #include "Texture.h"
 #include "TextureSampler.h"
@@ -40,11 +41,6 @@ public:
 	bool isDynamic;
 	bool isDrawable = false;
 	bool dataChanged;
-
-	//// Physics
-	static PxPhysics* ppxPhysics;
-	PxActor* pActor = NULL;
-	PxShape* pShape = NULL;
 
 	//// Graphics
 	dx::XMFLOAT3 gSize;
@@ -89,4 +85,11 @@ public:
 
 	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
 	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;
+
+	//// Physics
+	CollisionShape* pCollisionShape = NULL;
+	virtual void attachCollisionShape(CollisionShape* collisionShape);
+
+	PxActor* pActor = NULL;
+	PxRigidDynamic* rigidDynamic;
 };

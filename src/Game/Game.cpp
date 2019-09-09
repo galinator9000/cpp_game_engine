@@ -10,6 +10,19 @@ void Game::Setup(){
 	// Add main camera.
 	this->pWorld->addCamera(&this->wMainCamera);
 
+	// Add static ground box.
+	Mesh* boxMesh = new Mesh();
+	boxMesh->createBoxShape();
+	Box* groundBox = new Box(
+		{20, 0.1f, 20},
+		{ 0, 0, 0},
+		{0,0,0,0},
+		{0.5f, 0.5f, 0.5f, 1},
+		{1,1,0},
+		boxMesh
+	);
+	this->pWorld->addEntity(groundBox);
+
 	//// Load animated entity.
 	Mesh* animatedMesh = new Mesh();
 	MeshDeformer* animatedMeshDeformer = new MeshDeformer();

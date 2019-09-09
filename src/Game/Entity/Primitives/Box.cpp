@@ -11,7 +11,7 @@ Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3
 	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
 
 	// Create box shape.
-	this->pShape = this->ppxPhysics->createShape(
+	/*this->pShape = this->ppxPhysics->createShape(
 		PxBoxGeometry(
 			PxVec3(this->gSize.x, this->gSize.y, this->gSize.z)
 		),
@@ -27,7 +27,7 @@ Box::Box(Vector3 size, Vector3 position, Vector4 rotationQ, Color color, Vector3
 	this->rigidDynamic = this->ppxPhysics->createRigidDynamic(transform);
 	this->rigidDynamic->attachShape(*pShape);
 	PxRigidBodyExt::updateMassAndInertia(*(this->rigidDynamic), 10.0f);
-	this->pActor = this->rigidDynamic;
+	this->pActor = this->rigidDynamic;*/
 
 	// Graphics
 	this->entityMaterial.color = color;

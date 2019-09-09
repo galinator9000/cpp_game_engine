@@ -1,8 +1,6 @@
 #include "Entity.h"
 #include "Shapes.h"
 
-PxPhysics* Entity::ppxPhysics;
-
 // Default constructor.
 Entity::Entity(){}
 
@@ -214,4 +212,9 @@ void Entity::Scale(Vector3 scalingVector){
 	this->gSize.z *= scalingVector.z;
 
 	this->dataChanged = true;
+}
+
+//// Physics
+void Entity::attachCollisionShape(CollisionShape* collisionShape) {
+	this->pCollisionShape = collisionShape;
 }

@@ -53,7 +53,7 @@ void Physics::Update(){
 }
 
 bool Physics::addEntity(Entity* pEntity){
-	if (pEntity->pActor == NULL) {
+	if (pEntity->pCollisionShape == NULL) {
 		return false;
 	}
 

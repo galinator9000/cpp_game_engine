@@ -216,6 +216,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Entity\CollisionShape\CollisionShape.h" />
     <ClInclude Include="src\Game\Character\Character.h" />
     <ClInclude Include="src\Game\Controller.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.h" />
@@ -255,6 +256,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
   <ItemGroup>
     <ClCompile Include="src\Game\Character\Character.cpp" />
     <ClCompile Include="src\Game\Controller.cpp" />
+    <ClCompile Include="src\Game\Entity\CollisionShape\CollisionShape.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.cpp" />
