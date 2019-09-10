@@ -56,8 +56,8 @@ public:
 	void Scale(Vector3 scalingVector);
 
 	// Texture
-	Texture* texture;
-	TextureSampler* textureSampler;
+	Texture* texture = NULL;
+	TextureSampler* textureSampler = NULL;
 	virtual void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler);
 	virtual void detachTextureAndSampler();
 	bool useTexture = false;
@@ -90,7 +90,6 @@ public:
 	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;
 
 	//// Physics
-	bool isDynamic;
 	CollisionShape* pCollisionShape = NULL;
 	CollisionActor* pCollisionActor = NULL;
 	virtual void attachCollisionShape(CollisionShape* collisionShape);

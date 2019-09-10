@@ -105,7 +105,9 @@ LRESULT Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			this->mouse->OnWheelMove(wParam, lParam);
 			break;
 		case WM_KILLFOCUS:
-			this->mouse->freeCursor();
+			if (this->mouse != NULL) {
+				this->mouse->freeCursor();
+			}
 			break;
 
 		// Raw messages

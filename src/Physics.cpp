@@ -53,7 +53,12 @@ void Physics::Update(){
 }
 
 bool Physics::addEntity(Entity* pEntity){
-	if (pEntity->pCollisionActor == NULL) {
+	// Check if entity have any physical representation.
+	if (
+		pEntity->pCollisionActor == NULL ||
+		pEntity->pCollisionShape == NULL ||
+		pEntity->pCollisionShape->pGeometry == NULL
+	) {
 		return false;
 	}
 
@@ -70,32 +75,82 @@ bool Physics::addEntity(Entity* pEntity){
 		*(pEntity->pCollisionShape->pMaterial)
 	);
 
-	// Dynamic actor
-	PxActor* rigidActor;
+	// Initial transform
 	PxTransform rigidActorTransform = PxTransform(
 		PxVec3(pEntity->gPosition.x, pEntity->gPosition.y, pEntity->gPosition.z),
 		PxQuat(pEntity->gRotationQ.x, pEntity->gRotationQ.y, pEntity->gRotationQ.z, pEntity->gRotationQ.w)
 	);
+
+	// Physical actor of the entity
+	PxActor* rigidActor = NULL;
+
+	// Dynamic actor
 	if (pEntity->pCollisionActor->isDynamic) {
 		PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(rigidActorTransform);
-		rigidDynamicActor->attachShape(*(pEntity->pCollisionShape->pShape));
 
+		rigidDynamicActor->attachShape(*(pEntity->pCollisionShape->pShape));
 		PxRigidBodyExt::updateMassAndInertia(*rigidDynamicActor, pEntity->collisionMaterial.density);
+
 		rigidActor = rigidDynamicActor;
 	}
 	// Static actor
-	else {
+	else if (!pEntity->pCollisionActor->isDynamic) {
 		PxRigidStatic* rigidStaticActor = this->pxPhysics->createRigidStatic(rigidActorTransform);
+
 		rigidStaticActor->attachShape(*(pEntity->pCollisionShape->pShape));
 
 		rigidActor = rigidStaticActor;
 	}
 
-	// Attach rigid actor
+	if (rigidActor == NULL) {
+		return false;
+	}
+
+	// Update rigid actor pointer.
 	pEntity->pCollisionActor->pActor = rigidActor;
 
+	// Add actor to scene.
 	this->pxScene->addActor(
 		*(pEntity->pCollisionActor->pActor)
 	);
+
 	return true;
+}
+
+void Physics::updateEntity(Entity* pEntity) {
+	// Check if entity have any physical representation.
+	if (pEntity->pCollisionActor == NULL) {
+		return;
+	}
+
+	// If, entity is static, we can simply return.
+	if (!pEntity->pCollisionActor->isDynamic) {
+		return;
+	}
+
+	// Get dynamic rigid object.
+	PxRigidDynamic* rigidDynamic = pEntity->pCollisionActor->pActor->is<PxRigidDynamic>();
+	if (rigidDynamic == NULL) {
+		return;
+	}
+
+	// Check if it is sleeping.
+	if (rigidDynamic->isSleeping()) {
+		return;
+	}
+
+	// Integrate entities' physics position and rotation with graphics side.
+	PxTransform tm = rigidDynamic->getGlobalPose();
+	pEntity->gPosition.x = tm.p.x;
+	pEntity->gPosition.y = tm.p.y;
+	pEntity->gPosition.z = tm.p.z;
+
+	// Get quaternion vector as radians.
+	PxVec3 axisVector;
+	tm.q.toRadiansAndUnitAxis(pEntity->gRotationQ.w, axisVector);
+	pEntity->gRotationQ.x = axisVector.x;
+	pEntity->gRotationQ.y = axisVector.y;
+	pEntity->gRotationQ.z = axisVector.z;
+
+	pEntity->dataChanged = true;
 }

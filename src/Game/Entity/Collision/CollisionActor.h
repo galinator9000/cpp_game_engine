@@ -5,8 +5,8 @@ using namespace physx;
 
 class CollisionActor{
 public:
-	CollisionActor();
+	CollisionActor(bool isDynamic);
 
 	bool isDynamic = false;
-	PxActor* pActor;
+	PxActor* pActor = NULL;
 };

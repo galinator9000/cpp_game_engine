@@ -102,7 +102,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 	return true;
 }
 
-void Mesh::createBoxShape() {
+void Mesh::createBoxGeometry(Vector3 gSize) {
 	// 3D Cube vertices
 	Vertex _vertices[] = {
 		// Front (Normal -Z)
@@ -142,6 +142,11 @@ void Mesh::createBoxShape() {
 		{{ 1.0f, -1.0f, -1.0f }, {0, -1, 0}, {1,1}},
 	};
 	this->gVertexCount = (UINT)std::size(_vertices);
+	
+	// Apply scaling.
+	for (unsigned int v = 0; v < this->gVertexCount; v++) {
+		_vertices[v].position = _vertices[v].position * gSize;
+	}
 
 	Vertex* vertices = new Vertex[this->gVertexCount];
 	std::copy(_vertices, _vertices + this->gVertexCount, vertices);

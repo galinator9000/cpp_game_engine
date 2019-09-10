@@ -1,6 +1,7 @@
 #pragma once
 #include "PxPhysicsAPI.h"
 #include <Windows.h>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -10,12 +11,24 @@
 using namespace physx;
 
 class Physics{
+	class PhysicsErrorCallback : public PxErrorCallback {
+	public:
+		void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) {
+			std::ostringstream myStream;
+			myStream << std::string(message);
+
+			OutputDebugStringA(myStream.str().c_str());
+			std::cout << myStream.str().c_str();
+		}
+	};
+
 public:
 	Physics(Vector3 gravity, float stepPerSecond);
 	~Physics();
 
 	void Update();
 	bool addEntity(Entity* bEntity);
+	void updateEntity(Entity* bEntity);
 
 	// PhysX variables
 public:
@@ -32,14 +45,4 @@ private:
 	// PhysX main object pointers
 	PxFoundation* pxFoundation;
 	PxPvd* pxPvd;
-};
-
-class PhysicsErrorCallback : public PxErrorCallback {
-	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) {
-		std::ostringstream myStream;
-		myStream << std::string(message);
-
-		OutputDebugStringA(myStream.str().c_str());
-		std::cout << myStream.str().c_str();
-	}
 };

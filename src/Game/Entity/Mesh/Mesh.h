@@ -36,5 +36,5 @@ public:
 	bool hasGPUBuffers = false;
 
 	// Shapes
-	void createBoxShape();
+	void createBoxGeometry(Vector3 gSize);
 };

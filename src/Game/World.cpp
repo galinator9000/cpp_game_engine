@@ -78,9 +78,12 @@ void World::Update(){
 			continue;
 		}
 
+		this->pPhy->updateEntity(ent);
 		ent->Update();
+
 		this->pGfx->updateEntity(ent);
 		this->pGfx->drawEntity(ent);
+
 		ent->Reset();
 	}
 
@@ -124,10 +127,11 @@ void World::addCamera(Camera* camera, bool setAsMain){
 	camera->id = (unsigned int)this->allCameras.size();
 	this->allCameras.push_back(camera);
 
-	if(setAsMain || this->activeCamera == NULL){
+	setAsMain = (setAsMain || this->activeCamera == NULL);
+
+	if (setAsMain) {
 		this->setCamera(camera);
 	}
-
 	this->pGfx->addCamera(camera, setAsMain);
 }
 

@@ -8,22 +8,26 @@ Entity::Entity(
 	Vector3 size, Vector3 position, Vector4 rotationQ,
 	Color color, Vector3 collisionMaterial,
 	Mesh* mesh,
-	CollisionShape* pCollisionShape = NULL,
-	CollisionActor* pCollisionActor = NULL
+	CollisionShape* pCollisionShape,
+	CollisionActor* pCollisionActor
 ){
-	// Physics material information
-	this->collisionMaterial.staticFriction = collisionMaterial.x;
-	this->collisionMaterial.dynamicFriction = collisionMaterial.y;
-	this->collisionMaterial.restitution = collisionMaterial.z;
-
-	// Graphics
 	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
 	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
+
+	// Check initial quaternion vector.
+	if (rotationQ == Vector4(0, 0, 0, 0)) {
+		rotationQ.x = 1.0f;
+	}
 	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
 
 	this->entityMaterial.color = color;
 	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
+
+	// Physics material information
+	this->collisionMaterial.staticFriction = collisionMaterial.x;
+	this->collisionMaterial.dynamicFriction = collisionMaterial.y;
+	this->collisionMaterial.restitution = collisionMaterial.z;
 
 	// Attach mesh object if given.
 	if (mesh != NULL) {
@@ -38,11 +42,6 @@ Entity::Entity(
 		this->attachCollisionActor(pCollisionActor);
 	}
 
-	// Check initial quaternion vector.
-	if (rotationQ == Vector4(0, 0, 0, 0)) {
-		rotationQ.x = 1.0f;
-	}
-
 	this->updateConstantBuffer();
 }
 
@@ -51,13 +50,9 @@ void Entity::Update() {
 		this->meshDeformer->Update();
 	}
 
-	// Skip static and sleeping dynamic entities.
 	if (!this->dataChanged) {
-		// Static check.
-		if (!this->isDynamic) {
-			this->shouldUpdateGPUData = false;
-			return;
-		}
+		this->shouldUpdateGPUData = false;
+		return;
 	}
 
 	this->updateConstantBuffer();

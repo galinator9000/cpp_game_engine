@@ -7,13 +7,12 @@ using namespace physx;
 
 class CollisionShape {
 public:
-	CollisionShape(Vector3 pSize);
-	void createBoxGeometry();
-
-	Vector3 pSize;
+	CollisionShape();
+	void createBoxGeometry(Vector3 pSize);
 
 	// Physics side
-	PxMaterial* pMaterial;
-	PxGeometry* pGeometry;
-	PxShape* pShape;
+	PxMaterial* pMaterial = NULL;
+	PxShape* pShape = NULL;
+
+	PxGeometry* pGeometry = NULL;
 };
