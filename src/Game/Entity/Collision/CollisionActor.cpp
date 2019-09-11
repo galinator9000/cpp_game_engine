@@ -1,5 +1,5 @@
 #include "CollisionActor.h"
 
-CollisionActor::CollisionActor(bool isDynamic) {
-	this->isDynamic = isDynamic;
+CollisionActor::CollisionActor(COLLISION_ACTOR_TYPE actorType) {
+	this->actorType = actorType;
 }

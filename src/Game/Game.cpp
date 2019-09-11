@@ -17,7 +17,7 @@ void Game::Setup(){
 	// Ground box.
 	CollisionShape* groundBoxColShape = new CollisionShape();
 	groundBoxColShape->createBoxGeometry({ 2000, 0.1f, 2000 });
-	CollisionActor* groundBoxColActor = new CollisionActor(false);
+	CollisionActor* groundBoxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
 	Entity* groundBox = new Entity(
 		{
 			{ 2000, 0.1f, 2000 },
@@ -37,7 +37,7 @@ void Game::Setup(){
 	dynamicBoxColShape->createBoxGeometry({ 1, 1, 1 });
 	Entity* box;
 	for (int b = 0; b<500; b++) {
-		CollisionActor* dynamicBoxColActor = new CollisionActor(true);
+		CollisionActor* dynamicBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
 		box = new Entity(
 			{
 				{ 1, 1, 1 },
@@ -54,8 +54,13 @@ void Game::Setup(){
 	}
 
 	//// Load animated entity.
-	Mesh* animatedEntityMesh = new Mesh();
-	MeshDeformer* animatedEntityMeshDeformer = new MeshDeformer();
+	Mesh* mainCharacterMesh = new Mesh();
+	MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
+
+	CollisionShape* mainCharacterCollisionShape = new CollisionShape();
+	mainCharacterCollisionShape->createBoxGeometry({ 1,3,1 });
+	CollisionActor* mainCharacterCollisionActor = new CollisionActor(COLLISION_ACTOR_CCT);
+
 	this->mainCharacter = new Character(
 		{
 			{0.025f, 0.025f, 0.025f},
@@ -63,15 +68,16 @@ void Game::Setup(){
 			{ 0,0,0,0 },
 			{0.66f, 0.66f, 0.66f, 1},
 			{},
-			animatedEntityMesh
+			mainCharacterMesh,
+			mainCharacterCollisionShape,
+			mainCharacterCollisionActor
 		}
 	);
-	if (animatedEntityMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
-		this->mainCharacter->attachMeshDeformer(animatedEntityMeshDeformer);
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
+		this->mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
 		this->mainCharacter->setAnimation("Root|Root|Root|Idle|Root|Idle");
 		this->pWorld->addEntity(this->mainCharacter);
 
-		// Create character for animated entity.
 		this->pMainController->setMainCharacter(this->mainCharacter);
 
 		// Add secondary camera.
@@ -81,7 +87,7 @@ void Game::Setup(){
 			WIDTH / HEIGHT
 		);
 		pEntityCamera->followEntity(this->mainCharacter, Vector3(0, 5, 0), Vector3(0, 0, 6));
-		pWorld->addCamera(pEntityCamera);
+		pWorld->addCamera(pEntityCamera, true);
 	}
 
 	// Add lights to scene.

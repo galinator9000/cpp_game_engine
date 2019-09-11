@@ -35,7 +35,7 @@ bool FBX_Importer::Load(
 	//// Process scene.
 	FbxNode* rootNode = fbxScene->GetRootNode();
 	// Walk scene and print out all nodes.
-	FBX_Importer::printNode(rootNode);
+	//FBX_Importer::printNode(rootNode);
 	
 	// Check if any mesh exist on current scene.
 	int meshChildNodeIndex = -1;

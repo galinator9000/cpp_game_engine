@@ -65,6 +65,13 @@ struct Vector2 {
 		);
 	}
 
+	Vector2 operator/(const float& other) {
+		return Vector2(
+			this->x / other,
+			this->y / other
+		);
+	}
+
 	float maximum() {
 		float maxVal = -INFINITY;
 
@@ -149,6 +156,14 @@ struct Vector3 {
 			this->x * other,
 			this->y * other,
 			this->z * other
+		);
+	}
+
+	Vector3 operator/(const float& other) {
+		return Vector3(
+			this->x / other,
+			this->y / other,
+			this->z / other
 		);
 	}
 
@@ -248,6 +263,15 @@ struct Vector4 {
 			this->y * other,
 			this->z * other,
 			this->w * other
+		);
+	}
+
+	Vector4 operator/(const float& other) {
+		return Vector4(
+			this->x / other,
+			this->y / other,
+			this->z / other,
+			this->w / other
 		);
 	}
 

@@ -397,6 +397,10 @@ void Graphics::drawEntity(Entity* entity){
 }
 
 void Graphics::updateEntity(Entity* entity) {
+	if (entity->mesh == NULL || !entity->isDrawable) {
+		return;
+	}
+
 	// Update subresource of the constant buffer on GPU side.
 	// ONLY if it should.
 	if (entity->shouldUpdateGPUData) {

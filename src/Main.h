@@ -17,6 +17,7 @@
 #include "Game.h"
 #include "World.h"
 #include "Controller.h"
+#include "Entity/Character/Character.h"
 
 #include "Structs.h"
 #include "Config.h"

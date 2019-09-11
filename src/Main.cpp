@@ -21,9 +21,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		pMainWnd->GetHandler(),
 		WIDTH,
 		HEIGHT,
-		REFRESH_RATE
+		GRAPHICS_REFRESH_RATE
 	);
-	Physics* pPhy = new Physics({ 0.0f, -9.81f, 0.0f }, 60.0f);
+	Physics* pPhy = new Physics(GRAVITY, PHYSICS_REFRESH_RATE);
+	Character::worldGravity = GRAVITY / PHYSICS_REFRESH_RATE;
 
 	// Create world and game classes.
 	// World is integrates physics and graphics components.

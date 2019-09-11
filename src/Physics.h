@@ -30,19 +30,18 @@ public:
 	bool addEntity(Entity* bEntity);
 	void updateEntity(Entity* bEntity);
 
-	// PhysX variables
 public:
-	PxPhysics* pxPhysics;
-	PxScene* pxScene;
-
+	// PhysX main object pointers
+	PxPhysics* pxPhysics = NULL;
+	PxScene* pxScene = NULL;
+	PxControllerManager* pxControllerManager = NULL;
 private:
-	float stepPerSecond;
+	PxFoundation* pxFoundation = NULL;
+	PxPvd* pxPvd;
 
 	// Default objects
 	PxDefaultAllocator pxAllocator;
 	PhysicsErrorCallback pErrorCallback;
 
-	// PhysX main object pointers
-	PxFoundation* pxFoundation;
-	PxPvd* pxPvd;
+	float stepPerSecond;
 };

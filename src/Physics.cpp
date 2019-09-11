@@ -7,7 +7,9 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 
 	// Create foundation for PhysX.
 	this->pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, this->pxAllocator, this->pErrorCallback);
-	if (this->pxFoundation == NULL) { OutputDebugStringA("PxCreateFoundation error"); }
+	if (this->pxFoundation == NULL) {
+		OutputDebugStringA("PxCreateFoundation error");
+	}
 
 	// Create Visual Debugger.
 	this->pxPvd = PxCreatePvd(*(this->pxFoundation));
@@ -18,8 +20,10 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 	pxPvd->connect(*pxTransport, PxPvdInstrumentationFlag::eALL);
 
 	// Create physics object.
-	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*pxFoundation), PxTolerancesScale(), false, this->pxPvd);
-	if (this->pxPhysics == NULL){OutputDebugStringA("PxCreatePhysics error");}
+	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*this->pxFoundation), PxTolerancesScale(), false, this->pxPvd);
+	if (this->pxPhysics == NULL){
+		OutputDebugStringA("PxCreatePhysics error");
+	}
 
 	// CPU dispatcher.
 	PxDefaultCpuDispatcher* pxDispatcher = PxDefaultCpuDispatcherCreate(2, NULL);
@@ -31,7 +35,9 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 	pxSceneDesc.filterShader = PxDefaultSimulationFilterShader;
 
 	this->pxScene = this->pxPhysics->createScene(pxSceneDesc);
-	if (this->pxScene == NULL) { OutputDebugStringA("createScene error"); }
+	if (this->pxScene == NULL){ 
+		OutputDebugStringA("createScene error");
+	}
 
 	// Debugger client.
 	PxPvdSceneClient* pvdClient = this->pxScene->getScenePvdClient();
@@ -40,6 +46,9 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
+
+	// Controller Manager for CCT (Character Controller)
+	this->pxControllerManager = PxCreateControllerManager(*(this->pxScene));
 }
 
 Physics::~Physics(){
@@ -56,20 +65,54 @@ bool Physics::addEntity(Entity* pEntity){
 	// Check if entity have any physical representation.
 	if (
 		pEntity->pCollisionActor == NULL ||
-		pEntity->pCollisionShape == NULL ||
-		pEntity->pCollisionShape->pGeometry == NULL
+		pEntity->pCollisionShape == NULL
 	) {
 		return false;
 	}
 
-	// Material
+	// Create physical material
 	pEntity->pCollisionShape->pMaterial = this->pxPhysics->createMaterial(
 		pEntity->collisionMaterial.staticFriction,
 		pEntity->collisionMaterial.dynamicFriction,
 		pEntity->collisionMaterial.restitution
 	);
 
-	// Shape
+	// CCT (Character Controller)
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_CCT) {
+		PxCapsuleControllerDesc pxCDesc;
+
+		// Capsule
+		pxCDesc.climbingMode = PxCapsuleClimbingMode::eEASY;
+		pxCDesc.height = 4.0f;
+		pxCDesc.radius = 1.0f;
+
+		// General
+		pxCDesc.position = PxExtendedVec3(
+			pEntity->gPosition.x,
+			pEntity->gPosition.y,
+			pEntity->gPosition.z
+		);
+		pxCDesc.upDirection = PxVec3(0, 1, 0);
+		pxCDesc.density = pEntity->collisionMaterial.density;
+		pxCDesc.material = pEntity->pCollisionShape->pMaterial;
+
+		pEntity->pCollisionActor->pCharacterController = this->pxControllerManager->createController(pxCDesc);
+		pEntity->pCollisionActor->pCharacterController->setFootPosition(
+			PxExtendedVec3(
+				(float) pEntity->gPosition.x,
+				(float) pEntity->gPosition.y,
+				(float) pEntity->gPosition.z
+			)
+		);
+		return true;
+	}
+
+	//// Entity needs geometry for creation. Check if exists.
+	if (pEntity->pCollisionShape->pGeometry == NULL) {
+		return false;
+	}
+
+	// Create shape
 	pEntity->pCollisionShape->pShape = this->pxPhysics->createShape(
 		*(pEntity->pCollisionShape->pGeometry),
 		*(pEntity->pCollisionShape->pMaterial)
@@ -84,8 +127,16 @@ bool Physics::addEntity(Entity* pEntity){
 	// Physical actor of the entity
 	PxActor* rigidActor = NULL;
 
+	// Static actor
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_STATIC) {
+		PxRigidStatic* rigidStaticActor = this->pxPhysics->createRigidStatic(rigidActorTransform);
+
+		rigidStaticActor->attachShape(*(pEntity->pCollisionShape->pShape));
+
+		rigidActor = rigidStaticActor;
+	}
 	// Dynamic actor
-	if (pEntity->pCollisionActor->isDynamic) {
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_DYNAMIC) {
 		PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(rigidActorTransform);
 
 		rigidDynamicActor->attachShape(*(pEntity->pCollisionShape->pShape));
@@ -93,13 +144,14 @@ bool Physics::addEntity(Entity* pEntity){
 
 		rigidActor = rigidDynamicActor;
 	}
-	// Static actor
-	else if (!pEntity->pCollisionActor->isDynamic) {
-		PxRigidStatic* rigidStaticActor = this->pxPhysics->createRigidStatic(rigidActorTransform);
+	// Kinematic actor
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_KINEMATIC) {
+		PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(rigidActorTransform);
 
-		rigidStaticActor->attachShape(*(pEntity->pCollisionShape->pShape));
-
-		rigidActor = rigidStaticActor;
+		rigidDynamicActor->attachShape(*(pEntity->pCollisionShape->pShape));
+		rigidDynamicActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+		
+		rigidActor = rigidDynamicActor;
 	}
 
 	if (rigidActor == NULL) {
@@ -110,9 +162,7 @@ bool Physics::addEntity(Entity* pEntity){
 	pEntity->pCollisionActor->pActor = rigidActor;
 
 	// Add actor to scene.
-	this->pxScene->addActor(
-		*(pEntity->pCollisionActor->pActor)
-	);
+	this->pxScene->addActor(*(pEntity->pCollisionActor->pActor));
 
 	return true;
 }
@@ -123,24 +173,58 @@ void Physics::updateEntity(Entity* pEntity) {
 		return;
 	}
 
-	// If, entity is static, we can simply return.
-	if (!pEntity->pCollisionActor->isDynamic) {
+	// If entity is static, we can simply return.
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_STATIC) {
 		return;
 	}
 
-	// Get dynamic rigid object.
-	PxRigidDynamic* rigidDynamic = pEntity->pCollisionActor->pActor->is<PxRigidDynamic>();
-	if (rigidDynamic == NULL) {
-		return;
-	}
+	// Initial transform
+	PxTransform tm = PxTransform(
+		PxVec3(pEntity->gPosition.x, pEntity->gPosition.y, pEntity->gPosition.z),
+		PxQuat(pEntity->gRotationQ.x, pEntity->gRotationQ.y, pEntity->gRotationQ.z, pEntity->gRotationQ.w)
+	);
 
-	// Check if it is sleeping.
-	if (rigidDynamic->isSleeping()) {
-		return;
+	// Dynamic
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_DYNAMIC){
+		// Get dynamic rigid object.
+		PxRigidDynamic* rigidDynamic = pEntity->pCollisionActor->pActor->is<PxRigidDynamic>();
+		if (rigidDynamic == NULL) {
+			return;
+		}
+		// Check if it is in sleeping state.
+		if (rigidDynamic->isSleeping()) {
+			return;
+		}
+
+		// Get global transform of the actor.
+		tm = rigidDynamic->getGlobalPose();
+	}
+	// Kinematic
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_KINEMATIC) {
+		// Get rigid object.
+		PxRigidDynamic* rigidDynamic = pEntity->pCollisionActor->pActor->is<PxRigidDynamic>();
+		if (rigidDynamic == NULL) {
+			return;
+		}
+
+		// Get global transform of the actor.
+		tm = rigidDynamic->getGlobalPose();
+	}
+	// CCT (Character Controller)
+	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_CCT) {
+		// Get position of the CCT
+		PxExtendedVec3 tmExt = pEntity->pCollisionActor->pCharacterController->getFootPosition();
+
+		tm = PxTransform(
+			PxVec3(
+				(float) tmExt.x,
+				(float) tmExt.y,
+				(float) tmExt.z
+			)
+		);
 	}
 
 	// Integrate entities' physics position and rotation with graphics side.
-	PxTransform tm = rigidDynamic->getGlobalPose();
 	pEntity->gPosition.x = tm.p.x;
 	pEntity->gPosition.y = tm.p.y;
 	pEntity->gPosition.z = tm.p.z;

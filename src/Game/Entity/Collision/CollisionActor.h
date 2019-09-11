@@ -3,10 +3,20 @@
 
 using namespace physx;
 
+const enum COLLISION_ACTOR_TYPE {
+	COLLISION_ACTOR_STATIC,
+	COLLISION_ACTOR_DYNAMIC,
+	COLLISION_ACTOR_KINEMATIC,
+	COLLISION_ACTOR_CCT
+};
+
 class CollisionActor{
 public:
-	CollisionActor(bool isDynamic);
+	CollisionActor(COLLISION_ACTOR_TYPE actorType);
 
-	bool isDynamic = false;
+	COLLISION_ACTOR_TYPE actorType = COLLISION_ACTOR_STATIC;
 	PxActor* pActor = NULL;
+
+	// Pointer for CCT object
+	PxController* pCharacterController = NULL;
 };

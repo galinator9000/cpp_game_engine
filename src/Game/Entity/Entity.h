@@ -1,7 +1,6 @@
 #pragma once
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include "PxPhysicsAPI.h"
 #include <wrl.h>
 #include <vector>
 #include <algorithm>
@@ -14,7 +13,6 @@
 #include "Texture.h"
 #include "TextureSampler.h"
 
-using namespace physx;
 namespace dx = DirectX;
 namespace wrl = Microsoft::WRL;
 
@@ -31,7 +29,7 @@ public:
 	Entity(EntityProperties entityProperties);
 	void Update();
 	virtual void Reset();
-	virtual void setColor(Color color);
+	void setColor(Color color);
 
 	// Derived classes will set these values.
 	unsigned int id;
@@ -45,6 +43,7 @@ public:
 	EntityMaterial entityMaterial;
 	CollisionMaterial collisionMaterial;
 
+	// Transformations
 	void Translate(Vector3 translationVector);
 	void rotateQuaternion(Vector4 rotationVector);
 	void Scale(Vector3 scalingVector);
@@ -52,8 +51,8 @@ public:
 	// Texture
 	Texture* texture = NULL;
 	TextureSampler* textureSampler = NULL;
-	virtual void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler);
-	virtual void detachTextureAndSampler();
+	void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler);
+	void detachTextureAndSampler();
 	bool useTexture = false;
 
 	// Hierarchy system
@@ -66,7 +65,7 @@ public:
 
 	// Mesh
 	Mesh* mesh = NULL;
-	virtual bool attachMesh(Mesh* entityMesh);
+	bool attachMesh(Mesh* entityMesh);
 
 	// Mesh deformer
 	MeshDeformer* meshDeformer = NULL;
@@ -77,7 +76,7 @@ public:
 	// Constant buffer
 	EntityVSConstantBuffer gEntityVSConstantBuffer;
 	EntityPSConstantBuffer gEntityPSConstantBuffer;
-	virtual void updateConstantBuffer();
+	void updateConstantBuffer();
 	bool shouldUpdateGPUData;
 
 	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
@@ -86,6 +85,6 @@ public:
 	//// Physics
 	CollisionShape* pCollisionShape = NULL;
 	CollisionActor* pCollisionActor = NULL;
-	virtual void attachCollisionShape(CollisionShape* collisionShape);
-	virtual void attachCollisionActor(CollisionActor* collisionActor);
+	void attachCollisionShape(CollisionShape* collisionShape);
+	void attachCollisionActor(CollisionActor* collisionActor);
 };
