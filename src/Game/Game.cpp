@@ -19,55 +19,60 @@ void Game::Setup(){
 	groundBoxColShape->createBoxGeometry({ 2000, 0.1f, 2000 });
 	CollisionActor* groundBoxColActor = new CollisionActor(false);
 	Entity* groundBox = new Entity(
-		{ 20, 0.1f, 20 },
-		{ 0, 0, 0 },
-		{ 0,0,0,0 },
-		{ 0.5f, 0.5f, 0.5f, 1 },
-		{ 1,1,0 },
-		boxMesh,
-		groundBoxColShape,
-		groundBoxColActor
+		{
+			{ 2000, 0.1f, 2000 },
+			{ 0, 0, 0 },
+			{ 0,0,0,0 },
+			{ 0.5f, 0.5f, 0.5f, 1 },
+			{},
+			boxMesh,
+			groundBoxColShape,
+			groundBoxColActor
+		}
 	);
 	this->pWorld->addEntity(groundBox);
 
 	// Dynamic boxes.
 	CollisionShape* dynamicBoxColShape = new CollisionShape();
-	dynamicBoxColShape->createBoxGeometry({ 1,1,1 });
+	dynamicBoxColShape->createBoxGeometry({ 1, 1, 1 });
 	Entity* box;
-	for (int b = 0; b<50; b++) {
-		CollisionActor* boxColActor = new CollisionActor(true);
+	for (int b = 0; b<500; b++) {
+		CollisionActor* dynamicBoxColActor = new CollisionActor(true);
 		box = new Entity(
-			{ 1,1,1 },
-			{ 0, b*5.0f, 0 },
-			{ 0,0,0,0 },
-			{ 0.5f, 0.5f, 0.5f, 1 },
-			{ 1,1,0 },
-			boxMesh,
-			dynamicBoxColShape,
-			boxColActor
+			{
+				{ 1, 1, 1 },
+				{ 0, b * 2.0f, 0 },
+				{ 0,0,0,0 },
+				{ 0.5f, 0.5f, 0.5f, 1 },
+				{},
+				boxMesh,
+				dynamicBoxColShape,
+				dynamicBoxColActor
+			}
 		);
 		this->pWorld->addEntity(box);
 	}
 
 	//// Load animated entity.
-	Mesh* animatedMesh = new Mesh();
-	MeshDeformer* animatedMeshDeformer = new MeshDeformer();
-	animatedEntity = new Entity(
-		{0.025f, 0.025f, 0.025f},
-		{ 0, 0, 10},
-		{0,0,0,0},
-		{0.66f, 0.66f, 0.66f, 1},
-		{ 1,1,1 },
-		animatedMesh
+	Mesh* animatedEntityMesh = new Mesh();
+	MeshDeformer* animatedEntityMeshDeformer = new MeshDeformer();
+	this->mainCharacter = new Character(
+		{
+			{0.025f, 0.025f, 0.025f},
+			{ 0, 0, 0},
+			{ 0,0,0,0 },
+			{0.66f, 0.66f, 0.66f, 1},
+			{},
+			animatedEntityMesh
+		}
 	);
-	if (animatedMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
-		animatedEntity->attachMeshDeformer(animatedMeshDeformer);
-		animatedEntity->setAnimation("Root|Root|Root|Idle|Root|Idle");
-		this->pWorld->addEntity(animatedEntity);
+	if (animatedEntityMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
+		this->mainCharacter->attachMeshDeformer(animatedEntityMeshDeformer);
+		this->mainCharacter->setAnimation("Root|Root|Root|Idle|Root|Idle");
+		this->pWorld->addEntity(this->mainCharacter);
 
 		// Create character for animated entity.
-		Character* mainCharacter = new Character(animatedEntity);
-		this->pMainController->setMainCharacter(mainCharacter);
+		this->pMainController->setMainCharacter(this->mainCharacter);
 
 		// Add secondary camera.
 		Camera* pEntityCamera = new Camera(
@@ -75,7 +80,7 @@ void Game::Setup(){
 			FOV,
 			WIDTH / HEIGHT
 		);
-		pEntityCamera->followEntity(animatedEntity, Vector3(0, 5, 0), Vector3(0, 0, 6));
+		pEntityCamera->followEntity(this->mainCharacter, Vector3(0, 5, 0), Vector3(0, 0, 6));
 		pWorld->addCamera(pEntityCamera);
 	}
 

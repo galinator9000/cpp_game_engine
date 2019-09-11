@@ -2,44 +2,52 @@
 #include "Shapes.h"
 
 // Default constructor.
-Entity::Entity(){}
+Entity::Entity(){
+	EntityProperties entProp;
 
-Entity::Entity(
-	Vector3 size, Vector3 position, Vector4 rotationQ,
-	Color color, Vector3 collisionMaterial,
-	Mesh* mesh,
-	CollisionShape* pCollisionShape,
-	CollisionActor* pCollisionActor
-){
-	this->gSize = dx::XMFLOAT3(size.x, size.y, size.z);
-	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
+	this->gSize = dx::XMFLOAT3(entProp.size.x, entProp.size.y, entProp.size.z);
+	this->gPosition = dx::XMFLOAT3(entProp.position.x, entProp.position.y, entProp.position.z);
+	this->gRotationQ = dx::XMFLOAT4(entProp.rotationQ.x, entProp.rotationQ.y, entProp.rotationQ.z, entProp.rotationQ.w);
 
-	// Check initial quaternion vector.
-	if (rotationQ == Vector4(0, 0, 0, 0)) {
-		rotationQ.x = 1.0f;
-	}
-	this->gRotationQ = dx::XMFLOAT4(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
-
-	this->entityMaterial.color = color;
+	this->entityMaterial.color = entProp.color;
 	this->entityMaterial.specularPower = 3.0f;
 	this->entityMaterial.specularIntensity = 0.5f;
 
 	// Physics material information
-	this->collisionMaterial.staticFriction = collisionMaterial.x;
-	this->collisionMaterial.dynamicFriction = collisionMaterial.y;
-	this->collisionMaterial.restitution = collisionMaterial.z;
+	this->collisionMaterial.staticFriction = entProp.collisionMaterial.staticFriction;
+	this->collisionMaterial.dynamicFriction = entProp.collisionMaterial.dynamicFriction;
+	this->collisionMaterial.restitution = entProp.collisionMaterial.restitution;
+	this->collisionMaterial.density = entProp.collisionMaterial.density;
+
+	this->updateConstantBuffer();
+}
+
+Entity::Entity(EntityProperties entProp){
+	this->gSize = dx::XMFLOAT3(entProp.size.x, entProp.size.y, entProp.size.z);
+	this->gPosition = dx::XMFLOAT3(entProp.position.x, entProp.position.y, entProp.position.z);
+	this->gRotationQ = dx::XMFLOAT4(entProp.rotationQ.x, entProp.rotationQ.y, entProp.rotationQ.z, entProp.rotationQ.w);
+
+	this->entityMaterial.color = entProp.color;
+	this->entityMaterial.specularPower = 3.0f;
+	this->entityMaterial.specularIntensity = 0.5f;
+
+	// Physics material information
+	this->collisionMaterial.staticFriction = entProp.collisionMaterial.staticFriction;
+	this->collisionMaterial.dynamicFriction = entProp.collisionMaterial.dynamicFriction;
+	this->collisionMaterial.restitution = entProp.collisionMaterial.restitution;
+	this->collisionMaterial.density = entProp.collisionMaterial.density;
 
 	// Attach mesh object if given.
-	if (mesh != NULL) {
-		this->attachMesh(mesh);
+	if (entProp.mesh != NULL) {
+		this->attachMesh((Mesh*) entProp.mesh);
 	}
 
 	// Attach collision objects if given.
-	if (pCollisionShape != NULL) {
-		this->attachCollisionShape(pCollisionShape);
+	if (entProp.pCollisionShape != NULL) {
+		this->attachCollisionShape((CollisionShape*) entProp.pCollisionShape);
 	}
-	if (pCollisionActor != NULL) {
-		this->attachCollisionActor(pCollisionActor);
+	if (entProp.pCollisionActor != NULL) {
+		this->attachCollisionActor((CollisionActor*) entProp.pCollisionActor);
 	}
 
 	this->updateConstantBuffer();

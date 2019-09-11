@@ -28,14 +28,8 @@ class Entity {
 public:
 	// Default constructor.
 	Entity();
-	Entity(
-		Vector3 size, Vector3 position, Vector4 rotationQ,
-		Color color, Vector3 collisionMaterial,
-		Mesh* mesh = NULL,
-		CollisionShape* pCollisionShape = NULL,
-		CollisionActor* pCollisionActor = NULL
-	);
-	virtual void Update();
+	Entity(EntityProperties entityProperties);
+	void Update();
 	virtual void Reset();
 	virtual void setColor(Color color);
 

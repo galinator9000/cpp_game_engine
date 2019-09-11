@@ -1,14 +1,14 @@
 #pragma once
-#include "Structs.h"
 #include "Entity/Entity.h"
 
-class Character{
+class Character : public Entity{
 public:
-	Character(Entity* entity);
+	Character(EntityProperties entityProperties) : Entity(entityProperties) {
+		this->Setup();
+	}
+
 	void Setup();
 	void Update();
-
-	Entity* pEntity = NULL;
 
 	// Actions
 	void Walk(Vector3 direction);

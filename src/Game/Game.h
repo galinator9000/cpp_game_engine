@@ -4,7 +4,7 @@
 #include "World.h"
 #include "Config.h"
 #include "Controller.h"
-#include "Character/Character.h"
+#include "Entity/Character/Character.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
 
@@ -20,7 +20,7 @@ public:
 		WIDTH / HEIGHT
 	);
 
-	Entity* animatedEntity;
+	Character* mainCharacter;
 
 	// Base components for a scene.
 	World* pWorld;
