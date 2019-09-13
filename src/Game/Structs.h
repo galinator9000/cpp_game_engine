@@ -8,7 +8,7 @@
 
 namespace dx = DirectX;
 
-#define MAX_JOINT_COUNT 64
+#define MAX_JOINT_COUNT 256
 
 // This value should stay this way.
 #define MAX_JOINT_PER_VERTEX 4
@@ -69,6 +69,14 @@ struct Vector2 {
 		return Vector2(
 			this->x / other,
 			this->y / other
+		);
+	}
+
+	Vector2 normalize() {
+		float _max = this->maximum();
+		return Vector2(
+			this->x / _max,
+			this->y / _max
 		);
 	}
 
@@ -164,6 +172,15 @@ struct Vector3 {
 			this->x / other,
 			this->y / other,
 			this->z / other
+		);
+	}
+
+	Vector3 normalize() {
+		float _max = this->maximum();
+		return Vector3(
+			this->x / _max,
+			this->y / _max,
+			this->z / _max
 		);
 	}
 
@@ -272,6 +289,16 @@ struct Vector4 {
 			this->y / other,
 			this->z / other,
 			this->w / other
+		);
+	}
+
+	Vector4 normalize() {
+		float _max = this->maximum();
+		return Vector4(
+			this->x / _max,
+			this->y / _max,
+			this->z / _max,
+			this->w / _max
 		);
 	}
 
@@ -412,6 +439,20 @@ struct EntityProperties {
 	void* mesh = NULL;
 	void* pCollisionShape = NULL;
 	void* pCollisionActor = NULL;
+};
+
+// Used for creating characters.
+struct CharacterProperties {
+	// Default properties of an haracter.
+	CharacterProperties() {
+		this->facingDirection = Vector3(0, 0, 1);
+	}
+
+	CharacterProperties(Vector3 facingDirection) {
+		this->facingDirection = facingDirection;
+	}
+
+	Vector3 facingDirection = Vector3(0, 0, 1);
 };
 
 //// Graphics

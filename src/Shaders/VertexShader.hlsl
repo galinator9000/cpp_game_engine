@@ -1,4 +1,4 @@
-#define MAX_JOINT_COUNT 64
+#define MAX_JOINT_COUNT 256
 #define MAX_JOINT_PER_VERTEX 4
 
 // World matrix is provided by the entity we are currently processing.

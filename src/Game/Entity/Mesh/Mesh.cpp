@@ -3,7 +3,7 @@
 // Utils
 #include "Utils/FBX_Importer.h"
 
-bool Mesh::LoadFBX(const char* fileName) {
+bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
 	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
 	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
 	std::vector<Joint*>* _joints = new std::vector<Joint*>();
@@ -13,7 +13,7 @@ bool Mesh::LoadFBX(const char* fileName) {
 	std::map<int, std::map<int, float>> _indexed_joint_weights;
 
 	// Load .FBX file to our vectors.
-	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints, _animations, _indexed_vertices, _indexed_joint_weights)) {
+	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints, _animations, _indexed_vertices, _indexed_joint_weights, mainMeshName)) {
 		return false;
 	}
 

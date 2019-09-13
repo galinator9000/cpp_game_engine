@@ -11,6 +11,8 @@
 
 namespace wrl = Microsoft::WRL;
 
+#define MAIN_MESH_NAME "mesh"
+
 class Mesh{
 public:
 	// Vertex & index
@@ -28,7 +30,7 @@ public:
 	Animation* getAnimation(const char* animName);
 
 	// Graphics
-	bool LoadFBX(const char* fileName);
+	bool LoadFBX(const char* fileName, const char* mainMeshName=MAIN_MESH_NAME);
 
 	// Constant buffers on GPU side
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;

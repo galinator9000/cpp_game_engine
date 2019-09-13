@@ -1,5 +1,7 @@
 #include "MeshDeformer.h"
 
+MeshDeformer::MeshDeformer(){}
+
 void MeshDeformer::Setup() {
 	// Create JointTransform object array.
 	this->gJointTransforms = new JointTransform *[this->skeleton->gJointCount];
@@ -34,6 +36,8 @@ void MeshDeformer::Update() {
 		}
 	}
 
+	this->rootInitialMatrix = dx::XMMatrixIdentity();
+
 	// Recalculate joint matrices.
 	this->recalculateMatrices(
 		this->rootJointID,
@@ -49,7 +53,7 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 
 	dx::XMMATRIX poseModelTransformMatrix;
 	if (this->isAnimating) {
-		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) * (*parentModelTransform);
+		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix);// * (*parentModelTransform);
 	}
 	else {
 		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointLocalTransformMatrix) * dx::XMLoadFloat4x4(&baseJoint->jointLocalBindTransform) * (*parentModelTransform);
@@ -85,12 +89,4 @@ void MeshDeformer::setAnimation(Animation* animation) {
 
 	this->gAnimator->setAnimation(animation);
 	this->isAnimating = true;
-
-	// Update root joint's initial matrix used for recalculation function.
-	// Should 90 degree rotation in X axis for correcting rotation of the mesh.
-	this->rootInitialMatrix = dx::XMMatrixRotationRollPitchYaw(
-		dx::XM_PIDIV2,
-		0.0f,
-		0.0f
-	);
 }

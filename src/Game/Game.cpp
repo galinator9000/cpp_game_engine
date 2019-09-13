@@ -10,33 +10,15 @@ void Game::Setup(){
 	// Add main camera.
 	this->pWorld->addCamera(&this->wMainCamera);
 
-	// Create box mesh for graphics side.
+	//// Create boxes.
 	Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxGeometry({ 1,1,1 });
 
-	// Ground box.
-	CollisionShape* groundBoxColShape = new CollisionShape();
-	groundBoxColShape->createBoxGeometry({ 2000, 0.1f, 2000 });
-	CollisionActor* groundBoxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
-	Entity* groundBox = new Entity(
-		{
-			{ 2000, 0.1f, 2000 },
-			{ 0, 0, 0 },
-			{ 0,0,0,0 },
-			{ 0.5f, 0.5f, 0.5f, 1 },
-			{},
-			boxMesh,
-			groundBoxColShape,
-			groundBoxColActor
-		}
-	);
-	this->pWorld->addEntity(groundBox);
-
 	// Dynamic boxes.
-	CollisionShape* dynamicBoxColShape = new CollisionShape();
+	/*CollisionShape* dynamicBoxColShape = new CollisionShape();
 	dynamicBoxColShape->createBoxGeometry({ 1, 1, 1 });
 	Entity* box;
-	for (int b = 0; b<500; b++) {
+	for (int b = 0; b < 500; b++) {
 		CollisionActor* dynamicBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
 		box = new Entity(
 			{
@@ -51,19 +33,35 @@ void Game::Setup(){
 			}
 		);
 		this->pWorld->addEntity(box);
-	}
+	}*/
+
+	// Ground box.
+	CollisionShape* groundBoxColShape = new CollisionShape();
+	groundBoxColShape->createBoxGeometry({ 2000, 0.1f, 2000 });
+	CollisionActor* groundBoxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
+	Entity* groundBox = new Entity(
+		{
+			{ 2000, 0.1f, 2000 },
+			{ 0, 0, 0 },
+			{ 0,0,0,0 },
+			{ 0.5f, 0.5f, 0.5f, 1 },
+			{},
+			NULL,
+			groundBoxColShape,
+			groundBoxColActor
+		}
+	);
+	this->pWorld->addEntity(groundBox);
 
 	//// Load animated entity.
-	Mesh* mainCharacterMesh = new Mesh();
-	MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
-
+	// Collision.
 	CollisionShape* mainCharacterCollisionShape = new CollisionShape();
-	mainCharacterCollisionShape->createBoxGeometry({ 1,3,1 });
 	CollisionActor* mainCharacterCollisionActor = new CollisionActor(COLLISION_ACTOR_CCT);
 
-	this->mainCharacter = new Character(
+	Mesh* mainCharacterMesh = new Mesh();
+	mainCharacter = new Character(
 		{
-			{0.025f, 0.025f, 0.025f},
+			{ 1,1,1 },
 			{ 0, 0, 0},
 			{ 0,0,0,0 },
 			{0.66f, 0.66f, 0.66f, 1},
@@ -71,14 +69,34 @@ void Game::Setup(){
 			mainCharacterMesh,
 			mainCharacterCollisionShape,
 			mainCharacterCollisionActor
+		},
+		{
+			{0, 0, 1}
 		}
 	);
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Anim_Triangle.fbx")) {
-		this->mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
-		this->mainCharacter->setAnimation("Root|Root|Root|Idle|Root|Idle");
-		this->pWorld->addEntity(this->mainCharacter);
 
-		this->pMainController->setMainCharacter(this->mainCharacter);
+	// Load mesh.
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\1_anim.fbx", "Mesh.001")) {
+	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\2_anim.fbx", "Mesh.007")) {
+	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\3_anim.fbx", "ZBrush_defualt_group")) {
+		// Set Animation
+		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
+		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
+
+		this->mainCharacter->setAnimation("Root|Root|Root|Idle|Root|Idle");
+		//this->mainCharacter->setAnimation("Reference|master|mixamo.com|Layer0");
+		//this->mainCharacter->setAnimation("Armature|Armature|Armature|Attack2|Armature|Attack2");
+
+		// Set Texture
+		/*Texture* mainCharacterTexture = new Texture("dying", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\dying.dds");
+		TextureSampler* mainCharacterTextureSampler = new TextureSampler();
+		this->pWorld->createTexture(mainCharacterTexture);
+		this->pWorld->createTextureSampler(mainCharacterTextureSampler);
+		this->mainCharacter->attachTextureAndSampler(mainCharacterTexture, mainCharacterTextureSampler);*/
+
+		// Add entity to world.
+		this->pWorld->addEntity(mainCharacter);
+		this->pMainController->setMainCharacter(mainCharacter);
 
 		// Add secondary camera.
 		Camera* pEntityCamera = new Camera(
@@ -86,8 +104,8 @@ void Game::Setup(){
 			FOV,
 			WIDTH / HEIGHT
 		);
-		pEntityCamera->followEntity(this->mainCharacter, Vector3(0, 5, 0), Vector3(0, 0, 6));
-		pWorld->addCamera(pEntityCamera, true);
+		pEntityCamera->followEntity(mainCharacter, Vector3(0, 5, 0), Vector3(0, 0, 6));
+		pWorld->addCamera(pEntityCamera);
 	}
 
 	// Add lights to scene.

@@ -7,20 +7,24 @@ using namespace physx;
 
 class Character : public Entity{
 public:
-	Character(EntityProperties entityProperties) : Entity(entityProperties) {
+	Character(EntityProperties entityProperties, CharacterProperties characterProperties) : Entity(entityProperties) {
+		this->facingDirection = characterProperties.facingDirection;
+
 		this->Setup();
 	}
-
 	void Setup();
-	void Update();
+
+	// General values.
+	float health = 1.0f;
+	Vector3 facingDirection;
 
 	// Actions
 	void Walk(Vector3 displacement);
-	bool walkedBefore = false;
-
-	float health = 1.0f;
-	float movementSpeed = 0.6f;
 
 	static Vector3 worldGravity;
+
+private:
+	float movementSpeed = 0.6f;
+	bool walkedBefore = false;
 	Timer characterTimer;
 };

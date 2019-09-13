@@ -6,13 +6,9 @@ void Character::Setup() {
 	this->characterTimer.Reset();
 }
 
-void Character::Update() {
-
-}
-
 // Actions
-void Character::Walk(Vector3 displacement) {
-	displacement = displacement * this->movementSpeed;
+void Character::Walk(Vector3 walkDirection) {
+	Vector3 displacement = walkDirection * this->movementSpeed;
 
 	float elapsedSinceLast = 0;
 	if (walkedBefore) {

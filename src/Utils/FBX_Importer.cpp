@@ -7,7 +7,8 @@ bool FBX_Importer::Load(
 		std::vector<Joint*>* _joints,
 		std::vector<Animation*>* _animations,
 		std::map<int, int>& _indexed_vertices,
-		std::map<int, std::map<int, float>>& _indexed_joint_weights
+		std::map<int, std::map<int, float>>& _indexed_joint_weights,
+		const char* mainMeshName
 	)
 {
 	FbxManager* fbxSdkManager = FbxManager::Create();
@@ -34,19 +35,23 @@ bool FBX_Importer::Load(
 
 	//// Process scene.
 	FbxNode* rootNode = fbxScene->GetRootNode();
+
+	// Triangulate meshes if needed.
+	FbxGeometryConverter fbxGeometryConverter(fbxSdkManager);
+	Triangulate(rootNode, fbxGeometryConverter);
+
 	// Walk scene and print out all nodes.
 	//FBX_Importer::printNode(rootNode);
-	
-	// Check if any mesh exist on current scene.
-	int meshChildNodeIndex = -1;
-	for (int c = 0; c < rootNode->GetChildCount(); c++) {
-		if (rootNode->GetChild(c)->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eMesh) {
-			meshChildNodeIndex = c;
-			break;
-		}
-	}
 
-	if (meshChildNodeIndex == -1) {
+	// Convert current scene's axis system to DirectX
+	// Only affects child nodes of the root node's transformations, not control points.
+	/*FbxAxisSystem fbxAxisSystem_DirectX = FbxAxisSystem(FbxAxisSystem::eDirectX);
+	fbxAxisSystem_DirectX.ConvertScene(fbxScene);*/
+	
+	//// Process mesh.
+	// Get mesh from scene object.
+	FbxNode* meshNode = getMainMeshNode(rootNode, mainMeshName);
+	if (meshNode == NULL) {
 		std::ostringstream myStream;
 		myStream << fileName;
 		myStream << ": There isn't a mesh node in current scene." << "\n";
@@ -55,10 +60,6 @@ bool FBX_Importer::Load(
 		return false;
 	}
 
-	//// Process mesh.
-	// Get mesh from scene object.
-	FbxNode* baseNode = rootNode->GetChild(0);
-	FbxNode* meshNode = rootNode->GetChild(meshChildNodeIndex);
 	FbxMesh* mesh = meshNode->GetMesh();
 
 	// Check if mesh contains non-triangle polygons, if exists, triangulate entire mesh.
@@ -70,13 +71,6 @@ bool FBX_Importer::Load(
 			OutputDebugStringA(myStream.str().c_str());
 			std::cout << myStream.str().c_str();
 			return false;
-
-			// Triangulate the mesh.
-			/*FbxGeometryConverter fbxGeometryConverter(fbxSdkManager);
-			fbxGeometryConverter.Triangulate(
-				mesh,
-				true
-			);*/
 		}
 	}
 
@@ -96,6 +90,7 @@ bool FBX_Importer::Load(
 	mesh->GetUVSetNames(uvNames);
 	const char* uvName = uvNames[0];
 
+	int polygonCount = mesh->GetPolygonCount();
 	switch (fbxNormalMapMode) {
 		// Comments are from Autodesk FBX SDK
 
@@ -111,8 +106,12 @@ bool FBX_Importer::Load(
 		// There will be one mapping coordinate for each vertex, for every polygon of which it is a part.
 		// This means that a vertex will have as many mapping coordinates as polygons of which it is a part.
 		case FbxGeometryElement::eByPolygonVertex:
+			_vertices->reserve(
+				(size_t)(polygonCount * 3)
+			);
+
 			// Collect all vertices.
-			for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
+			for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 				// Process every vertex in this polygon (triangle)
 				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 
@@ -134,7 +133,6 @@ bool FBX_Importer::Load(
 					Vertex* vertex = new Vertex{
 						// Position of the Vertex
 						{
-							// Swap Y and Z axes.
 							(float)fbxVertices[controlPointIndex].mData[0],
 							(float)fbxVertices[controlPointIndex].mData[2],
 							(float)fbxVertices[controlPointIndex].mData[1]
@@ -159,15 +157,21 @@ bool FBX_Importer::Load(
 					_vertices->push_back(*vertex);
 				}
 			}
+			_vertices->shrink_to_fit();
+
 			// Collect all indices.
-			for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
+			_indices->reserve(
+				(size_t) (polygonCount * 3)
+			);
+			for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 				// Process every vertex in this polygon (triangle)
 				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 					_indices->push_back(
-						(unsigned int) polygonIndex * 3 + (2 - vertexIndex)
+						(unsigned int) polygonIndex * 3 + (2-vertexIndex)
 					);
 				}
 			}
+			_indices->shrink_to_fit();
 			break;
 
 		// There can be only one mapping coordinate for the whole polygon.
@@ -226,7 +230,7 @@ bool FBX_Importer::Load(
 		// There will be one mapping coordinate for each vertex, for every polygon of which it is a part.
 		// This means that a vertex will have as many mapping coordinates as polygons of which it is a part.
 		case FbxGeometryElement::eByPolygonVertex:
-			for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) {
+			for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 				// Process every vertex in this polygon (triangle)
 				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 					indexByPolygonVertex = polygonIndex * 3 + vertexIndex;
@@ -250,7 +254,6 @@ bool FBX_Importer::Load(
 					// Place normal to our Vertex object.
 					assert(normalIndex != -1);
 
-					// Swap Y and Z axes.
 					_vertices->at(indexByPolygonVertex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
 					_vertices->at(indexByPolygonVertex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
 					_vertices->at(indexByPolygonVertex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
@@ -306,7 +309,7 @@ bool FBX_Importer::Load(
 			animation->name = animStackName;
 			animation->frameRate = frameRate;
 
-			// Create keyframe for every frame just for now.
+			// Create keyframe for every frame.
 			for (FbxLongLong frame = startFrame; frame < stopFrame; frame++) {
 				Keyframe* keyframe = new Keyframe((float)(frame / frameRate));
 
@@ -327,7 +330,8 @@ bool FBX_Importer::Load(
 			FbxSkin* skin = (FbxSkin*)mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
 
 			// Process each cluster of the deformer.
-			for (int c = 0; c < skin->GetClusterCount(); c++) {
+			int clusterCount = skin->GetClusterCount();
+			for (int c = 0; c < clusterCount; c++) {
 				FbxCluster* cluster = skin->GetCluster(c);
 
 				// Get joint of the cluster.
@@ -446,6 +450,51 @@ void FBX_Importer::printNode(FbxNode* node, unsigned int level) {
 	for (int c=0; c < node->GetChildCount(); c++) {
 		FBX_Importer::printNode(node->GetChild(c), level+1);
 	}
+}
+
+// Walks all of the meshes in given node recursively, checks if polygon vertex count is greater than 3.
+void FBX_Importer::Triangulate(FbxNode* node, FbxGeometryConverter& geometryConverter) {
+	// Check if node is mesh.
+	FbxMesh* mesh = node->GetMesh();
+	if (mesh != NULL) {
+		bool triangulate = false;
+
+		for (int p = 0; p < mesh->GetPolygonCount(); p++) {
+			if (mesh->GetPolygonSize(p) > 3) {
+				triangulate = true;
+				break;
+			}
+		}
+
+		if (triangulate) {
+			geometryConverter.Triangulate(
+				mesh,
+				true
+			);
+		}
+	}
+
+	for (int cn = 0; cn < node->GetChildCount(); cn++) {
+		Triangulate(node->GetChild(cn), geometryConverter);
+	}
+}
+
+FbxNode* FBX_Importer::getMainMeshNode(FbxNode* node, const char* mainMeshName) {
+	// Check if node is mesh.
+	FbxMesh* mesh = node->GetMesh();
+	if (mesh != NULL) {
+		if (std::string(mesh->GetName()).compare(mainMeshName) == 0) {
+			return node;
+		}
+	}
+
+	for (int cn = 0; cn < node->GetChildCount(); cn++) {
+		FbxNode* childNode = getMainMeshNode(node->GetChild(cn), mainMeshName);
+		if (childNode != NULL) {
+			return childNode;
+		}
+	}
+	return NULL;
 }
 
 Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint*>* _joints) {
