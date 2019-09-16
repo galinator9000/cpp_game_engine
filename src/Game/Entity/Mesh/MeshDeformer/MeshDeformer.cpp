@@ -37,7 +37,6 @@ void MeshDeformer::Update() {
 	}
 
 	this->rootInitialMatrix = dx::XMMatrixIdentity();
-
 	// Recalculate joint matrices.
 	this->recalculateMatrices(
 		this->rootJointID,
@@ -53,7 +52,7 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 
 	dx::XMMATRIX poseModelTransformMatrix;
 	if (this->isAnimating) {
-		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix);// * (*parentModelTransform);
+		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) * (*parentModelTransform);
 	}
 	else {
 		poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJointTransform->jointLocalTransformMatrix) * dx::XMLoadFloat4x4(&baseJoint->jointLocalBindTransform) * (*parentModelTransform);

@@ -61,7 +61,7 @@ void Game::Setup(){
 	Mesh* mainCharacterMesh = new Mesh();
 	mainCharacter = new Character(
 		{
-			{ 1,1,1 },
+			{ 0.1f, 0.1f, 0.1f },
 			{ 0, 0, 0},
 			{ 0,0,0,0 },
 			{0.66f, 0.66f, 0.66f, 1},
@@ -76,16 +76,13 @@ void Game::Setup(){
 	);
 
 	// Load mesh.
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\1_anim.fbx", "Mesh.001")) {
-	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\2_anim.fbx", "Mesh.007")) {
-	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\3_anim.fbx", "ZBrush_defualt_group")) {
+	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\attackcombo01.fbx", "")) {
+	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated.fbx", "")) {
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated_blender.fbx", "Mesh")) {
 		// Set Animation
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
-
-		this->mainCharacter->setAnimation("Root|Root|Root|Idle|Root|Idle");
-		//this->mainCharacter->setAnimation("Reference|master|mixamo.com|Layer0");
-		//this->mainCharacter->setAnimation("Armature|Armature|Armature|Attack2|Armature|Attack2");
+		//this->mainCharacter->setAnimation("Root|Root|Take 001|BaseLayer");
 
 		// Set Texture
 		/*Texture* mainCharacterTexture = new Texture("dying", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\dying.dds");

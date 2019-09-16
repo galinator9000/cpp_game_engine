@@ -7,6 +7,7 @@
 
 #include "Animation/Animator.h"
 #include "Structs.h"
+#include "Timer.h"
 
 namespace wrl = Microsoft::WRL;
 
@@ -40,4 +41,6 @@ public:
 	wrl::ComPtr<ID3D11Buffer> pMeshDeformerVSConstantBuffer;
 	bool shouldUpdateGPUData = false;
 	bool dataChanged = false;
+
+	Timer timer;
 };

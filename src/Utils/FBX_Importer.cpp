@@ -51,6 +51,7 @@ bool FBX_Importer::Load(
 	//// Process mesh.
 	// Get mesh from scene object.
 	FbxNode* meshNode = getMainMeshNode(rootNode, mainMeshName);
+	FbxMesh* mesh;
 	if (meshNode == NULL) {
 		std::ostringstream myStream;
 		myStream << fileName;
@@ -59,20 +60,7 @@ bool FBX_Importer::Load(
 		std::cout << myStream.str().c_str();
 		return false;
 	}
-
-	FbxMesh* mesh = meshNode->GetMesh();
-
-	// Check if mesh contains non-triangle polygons, if exists, triangulate entire mesh.
-	for (int p = 0; p < mesh->GetPolygonCount(); p++) {
-		if (mesh->GetPolygonSize(p) != 3) {
-			std::ostringstream myStream;
-			myStream << fileName;
-			myStream << " contains polygons with more than 3 vertices." << "\n";
-			OutputDebugStringA(myStream.str().c_str());
-			std::cout << myStream.str().c_str();
-			return false;
-		}
-	}
+	mesh = meshNode->GetMesh();
 
 	//// Process all vertices, indices, normals (per-vertex), and UV values from the mesh.
 	// Get values that indicates how normals are represented in the mesh.
@@ -84,13 +72,14 @@ bool FBX_Importer::Load(
 
 	// Get vertices (control points).
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
+	int controlPointsCount = mesh->GetControlPointsCount();
+	int polygonCount = mesh->GetPolygonCount();
 
 	// Get first UV set.
 	FbxStringList uvNames;
 	mesh->GetUVSetNames(uvNames);
 	const char* uvName = uvNames[0];
 
-	int polygonCount = mesh->GetPolygonCount();
 	switch (fbxNormalMapMode) {
 		// Comments are from Autodesk FBX SDK
 
@@ -137,7 +126,7 @@ bool FBX_Importer::Load(
 							(float)fbxVertices[controlPointIndex].mData[2],
 							(float)fbxVertices[controlPointIndex].mData[1]
 						},
-						// Fill normals and colors of the Vertex with zeros temporarily.
+						// Fill normals of the Vertex with zeros temporarily.
 						{
 							0,0,0
 						},
@@ -338,8 +327,16 @@ bool FBX_Importer::Load(
 				FbxNode* jointNode = cluster->GetLink();
 				FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
 
+				// Get matrices of cluster and mesh node.
+				FbxAMatrix transformMatrix;
+				cluster->GetTransformMatrix(transformMatrix);
 				FbxAMatrix transformLinkMatrix;
 				cluster->GetTransformLinkMatrix(transformLinkMatrix);
+				FbxAMatrix geometryTransformMatrix = FbxAMatrix(
+					meshNode->GetGeometricTranslation(FbxNode::eSourcePivot),
+					meshNode->GetGeometricRotation(FbxNode::eSourcePivot),
+					meshNode->GetGeometricScaling(FbxNode::eSourcePivot)
+				);
 
 				// Create Joint object.
 				Joint* joint = new Joint(c, jointNode->GetName());
@@ -348,7 +345,7 @@ bool FBX_Importer::Load(
 				// Current joint's matrix that transform model-space to joint-space.
 				// transformLinkMatrix is joint's position in model space.
 				joint->globalBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
-					transformLinkMatrix.Inverse()
+					transformLinkMatrix.Inverse() * transformMatrix * geometryTransformMatrix
 				));
 
 				// If joint node has parent, record it's pointer.
@@ -364,18 +361,24 @@ bool FBX_Importer::Load(
 						parentJoint->childJointIDs.push_back(joint->id);
 						joint->parentJointID = parentJoint->id;
 
-						// Calculate joint's bind pose transform relative to parent joint.
+						// Bindpose transform of the current joint relative to parent joint space.
+						// This matrix isn't used for animation.
+						// Animation matrices are directly in model-space.
 						FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
 						FbxAMatrix parentTransformLinkMatrix;
 						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
-							parentTransformLinkMatrix.Inverse() * transformLinkMatrix
+							(parentTransformLinkMatrix.Inverse() * transformLinkMatrix * transformMatrix * geometryTransformMatrix)
 						));
 					}
 					// If joint node has no parent, it's the root node.
 					else {
 						joint->isRoot = true;
+
+						FbxAMatrix identity;
+						identity.SetIdentity();
+						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(identity));
 					}
 				}
 
@@ -395,9 +398,11 @@ bool FBX_Importer::Load(
 						animTime.SetFrame(frame, timeMode);
 						
 						// Get current joint's transformation in current time from the animation.
-						_animations->at(0)->gKeyFrames.at((int)frame)->setJointKeyframeMatrix(
+						FbxAMatrix currentTransformOffset = meshNode->EvaluateGlobalTransform(animTime) * geometryTransformMatrix;
+						_animations->at(0)->gKeyFrames.at((int) frame)->setJointKeyframeMatrix(
 							joint->id,
 							FBX_Importer::MatrixFBXtoDX(
+								// Relative to parent
 								jointNode->EvaluateLocalTransform(animTime)
 							)
 						);
@@ -483,7 +488,8 @@ FbxNode* FBX_Importer::getMainMeshNode(FbxNode* node, const char* mainMeshName) 
 	// Check if node is mesh.
 	FbxMesh* mesh = node->GetMesh();
 	if (mesh != NULL) {
-		if (std::string(mesh->GetName()).compare(mainMeshName) == 0) {
+		std::string meshName = std::string(mesh->GetName());
+		if (meshName.compare(mainMeshName) == 0) {
 			return node;
 		}
 	}
@@ -523,7 +529,7 @@ dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix fbxMatrix) {
 	fbxMatrix.SetT(translation);
 
 	// Copy FBX matrix do DX matrix.
-	for (int i = 0; i<4; i++) {
+	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			(*dxMATRIX)(i, j) = (float) fbxMatrix.Get(i, j);
 		}
