@@ -82,10 +82,10 @@ void Game::Setup(){
 		// Set Animation
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
-		//this->mainCharacter->setAnimation("Root|Root|Take 001|BaseLayer");
+		this->mainCharacter->setAnimation("Root|Root|Take 001|BaseLayer");
 
 		// Set Texture
-		/*Texture* mainCharacterTexture = new Texture("dying", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\dying.dds");
+		/*Texture* mainCharacterTexture = new Texture("dying", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
 		TextureSampler* mainCharacterTextureSampler = new TextureSampler();
 		this->pWorld->createTexture(mainCharacterTexture);
 		this->pWorld->createTextureSampler(mainCharacterTextureSampler);

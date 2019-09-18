@@ -62,212 +62,172 @@ bool FBX_Importer::Load(
 	}
 	mesh = meshNode->GetMesh();
 
-	//// Process all vertices, indices, normals (per-vertex), and UV values from the mesh.
-	// Get values that indicates how normals are represented in the mesh.
-	// If faces of the mesh shares vertices, that means one vertex has more than one normal vector.
-	// If that's the case, we duplicate the vertices and make faces independent from each other.
+	//// Read mesh elements.
+	// Normal
 	FbxGeometryElementNormal* fbxNormalElement = mesh->GetElementNormal();
 	FbxLayerElement::EMappingMode fbxNormalMapMode = fbxNormalElement->GetMappingMode();
 	FbxLayerElement::EReferenceMode fbxNormalReferenceMode = fbxNormalElement->GetReferenceMode();
+	// UV
+	FbxGeometryElementUV* fbxUVElement = mesh->GetElementUV();
+	FbxLayerElement::EMappingMode fbxUVMapMode = fbxUVElement->GetMappingMode();
+	FbxLayerElement::EReferenceMode fbxUVReferenceMode = fbxUVElement->GetReferenceMode();
+	FbxStringList uvNames;
+	mesh->GetUVSetNames(uvNames);
+	const char* uvName = uvNames[0];
+
+	// Check if normal and UV layer elements' map mode matches.
+	assert(fbxNormalMapMode == fbxUVMapMode);
 
 	// Get vertices (control points).
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
 	int controlPointsCount = mesh->GetControlPointsCount();
 	int polygonCount = mesh->GetPolygonCount();
 
-	// Get first UV set.
-	FbxStringList uvNames;
-	mesh->GetUVSetNames(uvNames);
-	const char* uvName = uvNames[0];
+	// This mapping mode can form multiple polygons with using one control point.
+	if (fbxNormalMapMode == FbxGeometryElement::eByPolygonVertex) {
+		// Collect all vertices.
+		_vertices->reserve(
+			(size_t)(polygonCount * 3)
+		);
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			// Process every vertex in this polygon (triangle)
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 
-	switch (fbxNormalMapMode) {
-		// Comments are from Autodesk FBX SDK
+				// Get the control point index of the current vertex.
+				int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
 
-		// The mapping is undetermined.
-		case FbxGeometryElement::eNone:
-			return false;
-			break;
-
-		// There will be one mapping coordinate for each surface control point/vertex.
-		case FbxGeometryElement::eByControlPoint:
-			break;
-
-		// There will be one mapping coordinate for each vertex, for every polygon of which it is a part.
-		// This means that a vertex will have as many mapping coordinates as polygons of which it is a part.
-		case FbxGeometryElement::eByPolygonVertex:
-			_vertices->reserve(
-				(size_t)(polygonCount * 3)
-			);
-
-			// Collect all vertices.
-			for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-				// Process every vertex in this polygon (triangle)
-				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-
-					// Get the control point index of the current vertex.
-					int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
-
-					// Get the UV coordinates of the current vertex for texture.
-					FbxVector2 texture_UV;
-					bool unmapped;
-					bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, uvName, texture_UV, unmapped);
-
-					float texture_U = 0;
-					float texture_V = 0;
-
-					if (result && !unmapped) {
-						texture_U = (float) texture_UV.mData[0];
-						texture_V = 1.0f - (float) texture_UV.mData[1];
+				Vertex* vertex = new Vertex{
+					// Position of the Vertex
+					{
+						(float)fbxVertices[controlPointIndex].mData[0],
+						(float)fbxVertices[controlPointIndex].mData[2],
+						(float)fbxVertices[controlPointIndex].mData[1]
 					}
-					Vertex* vertex = new Vertex{
-						// Position of the Vertex
-						{
-							(float)fbxVertices[controlPointIndex].mData[0],
-							(float)fbxVertices[controlPointIndex].mData[2],
-							(float)fbxVertices[controlPointIndex].mData[1]
-						},
-						// Fill normals of the Vertex with zeros temporarily.
-						{
-							0,0,0
-						},
-						// Texture UV coordinates of the Vertex
-						{
-							texture_U, texture_V
-						}
-					};
+				};
 
-					// Fill joint indices and weights initially.
-					for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-						vertex->jointIDs[j] = -1;
-						vertex->jointWeights[j] = 0.0f;
-					}
-
-					_indexed_vertices[(int) _vertices->size()] = controlPointIndex;
-					_vertices->push_back(*vertex);
+				// Fill joint indices and weights initially.
+				for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
+					vertex->jointIDs[j] = -1;
+					vertex->jointWeights[j] = 0.0f;
 				}
+
+				_indexed_vertices[(int)_vertices->size()] = controlPointIndex;
+				_vertices->push_back(*vertex);
 			}
-			_vertices->shrink_to_fit();
+		}
+		_vertices->shrink_to_fit();
 
-			// Collect all indices.
-			_indices->reserve(
-				(size_t) (polygonCount * 3)
-			);
-			for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-				// Process every vertex in this polygon (triangle)
-				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-					_indices->push_back(
-						(unsigned int) polygonIndex * 3 + (2-vertexIndex)
-					);
-				}
+		// Collect all indices.
+		_indices->reserve(
+			(size_t)(polygonCount * 3)
+		);
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			// Process every vertex in this polygon (triangle)
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				_indices->push_back(
+					(unsigned int)polygonIndex * 3 + (2 - vertexIndex)
+				);
 			}
-			_indices->shrink_to_fit();
-			break;
-
-		// There can be only one mapping coordinate for the whole polygon.
-		case FbxGeometryElement::eByPolygon:
-			break;
-
-		// There will be one mapping coordinate for each unique edge in the mesh.
-		// This is meant to be used with smoothing layer elements.
-		case FbxGeometryElement::eByEdge:
-			break;
-
-		// There can be only one mapping coordinate for the whole surface.
-		case FbxGeometryElement::eAllSame:
-			break;
+		}
+		_indices->shrink_to_fit();
+	}
+	// This mapping mode can use one control point for just one polygon.
+	else if (fbxNormalMapMode == FbxGeometryElement::eByControlPoint) {
+		
 	}
 
-	int indexByPolygonVertex = 0;
-	switch (fbxNormalMapMode) {
-		// Comments are from Autodesk FBX SDK
+	// Build reverse mapping: control point index to vertex array index.
+	std::map<int, int> _indexed_vertices_reverse;
+	for (std::map<int, int>::iterator it = _indexed_vertices.begin(); it != _indexed_vertices.end(); ++it) {
+		_indexed_vertices_reverse[it->second] = it->first;
+	}
 
-		// The mapping is undetermined.
-		case FbxGeometryElement::eNone:
-			break;
-
-		// There will be one mapping coordinate for each surface control point/vertex.
-		case FbxGeometryElement::eByControlPoint:
-			break;
-			/*
-			for (int vertexIndex = 0; vertexIndex < mesh->GetControlPointsCount(); vertexIndex++) {
+	// Collect normal layer data.
+	int directArrayIndex;
+	if (fbxNormalMapMode == FbxGeometryElement::eByPolygonVertex) {
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			// Process every vertex in this polygon (triangle)
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				directArrayIndex = polygonIndex * 3 + vertexIndex;
 				int normalIndex = -1;
 
-				switch (fbxNormalReferenceMode) {
-				// This indicates that the mapping information for the n'th element is found in the n'th place of FbxLayerElementTemplate::mDirectArray.
-				case FbxGeometryElement::eDirect:
-					normalIndex = vertexIndex;
-					break;
-
-				// This indicates that the FbxLayerElementTemplate::mIndexArray contains, for the n'th element, an index in the FbxLayerElementTemplate::mDirectArray array of mapping elements.
-				// eIndexToDirect is usually useful for storing eByPolygonVertex mapping mode elements coordinates.
-				// Since the same coordinates are usually repeated many times, this saves spaces by storing the coordinate only one time and then referring to them with an index.
-				// Materials and Textures are also referenced with this mode and the actual Material/Texture can be accessed via the FbxLayerElementTemplate::mDirectArray
-				case FbxGeometryElement::eIndexToDirect:
-					normalIndex = fbxNormalElement->GetIndexArray().GetAt(vertexIndex);
-					break;
+				if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
+					normalIndex = directArrayIndex;
 				}
-
-				// Place normal to our Vertex object.
+				else if(fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect){
+					normalIndex = fbxNormalElement->GetIndexArray().GetAt(directArrayIndex);
+				}
 				assert(normalIndex != -1);
 
-				_vertices->at(vertexIndex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
-				_vertices->at(vertexIndex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
-				_vertices->at(vertexIndex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
+				_vertices->at(directArrayIndex).normal.x = (float)fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
+				_vertices->at(directArrayIndex).normal.y = (float)fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+				_vertices->at(directArrayIndex).normal.z = (float)fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
 			}
-			*/
+		}
+	}
+	else if (fbxNormalMapMode == FbxGeometryElement::eByControlPoint) {
+		for (int vertexIndex = 0; vertexIndex < controlPointsCount; vertexIndex++) {
+			directArrayIndex = _indexed_vertices_reverse[vertexIndex];
 
-		// There will be one mapping coordinate for each vertex, for every polygon of which it is a part.
-		// This means that a vertex will have as many mapping coordinates as polygons of which it is a part.
-		case FbxGeometryElement::eByPolygonVertex:
-			for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-				// Process every vertex in this polygon (triangle)
-				for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-					indexByPolygonVertex = polygonIndex * 3 + vertexIndex;
-					int normalIndex = -1;
-
-					switch (fbxNormalReferenceMode) {
-						// This indicates that the mapping information for the n'th element is found in the n'th place of FbxLayerElementTemplate::mDirectArray.
-						case FbxGeometryElement::eDirect:
-							normalIndex = indexByPolygonVertex;
-							break;
-
-						// This indicates that the FbxLayerElementTemplate::mIndexArray contains, for the n'th element, an index in the FbxLayerElementTemplate::mDirectArray array of mapping elements.
-						// eIndexToDirect is usually useful for storing eByPolygonVertex mapping mode elements coordinates.
-						// Since the same coordinates are usually repeated many times, this saves spaces by storing the coordinate only one time and then referring to them with an index.
-						// Materials and Textures are also referenced with this mode and the actual Material/Texture can be accessed via the FbxLayerElementTemplate::mDirectArray
-						case FbxGeometryElement::eIndexToDirect:
-							normalIndex = fbxNormalElement->GetIndexArray().GetAt(indexByPolygonVertex);
-							break;
-					}
-
-					// Place normal to our Vertex object.
-					assert(normalIndex != -1);
-
-					_vertices->at(indexByPolygonVertex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
-					_vertices->at(indexByPolygonVertex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
-					_vertices->at(indexByPolygonVertex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
-				}
+			int normalIndex = -1;
+			if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
+				normalIndex = directArrayIndex;
 			}
-			break;
+			else if (fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
+				normalIndex = fbxNormalElement->GetIndexArray().GetAt(directArrayIndex);
+			}
+			assert(normalIndex != -1);
 
-		// There can be only one mapping coordinate for the whole polygon.
-		case FbxGeometryElement::eByPolygon:
-			break;
-
-		// There will be one mapping coordinate for each unique edge in the mesh.
-		// This is meant to be used with smoothing layer elements.
-		case FbxGeometryElement::eByEdge:
-			break;
-
-		// There can be only one mapping coordinate for the whole surface.
-		case FbxGeometryElement::eAllSame:
-			break;
+			_vertices->at(directArrayIndex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
+			_vertices->at(directArrayIndex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+			_vertices->at(directArrayIndex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
+		}
 	}
 
+	// Collect UV layer data.
+	if (fbxUVMapMode == FbxGeometryElement::eByPolygonVertex) {
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				directArrayIndex = polygonIndex * 3 + vertexIndex;
+
+				// Get the UV coordinates of the current vertex for texture.
+				FbxVector2 texture_UV;
+				bool unmapped;
+				bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, uvName, texture_UV, unmapped);
+
+				float texture_U = 0;
+				float texture_V = 0;
+
+				if (result && !unmapped) {
+					texture_U = (float) texture_UV.mData[0];
+					texture_V = 1.0f - (float) texture_UV.mData[1];
+				}
+
+				_vertices->at(directArrayIndex).TextureUV.x = texture_U;
+				_vertices->at(directArrayIndex).TextureUV.y = texture_V;
+			}
+		}
+	}
+	else if (fbxUVMapMode == FbxGeometryElement::eByControlPoint) {
+		for (int vertexIndex = 0; vertexIndex < controlPointsCount; vertexIndex++) {
+			directArrayIndex = _indexed_vertices_reverse[vertexIndex];
+
+			int uvIndex = -1;
+			if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
+				uvIndex = directArrayIndex;
+			}
+			else if (fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
+				uvIndex = fbxNormalElement->GetIndexArray().GetAt(directArrayIndex);
+			}
+			assert(uvIndex != -1);
+
+			_vertices->at(directArrayIndex).TextureUV.x = (float) fbxUVElement->GetDirectArray().GetAt(uvIndex)[0];
+			_vertices->at(directArrayIndex).TextureUV.y = (float) fbxUVElement->GetDirectArray().GetAt(uvIndex)[2];
+		}
+	}
+	
 	//// Process animation data for each joint while collecting joints.
 	FbxTime::EMode timeMode = FbxTime::GetGlobalTimeMode();
-	 
-	// Get animation stack.
 	FbxLongLong startFrame;
 	FbxLongLong stopFrame;
 	FbxAnimStack* fbxAnimStack = fbxScene->GetCurrentAnimationStack();
