@@ -1,14 +1,13 @@
 #include "FBX_Importer.h"
 
 bool FBX_Importer::Load(
-		const char* fileName,
-		std::vector<Vertex>* _vertices,
-		std::vector<unsigned int>* _indices,
-		std::vector<Joint*>* _joints,
-		std::vector<Animation*>* _animations,
+		const char* fileName, const char* mainMeshName,
+		Vertex*& _vertices, unsigned int*& _indices,
+		unsigned int& _vertices_count, unsigned int& _indices_count,
+		Joint**& _joints, unsigned int& _jointCount,
+		Animation**& _animations, unsigned int& _animationCount,
 		std::map<int, int>& _indexed_vertices,
-		std::map<int, std::map<int, float>>& _indexed_joint_weights,
-		const char* mainMeshName
+		std::map<int, std::map<int, float>>& _indexed_joint_weights
 	)
 {
 	FbxManager* fbxSdkManager = FbxManager::Create();
@@ -75,65 +74,47 @@ bool FBX_Importer::Load(
 	mesh->GetUVSetNames(uvNames);
 	const char* uvName = uvNames[0];
 
-	// Check if normal and UV layer elements' map mode matches.
-	assert(fbxNormalMapMode == fbxUVMapMode);
-
 	// Get vertices (control points).
 	FbxVector4* fbxVertices = mesh->GetControlPoints();
 	int controlPointsCount = mesh->GetControlPointsCount();
 	int polygonCount = mesh->GetPolygonCount();
 
-	// This mapping mode can form multiple polygons with using one control point.
-	if (fbxNormalMapMode == FbxGeometryElement::eByPolygonVertex) {
-		// Collect all vertices.
-		_vertices->reserve(
-			(size_t)(polygonCount * 3)
-		);
-		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-			// Process every vertex in this polygon (triangle)
-			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+	int vertexArrayIndex = 0;
+	int controlPointIndex = 0;
 
-				// Get the control point index of the current vertex.
-				int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+	// Create arrays.
+	_vertices_count = polygonCount * 3;
+	_indices_count = polygonCount * 3;
+	_vertices = new Vertex[_vertices_count];
+	_indices = new unsigned int[_indices_count];
 
-				Vertex* vertex = new Vertex{
-					// Position of the Vertex
-					{
-						(float)fbxVertices[controlPointIndex].mData[0],
-						(float)fbxVertices[controlPointIndex].mData[2],
-						(float)fbxVertices[controlPointIndex].mData[1]
-					}
-				};
+	// Collect all vertices.
+	for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+		// Process every vertex in this polygon (triangle)
+		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 
-				// Fill joint indices and weights initially.
-				for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-					vertex->jointIDs[j] = -1;
-					vertex->jointWeights[j] = 0.0f;
+			// Get the control point index of the current vertex.
+			controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+			vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+
+			Vertex* vertex = new Vertex{
+				// Position of the Vertex
+				{
+					(float) fbxVertices[controlPointIndex].mData[0],
+					(float) fbxVertices[controlPointIndex].mData[2],
+					(float) fbxVertices[controlPointIndex].mData[1]
 				}
+			};
 
-				_indexed_vertices[(int)_vertices->size()] = controlPointIndex;
-				_vertices->push_back(*vertex);
+			// Fill joint indices and weights initially.
+			for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
+				vertex->jointIDs[j] = -1;
+				vertex->jointWeights[j] = 0.0f;
 			}
-		}
-		_vertices->shrink_to_fit();
 
-		// Collect all indices.
-		_indices->reserve(
-			(size_t)(polygonCount * 3)
-		);
-		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-			// Process every vertex in this polygon (triangle)
-			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-				_indices->push_back(
-					(unsigned int)polygonIndex * 3 + (2 - vertexIndex)
-				);
-			}
+			_indexed_vertices[vertexArrayIndex] = controlPointIndex;
+			_vertices[vertexArrayIndex] = *vertex;
 		}
-		_indices->shrink_to_fit();
-	}
-	// This mapping mode can use one control point for just one polygon.
-	else if (fbxNormalMapMode == FbxGeometryElement::eByControlPoint) {
-		
 	}
 
 	// Build reverse mapping: control point index to vertex array index.
@@ -142,87 +123,83 @@ bool FBX_Importer::Load(
 		_indexed_vertices_reverse[it->second] = it->first;
 	}
 
+	// Collect all indices.
+	for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+		// Process every vertex in this polygon (triangle)
+		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+			vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+
+			// Reverse winding. (RightHanded to LeftHanded)
+			_indices[vertexArrayIndex] = (
+				(unsigned int) polygonIndex * 3 + (2 - vertexIndex)
+			);
+		}
+	}
+
 	// Collect normal layer data.
-	int directArrayIndex;
 	if (fbxNormalMapMode == FbxGeometryElement::eByPolygonVertex) {
 		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 			// Process every vertex in this polygon (triangle)
 			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-				directArrayIndex = polygonIndex * 3 + vertexIndex;
-				int normalIndex = -1;
+				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
 
+				int normalIndex = -1;
 				if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
-					normalIndex = directArrayIndex;
+					normalIndex = vertexArrayIndex;
 				}
 				else if(fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect){
-					normalIndex = fbxNormalElement->GetIndexArray().GetAt(directArrayIndex);
+					normalIndex = fbxNormalElement->GetIndexArray().GetAt(vertexArrayIndex);
 				}
 				assert(normalIndex != -1);
 
-				_vertices->at(directArrayIndex).normal.x = (float)fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
-				_vertices->at(directArrayIndex).normal.y = (float)fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
-				_vertices->at(directArrayIndex).normal.z = (float)fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
+				_vertices[vertexArrayIndex].normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
+				_vertices[vertexArrayIndex].normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+				_vertices[vertexArrayIndex].normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
 			}
 		}
 	}
 	else if (fbxNormalMapMode == FbxGeometryElement::eByControlPoint) {
-		for (int vertexIndex = 0; vertexIndex < controlPointsCount; vertexIndex++) {
-			directArrayIndex = _indexed_vertices_reverse[vertexIndex];
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+				controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
 
-			int normalIndex = -1;
-			if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
-				normalIndex = directArrayIndex;
-			}
-			else if (fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
-				normalIndex = fbxNormalElement->GetIndexArray().GetAt(directArrayIndex);
-			}
-			assert(normalIndex != -1);
+				int normalIndex = -1;
+				if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
+					normalIndex = controlPointIndex;
+				}
+				else if (fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
+					normalIndex = fbxNormalElement->GetIndexArray().GetAt(controlPointIndex);
+				}
+				assert(normalIndex != -1);
 
-			_vertices->at(directArrayIndex).normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
-			_vertices->at(directArrayIndex).normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
-			_vertices->at(directArrayIndex).normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
+				_vertices[vertexArrayIndex].normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
+				_vertices[vertexArrayIndex].normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+				_vertices[vertexArrayIndex].normal.z = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
+			}
 		}
 	}
 
 	// Collect UV layer data.
-	if (fbxUVMapMode == FbxGeometryElement::eByPolygonVertex) {
-		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
-				directArrayIndex = polygonIndex * 3 + vertexIndex;
+	for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+			vertexArrayIndex = polygonIndex * 3 + vertexIndex;
 
-				// Get the UV coordinates of the current vertex for texture.
-				FbxVector2 texture_UV;
-				bool unmapped;
-				bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, uvName, texture_UV, unmapped);
+			// Get the UV coordinates of the current vertex for texture.
+			FbxVector2 texture_UV;
+			bool unmapped;
+			bool result = mesh->GetPolygonVertexUV(polygonIndex, vertexIndex, uvName, texture_UV, unmapped);
 
-				float texture_U = 0;
-				float texture_V = 0;
+			float texture_U = 0;
+			float texture_V = 0;
 
-				if (result && !unmapped) {
-					texture_U = (float) texture_UV.mData[0];
-					texture_V = 1.0f - (float) texture_UV.mData[1];
-				}
-
-				_vertices->at(directArrayIndex).TextureUV.x = texture_U;
-				_vertices->at(directArrayIndex).TextureUV.y = texture_V;
+			if (result && !unmapped) {
+				texture_U = (float) texture_UV.mData[0];
+				texture_V = 1.0f - (float) texture_UV.mData[1];
 			}
-		}
-	}
-	else if (fbxUVMapMode == FbxGeometryElement::eByControlPoint) {
-		for (int vertexIndex = 0; vertexIndex < controlPointsCount; vertexIndex++) {
-			directArrayIndex = _indexed_vertices_reverse[vertexIndex];
 
-			int uvIndex = -1;
-			if (fbxNormalReferenceMode == FbxGeometryElement::eDirect) {
-				uvIndex = directArrayIndex;
-			}
-			else if (fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
-				uvIndex = fbxNormalElement->GetIndexArray().GetAt(directArrayIndex);
-			}
-			assert(uvIndex != -1);
-
-			_vertices->at(directArrayIndex).TextureUV.x = (float) fbxUVElement->GetDirectArray().GetAt(uvIndex)[0];
-			_vertices->at(directArrayIndex).TextureUV.y = (float) fbxUVElement->GetDirectArray().GetAt(uvIndex)[2];
+			_vertices[vertexArrayIndex].TextureUV.x = texture_U;
+			_vertices[vertexArrayIndex].TextureUV.y = texture_V;
 		}
 	}
 	
@@ -253,6 +230,10 @@ bool FBX_Importer::Load(
 
 		// Create animation objects.
 		int fbxAnimLayerCount = fbxAnimStack->GetMemberCount();
+
+		_animationCount = fbxAnimLayerCount;
+		_animations = new Animation*[_animationCount];
+
 		for (int animLayer = 0; animLayer < fbxAnimLayerCount; animLayer++) {
 			Animation* animation = new Animation();
 			animation->name = animStackName;
@@ -268,7 +249,7 @@ bool FBX_Importer::Load(
 			animation->gKeyframeCount = (unsigned int) animation->gKeyFrames.size();
 			animation->duration = animation->gKeyframeCount / animation->frameRate;
 
-			_animations->push_back(animation);
+			_animations[animLayer] = animation;
 		}
 	}
 
@@ -276,10 +257,15 @@ bool FBX_Importer::Load(
 	if (mesh->GetDeformerCount() > 0) {
 		// Check mesh deformer type if it is supported.
 		if (mesh->GetDeformer(0)->GetDeformerType() == FbxDeformer::eSkin) {
-			FbxSkin* skin = (FbxSkin*)mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
+			FbxSkin* skin = (FbxSkin*) mesh->GetDeformer(0, FbxDeformer::eSkin, &status);
+			int clusterCount = skin->GetClusterCount();
+
+			// Create array of joints.
+			_jointCount = clusterCount;
+			_joints = new Joint*[_jointCount];
+			memset(_joints, NULL, _jointCount);
 
 			// Process each cluster of the deformer.
-			int clusterCount = skin->GetClusterCount();
 			for (int c = 0; c < clusterCount; c++) {
 				FbxCluster* cluster = skin->GetCluster(c);
 
@@ -313,7 +299,7 @@ bool FBX_Importer::Load(
 
 				if (parentJointNode != NULL) {
 					// If this value is NULL, then this joint don't have parent.
-					Joint* parentJoint = FBX_Importer::getJointByName(parentJointNode->GetName(), _joints);
+					Joint* parentJoint = FBX_Importer::getJointByName(parentJointNode->GetName(), _joints, _jointCount);
 
 					if (parentJoint != NULL) {
 						// If a joint has parent, it's child of it's parent.
@@ -359,7 +345,7 @@ bool FBX_Importer::Load(
 						
 						// Get current joint's transformation in current time from the animation.
 						FbxAMatrix currentTransformOffset = meshNode->EvaluateGlobalTransform(animTime) * geometryTransformMatrix;
-						_animations->at(0)->gKeyFrames.at((int) frame)->setJointKeyframeMatrix(
+						_animations[0]->gKeyFrames.at((int) frame)->setJointKeyframeMatrix(
 							joint->id,
 							FBX_Importer::MatrixFBXtoDX(
 								// Relative to parent
@@ -370,7 +356,7 @@ bool FBX_Importer::Load(
 				}
 
 				// Push joint to vector array.
-				_joints->push_back(joint);
+				_joints[c] = joint;
 			}
 		}
 		else {
@@ -463,10 +449,13 @@ FbxNode* FBX_Importer::getMainMeshNode(FbxNode* node, const char* mainMeshName) 
 	return NULL;
 }
 
-Joint* FBX_Importer::getJointByName(const char* jointName, std::vector<Joint*>* _joints) {
-	for (int j = 0; j < _joints->size(); j++) {
-		if (std::string(jointName).compare(_joints->at(j)->name) == 0) {
-			return _joints->at(j);
+Joint* FBX_Importer::getJointByName(const char* jointName, Joint** joints, unsigned int jointCount) {
+	for (unsigned int j = 0; j < jointCount; j++) {
+		if (joints[j] == NULL) {
+			break;
+		}
+		if (std::string(jointName).compare(joints[j]->name) == 0) {
+			return joints[j];
 		}
 	}
 	return NULL;

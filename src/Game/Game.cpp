@@ -62,7 +62,7 @@ void Game::Setup(){
 	mainCharacter = new Character(
 		{
 			{ 0.1f, 0.1f, 0.1f },
-			{ 0, 0, 0},
+			{ 0, 0, 10},
 			{ 0,0,0,0 },
 			{0.66f, 0.66f, 0.66f, 1},
 			{},
@@ -77,12 +77,12 @@ void Game::Setup(){
 
 	// Load mesh.
 	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\attackcombo01.fbx", "")) {
-	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated.fbx", "")) {
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated_blender.fbx", "Mesh")) {
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated.fbx", "")) {
+	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated_blender.fbx", "Mesh")) {
 		// Set Animation
-		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
-		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
-		this->mainCharacter->setAnimation("Root|Root|Take 001|BaseLayer");
+		//MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
+		//mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
+		//this->mainCharacter->setAnimation("Root|Root|Take 001|BaseLayer");
 
 		// Set Texture
 		/*Texture* mainCharacterTexture = new Texture("dying", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");

@@ -4,41 +4,27 @@
 #include "Utils/FBX_Importer.h"
 
 bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
-	std::vector<Vertex>* _vertices = new std::vector<Vertex>();
-	std::vector<unsigned int>* _indices = new std::vector<unsigned int>();
-	std::vector<Joint*>* _joints = new std::vector<Joint*>();
 	std::vector<Animation*>* _animations = new std::vector<Animation*>();
-
 	std::map<int, int> _indexed_vertices;
 	std::map<int, std::map<int, float>> _indexed_joint_weights;
 
 	// Load .FBX file to our vectors.
-	if (!FBX_Importer::Load(fileName, _vertices, _indices, _joints, _animations, _indexed_vertices, _indexed_joint_weights, mainMeshName)) {
-		return false;
-	}
+	if (!FBX_Importer::Load(
+		fileName, mainMeshName,
+		this->gVertices, this->gIndices,
+		this->gVertexCount, this->gIndexCount,
+		this->gSkeleton.gJoints, this->gSkeleton.gJointCount,
+		this->gAnimations, this->gAnimationCount,
+		_indexed_vertices, _indexed_joint_weights
+	)) {return false;}
 
-	//// Process Animation.
-	this->gAnimationCount = (UINT)_animations->size();
-	Animation** animations = new Animation*[this->gAnimationCount];
-	for (int a = 0; a < _animations->size(); a++) {
-		animations[a] = _animations->at(a);
-	}
-	this->gAnimations = animations;
-
-	//// Process Skeleton
-	this->gSkeleton.gJointCount = (UINT) _joints->size();
-	Joint** joints = new Joint*[this->gSkeleton.gJointCount];
-	for (int j = 0; j < _joints->size(); j++) {
-		joints[j] = _joints->at(j);
-	}
-	this->gSkeleton.gJoints = joints;
+	// Setup Skeleton
 	this->gSkeleton.Setup();
 
+	// Fill joint ID's and weights on all vertices.
 	int maxJointIndices[MAX_JOINT_PER_VERTEX];
 	double maxJointWeights[MAX_JOINT_PER_VERTEX];
-
-	// Fill joint ID's and weights on all vertices.
-	for (int v = 0; v < _vertices->size(); v++) {
+	for (unsigned int v = 0; v < this->gVertexCount; v++) {
 		std::vector<int> addedJoints;
 		addedJoints.clear();
 
@@ -74,30 +60,10 @@ bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
 
 		// Fill vertex struct.
 		for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
-			_vertices->at(v).jointIDs[j] = maxJointIndices[j];
-			_vertices->at(v).jointWeights[j] = (float) maxJointWeights[j];
+			this->gVertices[v].jointIDs[j] = maxJointIndices[j];
+			this->gVertices[v].jointWeights[j] = (float) maxJointWeights[j];
 		}
 	}
-
-	//// Process Vertices
-	this->gVertexCount = (UINT)_vertices->size();
-	Vertex* vertices = new Vertex[this->gVertexCount];
-	for (int v = 0; v < _vertices->size(); v++) {
-		vertices[v] = _vertices->at(v);
-	}
-	this->gVertices = vertices;
-
-	//// Process Indices
-	this->gIndexCount = (UINT)_indices->size();
-	unsigned int* indices = new unsigned int[this->gIndexCount];
-	for (int i = 0; i < _indices->size(); i++) {
-		indices[i] = _indices->at(i);
-	}
-	this->gIndices = indices;
-
-	delete _vertices;
-	delete _indices;
-	delete _joints;
 
 	return true;
 }
