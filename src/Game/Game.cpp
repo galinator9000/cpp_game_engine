@@ -78,18 +78,17 @@ void Game::Setup(){
 	// Load mesh.
 	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\attackcombo01.fbx", "")) {
 	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated.fbx", "")) {
-	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated_blender.fbx", "Mesh")) {
 		// Set Animation
-		//MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
-		//mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
-		//this->mainCharacter->setAnimation("Root|Root|Take 001|BaseLayer");
+		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
+		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
+		this->mainCharacter->setAnimation("Take 001");
 
 		// Set Texture
-		/*Texture* mainCharacterTexture = new Texture("dying", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
+		Texture* mainCharacterTexture = new Texture("texture", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
 		TextureSampler* mainCharacterTextureSampler = new TextureSampler();
 		this->pWorld->createTexture(mainCharacterTexture);
 		this->pWorld->createTextureSampler(mainCharacterTextureSampler);
-		this->mainCharacter->attachTextureAndSampler(mainCharacterTexture, mainCharacterTextureSampler);*/
+		this->mainCharacter->attachTextureAndSampler(mainCharacterTexture, mainCharacterTextureSampler);
 
 		// Add entity to world.
 		this->pWorld->addEntity(mainCharacter);

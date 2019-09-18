@@ -31,14 +31,14 @@ void Animator::Update(JointTransform** jointTransforms, unsigned int gJointCount
 	// Update joint animation matrices.
 	for (unsigned int j = 0; j < gJointCount; j++) {
 		// Directly set keyframe transformation.
-		jointTransforms[j]->jointAnimTransformMatrix = *(currentKeyFrame->jointIDTransform[j]);
+		//jointTransforms[j]->jointAnimTransformMatrix = *(currentKeyFrame->jointIDTransform[j]);
 
 		// Or interpolate transformations between current and next keyframe.
-		/*jointTransforms[j]->jointAnimTransformMatrix = this->interpolateTransformationMatrix(
+		jointTransforms[j]->jointAnimTransformMatrix = this->interpolateTransformationMatrix(
 			*(currentKeyFrame->jointIDTransform[j]),
 			*(nextKeyFrame->jointIDTransform[j]),
 			frameProgression
-		);*/
+		);
 	}
 }
 

@@ -50,6 +50,7 @@ bool FBX_Importer::Load(
 	//// Process mesh.
 	// Get mesh from scene object.
 	FbxNode* meshNode = getMainMeshNode(rootNode, mainMeshName);
+
 	FbxMesh* mesh;
 	if (meshNode == NULL) {
 		std::ostringstream myStream;
@@ -291,7 +292,7 @@ bool FBX_Importer::Load(
 				// Current joint's matrix that transform model-space to joint-space.
 				// transformLinkMatrix is joint's position in model space.
 				joint->globalBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
-					transformLinkMatrix.Inverse() * transformMatrix * geometryTransformMatrix
+					transformLinkMatrix.Inverse()
 				));
 
 				// If joint node has parent, record it's pointer.
@@ -315,7 +316,7 @@ bool FBX_Importer::Load(
 						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
-							(parentTransformLinkMatrix.Inverse() * transformLinkMatrix * transformMatrix * geometryTransformMatrix)
+							parentTransformLinkMatrix.Inverse() * transformLinkMatrix
 						));
 					}
 					// If joint node has no parent, it's the root node.
