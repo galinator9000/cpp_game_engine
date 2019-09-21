@@ -63,9 +63,10 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 		);
 	}
 	else {
+		// Transformation relative to parent.
 		poseModelTransformMatrix = (
 			dx::XMLoadFloat4x4(&baseJoint->jointLocalBindTransform) *
-			dx::XMLoadFloat4x4(&baseJointTransform->jointLocalTransformMatrix) *
+			//dx::XMLoadFloat4x4(&baseJointTransform->jointLocalTransformMatrix) *
 			(*parentModelTransform)
 		);
 	}

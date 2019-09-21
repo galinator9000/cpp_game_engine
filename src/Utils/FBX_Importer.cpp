@@ -341,7 +341,7 @@ bool FBX_Importer::Load(
 
 						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
-							transformLinkMatrix * parentTransformLinkMatrix.Inverse()
+							parentTransformLinkMatrix.Inverse() * transformLinkMatrix
 						));
 					}
 					// If joint node has no parent, it's the root node.
@@ -349,7 +349,7 @@ bool FBX_Importer::Load(
 						joint->isRoot = true;
 
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
-							parentTransformLinkMatrix
+							transformLinkMatrix
 						));
 					}
 				}
