@@ -54,7 +54,12 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 	dx::XMMATRIX poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJoint->globalBindPoseMatrix);
 	if (this->isAnimating) {
 		poseModelTransformMatrix = (
-			dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix)
+			// Transformation in global-space.
+			//dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix)
+
+			// Transformation relative to parent.
+			dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) *
+			(*parentModelTransform)
 		);
 	}
 	else {
@@ -95,8 +100,4 @@ void MeshDeformer::setAnimation(Animation* animation) {
 
 	this->gAnimator->setAnimation(animation);
 	this->isAnimating = true;
-
-	// Update root joint's initial matrix used for recalculation function.
-	// Should 90 degree rotation in X axis for correcting rotation of the mesh.
-	//this->rootInitialMatrix = dx::XMMatrixRotationRollPitchYaw(dx::XM_PIDIV2, 0.0f, 0.0f);
 }

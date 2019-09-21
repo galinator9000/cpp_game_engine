@@ -44,12 +44,12 @@ bool FBX_Importer::Load(
 
 	// Convert current scene's axis system to DirectX
 	// Only affects child nodes of the root node's transformations, not control points.
-	FbxAxisSystem fbxAxisSystem_DirectX = FbxAxisSystem::eDirectX;
+	/*FbxAxisSystem fbxAxisSystem_DirectX = FbxAxisSystem::eDirectX;
 	FbxAxisSystem fbxAxisSystem_Maya = FbxAxisSystem::eMayaYUp;
 	fbxAxisSystem_DirectX.ConvertChildren(
 		rootNode,
 		fbxAxisSystem_Maya
-	);
+	);*/
 
 	// Apply global scaling to nodes.
 	const FbxSystemUnit::ConversionOptions fbxConversionOptions = {false,true,true,true,true,true};
@@ -303,11 +303,23 @@ bool FBX_Importer::Load(
 				// Fill matrices of the joint object.
 				// Current joint's matrix that transform model-space to joint-space.
 				// transformLinkMatrix is joint's position in model space.
+
+				// Transforms in global-space.
+				/*
 				joint->globalBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
 					transformLinkMatrix.Inverse() * transformMatrix * geometryTransformMatrix
 				));
 				joint->globalBindPoseMatrix = *(FBX_Importer::MatrixFBXtoDX(
 					transformLinkMatrix * transformMatrix * geometryTransformMatrix
+				));
+				*/
+
+				// Transforms relative to parent.
+				joint->globalBindPoseInverseMatrix = *(FBX_Importer::MatrixFBXtoDX(
+					transformLinkMatrix.Inverse()
+				));
+				joint->globalBindPoseMatrix = *(FBX_Importer::MatrixFBXtoDX(
+					transformLinkMatrix
 				));
 
 				// If joint node has parent, record it's pointer.
@@ -326,8 +338,8 @@ bool FBX_Importer::Load(
 
 						// Bindpose transform of the current joint relative to parent joint space.
 						FbxCluster* parentCluster = skin->GetCluster(parentJoint->id);
-						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 
+						parentCluster->GetTransformLinkMatrix(parentTransformLinkMatrix);
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
 							transformLinkMatrix * parentTransformLinkMatrix.Inverse()
 						));
@@ -361,9 +373,11 @@ bool FBX_Importer::Load(
 						_animations[0]->gKeyFrames.at((int) frame)->setJointKeyframeMatrix(
 							joint->id,
 							FBX_Importer::MatrixFBXtoDX(
-								// Relative to parent.
-								//jointNode->EvaluateLocalTransform(animTime)
-								meshCurrentTransformOffset.Inverse() * jointNode->EvaluateGlobalTransform(animTime)
+								// Transforms in global-space.
+								//meshCurrentTransformOffset.Inverse() * jointNode->EvaluateGlobalTransform(animTime)
+
+								// Transforms relative to parent.
+								jointNode->EvaluateLocalTransform(animTime)
 							)
 						);
 					}
@@ -477,11 +491,6 @@ Joint* FBX_Importer::getJointByName(const char* jointName, Joint** joints, unsig
 
 // Converts FBX matrix to DirectX matrix.
 dx::XMFLOAT4X4* FBX_Importer::MatrixFBXtoDX(FbxAMatrix fbxMatrix) {
-	// FbxAMatrix is in column-major.
-	// While calculating transformations with DXMath,
-	// I use row-major and transpose it while providing it to shader.
-	//fbxMatrix = fbxMatrix.Transpose();
-
 	dx::XMFLOAT4X4* dxMATRIX = new dx::XMFLOAT4X4;
 
 	// Decompose given matrix.
