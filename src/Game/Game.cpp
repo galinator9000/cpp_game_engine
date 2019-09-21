@@ -61,8 +61,8 @@ void Game::Setup(){
 	Mesh* mainCharacterMesh = new Mesh();
 	mainCharacter = new Character(
 		{
-			{ 0.1f, 0.1f, 0.1f },
-			{ 0, 0, 10},
+			{ 0.01f, 0.01f, 0.01f },
+			{ 0, 0, 2},
 			{ 0,0,0,0 },
 			{0.66f, 0.66f, 0.66f, 1},
 			{},
@@ -76,15 +76,14 @@ void Game::Setup(){
 	);
 
 	// Load mesh.
-	//if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\attackcombo01.fbx", "")) {
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\BaseMesh_Animated.fbx", "")) {
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
 		// Set Animation
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
 		this->mainCharacter->setAnimation("Take 001");
 
 		// Set Texture
-		Texture* mainCharacterTexture = new Texture("texture", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
+		Texture* mainCharacterTexture = new Texture("texture", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture2.dds");
 		TextureSampler* mainCharacterTextureSampler = new TextureSampler();
 		this->pWorld->createTexture(mainCharacterTexture);
 		this->pWorld->createTextureSampler(mainCharacterTextureSampler);
@@ -100,7 +99,7 @@ void Game::Setup(){
 			FOV,
 			WIDTH / HEIGHT
 		);
-		pEntityCamera->followEntity(mainCharacter, Vector3(0, 5, 0), Vector3(0, 0, 6));
+		pEntityCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
 		pWorld->addCamera(pEntityCamera);
 	}
 

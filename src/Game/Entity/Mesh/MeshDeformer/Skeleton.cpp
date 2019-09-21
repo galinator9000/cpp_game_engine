@@ -2,7 +2,7 @@
 
 void Skeleton::Setup() {
 	for (unsigned int j = 0; j < this->gJointCount; j++) {
-		// Attach parent joint pointer.
+		// Attach parent joint pointers to all joints.
 		if (this->gJoints[j]->parentJointID != -1) {
 			this->gJoints[j]->parentJoint = this->gJoints[this->gJoints[j]->parentJointID];
 		}

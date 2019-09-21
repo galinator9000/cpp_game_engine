@@ -14,7 +14,7 @@ namespace wrl = Microsoft::WRL;
 class MeshDeformer{
 public:
 	MeshDeformer();
-	void Setup();
+	void Setup(Skeleton* pSkeleton);
 	void Update();
 	void recalculateMatrices(int baseJointID, dx::XMMATRIX* jointLocalTransform);
 

@@ -4,11 +4,9 @@
 #include "Utils/FBX_Importer.h"
 
 bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
-	std::vector<Animation*>* _animations = new std::vector<Animation*>();
 	std::map<int, int> _indexed_vertices;
 	std::map<int, std::map<int, float>> _indexed_joint_weights;
 
-	// Load .FBX file to our vectors.
 	if (!FBX_Importer::Load(
 		fileName, mainMeshName,
 		this->gVertices, this->gIndices,
@@ -58,7 +56,7 @@ bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
 			maxJointWeights[j] *= 1.0 / sumWeights;
 		}
 
-		// Fill vertex struct.
+		// Fill joint information on vertices.
 		for (int j = 0; j < MAX_JOINT_PER_VERTEX; j++) {
 			this->gVertices[v].jointIDs[j] = maxJointIndices[j];
 			this->gVertices[v].jointWeights[j] = (float) maxJointWeights[j];
