@@ -10,30 +10,48 @@ void Game::Setup(){
 	// Add main camera.
 	this->pWorld->addCamera(&this->wMainCamera);
 
-	//// Create boxes.
+	// Create box mesh.
 	Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxGeometry({ 1,1,1 });
 
-	// Dynamic boxes.
-	/*CollisionShape* dynamicBoxColShape = new CollisionShape();
-	dynamicBoxColShape->createBoxGeometry({ 1, 1, 1 });
+	// Create dynamic boxes.
+	CollisionShape* dynamicBoxColShape = new CollisionShape();
+	dynamicBoxColShape->createBoxGeometry({ 0.1f, 0.1f, 0.1f });
+
 	Entity* box;
-	for (int b = 0; b < 500; b++) {
-		CollisionActor* dynamicBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
-		box = new Entity(
-			{
-				{ 1, 1, 1 },
-				{ 0, b * 2.0f, 0 },
-				{ 0,0,0,0 },
-				{ 0.5f, 0.5f, 0.5f, 1 },
-				{},
-				boxMesh,
-				dynamicBoxColShape,
-				dynamicBoxColActor
+	CollisionActor* boxColActor;
+	Entity* prevBox = NULL;
+
+	float marginBetweenBoxes = 0.25f;
+	for (int bb = 0; bb<3; bb++) {
+		for (int b = 0; b < 25; b++) {
+			boxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
+			box = new Entity(
+				{
+					{ 0.1f, 0.1f, 0.1f },
+					{ bb*3.0f, 5 + (b * marginBetweenBoxes), 20+(bb * 3.0f) },
+					{ 0,0,0,0 },
+					{ 0.5f, 0.5f, 0.5f, 1 },
+					{},
+					boxMesh,
+					dynamicBoxColShape,
+					boxColActor
+				}
+			);
+
+			this->pWorld->addEntity(box);
+
+			// Create joint.
+			if (prevBox != NULL) {
+				this->pWorld->createSphericalJoint(
+					prevBox, box,
+					Vector3(0, marginBetweenBoxes / 2, 0),
+					Vector3(0, -(marginBetweenBoxes / 2), 0)
+				);
 			}
-		);
-		this->pWorld->addEntity(box);
-	}*/
+			prevBox = box;
+		}
+	}
 
 	// Ground box.
 	CollisionShape* groundBoxColShape = new CollisionShape();
@@ -46,7 +64,7 @@ void Game::Setup(){
 			{ 0,0,0,0 },
 			{ 0.5f, 0.5f, 0.5f, 1 },
 			{},
-			NULL,
+			boxMesh,
 			groundBoxColShape,
 			groundBoxColActor
 		}
@@ -55,16 +73,16 @@ void Game::Setup(){
 
 	//// Load animated entity.
 	// Collision.
-	CollisionShape* mainCharacterCollisionShape = new CollisionShape();
+	/*CollisionShape* mainCharacterCollisionShape = new CollisionShape();
 	CollisionActor* mainCharacterCollisionActor = new CollisionActor(COLLISION_ACTOR_CCT);
 
 	Mesh* mainCharacterMesh = new Mesh();
 	mainCharacter = new Character(
 		{
 			{ 0.01f, 0.01f, 0.01f },
-			{ 0, 0, 2},
+			{ 0,0,0 },
 			{ 0,0,0,0 },
-			{0.66f, 0.66f, 0.66f, 1},
+			{ 1,1,1,1 },
 			{},
 			mainCharacterMesh,
 			mainCharacterCollisionShape,
@@ -83,7 +101,7 @@ void Game::Setup(){
 		this->mainCharacter->setAnimation("Take 001");
 
 		// Set Texture
-		Texture* mainCharacterTexture = new Texture("texture", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture2.dds");
+		Texture* mainCharacterTexture = new Texture("texture", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
 		TextureSampler* mainCharacterTextureSampler = new TextureSampler();
 		this->pWorld->createTexture(mainCharacterTexture);
 		this->pWorld->createTextureSampler(mainCharacterTextureSampler);
@@ -101,7 +119,7 @@ void Game::Setup(){
 		);
 		pEntityCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
 		pWorld->addCamera(pEntityCamera);
-	}
+	}*/
 
 	// Add lights to scene.
 	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 1.0f);

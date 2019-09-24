@@ -172,3 +172,44 @@ void World::createTextureSampler(TextureSampler* textureSampler){
 	this->allTextureSamplers.push_back(textureSampler);
 	this->pGfx->createTextureSampler(textureSampler);
 }
+
+// Physics
+bool World::createFixedJoint(
+	Entity* entity1, Entity* entity2,
+	Vector3 transform1, Vector3 transform2
+){
+	return this->pPhy->createFixedJoint(
+		entity1->pCollisionActor, entity2->pCollisionActor,
+		transform1, transform2
+	);
+}
+
+bool World::createDistanceJoint(
+	Entity* entity1, Entity* entity2,
+	Vector3 transform1, Vector3 transform2
+){
+	return this->pPhy->createDistanceJoint(
+		entity1->pCollisionActor, entity2->pCollisionActor,
+		transform1, transform2
+	);
+}
+
+bool World::createSphericalJoint(
+	Entity* entity1, Entity* entity2,
+	Vector3 transform1, Vector3 transform2
+){
+	return this->pPhy->createSphericalJoint(
+		entity1->pCollisionActor, entity2->pCollisionActor,
+		transform1, transform2
+	);
+}
+
+bool World::createRevoluteJoint(
+	Entity* entity1, Entity* entity2,
+	Vector3 transform1, Vector3 transform2
+) {
+	return this->pPhy->createRevoluteJoint(
+		entity1->pCollisionActor, entity2->pCollisionActor,
+		transform1, transform2
+	);
+}

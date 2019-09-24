@@ -37,6 +37,24 @@ public:
 	void createTexture(Texture* texture);
 	void createTextureSampler(TextureSampler* textureSampler);
 
+	// Physics
+	bool createFixedJoint(
+		Entity* entity1, Entity* entity2,
+		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+	);
+	bool createDistanceJoint(
+		Entity* entity1, Entity* entity2,
+		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+	);
+	bool createSphericalJoint(
+		Entity* entity1, Entity* entity2,
+		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+	);
+	bool createRevoluteJoint(
+		Entity* entity1, Entity* entity2,
+		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+	);
+
 	// List for keeping track of various objects in world.
 	std::vector<Entity*> allEntities;
 	std::vector<Light*> allLights;

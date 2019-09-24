@@ -47,6 +47,9 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 
+	this->pxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
+	this->pxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
+
 	// Controller Manager for CCT (Character Controller)
 	this->pxControllerManager = PxCreateControllerManager(*(this->pxScene));
 }
@@ -107,7 +110,7 @@ bool Physics::addEntity(Entity* pEntity){
 		return true;
 	}
 
-	//// Entity needs geometry for creation. Check if exists.
+	// Entity needs geometry for creation.
 	if (pEntity->pCollisionShape->pGeometry == NULL) {
 		return false;
 	}
@@ -237,4 +240,104 @@ void Physics::updateEntity(Entity* pEntity) {
 	pEntity->gRotationQ.z = axisVector.z;
 
 	pEntity->dataChanged = true;
+}
+
+bool Physics::createFixedJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
+	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
+	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+		return false;
+	}
+
+	PxTransform pTransform1(PxVec3(transform1.x, transform1.y, transform1.z));
+	PxTransform pTransform2(PxVec3(transform2.x, transform2.y, transform2.z));
+
+	PxFixedJoint* pJoint = PxFixedJointCreate(
+		*(this->pxPhysics),
+		pCollisionActor1,
+		pTransform1,
+		pCollisionActor2,
+		pTransform2
+	);
+	if (pJoint == NULL) {
+		return false;
+	}
+
+	this->pJoints.push_back(pJoint);
+	return true;
+}
+
+bool Physics::createDistanceJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
+	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
+	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+		return false;
+	}
+
+	PxTransform pTransform1(PxVec3(transform1.x, transform1.y, transform1.z));
+	PxTransform pTransform2(PxVec3(transform2.x, transform2.y, transform2.z));
+
+	PxDistanceJoint* pJoint = PxDistanceJointCreate(
+		*(this->pxPhysics),
+		pCollisionActor1,
+		pTransform1,
+		pCollisionActor2,
+		pTransform2
+	);
+	if (pJoint == NULL) {
+		return false;
+	}
+
+	this->pJoints.push_back(pJoint);
+	return true;
+}
+
+bool Physics::createSphericalJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
+	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
+	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+		return false;
+	}
+
+	PxTransform pTransform1(PxVec3(transform1.x, transform1.y, transform1.z));
+	PxTransform pTransform2(PxVec3(transform2.x, transform2.y, transform2.z));
+
+	PxSphericalJoint* pJoint = PxSphericalJointCreate(
+		*(this->pxPhysics),
+		pCollisionActor1,
+		pTransform1,
+		pCollisionActor2,
+		pTransform2
+	);
+	if (pJoint == NULL) {
+		return false;
+	}
+
+	this->pJoints.push_back(pJoint);
+	return true;
+}
+
+bool Physics::createRevoluteJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
+	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
+	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+		return false;
+	}
+
+	PxTransform pTransform1(PxVec3(transform1.x, transform1.y, transform1.z));
+	PxTransform pTransform2(PxVec3(transform2.x, transform2.y, transform2.z));
+
+	PxRevoluteJoint* pJoint = PxRevoluteJointCreate(
+		*(this->pxPhysics),
+		pCollisionActor1,
+		pTransform1,
+		pCollisionActor2,
+		pTransform2
+	);
+	if (pJoint == NULL) {
+		return false;
+	}
+
+	this->pJoints.push_back(pJoint);
+	return true;
 }
