@@ -107,6 +107,8 @@ bool Physics::addEntity(Entity* pEntity){
 				(float) pEntity->gPosition.z
 			)
 		);
+
+		this->setupEntityRagdoll(pEntity);
 		return true;
 	}
 
@@ -166,8 +168,56 @@ bool Physics::addEntity(Entity* pEntity){
 
 	// Add actor to scene.
 	this->pxScene->addActor(*(pEntity->pCollisionActor->pActor));
+	this->setupEntityRagdoll(pEntity);
 
 	return true;
+}
+
+void Physics::setupEntityRagdoll(Entity* pEntity) {
+	// Construct ragdoll actors if used.
+	if (pEntity->useMeshDeformer) {
+		if (pEntity->meshDeformer->useRagdoll) {
+			MeshDeformer* pMeshDeformer = pEntity->meshDeformer;
+			for (unsigned int j = 0; j < pEntity->meshDeformer->gJointCount; j++) {
+				pMeshDeformer->pRagdollCollisionActor[j];
+				pMeshDeformer->pRagdollCollisionShape[j];
+
+				// Create material and shape of the joint.
+				pMeshDeformer->pRagdollCollisionShape[j]->pMaterial = this->pxPhysics->createMaterial(
+					pEntity->collisionMaterial.staticFriction,
+					pEntity->collisionMaterial.dynamicFriction,
+					pEntity->collisionMaterial.restitution
+				);
+				pMeshDeformer->pRagdollCollisionShape[j]->pShape = this->pxPhysics->createShape(
+					*(pMeshDeformer->pRagdollCollisionShape[j]->pGeometry),
+					*(pMeshDeformer->pRagdollCollisionShape[j]->pMaterial)
+				);
+
+				// Create physical actor
+				PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(pMeshDeformer->pRagdollCollisionActor[j]->initialTransform);
+				rigidDynamicActor->attachShape(*(pMeshDeformer->pRagdollCollisionShape[j]->pShape));
+				PxRigidBodyExt::updateMassAndInertia(*rigidDynamicActor, 10.0f);
+
+				rigidDynamicActor->putToSleep();
+				pMeshDeformer->pRagdollCollisionActor[j]->pActor = rigidDynamicActor;
+				this->pxScene->addActor(*(pMeshDeformer->pRagdollCollisionActor[j]->pActor));
+
+				// Create physical joint.
+				// Skip root joint, physical joints are constructed relative to parent.
+				if (pMeshDeformer->skeleton->gJoints[j]->isRoot) {
+					continue;
+				}
+
+				Vector3 transform1;
+				Vector3 transform2;
+				this->createSphericalJoint(
+					pMeshDeformer->pRagdollCollisionActor[j],
+					pMeshDeformer->pRagdollCollisionActor[j]->parentActor,
+					transform1, transform2
+				);
+			}
+		}
+	}
 }
 
 void Physics::updateEntity(Entity* pEntity) {
@@ -243,9 +293,12 @@ void Physics::updateEntity(Entity* pEntity) {
 }
 
 bool Physics::createFixedJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	if (collisionActor1 == NULL && collisionActor2 == NULL) {
+		return false;
+	}
 	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
 	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
-	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+	if (pCollisionActor1 == NULL && pCollisionActor2 == NULL) {
 		return false;
 	}
 
@@ -268,9 +321,12 @@ bool Physics::createFixedJoint(CollisionActor* collisionActor1, CollisionActor* 
 }
 
 bool Physics::createDistanceJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	if (collisionActor1 == NULL && collisionActor2 == NULL) {
+		return false;
+	}
 	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
 	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
-	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+	if (pCollisionActor1 == NULL && pCollisionActor2 == NULL) {
 		return false;
 	}
 
@@ -293,9 +349,12 @@ bool Physics::createDistanceJoint(CollisionActor* collisionActor1, CollisionActo
 }
 
 bool Physics::createSphericalJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	if (collisionActor1 == NULL && collisionActor2 == NULL) {
+		return false;
+	}
 	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
 	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
-	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+	if (pCollisionActor1 == NULL && pCollisionActor2 == NULL) {
 		return false;
 	}
 
@@ -318,9 +377,12 @@ bool Physics::createSphericalJoint(CollisionActor* collisionActor1, CollisionAct
 }
 
 bool Physics::createRevoluteJoint(CollisionActor* collisionActor1, CollisionActor* collisionActor2, Vector3 transform1, Vector3 transform2){
+	if (collisionActor1 == NULL && collisionActor2 == NULL) {
+		return false;
+	}
 	PxRigidActor* pCollisionActor1 = collisionActor1->pActor->is<PxRigidActor>();
 	PxRigidActor* pCollisionActor2 = collisionActor2->pActor->is<PxRigidActor>();
-	if (pCollisionActor1 == NULL || pCollisionActor2 == NULL) {
+	if (pCollisionActor1 == NULL && pCollisionActor2 == NULL) {
 		return false;
 	}
 

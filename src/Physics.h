@@ -29,24 +29,25 @@ public:
 	// Entity
 	void Update();
 	bool addEntity(Entity* bEntity);
+	void setupEntityRagdoll(Entity* pEntity);
 	void updateEntity(Entity* bEntity);
 
 	// Physical Joints
 	std::vector<PxJoint*> pJoints;
 	bool createFixedJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
 		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
 	);
 	bool createDistanceJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
 		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
 	);
 	bool createSphericalJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
 		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
 	);
 	bool createRevoluteJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
 		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
 	);
 

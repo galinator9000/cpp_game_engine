@@ -15,7 +15,7 @@ void Game::Setup(){
 	boxMesh->createBoxGeometry({ 1,1,1 });
 
 	// Create dynamic boxes.
-	CollisionShape* dynamicBoxColShape = new CollisionShape();
+	/*CollisionShape* dynamicBoxColShape = new CollisionShape();
 	dynamicBoxColShape->createBoxGeometry({ 0.1f, 0.1f, 0.1f });
 
 	Entity* box;
@@ -51,7 +51,7 @@ void Game::Setup(){
 			}
 			prevBox = box;
 		}
-	}
+	}*/
 
 	// Ground box.
 	CollisionShape* groundBoxColShape = new CollisionShape();
@@ -73,7 +73,7 @@ void Game::Setup(){
 
 	//// Load animated entity.
 	// Collision.
-	/*CollisionShape* mainCharacterCollisionShape = new CollisionShape();
+	CollisionShape* mainCharacterCollisionShape = new CollisionShape();
 	CollisionActor* mainCharacterCollisionActor = new CollisionActor(COLLISION_ACTOR_CCT);
 
 	Mesh* mainCharacterMesh = new Mesh();
@@ -96,7 +96,7 @@ void Game::Setup(){
 	// Load mesh.
 	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
 		// Set Animation
-		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
+		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer(true);
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
 		this->mainCharacter->setAnimation("Take 001");
 
@@ -119,7 +119,7 @@ void Game::Setup(){
 		);
 		pEntityCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
 		pWorld->addCamera(pEntityCamera);
-	}*/
+	}
 
 	// Add lights to scene.
 	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 1.0f);

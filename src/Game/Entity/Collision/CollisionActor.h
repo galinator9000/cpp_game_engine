@@ -18,6 +18,10 @@ public:
 	COLLISION_ACTOR_TYPE actorType = COLLISION_ACTOR_STATIC;
 	PxActor* pActor = NULL;
 
+	// Ragdoll
+	CollisionActor* parentActor = NULL;
+	PxTransform initialTransform;
+
 	// Pointer for CCT object
 	PxController* pCharacterController = NULL;
 };
