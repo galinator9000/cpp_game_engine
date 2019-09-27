@@ -13,9 +13,15 @@
 
 namespace wrl = Microsoft::WRL;
 
+enum JOINT_TRANSFORM_SOURCE {
+	NONE,
+	ANIMATION,
+	RAGDOLL
+};
+
 class MeshDeformer{
 public:
-	MeshDeformer(bool useRagdoll=false);
+	MeshDeformer();
 	void Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale);
 	void Update();
 	void recalculateMatrices(int baseJointID, dx::XMMATRIX* jointLocalTransform);
@@ -23,19 +29,17 @@ public:
 	// Skeleton class which holds all joints' bindpose matrices.
 	// This pointer is given by entity while attaching deformer.
 	Skeleton* skeleton;
+	
+	JOINT_TRANSFORM_SOURCE currentTransformSource = NONE;
 
 	// Ragdoll physics
 	CollisionActor** pRagdollCollisionActor;
 	CollisionShape** pRagdollCollisionShape;
-	bool useRagdoll = false;
-	bool isRagdollActive = false;
 	void activateRagdoll();
-	void deactivateRagdoll();
 
 	// Animator class which takes keyframes, interpolates between them and sends matrices back.
 	Animator* gAnimator = NULL;
 	void setAnimation(Animation* animation);
-	bool isAnimating = false;
 
 	// Joint transforms for each joint on skeleton.
 	// Remember, skeleton object is holding bind pose of the joints.
@@ -45,7 +49,6 @@ public:
 	unsigned int gJointCount = 0;
 	int rootJointID = -1;
 	dx::XMMATRIX rootInitialMatrix;
-	dx::XMFLOAT3 rootJointAbsolutePos;
 
 	// Constant buffer
 	MeshDeformerVSConstantBuffer gMeshDeformerVSConstantBuffer;

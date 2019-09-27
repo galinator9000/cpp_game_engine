@@ -5,7 +5,9 @@
 
 #include <string>
 #include <DirectXMath.h>
+#include "PxPhysicsAPI.h"
 
+using namespace physx;
 namespace dx = DirectX;
 
 #define MAX_JOINT_COUNT 256
@@ -366,7 +368,7 @@ struct Color {
 struct Vertex {
 	Vector3 position;
 	Vector3 normal;
-	Vector2 TextureUV;
+	Vector2 textureUV;
 
 	// Joint ID and corresponding weights for vertex
 	float jointWeights[MAX_JOINT_PER_VERTEX];

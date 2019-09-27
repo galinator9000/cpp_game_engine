@@ -35,20 +35,20 @@ public:
 	// Physical Joints
 	std::vector<PxJoint*> pJoints;
 	bool createFixedJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
-		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		Vector3& transform1, Vector3& transform2
 	);
 	bool createDistanceJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
-		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		Vector3& transform1, Vector3& transform2
 	);
 	bool createSphericalJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
-		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		Vector3& transform1, Vector3& transform2
 	);
 	bool createRevoluteJoint(
-		CollisionActor* collisionActor1, CollisionActor* collisionActor2 = NULL,
-		Vector3 transform1 = Vector3(0, 0, 0), Vector3 transform2 = Vector3(0, 0, 0)
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		Vector3& transform1, Vector3& transform2
 	);
 
 public:

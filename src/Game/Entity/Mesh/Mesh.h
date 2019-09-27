@@ -39,4 +39,7 @@ public:
 
 	// Shapes
 	void createBoxGeometry(Vector3 gSize);
+
+	// Calculates smallest bounding box that fits to mesh's vertices.
+	Vector3 calculateBoundingBox();
 };

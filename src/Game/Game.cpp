@@ -96,7 +96,7 @@ void Game::Setup(){
 	// Load mesh.
 	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
 		// Set Animation
-		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer(true);
+		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
 		this->mainCharacter->setAnimation("Take 001");
 

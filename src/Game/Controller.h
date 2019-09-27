@@ -19,6 +19,6 @@ public:
 	Mouse* pMouse;
 
 	// Main character pointer
-	Character* pMainCharacter;
+	Character* pMainCharacter = NULL;
 	void setMainCharacter(Character* character);
 };

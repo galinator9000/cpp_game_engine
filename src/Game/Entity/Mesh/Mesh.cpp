@@ -152,3 +152,46 @@ Animation* Mesh::getAnimation(const char* animName) {
 	}
 	return NULL;
 }
+
+// Calculates 
+Vector3 Mesh::calculateBoundingBox(){
+	if (this->gVertices == NULL  || this->gVertexCount <= 0) {
+		return Vector3(0, 0, 0);
+	}
+
+	// Center of the mesh.
+	Vector3 centerMesh;
+	for (unsigned int v = 0; v < this->gVertexCount; v++) {
+		centerMesh = centerMesh + this->gVertices[v].position;
+	}
+	centerMesh = centerMesh / (float) this->gVertexCount;
+
+	// Most far vertex positions on both side of all axes.
+	Vector3 maxDist = Vector3(0, 0, 0);
+	Vector3 minDist = Vector3(0, 0, 0);
+	for (unsigned int v = 0; v < this->gVertexCount; v++) {
+		// Max
+		if (this->gVertices[v].position.x > maxDist.x) {
+			maxDist.x = this->gVertices[v].position.x;
+		}
+		if (this->gVertices[v].position.y > maxDist.y) {
+			maxDist.y = this->gVertices[v].position.y;
+		}
+		if (this->gVertices[v].position.z > maxDist.z) {
+			maxDist.z = this->gVertices[v].position.z;
+		}
+
+		// Min
+		if (this->gVertices[v].position.x < minDist.x) {
+			minDist.x = this->gVertices[v].position.x;
+		}
+		if (this->gVertices[v].position.y < minDist.y) {
+			minDist.y = this->gVertices[v].position.y;
+		}
+		if (this->gVertices[v].position.z < minDist.z) {
+			minDist.z = this->gVertices[v].position.z;
+		}
+	}
+
+	return (maxDist - minDist);
+}

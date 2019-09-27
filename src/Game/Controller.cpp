@@ -18,6 +18,13 @@ void Controller::Update() {
 		this->pWorld->switchCamera();
 	}
 
+	// Activate ragdoll physics on main character's entity.
+	if (pMainCharacter != NULL) {
+		if (this->pKeyb->isKeyPressed('F')) {
+			this->pMainCharacter->meshDeformer->activateRagdoll();
+		}
+	}
+
 	// Control character.
 	if (this->pWorld->activeCamera->isFollowingEntity) {
 		if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {

@@ -28,4 +28,5 @@ public:
 	dx::XMFLOAT4X4 globalBindPoseMatrix;
 	dx::XMFLOAT4X4 globalBindPoseInverseMatrix;
 	dx::XMFLOAT4X4 jointLocalBindTransform;
+	dx::XMFLOAT4X4 jointLocalBindTransformInverse;
 };

@@ -8,4 +8,5 @@ Joint::Joint(int id, std::string name) {
 	dx::XMStoreFloat4x4(&this->globalBindPoseMatrix, dx::XMMatrixIdentity());
 	dx::XMStoreFloat4x4(&this->globalBindPoseInverseMatrix, dx::XMMatrixIdentity());
 	dx::XMStoreFloat4x4(&this->jointLocalBindTransform, dx::XMMatrixIdentity());
+	dx::XMStoreFloat4x4(&this->jointLocalBindTransformInverse, dx::XMMatrixIdentity());
 }

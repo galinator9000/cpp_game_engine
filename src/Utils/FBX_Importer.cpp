@@ -207,8 +207,8 @@ bool FBX_Importer::Load(
 				texture_V = 1.0f - (float) texture_UV.mData[1];
 			}
 
-			_vertices[vertexArrayIndex].TextureUV.x = texture_U;
-			_vertices[vertexArrayIndex].TextureUV.y = texture_V;
+			_vertices[vertexArrayIndex].textureUV.x = texture_U;
+			_vertices[vertexArrayIndex].textureUV.y = texture_V;
 		}
 	}
 	
@@ -343,6 +343,9 @@ bool FBX_Importer::Load(
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
 							parentTransformLinkMatrix.Inverse() * transformLinkMatrix
 						));
+						joint->jointLocalBindTransformInverse = *(FBX_Importer::MatrixFBXtoDX(
+							(parentTransformLinkMatrix.Inverse() * transformLinkMatrix).Inverse()
+						));
 					}
 					// If joint node has no parent, it's the root node.
 					else {
@@ -350,6 +353,9 @@ bool FBX_Importer::Load(
 
 						joint->jointLocalBindTransform = *(FBX_Importer::MatrixFBXtoDX(
 							transformLinkMatrix
+						));
+						joint->jointLocalBindTransformInverse = *(FBX_Importer::MatrixFBXtoDX(
+							(transformLinkMatrix).Inverse()
 						));
 					}
 				}
