@@ -17,13 +17,17 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 		OutputDebugStringA("PxCreatePvd error");
 	}
 	PxPvdTransport* pxTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-	pxPvd->connect(*pxTransport, PxPvdInstrumentationFlag::eALL);
+	this->pxPvd->connect(*pxTransport, PxPvdInstrumentationFlag::eALL);
 
 	// Create physics object.
-	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*this->pxFoundation), PxTolerancesScale(), false, this->pxPvd);
+	PxTolerancesScale pxTolerancesScale = PxTolerancesScale();
+	this->pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, (*this->pxFoundation), pxTolerancesScale, false, this->pxPvd);
 	if (this->pxPhysics == NULL){
 		OutputDebugStringA("PxCreatePhysics error");
 	}
+
+	// Initialize extensions.
+	PxInitExtensions(*(this->pxPhysics), this->pxPvd);
 
 	// CPU dispatcher.
 	PxDefaultCpuDispatcher* pxDispatcher = PxDefaultCpuDispatcherCreate(2, NULL);
@@ -38,17 +42,16 @@ Physics::Physics(Vector3 gravity, float stepPerSecond) {
 	if (this->pxScene == NULL){ 
 		OutputDebugStringA("createScene error");
 	}
+	this->pxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
+	this->pxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
 
 	// Debugger client.
 	PxPvdSceneClient* pvdClient = this->pxScene->getScenePvdClient();
-	if(pvdClient){
+	if (pvdClient) {
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-
-	this->pxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
-	this->pxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
 
 	// Controller Manager for CCT (Character Controller)
 	this->pxControllerManager = PxCreateControllerManager(*(this->pxScene));
@@ -82,9 +85,6 @@ bool Physics::addEntity(Entity* pEntity){
 
 	// CCT (Character Controller)
 	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_CCT) {
-		PxCapsuleControllerDesc pxCDesc;
-
-		// Capsule
 		// Calculate bounding box that fits to mesh.
 		Vector3 meshScale = pEntity->mesh->calculateBoundingBox();
 		meshScale = Vector3(
@@ -93,16 +93,17 @@ bool Physics::addEntity(Entity* pEntity){
 			meshScale.z * pEntity->gSize.z
 		);
 		
+		// Capsule
+		PxCapsuleControllerDesc pxCDesc;
 		pxCDesc.climbingMode = PxCapsuleClimbingMode::eEASY;
-		pxCDesc.height = meshScale.y;
-		float capsuleRadius = 0.0f;
-		if (meshScale.x >= meshScale.z) {
-			capsuleRadius = meshScale.x;
-		}
-		else {
-			capsuleRadius = meshScale.z;
-		}
-		pxCDesc.radius = capsuleRadius;
+		pxCDesc.height = meshScale.y * 0.8f;
+		pxCDesc.radius = meshScale.y * 0.2f;
+
+		// Box
+		/*PxBoxControllerDesc pxCDesc;
+		pxCDesc.halfSideExtent = meshScale.x / 2;
+		pxCDesc.halfHeight = meshScale.y / 2;
+		pxCDesc.halfForwardExtent = meshScale.z / 2;*/
 
 		// General
 		pxCDesc.position = PxExtendedVec3(
@@ -113,6 +114,7 @@ bool Physics::addEntity(Entity* pEntity){
 		pxCDesc.upDirection = PxVec3(0, 1, 0);
 		pxCDesc.density = pEntity->collisionMaterial.density;
 		pxCDesc.material = pEntity->pCollisionShape->pMaterial;
+		pxCDesc.contactOffset = 0.1f;
 
 		pEntity->pCollisionActor->pCharacterController = this->pxControllerManager->createController(pxCDesc);
 		pEntity->pCollisionActor->pCharacterController->setFootPosition(
@@ -183,7 +185,6 @@ bool Physics::addEntity(Entity* pEntity){
 
 	// Add actor to scene.
 	this->pxScene->addActor(*(pEntity->pCollisionActor->pActor));
-	this->setupEntityRagdoll(pEntity);
 
 	return true;
 }
@@ -192,10 +193,12 @@ void Physics::setupEntityRagdoll(Entity* pEntity) {
 	// Construct ragdoll actors if used.
 	if (pEntity->useMeshDeformer) {
 		MeshDeformer* pMeshDeformer = pEntity->meshDeformer;
-		for (unsigned int j = 0; j < pEntity->meshDeformer->gJointCount; j++) {
-			pMeshDeformer->pRagdollCollisionActor[j];
-			pMeshDeformer->pRagdollCollisionShape[j];
 
+		// Create aggregate object for clustering joints of the deformer.
+		pEntity->meshDeformer->ragdollAggregate = this->pxPhysics->createAggregate(pEntity->meshDeformer->gJointCount, true);
+		this->pxScene->addAggregate(*(pMeshDeformer->ragdollAggregate));
+
+		for (unsigned int j = 0; j < pEntity->meshDeformer->gJointCount; j++) {
 			// Create material and shape of the joint.
 			pMeshDeformer->pRagdollCollisionShape[j]->pMaterial = this->pxPhysics->createMaterial(
 				pEntity->collisionMaterial.staticFriction,
@@ -208,18 +211,25 @@ void Physics::setupEntityRagdoll(Entity* pEntity) {
 			);
 
 			// Create physical actor
+			// Translate joint actors to CCT's foot position.
+			pMeshDeformer->pRagdollCollisionActor[j]->initialTransform = PxTransform(
+				(pEntity->pCollisionActor->pCharacterController->getUpDirection() *
+				pEntity->pCollisionActor->pCharacterController->getContactOffset()) + 
+				PxVec3(10, 0, 0)
+			) * pMeshDeformer->pRagdollCollisionActor[j]->initialTransform;
+
 			PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(pMeshDeformer->pRagdollCollisionActor[j]->initialTransform);
 			rigidDynamicActor->attachShape(*(pMeshDeformer->pRagdollCollisionShape[j]->pShape));
 			PxRigidBodyExt::updateMassAndInertia(*rigidDynamicActor, 10.0f);
 			pMeshDeformer->pRagdollCollisionActor[j]->pActor = rigidDynamicActor;
-			this->pxScene->addActor(*(pMeshDeformer->pRagdollCollisionActor[j]->pActor));
-			rigidDynamicActor->putToSleep();
 
 			// Static actor for debugging.
 			/*PxRigidStatic* rigidStaticActor = this->pxPhysics->createRigidStatic(pMeshDeformer->pRagdollCollisionActor[j]->initialTransform);
 			rigidStaticActor->attachShape(*(pMeshDeformer->pRagdollCollisionShape[j]->pShape));
-			pMeshDeformer->pRagdollCollisionActor[j]->pActor = rigidStaticActor;
-			this->pxScene->addActor(*(pMeshDeformer->pRagdollCollisionActor[j]->pActor));*/
+			pMeshDeformer->pRagdollCollisionActor[j]->pActor = rigidStaticActor;*/
+
+			pMeshDeformer->ragdollAggregate->addActor(*(pMeshDeformer->pRagdollCollisionActor[j]->pActor));
+			rigidDynamicActor->putToSleep();
 
 			// Create physical joint.
 			// Skip root joint, physical joints are constructed relative to parent.
@@ -227,12 +237,12 @@ void Physics::setupEntityRagdoll(Entity* pEntity) {
 				continue;
 			}
 
-			/*this->createSphericalJoint(
+			this->createSphericalJoint(
 				pMeshDeformer->pRagdollCollisionActor[j],
 				pMeshDeformer->pRagdollCollisionActor[j]->parentActor,
 				pMeshDeformer->pRagdollCollisionActor[j]->jointPoint1,
 				pMeshDeformer->pRagdollCollisionActor[j]->jointPoint2
-			);*/
+			);
 		}
 	}
 }
@@ -331,7 +341,8 @@ bool Physics::createFixedJoint(CollisionActor* collisionActor1, CollisionActor* 
 	if (pJoint == NULL) {
 		return false;
 	}
-
+	
+	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 	this->pJoints.push_back(pJoint);
 	return true;
 }
@@ -360,6 +371,7 @@ bool Physics::createDistanceJoint(CollisionActor* collisionActor1, CollisionActo
 		return false;
 	}
 
+	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 	this->pJoints.push_back(pJoint);
 	return true;
 }
@@ -388,6 +400,7 @@ bool Physics::createSphericalJoint(CollisionActor* collisionActor1, CollisionAct
 		return false;
 	}
 
+	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 	this->pJoints.push_back(pJoint);
 	return true;
 }
@@ -416,6 +429,7 @@ bool Physics::createRevoluteJoint(CollisionActor* collisionActor1, CollisionActo
 		return false;
 	}
 
+	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 	this->pJoints.push_back(pJoint);
 	return true;
 }

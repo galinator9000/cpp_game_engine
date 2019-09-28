@@ -47,15 +47,15 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 					)
 				)
 			);
-			/*rootJointAbsolutePos.x *= gEntityScale.x;
+			rootJointAbsolutePos.x *= gEntityScale.x;
 			rootJointAbsolutePos.y *= gEntityScale.y;
-			rootJointAbsolutePos.z *= gEntityScale.z;*/
+			rootJointAbsolutePos.z *= gEntityScale.z;
 
 			this->pRagdollCollisionShape[j]->createBoxGeometry({
-				/*gEntityScale.x,
+				gEntityScale.x,
 				gEntityScale.y,
-				gEntityScale.z*/
-				1,1,1
+				gEntityScale.z
+				/*1,1,1*/
 			});
 			this->pRagdollCollisionActor[j]->initialTransform = PxTransform(
 				PxVec3(
@@ -82,9 +82,9 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 				)
 			)
 		);
-		/*jointAbsolutePos.x *= gEntityScale.x;
+		jointAbsolutePos.x *= gEntityScale.x;
 		jointAbsolutePos.y *= gEntityScale.y;
-		jointAbsolutePos.z *= gEntityScale.z;*/
+		jointAbsolutePos.z *= gEntityScale.z;
 
 		dx::XMFLOAT3 parentJointAbsolutePos;
 		dx::XMStoreFloat3(
@@ -96,9 +96,9 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 				)
 			)
 		);
-		/*parentJointAbsolutePos.x *= gEntityScale.x;
+		parentJointAbsolutePos.x *= gEntityScale.x;
 		parentJointAbsolutePos.y *= gEntityScale.y;
-		parentJointAbsolutePos.z *= gEntityScale.z;*/
+		parentJointAbsolutePos.z *= gEntityScale.z;
 
 		// Calculate joint's actor position.
 		dx::XMFLOAT3 actorPosition = dx::XMFLOAT3(
@@ -143,13 +143,13 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 		dx::XMFLOAT3 jointLength;
 		dx::XMStoreFloat3(&jointLength, dx::XMVector3Length(toChild));
 		this->pRagdollCollisionShape[j]->createBoxGeometry({
-			/*gEntityScale.x,
-			gEntityScale.y * jointLength.y / 3,
-			gEntityScale.z*/
+			gEntityScale.x * 1,
+			gEntityScale.y * (jointLength.y / 3 / gEntityScale.y),
+			gEntityScale.z * 1
 
-			1,
-			1.0f * jointLength.y / 3,
-			1
+			/*1,
+			1.0f * jointLength.y / 2,
+			1*/
 		});
 
 		// Set initial transform of the joint actor.

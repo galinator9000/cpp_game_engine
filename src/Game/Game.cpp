@@ -89,7 +89,7 @@ void Game::Setup(){
 			mainCharacterCollisionActor
 		},
 		{
-			{0, 0, 1}
+
 		}
 	);
 

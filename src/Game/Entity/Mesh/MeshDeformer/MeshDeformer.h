@@ -33,6 +33,7 @@ public:
 	JOINT_TRANSFORM_SOURCE currentTransformSource = NONE;
 
 	// Ragdoll physics
+	PxAggregate* ragdollAggregate = NULL;
 	CollisionActor** pRagdollCollisionActor;
 	CollisionShape** pRagdollCollisionShape;
 	void activateRagdoll();

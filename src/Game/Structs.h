@@ -448,13 +448,16 @@ struct CharacterProperties {
 	// Default properties of an haracter.
 	CharacterProperties() {
 		this->facingDirection = Vector3(0, 0, 1);
+		this->movementSpeed = 0.6f;
 	}
 
-	CharacterProperties(Vector3 facingDirection) {
+	CharacterProperties(Vector3 facingDirection, float movementSpeed=60.0f) {
 		this->facingDirection = facingDirection;
+		this->movementSpeed = movementSpeed;
 	}
 
 	Vector3 facingDirection = Vector3(0, 0, 1);
+	float movementSpeed = 0.6f;
 };
 
 //// Graphics

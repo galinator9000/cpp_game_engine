@@ -9,6 +9,7 @@ class Character : public Entity{
 public:
 	Character(EntityProperties entityProperties, CharacterProperties characterProperties) : Entity(entityProperties) {
 		this->facingDirection = characterProperties.facingDirection;
+		this->movementSpeed = characterProperties.movementSpeed;
 
 		this->Setup();
 	}
@@ -21,10 +22,12 @@ public:
 	// Actions
 	void Walk(Vector3 displacement);
 
+	// Physics
+	PxControllerFilters* cctControllerFilters;
 	static Vector3 worldGravity;
 
 private:
-	float movementSpeed = 0.6f;
+	float movementSpeed = 60.0f;
 	bool walkedBefore = false;
 	Timer characterTimer;
 };
