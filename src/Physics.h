@@ -36,19 +36,23 @@ public:
 	std::vector<PxJoint*> pJoints;
 	bool createFixedJoint(
 		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
-		Vector3& transform1, Vector3& transform2
+		PxTransform transform1, PxTransform transform2
 	);
 	bool createDistanceJoint(
 		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
-		Vector3& transform1, Vector3& transform2
+		PxTransform transform1, PxTransform transform2
 	);
 	bool createSphericalJoint(
 		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
-		Vector3& transform1, Vector3& transform2
+		PxTransform transform1, PxTransform transform2
 	);
 	bool createRevoluteJoint(
 		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
-		Vector3& transform1, Vector3& transform2
+		PxTransform transform1, PxTransform transform2
+	);
+	bool createSphericalJointRagdoll(
+		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
+		PxTransform transform1, PxTransform transform2
 	);
 
 public:

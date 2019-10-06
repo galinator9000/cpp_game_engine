@@ -21,8 +21,9 @@ public:
 	// Ragdoll
 	CollisionActor* parentActor = NULL;
 	PxTransform initialTransform;
-	Vector3 jointPoint1;
-	Vector3 jointPoint2;
+	PxTransform jointPointParent;
+	PxTransform jointPointSelf;
+	float boneLength = 0.0f;
 
 	// Pointer for CCT object
 	PxController* pCharacterController = NULL;

@@ -186,6 +186,13 @@ struct Vector3 {
 		);
 	}
 
+	PxTransform toPxTransform() {
+		return PxTransform(PxVec3(this->x, this->y, this->z));
+	}
+	PxVec3 toPxVec3() {
+		return PxVec3(this->x, this->y, this->z);
+	}
+
 	float maximum() {
 		float maxVal = -INFINITY;
 

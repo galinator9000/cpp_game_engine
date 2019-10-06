@@ -77,9 +77,7 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 			&jointAbsolutePos,
 			XMVector3Transform(
 				dx::XMVectorZero(),
-				(
-					dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))
-				)
+				dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))
 			)
 		);
 		jointAbsolutePos.x *= gEntityScale.x;
@@ -91,9 +89,7 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 			&parentJointAbsolutePos,
 			XMVector3Transform(
 				dx::XMVectorZero(),
-				(
-					dx::XMLoadFloat4x4(&(currentJoint->parentJoint->globalBindPoseMatrix))
-				)
+				dx::XMLoadFloat4x4(&(currentJoint->parentJoint->globalBindPoseMatrix))
 			)
 		);
 		parentJointAbsolutePos.x *= gEntityScale.x;
@@ -112,23 +108,23 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 			(jointAbsolutePos.z - parentJointAbsolutePos.z),
 			1
 		);
-		dx::XMVECTOR upVector = dx::XMVectorSet(0, 1, 0, 0);
 
 		// Calculate joint's actor rotation (Quaternion).
+		dx::XMVECTOR xAxisVector = dx::XMVectorSet(1, 0, 0, 0);
 		dx::XMFLOAT4 actorRotation;
 		dx::XMStoreFloat4(
 			&actorRotation,
 			dx::XMVector3Cross(
-				upVector,
+				xAxisVector,
 				toChild
 			)
 		);
 		float upLengthSq;
 		float toChildLengthSq;
-		dx::XMStoreFloat(&upLengthSq, dx::XMVector3LengthSq(upVector));
+		dx::XMStoreFloat(&upLengthSq, dx::XMVector3LengthSq(xAxisVector));
 		dx::XMStoreFloat(&toChildLengthSq, dx::XMVector3LengthSq(toChild));
 		float dotProduct;
-		dx::XMStoreFloat(&dotProduct, dx::XMVector3Dot(upVector, toChild));
+		dx::XMStoreFloat(&dotProduct, dx::XMVector3Dot(xAxisVector, toChild));
 		actorRotation.w = (float) (dotProduct + (float) sqrt((double) (upLengthSq * toChildLengthSq)));
 
 		// Normalize quaternion vector
@@ -140,34 +136,60 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 		);
 
 		// Measure length
+		dx::XMFLOAT3 jointAbsolutePosLen;
+		dx::XMStoreFloat3(&jointAbsolutePosLen,XMVector3Transform(dx::XMVectorZero(),dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))));
+
+		dx::XMFLOAT3 parentJointAbsolutePosLen;
+		dx::XMStoreFloat3(&parentJointAbsolutePosLen,XMVector3Transform(dx::XMVectorZero(),dx::XMLoadFloat4x4(&(currentJoint->parentJoint->globalBindPoseMatrix))));
+
+		dx::XMVECTOR toChildLen = dx::XMVectorSet(
+			(jointAbsolutePosLen.x - parentJointAbsolutePosLen.x),
+			(jointAbsolutePosLen.y - parentJointAbsolutePosLen.y),
+			(jointAbsolutePosLen.z - parentJointAbsolutePosLen.z),
+			1
+		);
+
 		dx::XMFLOAT3 jointLength;
-		dx::XMStoreFloat3(&jointLength, dx::XMVector3Length(toChild));
+		dx::XMStoreFloat3(&jointLength, dx::XMVector3Length(toChildLen));
+
+		// Store bone length.
+		this->pRagdollCollisionActor[j]->boneLength = gEntityScale.x * jointLength.y;
+
 		this->pRagdollCollisionShape[j]->createBoxGeometry({
-			gEntityScale.x * 1,
-			gEntityScale.y * (jointLength.y / 3 / gEntityScale.y),
+			this->pRagdollCollisionActor[j]->boneLength / 2,
+			gEntityScale.y * 1,
 			gEntityScale.z * 1
+
+			/*gEntityScale.x * jointLength.x / 4,
+			gEntityScale.y * jointLength.y / 2,
+			gEntityScale.z * jointLength.z / 4*/
 
 			/*1,
 			1.0f * jointLength.y / 2,
 			1*/
 		});
 
-		// Set initial transform of the joint actor.
+		// Set initial transform of the joint actor (bone of ragdoll).
 		this->pRagdollCollisionActor[j]->initialTransform = PxTransform(
 			PxVec3(actorPosition.x, actorPosition.y, actorPosition.z),
 			PxQuat(actorRotation.x, actorRotation.y, actorRotation.z, actorRotation.w)
 		);
 
-		this->pRagdollCollisionActor[j]->jointPoint1 = Vector3(
-			parentJointAbsolutePos.x - actorPosition.x,
-			parentJointAbsolutePos.y - actorPosition.y,
-			parentJointAbsolutePos.z - actorPosition.z
+		this->pRagdollCollisionActor[j]->jointPointSelf = PxTransform(
+			PxVec3(
+				-(this->pRagdollCollisionActor[j]->boneLength / 2),
+				0,
+				0
+			),
+			PxQuat(1, 0, 0, 0)
 		);
-
-		this->pRagdollCollisionActor[j]->jointPoint2 = Vector3(
-			jointAbsolutePos.x - actorPosition.x,
-			jointAbsolutePos.y - actorPosition.y,
-			jointAbsolutePos.z - actorPosition.z
+		this->pRagdollCollisionActor[j]->jointPointParent = PxTransform(
+			PxVec3(
+				(this->pRagdollCollisionActor[j]->parentActor->boneLength / 2),
+				0,
+				0
+			),
+			PxQuat(1, 0, 0, 0)
 		);
 	}
 }

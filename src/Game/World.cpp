@@ -180,7 +180,8 @@ bool World::createFixedJoint(
 ){
 	return this->pPhy->createFixedJoint(
 		entity1->pCollisionActor, entity2->pCollisionActor,
-		transform1, transform2
+		transform1.toPxTransform(),
+		transform2.toPxTransform()
 	);
 }
 
@@ -190,7 +191,8 @@ bool World::createDistanceJoint(
 ){
 	return this->pPhy->createDistanceJoint(
 		entity1->pCollisionActor, entity2->pCollisionActor,
-		transform1, transform2
+		transform1.toPxTransform(),
+		transform2.toPxTransform()
 	);
 }
 
@@ -200,7 +202,8 @@ bool World::createSphericalJoint(
 ){
 	return this->pPhy->createSphericalJoint(
 		entity1->pCollisionActor, entity2->pCollisionActor,
-		transform1, transform2
+		transform1.toPxTransform(),
+		transform2.toPxTransform()
 	);
 }
 
@@ -210,6 +213,7 @@ bool World::createRevoluteJoint(
 ) {
 	return this->pPhy->createRevoluteJoint(
 		entity1->pCollisionActor, entity2->pCollisionActor,
-		transform1, transform2
+		transform1.toPxTransform(),
+		transform2.toPxTransform()
 	);
 }

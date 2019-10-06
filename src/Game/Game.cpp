@@ -15,7 +15,7 @@ void Game::Setup(){
 	boxMesh->createBoxGeometry({ 1,1,1 });
 
 	// Create dynamic boxes.
-	/*CollisionShape* dynamicBoxColShape = new CollisionShape();
+	CollisionShape* dynamicBoxColShape = new CollisionShape();
 	dynamicBoxColShape->createBoxGeometry({ 0.1f, 0.1f, 0.1f });
 
 	Entity* box;
@@ -25,11 +25,17 @@ void Game::Setup(){
 	float marginBetweenBoxes = 0.25f;
 	for (int bb = 0; bb<3; bb++) {
 		for (int b = 0; b < 25; b++) {
-			boxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
+			if (b == 0) {
+				boxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
+			}
+			else {
+				boxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
+			}
+			
 			box = new Entity(
 				{
 					{ 0.1f, 0.1f, 0.1f },
-					{ bb*3.0f, 5 + (b * marginBetweenBoxes), 20+(bb * 3.0f) },
+					{ bb*3.0f, 5 + (b * marginBetweenBoxes), 10+(bb * 3.0f) },
 					{ 0,0,0,0 },
 					{ 0.5f, 0.5f, 0.5f, 1 },
 					{},
@@ -51,7 +57,7 @@ void Game::Setup(){
 			}
 			prevBox = box;
 		}
-	}*/
+	}
 
 	// Ground box.
 	CollisionShape* groundBoxColShape = new CollisionShape();
