@@ -4,7 +4,7 @@ DirectionalLight::DirectionalLight(Vector3 direction, float intensity, Color col
 	this->type = LIGHT_TYPE::DIRECTIONAL_LIGHT;
 
 	this->gIntensity = intensity;
-	this->gDiffuseColor = dx::XMFLOAT3(color.r, color.g, color.b);
+	this->gDiffuseColor = dx::XMFLOAT4(color.r, color.g, color.b, color.a);
 	this->gDirection = dx::XMFLOAT3(direction.x, direction.y, direction.z);
 	this->gPosition = dx::XMFLOAT3(0, 0, 0);
 	this->updateConstantBuffer();

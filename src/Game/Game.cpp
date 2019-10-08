@@ -128,8 +128,11 @@ void Game::Setup(){
 	}
 
 	// Add lights to scene.
-	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 0.5f);
+	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 0.5f, Color(1, 1, 0));
 	this->pWorld->addLight(pointLight);
+
+	DirectionalLight* directionalLight = new DirectionalLight(Vector3(1, -1, -1), 0.2f, Color(0, 0, 1));
+	this->pWorld->addLight(directionalLight);
 }
 
 void Game::Update(){

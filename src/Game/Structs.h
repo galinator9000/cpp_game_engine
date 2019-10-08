@@ -488,12 +488,11 @@ struct MeshDeformerVSConstantBuffer {
 
 // Each light object holds this, light's intensity, direction and position values.
 struct LightPSConstantBuffer {
+	dx::XMFLOAT4 color;
 	float intensity;
 	dx::XMFLOAT3 direction;
 	dx::XMFLOAT3 position;
 	unsigned int type;
-	dx::XMFLOAT4 padding;
-	float padding2;
 };
 
 // Each camera object holds this, camera's position and projection information held.

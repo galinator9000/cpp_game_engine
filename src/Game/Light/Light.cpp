@@ -8,7 +8,7 @@ void Light::setIntensity(float intensity){
 
 // Set light's color.
 void Light::setColor(Color color) {
-	this->gDiffuseColor = dx::XMFLOAT3(color.r, color.g, color.b);
+	this->gDiffuseColor = dx::XMFLOAT4(color.r, color.g, color.b, color.a);
 	this->hasChanged = true;
 }
 

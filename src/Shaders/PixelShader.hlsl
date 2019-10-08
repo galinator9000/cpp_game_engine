@@ -14,6 +14,7 @@ cbuffer EntityPSConstantBuffer : register(b0) {
 //// Light calculation.
 // Light intensity, direction and position values.
 struct Light {
+	float4 color;
 	float intensity;
 	float3 direction;
 	float3 position;
@@ -72,7 +73,7 @@ PSOut main(PSIn psIn){
 		switch (allLights[light].type) {
 			// Directional Light calculation.
 			case DIRECTIONAL_LIGHT:
-				diffuse = allLights[light].intensity * max(0.0f, dot(-allLights[light].direction, normalizedNormal));
+				diffuse = allLights[light].color * allLights[light].intensity * max(0.0f, dot(-allLights[light].direction, normalizedNormal));
 				break;
 
 			// Point Light calculation.
@@ -84,7 +85,7 @@ PSOut main(PSIn psIn){
 
 				// Attenuation calculation.
 				float attenuation = 1.0f / (attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight)));
-				diffuse = allLights[light].intensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
+				diffuse = allLights[light].color * allLights[light].intensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 
 				// Specular highlight calculation.
 				float3 reflectionVector = reflect(

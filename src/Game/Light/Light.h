@@ -31,8 +31,8 @@ public:
 	bool hasChanged = false;
 
 	// Graphics
+	dx::XMFLOAT4 gDiffuseColor;
 	float gIntensity;
-	dx::XMFLOAT3 gDiffuseColor;
 	dx::XMFLOAT3 gDirection;
 	dx::XMFLOAT3 gPosition;
 };
