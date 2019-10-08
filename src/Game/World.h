@@ -65,7 +65,6 @@ public:
 	// Buffers for providing multiple lights at the same time.
 	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
-	bool shouldUpdateGPUData = false;
 
 private:
 	Graphics* pGfx;

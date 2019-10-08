@@ -11,8 +11,6 @@ using namespace physx;
 namespace dx = DirectX;
 
 #define MAX_JOINT_COUNT 256
-
-// This value should stay this way.
 #define MAX_JOINT_PER_VERTEX 4
 
 struct Vector2 {
@@ -358,7 +356,7 @@ struct Color {
 		this->a = 1.0f;
 	}
 
-	Color(float r, float g, float b, float a) {
+	Color(float r, float g, float b, float a=1.0f) {
 		this->r = r;
 		this->g = g;
 		this->b = b;
@@ -458,7 +456,7 @@ struct CharacterProperties {
 		this->movementSpeed = 0.6f;
 	}
 
-	CharacterProperties(Vector3 facingDirection, float movementSpeed=60.0f) {
+	CharacterProperties(Vector3 facingDirection, float movementSpeed=0.6f) {
 		this->facingDirection = facingDirection;
 		this->movementSpeed = movementSpeed;
 	}
@@ -494,6 +492,8 @@ struct LightPSConstantBuffer {
 	dx::XMFLOAT3 direction;
 	dx::XMFLOAT3 position;
 	unsigned int type;
+	dx::XMFLOAT4 padding;
+	float padding2;
 };
 
 // Each camera object holds this, camera's position and projection information held.

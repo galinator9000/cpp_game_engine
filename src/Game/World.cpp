@@ -11,6 +11,7 @@ void World::Setup() {
 	// Set undefined lights' intensity to -1.
 	for (unsigned int light = 0; light<MAX_LIGHT_COUNT; light++) {
 		gAllLightConstantBuffers[light].intensity = -1.0f;
+		//gAllLightConstantBuffers[light].color = dx::XMFLOAT3(0, 0, 0);
 	}
 
 	this->pGfx->createLightsBuffer(
@@ -22,7 +23,7 @@ void World::Setup() {
 }
 
 void World::Reset() {
-	this->shouldUpdateGPUData = false;
+
 }
 
 void World::Update(){
@@ -31,6 +32,7 @@ void World::Update(){
 	this->pPhy->Update();
 
 	// Update all light objects.
+	bool shouldUpdateLightsGPUData = false;
 	for (unsigned int l = 0; l < allLights.size(); l++) {
 		Light* light = allLights.at(l);
 
@@ -43,23 +45,23 @@ void World::Update(){
 		if (light->shouldUpdateGPUData) {
 			// Update data for each light.
 			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
+			//this->gAllLightConstantBuffers[light->id].color = light->gDiffuseColor;
 			this->gAllLightConstantBuffers[light->id].direction = light->gDirection;
 			this->gAllLightConstantBuffers[light->id].position = light->gPosition;
 			this->gAllLightConstantBuffers[light->id].type = light->type;
 
 			light->shouldUpdateGPUData = false;
-			this->shouldUpdateGPUData = true;
+			shouldUpdateLightsGPUData = true;
 		}
 	}
 
 	// Update lights buffer on GPU side.
-	if (this->shouldUpdateGPUData) {
+	if (shouldUpdateLightsGPUData) {
 		this->pGfx->updateLightsBuffer(
 			&this->gAllLightConstantBuffers[0],
 			MAX_LIGHT_COUNT,
 			this->pAllLightConstantBuffers.Get()
 		);
-		this->shouldUpdateGPUData = false;
 	}
 
 	// Update active camera.

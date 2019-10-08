@@ -37,7 +37,7 @@ void Game::Setup(){
 					{ 0.1f, 0.1f, 0.1f },
 					{ bb*3.0f, 5 + (b * marginBetweenBoxes), 10+(bb * 3.0f) },
 					{ 0,0,0,0 },
-					{ 0.5f, 0.5f, 0.5f, 1 },
+					{ 0.5f, 0, 0, 1 },
 					{},
 					boxMesh,
 					dynamicBoxColShape,
@@ -68,7 +68,7 @@ void Game::Setup(){
 			{ 2000, 0.1f, 2000 },
 			{ 0, 0, 0 },
 			{ 0,0,0,0 },
-			{ 0.5f, 0.5f, 0.5f, 1 },
+			{ 0.1f, 0.1f, 0.1f, 1 },
 			{},
 			boxMesh,
 			groundBoxColShape,
@@ -128,7 +128,7 @@ void Game::Setup(){
 	}
 
 	// Add lights to scene.
-	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 1.0f);
+	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 0.5f);
 	this->pWorld->addLight(pointLight);
 }
 

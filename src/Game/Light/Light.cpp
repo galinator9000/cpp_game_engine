@@ -6,6 +6,12 @@ void Light::setIntensity(float intensity){
 	this->hasChanged = true;
 }
 
+// Set light's color.
+void Light::setColor(Color color) {
+	this->gDiffuseColor = dx::XMFLOAT3(color.r, color.g, color.b);
+	this->hasChanged = true;
+}
+
 // Set light's direction.
 void Light::setDirection(Vector3 newDirection) {
 	if (this->type == POINT_LIGHT) {

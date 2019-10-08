@@ -20,6 +20,7 @@ public:
 
 	// Functions for all light types.
 	void setIntensity(float intensity);
+	void setColor(Color color);
 	void setDirection(Vector3 newDirection);
 	void setPosition(Vector3 newPosition);
 
@@ -31,6 +32,7 @@ public:
 
 	// Graphics
 	float gIntensity;
+	dx::XMFLOAT3 gDiffuseColor;
 	dx::XMFLOAT3 gDirection;
 	dx::XMFLOAT3 gPosition;
 };

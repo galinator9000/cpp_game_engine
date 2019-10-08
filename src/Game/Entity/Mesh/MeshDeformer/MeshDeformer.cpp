@@ -55,7 +55,6 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 				gEntityScale.x,
 				gEntityScale.y,
 				gEntityScale.z
-				/*1,1,1*/
 			});
 			this->pRagdollCollisionActor[j]->initialTransform = PxTransform(
 				PxVec3(
@@ -159,14 +158,6 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 			this->pRagdollCollisionActor[j]->boneLength / 2,
 			gEntityScale.y * 1,
 			gEntityScale.z * 1
-
-			/*gEntityScale.x * jointLength.x / 4,
-			gEntityScale.y * jointLength.y / 2,
-			gEntityScale.z * jointLength.z / 4*/
-
-			/*1,
-			1.0f * jointLength.y / 2,
-			1*/
 		});
 
 		// Set initial transform of the joint actor (bone of ragdoll).
@@ -211,22 +202,22 @@ void MeshDeformer::Update() {
 
 			// Get quaternion vector from physics side.
 			tm = rigidDynamic->getGlobalPose();
-			Vector4 jointQuaternion;
+
+			// Rotation
 			PxVec3 axisVector;
-			tm.q.toRadiansAndUnitAxis(jointQuaternion.w, axisVector);
-			jointQuaternion.x = axisVector.x;
-			jointQuaternion.y = axisVector.y;
-			jointQuaternion.z = axisVector.z;
+			float rotationRadian;
+			tm.q.toRadiansAndUnitAxis(rotationRadian, axisVector);
 
 			// Apply to local transform of the joint.
 			JointTransform* baseJointTransform = this->gJointTransforms[j];
-
 			dx::XMStoreFloat4x4(
 				&baseJointTransform->jointLocalTransformMatrix,
-				dx::XMMatrixRotationQuaternion(
-					dx::XMQuaternionRotationAxis(
-						dx::XMVectorSet(jointQuaternion.x, jointQuaternion.y, jointQuaternion.z, 1.0f),
-						jointQuaternion.w
+				(
+					dx::XMMatrixRotationQuaternion(
+						dx::XMQuaternionRotationAxis(
+							dx::XMVectorSet(axisVector.x, axisVector.y, axisVector.z, 0),
+							rotationRadian
+						)
 					)
 				)
 			);
@@ -257,9 +248,6 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 	dx::XMMATRIX poseModelTransformMatrix = dx::XMLoadFloat4x4(&baseJoint->globalBindPoseMatrix);
 	if (this->currentTransformSource == ANIMATION) {
 		poseModelTransformMatrix = (
-			// Transformation in global-space.
-			//dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix)
-
 			// Transformation relative to parent.
 			dx::XMLoadFloat4x4(&baseJointTransform->jointAnimTransformMatrix) *
 			(*parentModelTransform)
@@ -316,6 +304,11 @@ void MeshDeformer::setAnimation(Animation* animation) {
 
 // Ragdoll physics
 void MeshDeformer::activateRagdoll() {
+	// Already active.
+	if (this->currentTransformSource == RAGDOLL) {
+		return;
+	}
+
 	// Apply current animation's current pose transforms to physical joints.
 	PxRigidDynamic* rigidDynamic;
 	PxTransform tm;

@@ -11,5 +11,5 @@ namespace wrl = Microsoft::WRL;
 
 class PointLight : public Light {
 public:
-	PointLight(Vector3 position, float intensity);
+	PointLight(Vector3 position, float intensity, Color color = Color(1, 1, 1, 1));
 };
