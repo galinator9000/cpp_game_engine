@@ -10,7 +10,8 @@ namespace wrl = Microsoft::WRL;
 
 const enum LIGHT_TYPE {
 	DIRECTIONAL_LIGHT,
-	POINT_LIGHT
+	POINT_LIGHT,
+	SPOT_LIGHT
 };
 
 class Light {
@@ -33,6 +34,7 @@ public:
 	// Graphics
 	dx::XMFLOAT4 gDiffuseColor;
 	float gIntensity;
-	dx::XMFLOAT3 gDirection;
 	dx::XMFLOAT3 gPosition;
+	dx::XMFLOAT3 gDirection;
+	float gHalfSpotAngle;
 };

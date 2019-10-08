@@ -1,6 +1,9 @@
+#define MAX_LIGHT_COUNT 16
+
+// Light type enums.
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
-#define MAX_LIGHT_COUNT 16
+#define SPOT_LIGHT 2
 
 // Provided by entity object.
 Texture2D Texture : register(t0);
@@ -16,9 +19,10 @@ cbuffer EntityPSConstantBuffer : register(b0) {
 struct Light {
 	float4 color;
 	float intensity;
-	float3 direction;
 	float3 position;
+	float3 direction;
 	unsigned int type;
+	float halfSpotAngle;
 };
 
 cbuffer LightConstantBuffer : register(b1) {
@@ -69,30 +73,37 @@ PSOut main(PSIn psIn){
 
 		float4 diffuse = float4(0, 0, 0, 0);
 		float4 specular = float4(0, 0, 0, 0);
+		float lightIntensity = allLights[light].intensity;
+
+		float3 vertexToLight = float3(0, 0, 0);
+		float distVertexToLight = 0;
+		float3 directionVertexToLight = float3(0, 0, 0);
+		float attenuation = 0;
+		float3 reflectionVector = float3(0, 0, 0);
 		
 		switch (allLights[light].type) {
 			// Directional Light calculation.
 			case DIRECTIONAL_LIGHT:
-				diffuse = allLights[light].color * allLights[light].intensity * max(0.0f, dot(-allLights[light].direction, normalizedNormal));
+				diffuse = allLights[light].color * lightIntensity * max(0.0f, dot(-allLights[light].direction, normalizedNormal));
 				break;
 
 			// Point Light calculation.
 			case POINT_LIGHT:
 				// Vertex and Light vector calculations.
-				float3 vertexToLight = allLights[light].position - psIn.positionPS;
-				float distVertexToLight = length(vertexToLight);
-				float3 directionVertexToLight = normalize(vertexToLight);
+				vertexToLight = allLights[light].position - psIn.positionPS;
+				distVertexToLight = length(vertexToLight);
+				directionVertexToLight = normalize(vertexToLight);
 
 				// Attenuation calculation.
-				float attenuation = 1.0f / (attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight)));
-				diffuse = allLights[light].color * allLights[light].intensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
+				attenuation = 1.0f / (attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight)));
+				diffuse = allLights[light].color * lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
 
 				// Specular highlight calculation.
-				float3 reflectionVector = reflect(
+				reflectionVector = reflect(
 					-vertexToLight,
 					normalizedNormal
 				);
-				specular = allLights[light].intensity * attenuation * specularIntensity * pow(
+				specular = allLights[light].color * lightIntensity * attenuation * specularIntensity * pow(
 					max(
 						0.0f,
 						dot(
@@ -102,7 +113,43 @@ PSOut main(PSIn psIn){
 					),
 					specularPower
 				);
+				break;
 
+			// Spot Light calculation.
+			case SPOT_LIGHT:
+				// Vertex and Light vector calculations.
+				vertexToLight = allLights[light].position - psIn.positionPS;
+				distVertexToLight = length(vertexToLight);
+				directionVertexToLight = normalize(vertexToLight);
+
+				// Spot Light calculation.
+				if (allLights[light].type == SPOT_LIGHT) {
+					// Cone calculation of the Spot light.
+					float minCos = cos(allLights[light].halfSpotAngle);
+					float maxCos = (minCos + 1.0f) / 2.0f;
+					float cosAngle = dot(allLights[light].direction, -directionVertexToLight);
+					lightIntensity = smoothstep(minCos, maxCos, cosAngle);
+				}
+
+				// Attenuation calculation.
+				attenuation = 1.0f / (attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight)));
+				diffuse = allLights[light].color * lightIntensity * attenuation * max(0.0f, dot(directionVertexToLight, normalizedNormal));
+
+				// Specular highlight calculation.
+				reflectionVector = reflect(
+					-vertexToLight,
+					normalizedNormal
+				);
+				specular = allLights[light].color * lightIntensity * attenuation * specularIntensity * pow(
+					max(
+						0.0f,
+						dot(
+							normalize(reflectionVector),
+							normalize(psIn.eyePosition.xyz - psIn.positionPS)
+						)
+					),
+					specularPower
+				);
 				break;
 		}
 

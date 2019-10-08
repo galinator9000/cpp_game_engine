@@ -1,24 +1,14 @@
 #include "Light.h"
 
-// Set light's intensity.
-void Light::setIntensity(float intensity){
-	this->gIntensity = intensity;
-	this->hasChanged = true;
-}
-
 // Set light's color.
 void Light::setColor(Color color) {
 	this->gDiffuseColor = dx::XMFLOAT4(color.r, color.g, color.b, color.a);
 	this->hasChanged = true;
 }
 
-// Set light's direction.
-void Light::setDirection(Vector3 newDirection) {
-	if (this->type == POINT_LIGHT) {
-		return;
-	}
-
-	this->gDirection = dx::XMFLOAT3(newDirection.x, newDirection.y, newDirection.z);
+// Set light's intensity.
+void Light::setIntensity(float intensity){
+	this->gIntensity = intensity;
 	this->hasChanged = true;
 }
 
@@ -29,6 +19,16 @@ void Light::setPosition(Vector3 newPosition) {
 	}
 
 	this->gPosition = dx::XMFLOAT3(newPosition.x, newPosition.y, newPosition.z);
+	this->hasChanged = true;
+}
+
+// Set light's direction.
+void Light::setDirection(Vector3 newDirection) {
+	if (this->type == POINT_LIGHT) {
+		return;
+	}
+
+	this->gDirection = dx::XMFLOAT3(newDirection.x, newDirection.y, newDirection.z);
 	this->hasChanged = true;
 }
 

@@ -128,11 +128,14 @@ void Game::Setup(){
 	}
 
 	// Add lights to scene.
-	PointLight* pointLight = new PointLight(Vector3(0, 5, -10.0f), 0.5f, Color(1, 1, 0));
-	this->pWorld->addLight(pointLight);
+	PointLight* pointLight = new PointLight(Vector3(20, 5, -10.0f), 0.5f, Color(1, 1, 0));
+	//this->pWorld->addLight(pointLight);
 
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(1, -1, -1), 0.2f, Color(0, 0, 1));
-	this->pWorld->addLight(directionalLight);
+	//this->pWorld->addLight(directionalLight);
+
+	this->spotLight = new SpotLight(Vector3(0, 5, 0), Vector3(0, -1, 0), 20, Color(1, 1, 1, 1));
+	this->pWorld->addLight(this->spotLight);
 }
 
 void Game::Update(){
@@ -140,7 +143,23 @@ void Game::Update(){
 		timer.Reset();
 	}
 
-	// Circular motion around 0,0,0 for point light.
-	float cosx = cos(timer.Peek() * 6.28f) * 5.0f;
-	float siny = sin(-timer.Peek() * 6.28f) * 5.0f;
+	// Circular motion
+	float cosx = cos(timer.Peek() * dx::XM_2PI) * 5.0f;
+	float siny = sin(-timer.Peek() * dx::XM_2PI) * 5.0f;
+
+	this->spotLight->setColor(
+		{
+			sin(timer.Peek() * dx::XM_PIDIV4),
+			cos(timer.Peek() * dx::XM_PIDIV2),
+			sin(timer.Peek() * dx::XM_2PI),
+			1.0f
+		}
+	);
+	this->spotLight->setPosition(
+		{
+			cosx,
+			siny + 5.0f,
+			siny
+		}
+	);
 }

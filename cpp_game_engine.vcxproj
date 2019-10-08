@@ -216,6 +216,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Light\SpotLight.h" />
     <ClInclude Include="src\Game\Entity\Collision\CollisionActor.h" />
     <ClInclude Include="src\Game\Entity\Collision\CollisionShape.h" />
     <ClInclude Include="src\Game\Entity\Character\Character.h" />
@@ -253,6 +254,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClInclude Include="src\Game\TextureSampler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Light\SpotLight.cpp" />
     <ClCompile Include="src\Game\Entity\Collision\CollisionActor.cpp" />
     <ClCompile Include="src\Game\Entity\Character\Character.cpp" />
     <ClCompile Include="src\Game\Controller.cpp" />

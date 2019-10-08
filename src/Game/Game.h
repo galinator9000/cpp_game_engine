@@ -7,6 +7,7 @@
 #include "Entity/Character/Character.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
+#include "Light/SpotLight.h"
 
 class Game{
 public:
@@ -14,16 +15,17 @@ public:
 	void Setup();
 	void Update();
 
-	Camera wMainCamera = Camera(
-		Vector3(0.0f, 0.0f, 0.0f),
-		FOV,
-		WIDTH / HEIGHT
-	);
-
 	Character* mainCharacter;
+	SpotLight* spotLight;
 
 	// Base components for a scene.
 	World* pWorld;
 	Controller* pMainController;
 	Timer timer;
+
+	Camera wMainCamera = Camera(
+		Vector3(0.0f, 0.0f, 0.0f),
+		FOV,
+		WIDTH / HEIGHT
+	);
 };

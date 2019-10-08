@@ -11,7 +11,11 @@ void World::Setup() {
 	// Set undefined lights' intensity to -1.
 	for (unsigned int light = 0; light<MAX_LIGHT_COUNT; light++) {
 		gAllLightConstantBuffers[light].intensity = -1.0f;
+
 		gAllLightConstantBuffers[light].color = dx::XMFLOAT4(0, 0, 0, 0);
+		gAllLightConstantBuffers[light].direction = dx::XMFLOAT3(0, 0, 0);
+		gAllLightConstantBuffers[light].position = dx::XMFLOAT3(0, 0, 0);
+		gAllLightConstantBuffers[light].halfSpotAngle = 0;
 	}
 
 	this->pGfx->createLightsBuffer(
@@ -44,11 +48,12 @@ void World::Update(){
 
 		if (light->shouldUpdateGPUData) {
 			// Update data for each light.
-			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
 			this->gAllLightConstantBuffers[light->id].color = light->gDiffuseColor;
+			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
 			this->gAllLightConstantBuffers[light->id].direction = light->gDirection;
 			this->gAllLightConstantBuffers[light->id].position = light->gPosition;
 			this->gAllLightConstantBuffers[light->id].type = light->type;
+			this->gAllLightConstantBuffers[light->id].halfSpotAngle = light->gHalfSpotAngle;
 
 			light->shouldUpdateGPUData = false;
 			shouldUpdateLightsGPUData = true;
