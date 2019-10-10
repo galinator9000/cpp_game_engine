@@ -5,15 +5,16 @@
 
 #include "Graphics.h"
 #include "Physics.h"
-#include "Camera.h"
+#include "Audio.h"
 
 // Base class for all entities
+#include "Camera.h"
 #include "Entity/Entity.h"
 #include "Light/Light.h"
 
 class World{
 public:
-	World(Graphics* pGfx, Physics* pPhy);
+	World(Graphics* pGfx, Physics* pPhy, Audio* pAud);
 
 	// General
 	void Setup();
@@ -69,4 +70,5 @@ public:
 private:
 	Graphics* pGfx;
 	Physics* pPhy;
+	Audio* pAud;
 };

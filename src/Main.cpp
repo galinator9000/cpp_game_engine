@@ -26,9 +26,12 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Physics* pPhy = new Physics(GRAVITY, PHYSICS_REFRESH_RATE);
 	Character::worldGravity = GRAVITY / PHYSICS_REFRESH_RATE;
 
+	// Initialize audio component
+	Audio* pAud = new Audio();
+
 	// Create world and game classes.
 	// World is integrates physics and graphics components.
-	World* pWorld = new World(pGfx, pPhy);
+	World* pWorld = new World(pGfx, pPhy, pAud);
 	pWorld->Setup();
 
 	// Game is setups scene.

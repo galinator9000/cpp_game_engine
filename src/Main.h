@@ -12,6 +12,7 @@
 #include "Window.h"
 #include "Graphics.h"
 #include "Physics.h"
+#include "Audio.h"
 
 // Game world
 #include "Game.h"

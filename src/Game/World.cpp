@@ -1,8 +1,10 @@
 #include "World.h"
 
-World::World(Graphics* pGfx, Physics* pPhy){
+World::World(Graphics* pGfx, Physics* pPhy, Audio* pAud){
 	this->pGfx = pGfx;
 	this->pPhy = pPhy;
+	this->pAud = pAud;
+
 	this->Setup();
 }
 
