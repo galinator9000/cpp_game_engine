@@ -1,7 +1,8 @@
 #pragma once
 #include "Structs.h"
 
-#define _DEBUGGING FALSE
+#define _DEBUGGING TRUE
+
 namespace{
 	const auto WND_TITLE = L"Direct3D";
 	const int WIDTH = 1024;

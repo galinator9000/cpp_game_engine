@@ -35,8 +35,9 @@ void World::Update(){
 	// Step and update physics of the world.
 	this->pPhy->Update();
 
-	// Update all light objects.
 	bool shouldUpdateLightsGPUData = false;
+
+	// Update all light objects.
 	for (unsigned int l = 0; l < allLights.size(); l++) {
 		Light* light = allLights.at(l);
 
@@ -67,6 +68,7 @@ void World::Update(){
 			MAX_LIGHT_COUNT,
 			this->pAllLightConstantBuffers.Get()
 		);
+		shouldUpdateLightsGPUData = false;
 	}
 
 	// Update active camera.

@@ -28,13 +28,13 @@ public:
 	void Update();
 	void Reset();
 	void updateConstantBuffer();
-	bool shouldUpdateGPUData = false;
+	bool shouldUpdateGPUData = true;
 	bool hasChanged = false;
 
 	// Graphics
-	dx::XMFLOAT4 gDiffuseColor;
-	float gIntensity;
-	dx::XMFLOAT3 gPosition;
-	dx::XMFLOAT3 gDirection;
-	float gHalfSpotAngle;
+	dx::XMFLOAT4 gDiffuseColor = dx::XMFLOAT4(1,1,1,1);
+	float gIntensity = 0;
+	dx::XMFLOAT3 gPosition = dx::XMFLOAT3(0,0,0);
+	dx::XMFLOAT3 gDirection = dx::XMFLOAT3(0,1,0);
+	float gHalfSpotAngle = 0;
 };

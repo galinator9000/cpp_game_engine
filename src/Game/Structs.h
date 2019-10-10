@@ -494,6 +494,7 @@ struct LightPSConstantBuffer {
 	dx::XMFLOAT3 direction;
 	unsigned int type;
 	float halfSpotAngle;
+	dx::XMFLOAT3 padding;
 };
 
 // Each camera object holds this, camera's position and projection information held.

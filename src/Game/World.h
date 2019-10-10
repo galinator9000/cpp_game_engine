@@ -1,5 +1,5 @@
 #pragma once
-#define MAX_LIGHT_COUNT 16
+#define MAX_LIGHT_COUNT 8
 
 #include <vector>
 

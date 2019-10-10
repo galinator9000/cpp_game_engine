@@ -1,4 +1,4 @@
-#define MAX_LIGHT_COUNT 16
+#define MAX_LIGHT_COUNT 8
 
 // Light type enums.
 #define DIRECTIONAL_LIGHT 0
@@ -23,6 +23,7 @@ struct Light {
 	float3 direction;
 	unsigned int type;
 	float halfSpotAngle;
+	float3 padding;
 };
 
 cbuffer LightConstantBuffer : register(b1) {
@@ -58,8 +59,8 @@ PSOut main(PSIn psIn){
 	// Normalizing normal input vector because Rasterizer stage interpolates it.
 	float3 normalizedNormal = normalize(psIn.normal);
 
-	float4 sumSpecular = float4(0, 0, 0, 0);
 	float4 sumDiffuse = float4(0, 0, 0, 0);
+	float4 sumSpecular = float4(0, 0, 0, 0);
 
 	float specularPower = specularHighlight.x;
 	float specularIntensity = specularHighlight.y;
@@ -123,13 +124,11 @@ PSOut main(PSIn psIn){
 				directionVertexToLight = normalize(vertexToLight);
 
 				// Spot Light calculation.
-				if (allLights[light].type == SPOT_LIGHT) {
-					// Cone calculation of the Spot light.
-					float minCos = cos(allLights[light].halfSpotAngle);
-					float maxCos = (minCos + 1.0f) / 2.0f;
-					float cosAngle = dot(allLights[light].direction, -directionVertexToLight);
-					lightIntensity = smoothstep(minCos, maxCos, cosAngle);
-				}
+				// Cone calculation of the Spot light.
+				float minCos = cos(allLights[light].halfSpotAngle);
+				float maxCos = (minCos + 1.0f) / 2.0f;
+				float cosAngle = dot(allLights[light].direction, -directionVertexToLight);
+				lightIntensity = smoothstep(minCos, maxCos, cosAngle);
 
 				// Attenuation calculation.
 				attenuation = 1.0f / (attenuation_constant + (attenuation_linear * distVertexToLight) + (attenuation_quadratic * (distVertexToLight * distVertexToLight)));
@@ -157,19 +156,18 @@ PSOut main(PSIn psIn){
 		sumSpecular += specular;
 	}
 
+	sumDiffuse = saturate(sumDiffuse);
+	sumSpecular = saturate(sumSpecular);
+
 	// Use solid color of entity or texture?
-	float4 texture_or_solid;
+	float4 texture_or_solid = float4(entityColor, 1.0f);
 	if (entityUseTexture) {
 		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
-	}else {
-		texture_or_solid = float4(entityColor, 1.0f);
 	}
 
 	//// Add ambient light & blend the color of the entity.
 	psOut.color = float4(
-		saturate(
-			texture_or_solid + ambient + (sumDiffuse + sumSpecular)
-		)
+		texture_or_solid + (ambient + sumDiffuse + sumSpecular)
 	);
 
 	return psOut;
