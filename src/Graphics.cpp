@@ -149,8 +149,10 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TextureUV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Binormal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 
 		// Per-Vertex joint information, maximum 4 joint supported.
 		{"JointWeights", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -344,7 +346,23 @@ void Graphics::drawEntity(Entity* entity){
 	);
 
 	//// Binding Texture & Samplers
-	// Bind these, only if entity uses textures.
+	// Clear texture & sampler slots.
+	ID3D11ShaderResourceView* nullShaderResourceView = { nullptr };
+	this->pDeviceContext->PSSetShaderResources(0, 1, &nullShaderResourceView);
+	this->pDeviceContext->PSSetShaderResources(1, 1, &nullShaderResourceView);
+	ID3D11SamplerState* nullSamplerState = { nullptr }; this->pDeviceContext->PSSetSamplers(0, 1, &nullSamplerState);
+
+	// Bind sampler.
+	if (entity->useTexture || entity->useNormalMapping) {
+		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
+		this->pDeviceContext->PSSetSamplers(
+			0,
+			1,
+			entity->textureSampler->pSamplerState.GetAddressOf()
+		);
+	}
+
+	// Bind texture resources, only if entity uses textures.
 	if (entity->useTexture) {
 		// Bind entity's shader resource view (texture) to first (index 0) resource slot of the Pixel Shader.
 		this->pDeviceContext->PSSetShaderResources(
@@ -352,29 +370,15 @@ void Graphics::drawEntity(Entity* entity){
 			1,
 			entity->texture->pShaderResourceView.GetAddressOf()
 		);
+	}
 
-		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
-		this->pDeviceContext->PSSetSamplers(
-			0,
-			1,
-			entity->textureSampler->pSamplerState.GetAddressOf()
-		);
-	}else {
-		ID3D11ShaderResourceView* nullShaderResourceView = { nullptr };
-		ID3D11SamplerState* nullSamplerState = { nullptr };
-
-		// Bind entity's shader resource view (texture) to first (index 0) resource slot of the Pixel Shader.
+	// Bind normal mapping texture resources, only if entity uses normal mapping.
+	if (entity->useNormalMapping) {
+		// Bind entity's shader resource view (normal mapping texture) to second (index 1) resource slot of the Pixel Shader.
 		this->pDeviceContext->PSSetShaderResources(
-			0,
 			1,
-			&nullShaderResourceView
-		);
-
-		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
-		this->pDeviceContext->PSSetSamplers(
-			0,
 			1,
-			&nullSamplerState
+			entity->normalMappingTexture->pShaderResourceView.GetAddressOf()
 		);
 	}
 

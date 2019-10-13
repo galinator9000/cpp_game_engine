@@ -100,6 +100,7 @@ void Entity::updateConstantBuffer() {
 		this->entityMaterial.color.b
 	);
 	this->gEntityPSConstantBuffer.useTexture = this->useTexture;
+	this->gEntityPSConstantBuffer.useNormalMapping = this->useNormalMapping;
 
 	this->gEntityPSConstantBuffer.specularHighlight.x = this->entityMaterial.specularPower;
 	this->gEntityPSConstantBuffer.specularHighlight.y = this->entityMaterial.specularIntensity;
@@ -126,6 +127,23 @@ void Entity::detachTextureAndSampler() {
 	this->texture = NULL;
 	this->textureSampler = NULL;
 	this->useTexture = false;
+
+	this->dataChanged = true;
+}
+
+void Entity::attachNormalMappingTexture(Texture* normalMappingTexture, TextureSampler* normalMappingTextureSampler) {
+	// Normal mapping requires a sampler.
+	if (normalMappingTextureSampler == NULL && this->textureSampler == NULL) {
+		return;
+	}
+
+	// If no sampler provided before, assign given one.
+	if (normalMappingTextureSampler != NULL && this->textureSampler == NULL) {
+		this->textureSampler = normalMappingTextureSampler;
+	}
+
+	this->normalMappingTexture = normalMappingTexture;
+	this->useNormalMapping = true;
 
 	this->dataChanged = true;
 }

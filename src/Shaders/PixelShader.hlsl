@@ -7,10 +7,12 @@
 
 // Provided by entity object.
 Texture2D Texture : register(t0);
+Texture2D NormalMappingTexture : register(t1);
 SamplerState Sampler : register(s0);
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float3 entityColor;
 	bool entityUseTexture;
+	bool entityUseNormalMap;
 	float4 specularHighlight;
 };
 
@@ -42,8 +44,12 @@ static const float4 ambient = float4(0.03f, 0.03f, 0.03f, 0);
 // Input structure of the Pixel shader.
 struct PSIn {
 	float3 positionPS : Position;
-	float3 normal : Normal;
 	float2 texture_UV : TextureUV;
+
+	float3 normal : Normal;
+	float3 tangent : Tangent;
+	float3 binormal : Binormal;
+
 	float4 eyePosition : EyePosition;
 	matrix viewMatrix : ViewMatrix;
 };
@@ -56,8 +62,19 @@ struct PSOut {
 PSOut main(PSIn psIn){
 	PSOut psOut;
 
-	// Normalizing normal input vector because Rasterizer stage interpolates it.
-	float3 normalizedNormal = normalize(psIn.normal);
+	float3 normalizedNormal;
+	float3 normalizedTangent;
+	float3 normalizedBinormal;
+
+	// Normalizing normal input vectors because Rasterizer stage interpolates them.
+	normalizedNormal = normalize(psIn.normal);
+	normalizedTangent = normalize(psIn.tangent);
+	normalizedBinormal = normalize(psIn.binormal);
+
+	// Sample from normal map texture if entity uses it.
+	if (entityUseNormalMap) {
+		//normalizedNormal = NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz;
+	}
 
 	float4 sumDiffuse = float4(0, 0, 0, 0);
 	float4 sumSpecular = float4(0, 0, 0, 0);

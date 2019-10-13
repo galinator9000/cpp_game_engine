@@ -372,8 +372,10 @@ struct Color {
 // Each vertex on every mesh is represented by this struct.
 struct Vertex {
 	Vector3 position;
-	Vector3 normal;
 	Vector2 textureUV;
+	Vector3 normal;
+	Vector3 tangent;
+	Vector3 binormal;
 
 	// Joint ID and corresponding weights for vertex
 	float jointWeights[MAX_JOINT_PER_VERTEX];
@@ -478,6 +480,7 @@ struct EntityVSConstantBuffer {
 struct EntityPSConstantBuffer {
 	dx::XMFLOAT3 color;
 	bool useTexture;
+	bool useNormalMapping;
 	dx::XMFLOAT4 specularHighlight;
 };
 

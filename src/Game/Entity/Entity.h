@@ -55,6 +55,11 @@ public:
 	void detachTextureAndSampler();
 	bool useTexture = false;
 
+	// Normal map
+	Texture* normalMappingTexture = NULL;
+	void attachNormalMappingTexture(Texture* normalMappingTexture, TextureSampler* normalMappingTextureSampler=NULL);
+	bool useNormalMapping = false;
+
 	// Hierarchy system
 	Entity* parentEntity = NULL;
 	std::vector<Entity*> childEntities;

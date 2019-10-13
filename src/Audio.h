@@ -1,15 +1,16 @@
 #pragma once
-#include "al.h"
-#include "alc.h"
-#pragma comment(lib, "OpenAL32.lib")
-#include <wrl.h>
+#include "xaudio2.h"
 #include <Windows.h>
+#include <wrl.h>
+
+#include "Config.h"
 
 class Audio{
 public:
 	Audio();
 
 private:
-	ALCdevice* pDevice;
-	ALCcontext* pDeviceContext;
+	HRESULT hr;
+
+	Microsoft::WRL::ComPtr<IXAudio2> pXAudio2;
 };

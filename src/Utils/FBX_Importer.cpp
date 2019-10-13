@@ -76,10 +76,22 @@ bool FBX_Importer::Load(
 	FbxDouble3 meshNodeScaling = meshNode->LclScaling;
 
 	//// Read mesh elements.
+	
 	// Normal
 	FbxGeometryElementNormal* fbxNormalElement = mesh->GetElementNormal();
 	FbxLayerElement::EMappingMode fbxNormalMapMode = fbxNormalElement->GetMappingMode();
 	FbxLayerElement::EReferenceMode fbxNormalReferenceMode = fbxNormalElement->GetReferenceMode();
+
+	// Tangent
+	FbxGeometryElementTangent* fbxTangentElement = mesh->GetElementTangent();
+	FbxLayerElement::EMappingMode fbxTangentMapMode = fbxTangentElement->GetMappingMode();
+	FbxLayerElement::EReferenceMode fbxTangentReferenceMode = fbxTangentElement->GetReferenceMode();
+
+	// Binormal
+	FbxGeometryElementBinormal* fbxBinormalElement = mesh->GetElementBinormal();
+	FbxLayerElement::EMappingMode fbxBinormalMapMode = fbxBinormalElement->GetMappingMode();
+	FbxLayerElement::EReferenceMode fbxBinormalReferenceMode = fbxBinormalElement->GetReferenceMode();
+
 	// UV
 	FbxGeometryElementUV* fbxUVElement = mesh->GetElementUV();
 	FbxLayerElement::EMappingMode fbxUVMapMode = fbxUVElement->GetMappingMode();
@@ -133,7 +145,6 @@ bool FBX_Importer::Load(
 
 	// Collect all indices.
 	for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-		// Process every vertex in this polygon (triangle)
 		for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 			vertexArrayIndex = polygonIndex * 3 + vertexIndex;
 
@@ -148,7 +159,6 @@ bool FBX_Importer::Load(
 	// Collect normal layer data.
 	if (fbxNormalMapMode == FbxGeometryElement::eByPolygonVertex) {
 		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
-			// Process every vertex in this polygon (triangle)
 			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
 
@@ -185,6 +195,92 @@ bool FBX_Importer::Load(
 				_vertices[vertexArrayIndex].normal.x = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[0];
 				_vertices[vertexArrayIndex].normal.y = (float) fbxNormalElement->GetDirectArray().GetAt(normalIndex)[1];
 				_vertices[vertexArrayIndex].normal.z = (float) -fbxNormalElement->GetDirectArray().GetAt(normalIndex)[2];
+			}
+		}
+	}
+
+	// Collect Tangent layer data.
+	if (fbxTangentMapMode == FbxGeometryElement::eByPolygonVertex) {
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+
+				int tangentIndex = -1;
+				if (fbxTangentReferenceMode == FbxGeometryElement::eDirect) {
+					tangentIndex = vertexArrayIndex;
+				}
+				else if (fbxNormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
+					tangentIndex = fbxTangentElement->GetIndexArray().GetAt(vertexArrayIndex);
+				}
+				assert(tangentIndex != -1);
+
+				_vertices[vertexArrayIndex].tangent.x = (float) fbxTangentElement->GetDirectArray().GetAt(tangentIndex)[0];
+				_vertices[vertexArrayIndex].tangent.y = (float) fbxTangentElement->GetDirectArray().GetAt(tangentIndex)[1];
+				_vertices[vertexArrayIndex].tangent.z = (float) -fbxTangentElement->GetDirectArray().GetAt(tangentIndex)[2];
+			}
+		}
+	}
+	else if (fbxTangentMapMode == FbxGeometryElement::eByControlPoint) {
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+				controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+
+				int tangentIndex = -1;
+				if (fbxTangentReferenceMode == FbxGeometryElement::eDirect) {
+					tangentIndex = controlPointIndex;
+				}
+				else if (fbxTangentReferenceMode == FbxGeometryElement::eIndexToDirect) {
+					tangentIndex = fbxTangentElement->GetIndexArray().GetAt(controlPointIndex);
+				}
+				assert(tangentIndex != -1);
+
+				_vertices[vertexArrayIndex].tangent.x = (float) fbxTangentElement->GetDirectArray().GetAt(tangentIndex)[0];
+				_vertices[vertexArrayIndex].tangent.y = (float) fbxTangentElement->GetDirectArray().GetAt(tangentIndex)[1];
+				_vertices[vertexArrayIndex].tangent.z = (float) -fbxTangentElement->GetDirectArray().GetAt(tangentIndex)[2];
+			}
+		}
+	}
+
+	// Collect Binormal layer data.
+	if (fbxBinormalMapMode == FbxGeometryElement::eByPolygonVertex) {
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+
+				int binormalIndex = -1;
+				if (fbxBinormalReferenceMode == FbxGeometryElement::eDirect) {
+					binormalIndex = vertexArrayIndex;
+				}
+				else if (fbxBinormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
+					binormalIndex = fbxBinormalElement->GetIndexArray().GetAt(vertexArrayIndex);
+				}
+				assert(binormalIndex != -1);
+
+				_vertices[vertexArrayIndex].binormal.x = (float) fbxBinormalElement->GetDirectArray().GetAt(binormalIndex)[0];
+				_vertices[vertexArrayIndex].binormal.y = (float) fbxBinormalElement->GetDirectArray().GetAt(binormalIndex)[1];
+				_vertices[vertexArrayIndex].binormal.z = (float) -fbxBinormalElement->GetDirectArray().GetAt(binormalIndex)[2];
+			}
+		}
+	}
+	else if (fbxBinormalMapMode == FbxGeometryElement::eByControlPoint) {
+		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
+			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
+				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
+				controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+
+				int binormalIndex = -1;
+				if (fbxBinormalReferenceMode == FbxGeometryElement::eDirect) {
+					binormalIndex = controlPointIndex;
+				}
+				else if (fbxBinormalReferenceMode == FbxGeometryElement::eIndexToDirect) {
+					binormalIndex = fbxBinormalElement->GetIndexArray().GetAt(controlPointIndex);
+				}
+				assert(binormalIndex != -1);
+
+				_vertices[vertexArrayIndex].binormal.x = (float) fbxBinormalElement->GetDirectArray().GetAt(binormalIndex)[0];
+				_vertices[vertexArrayIndex].binormal.y = (float) fbxBinormalElement->GetDirectArray().GetAt(binormalIndex)[1];
+				_vertices[vertexArrayIndex].binormal.z = (float) -fbxBinormalElement->GetDirectArray().GetAt(binormalIndex)[2];
 			}
 		}
 	}

@@ -10,6 +10,15 @@ void Game::Setup(){
 	// Add main camera.
 	this->pWorld->addCamera(&this->wMainCamera);
 
+	// Create Texture and Normal Mapping
+	Texture* texture = new Texture("diffuse", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds");
+	Texture* normalMapTexture = new Texture("normalmap", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds");
+	TextureSampler* textureSampler = new TextureSampler();
+
+	this->pWorld->createTexture(texture);
+	this->pWorld->createTexture(normalMapTexture);
+	this->pWorld->createTextureSampler(textureSampler);
+
 	// Create box mesh.
 	Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxGeometry({ 1,1,1 });
@@ -20,12 +29,14 @@ void Game::Setup(){
 
 	Entity* box;
 	CollisionActor* boxColActor;
+
 	Entity* prevBox = NULL;
 
 	float marginBetweenBoxes = 0.25f;
 	for (int bb = 0; bb<3; bb++) {
 		for (int b = 0; b < 25; b++) {
 			if (b == 0) {
+				prevBox = NULL;
 				boxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
 			}
 			else {
@@ -54,6 +65,9 @@ void Game::Setup(){
 					Vector3(0, marginBetweenBoxes / 2, 0),
 					Vector3(0, -(marginBetweenBoxes / 2), 0)
 				);
+
+				box->attachTextureAndSampler(texture, textureSampler);
+				box->attachNormalMappingTexture(normalMapTexture);
 			}
 			prevBox = box;
 		}
@@ -76,6 +90,24 @@ void Game::Setup(){
 		}
 	);
 	this->pWorld->addEntity(groundBox);
+
+	// Dynamic big box.
+	CollisionShape* bigBoxColShape = new CollisionShape();
+	bigBoxColShape->createBoxGeometry({ 3,2,3 });
+	CollisionActor* bigBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
+	Entity* bigBox = new Entity(
+		{
+			{ 3,2,3 },
+			{ -20, 10, 0 },
+			{ 0,0,0,0 },
+			{ 0, 1, 0, 1 },
+			{},
+			boxMesh,
+			bigBoxColShape,
+			bigBoxColActor
+		}
+	);
+	this->pWorld->addEntity(bigBox);
 
 	//// Load animated entity.
 	// Collision.
@@ -100,18 +132,14 @@ void Game::Setup(){
 	);
 
 	// Load mesh.
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01_uv.fbx", "")) {
 		// Set Animation
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
 		this->mainCharacter->setAnimation("Take 001");
 
-		// Set Texture
-		Texture* mainCharacterTexture = new Texture("texture", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\texture.dds");
-		TextureSampler* mainCharacterTextureSampler = new TextureSampler();
-		this->pWorld->createTexture(mainCharacterTexture);
-		this->pWorld->createTextureSampler(mainCharacterTextureSampler);
-		this->mainCharacter->attachTextureAndSampler(mainCharacterTexture, mainCharacterTextureSampler);
+		this->mainCharacter->attachTextureAndSampler(texture, textureSampler);
+		this->mainCharacter->attachNormalMappingTexture(normalMapTexture);
 
 		// Add entity to world.
 		this->pWorld->addEntity(mainCharacter);
@@ -129,12 +157,12 @@ void Game::Setup(){
 
 	// Add lights to scene.
 	PointLight* pointLight = new PointLight(Vector3(20, 5, -10.0f), 0.5f, Color(1, 0, 0));
-	this->pWorld->addLight(pointLight);
+	//this->pWorld->addLight(pointLight);
 
-	DirectionalLight* directionalLight = new DirectionalLight(Vector3(1, -1, -1), 0.2f, Color(0, 1, 0));
-	this->pWorld->addLight(directionalLight);
+	DirectionalLight* directionalLight = new DirectionalLight(Vector3(1, -1, -1), 0.3f, Color(1, 1, 1));
+	//this->pWorld->addLight(directionalLight);
 
-	this->spotLight = new SpotLight(Vector3(0, 5, 0), Vector3(0, -1, 0), 20, Color(0, 0, 1));
+	this->spotLight = new SpotLight(Vector3(0, 5, 0), Vector3(0, -1, 0), 1.0f, Color(1, 1, 1));
 	this->pWorld->addLight(this->spotLight);
 }
 
@@ -145,5 +173,5 @@ void Game::Update(){
 
 	// Circular motion
 	float cosx = cos(timer.Peek() * dx::XM_2PI) * 5.0f;
-	float siny = sin(-timer.Peek() * dx::XM_2PI) * 5.0f;
+	float siny = sin(timer.Peek() * dx::XM_2PI) * 5.0f;
 }

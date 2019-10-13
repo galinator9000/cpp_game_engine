@@ -1,18 +1,11 @@
 #include "Audio.h"
 
 Audio::Audio() {
-	this->pDevice = alcOpenDevice(0);
-	this->pDeviceContext = alcCreateContext(this->pDevice, NULL);
-	alcMakeContextCurrent(this->pDeviceContext);
+	this->hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
-	// Create buffer.
-	alGetError();
-
-	unsigned int* audioBuffer = new unsigned int[4096];
-	alGenBuffers(16, audioBuffer);
-
-	if (alGetError() != AL_NO_ERROR) {
-		OutputDebugStringA("alGenBuffers error");
-		return;
-	}
+	this->hr = XAudio2Create(
+		&this->pXAudio2,
+		XAUDIO2_DEBUG_ENGINE,
+		XAUDIO2_DEFAULT_PROCESSOR
+	);
 }

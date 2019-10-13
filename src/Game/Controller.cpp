@@ -74,13 +74,13 @@ void Controller::Update() {
 				this->pKeyb->isKeyPressed(VK_CONTROL)
 			);
 		}
-		if (this->pKeyb->isKeyPressed(' ')) {
+		if (this->pKeyb->isKeyPressed('E')) {
 			this->pWorld->activeCamera->Move(
 				Vector3(0.0f, 1.0f, 0.0f),
 				false
 			);
 		}
-		if (this->pKeyb->isKeyPressed('C')) {
+		if (this->pKeyb->isKeyPressed('Q')) {
 			this->pWorld->activeCamera->Move(
 				Vector3(0.0f, -1.0f, 0.0f),
 				false
