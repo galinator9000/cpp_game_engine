@@ -45,9 +45,6 @@
     <ClInclude Include="src\Game\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Game\Entity\Shapes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Game\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -179,9 +176,6 @@
     <ClCompile Include="src\Game\Light\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Game\TextureSampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Game\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -201,9 +195,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\JointTransform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.cpp">

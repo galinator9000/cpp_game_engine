@@ -104,6 +104,39 @@ struct Vector2 {
 		return minVal;
 	}
 
+	// DirectXMath & PhysX conversions
+	void storeXMFLOAT(dx::XMFLOAT2* xmfloat) {
+		this->x = xmfloat->x;
+		this->y = xmfloat->y;
+	}
+	dx::XMFLOAT2 loadXMFLOAT() {
+		return dx::XMFLOAT2(
+			this->x,
+			this->y
+		);
+	}
+	void storeXMVECTOR(dx::XMVECTOR* xmvector) {
+		dx::XMFLOAT2 xmfloat;
+
+		dx::XMStoreFloat2(
+			&xmfloat,
+			*xmvector
+		);
+
+		this->storeXMFLOAT(&xmfloat);
+	}
+	dx::XMVECTOR loadXMVECTOR() {
+		return dx::XMVectorSet(
+			this->x,
+			this->y,
+			0,
+			0
+		);
+	}
+	PxVec2 toPxVec2() {
+		return PxVec2(this->x, this->y);
+	}
+
 	float x;
 	float y;
 };
@@ -184,13 +217,6 @@ struct Vector3 {
 		);
 	}
 
-	PxTransform toPxTransform() {
-		return PxTransform(PxVec3(this->x, this->y, this->z));
-	}
-	PxVec3 toPxVec3() {
-		return PxVec3(this->x, this->y, this->z);
-	}
-
 	float maximum() {
 		float maxVal = -INFINITY;
 
@@ -217,6 +243,44 @@ struct Vector3 {
 		}
 
 		return minVal;
+	}
+
+	// DirectXMath & PhysX conversions
+	void storeXMFLOAT(dx::XMFLOAT3* xmfloat) {
+		this->x = xmfloat->x;
+		this->y = xmfloat->y;
+		this->z = xmfloat->z;
+	}
+	dx::XMFLOAT3 loadXMFLOAT() {
+		return dx::XMFLOAT3(
+			this->x,
+			this->y,
+			this->z
+		);
+	}
+	void storeXMVECTOR(dx::XMVECTOR* xmvector) {
+		dx::XMFLOAT3 xmfloat;
+
+		dx::XMStoreFloat3(
+			&xmfloat,
+			*xmvector
+		);
+
+		this->storeXMFLOAT(&xmfloat);
+	}
+	dx::XMVECTOR loadXMVECTOR() {
+		return dx::XMVectorSet(
+			this->x,
+			this->y,
+			this->z,
+			0
+		);
+	}
+	PxTransform toPxTransform() {
+		return PxTransform(PxVec3(this->x, this->y, this->z));
+	}
+	PxVec3 toPxVec3() {
+		return PxVec3(this->x, this->y, this->z);
 	}
 
 	float x;
@@ -341,6 +405,43 @@ struct Vector4 {
 		return minVal;
 	}
 
+	// DirectXMath & PhysX conversions
+	void storeXMFLOAT(dx::XMFLOAT4* xmfloat) {
+		this->x = xmfloat->x;
+		this->y = xmfloat->y;
+		this->z = xmfloat->z;
+		this->w = xmfloat->w;
+	}
+	dx::XMFLOAT4 loadXMFLOAT() {
+		return dx::XMFLOAT4(
+			this->x,
+			this->y,
+			this->z,
+			this->w
+		);
+	}
+	void storeXMVECTOR(dx::XMVECTOR* xmvector) {
+		dx::XMFLOAT4 xmfloat;
+
+		dx::XMStoreFloat4(
+			&xmfloat,
+			*xmvector
+		);
+
+		this->storeXMFLOAT(&xmfloat);
+	}
+	dx::XMVECTOR loadXMVECTOR() {
+		return dx::XMVectorSet(
+			this->x,
+			this->y,
+			this->z,
+			this->w
+		);
+	}
+	PxVec4 toPxVec4() {
+		return PxVec4(this->x, this->y, this->z, this->w);
+	}
+
 	float x;
 	float y;
 	float z;
@@ -361,6 +462,21 @@ struct Color {
 		this->g = g;
 		this->b = b;
 		this->a = a;
+	}
+
+	// Operators
+	bool operator==(const Color& other) {
+		return (this->r == other.r) && (this->g == other.g) && (this->b == other.b) && (this->a == other.a);
+	}
+
+	// DirectXMath & PhysX conversions
+	dx::XMFLOAT4 toDX() {
+		return dx::XMFLOAT4(
+			this->r,
+			this->g,
+			this->b,
+			this->a
+		);
 	}
 
 	float r;
@@ -504,5 +620,6 @@ struct LightPSConstantBuffer {
 struct CameraVSConstantBuffer {
 	dx::XMFLOAT4X4 viewMatrix;
 	dx::XMFLOAT4X4 projectionMatrix;
-	dx::XMFLOAT4 cameraPosition;
+	dx::XMFLOAT3 cameraPosition;
+	float padding;
 };

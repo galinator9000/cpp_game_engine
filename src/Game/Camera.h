@@ -36,8 +36,8 @@ public:
 
 	const float minDistanceToEntity = 5.0f;
 	const float maxDistanceToEntity = 20.0f;
-	dx::XMFLOAT3 followEntityOffset = dx::XMFLOAT3();
-	dx::XMFLOAT3 entityCenterOffset = dx::XMFLOAT3();
+	Vector3 followEntityOffset = Vector3();
+	Vector3 entityCenterOffset = Vector3();
 	bool isFollowingEntity = false;
 
 	// GPU side
@@ -47,7 +47,7 @@ public:
 	bool dataChanged = false;
 
 	Vector3 rotation;
-	dx::XMFLOAT3 camPosition;
-	dx::XMFLOAT3 camLookAt;
-	dx::XMFLOAT3 lookDirection;
+	Vector3 camPosition;
+	Vector3 camLookAt;
+	Vector3 lookDirection;
 };

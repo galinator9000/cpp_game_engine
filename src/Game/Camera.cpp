@@ -7,9 +7,8 @@ Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio){
 	this->rotation = Vector3();
 
 	// Set looking direction vector to +Z axis
-	dx::XMStoreFloat3(
-		&this->lookDirection,
-		dx::XMVector3Transform(
+	this->lookDirection.storeXMVECTOR(
+		&dx::XMVector3Transform(
 			dx::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
 			dx::XMMatrixRotationRollPitchYaw(
 				this->rotation.x,
@@ -20,12 +19,8 @@ Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio){
 	);
 
 	// Fill camera position and looking direction vector
-	this->camPosition = dx::XMFLOAT3(position.x, position.y, position.z);
-	this->camLookAt = dx::XMFLOAT3(
-		this->camPosition.x + this->lookDirection.x,
-		this->camPosition.y + this->lookDirection.y,
-		this->camPosition.z + this->lookDirection.z
-	);
+	this->camPosition = position;
+	this->camLookAt = camPosition + lookDirection;
 
 	this->updateConstantBuffer();
 }
@@ -43,20 +38,12 @@ void Camera::Update() {
 void Camera::updateConstantBuffer() {
 	if (this->isFollowingEntity) {
 		// Set looking direction to entity's position.
-		this->camLookAt.x = this->followedEntity->gPosition.x + this->entityCenterOffset.x;
-		this->camLookAt.y = this->followedEntity->gPosition.y + this->entityCenterOffset.y;
-		this->camLookAt.z = this->followedEntity->gPosition.z + this->entityCenterOffset.z;
+		this->camLookAt = this->followedEntity->gPosition + this->entityCenterOffset;
 
 		// Set camera's position to (entity's position + (follow offset * rotation)).
-		dx::XMStoreFloat3(
-			&this->camPosition,
-			dx::XMVector3Transform(
-				dx::XMVectorSet(
-					this->entityCenterOffset.x + this->followEntityOffset.x,
-					this->entityCenterOffset.y + this->followEntityOffset.y,
-					this->entityCenterOffset.z + this->followEntityOffset.z,
-					0.0f
-				),
+		this->camPosition.storeXMVECTOR(
+			&dx::XMVector3Transform(
+				(this->entityCenterOffset + this->followEntityOffset).loadXMVECTOR(),
 				(
 					// Rotate offset by rotation values.
 					dx::XMMatrixRotationRollPitchYaw(
@@ -76,9 +63,8 @@ void Camera::updateConstantBuffer() {
 	}
 	else {
 		// Update looking direction vector
-		dx::XMStoreFloat3(
-			&this->lookDirection,
-			dx::XMVector3Transform(
+		this->lookDirection.storeXMVECTOR(
+			&dx::XMVector3Transform(
 				dx::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
 				dx::XMMatrixRotationRollPitchYaw(
 					this->rotation.x,
@@ -87,11 +73,8 @@ void Camera::updateConstantBuffer() {
 				)
 			)
 		);
-		this->camLookAt = dx::XMFLOAT3(
-			this->camPosition.x + this->lookDirection.x,
-			this->camPosition.y + this->lookDirection.y,
-			this->camPosition.z + this->lookDirection.z
-		);
+
+		this->camLookAt = this->camPosition + this->lookDirection;
 	}
 
 	//// Update constant buffer on class which is provided to GPU side.
@@ -100,8 +83,8 @@ void Camera::updateConstantBuffer() {
 		&this->gCameraVSConstantBuffer.viewMatrix,
 		dx::XMMatrixTranspose(
 			dx::XMMatrixLookAtLH(
-				dx::XMLoadFloat3(&this->camPosition),
-				dx::XMLoadFloat3(&this->camLookAt),
+				this->camPosition.loadXMVECTOR(),
+				this->camLookAt.loadXMVECTOR(),
 				dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
 			)
 		)
@@ -121,9 +104,7 @@ void Camera::updateConstantBuffer() {
 	);
 
 	// Provide position of the camera to buffer.
-	this->gCameraVSConstantBuffer.cameraPosition.x = this->camPosition.x;
-	this->gCameraVSConstantBuffer.cameraPosition.y = this->camPosition.y;
-	this->gCameraVSConstantBuffer.cameraPosition.z = this->camPosition.z;
+	this->gCameraVSConstantBuffer.cameraPosition = this->camPosition.loadXMFLOAT();
 }
 
 void Camera::Move(Vector3 translation, bool moveFast) {
@@ -163,11 +144,7 @@ void Camera::Move(Vector3 translation, bool moveFast) {
 	this->camPosition.z += camTranslation.z;
 
 	// Update looking direction vector
-	this->camLookAt = dx::XMFLOAT3(
-		this->camPosition.x + this->lookDirection.x,
-		this->camPosition.y + this->lookDirection.y,
-		this->camPosition.z + this->lookDirection.z
-	);
+	this->camLookAt = this->camPosition + this->lookDirection;
 
 	this->wasMovingFast = moveFast;
 	this->dataChanged = true;
@@ -214,8 +191,8 @@ void Camera::Rotate(float xDelta, float yDelta) {
 // Entity following functionality.
 void Camera::followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followEntityOffset) {
 	this->followedEntity = followEntity;
-	this->entityCenterOffset = dx::XMFLOAT3(entityCenterOffset.x, entityCenterOffset.y, entityCenterOffset.z);
-	this->followEntityOffset = dx::XMFLOAT3(followEntityOffset.x, followEntityOffset.y, followEntityOffset.z);
+	this->entityCenterOffset = entityCenterOffset;
+	this->followEntityOffset = followEntityOffset;
 
 	// Set values to initial values.
 	float currentMovementSpeed = initialMovementSpeed;
@@ -232,7 +209,7 @@ void Camera::Zoom(int zoomDirection) {
 		dx::XMStoreFloat3(
 			&followEntityOffsetDirection,
 			dx::XMVector3Normalize(
-				dx::XMLoadFloat3(&this->followEntityOffset)
+				this->followEntityOffset.loadXMVECTOR()
 			)
 		);
 

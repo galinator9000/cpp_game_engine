@@ -32,9 +32,9 @@ public:
 	bool dataChanged = false;
 
 	// Graphics
-	dx::XMFLOAT4 gDiffuseColor = dx::XMFLOAT4(1,1,1,1);
+	Color gDiffuseColor = Color(1,1,1,1);
 	float gIntensity = 0;
-	dx::XMFLOAT3 gPosition = dx::XMFLOAT3(0,0,0);
-	dx::XMFLOAT3 gDirection = dx::XMFLOAT3(0,1,0);
+	Vector3 gPosition = Vector3(0,0,0);
+	Vector3 gDirection = Vector3(0,1,0);
 	float gHalfSpotAngle = 0;
 };

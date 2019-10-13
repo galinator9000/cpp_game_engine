@@ -3,11 +3,11 @@
 SpotLight::SpotLight(Vector3 position, Vector3 direction, float intensity, Color color, float halfSpotAngle) {
 	this->type = LIGHT_TYPE::SPOT_LIGHT;
 
-	this->gPosition = dx::XMFLOAT3(position.x, position.y, position.z);
-	this->gDirection = dx::XMFLOAT3(direction.x, direction.y, direction.z);
+	this->gPosition = position;
+	this->gDirection = direction;
 	this->gHalfSpotAngle = halfSpotAngle;
 	this->gIntensity = intensity;
-	this->gDiffuseColor = dx::XMFLOAT4(color.r, color.g, color.b, color.a);
+	this->gDiffuseColor = color;
 
 	this->updateConstantBuffer();
 }

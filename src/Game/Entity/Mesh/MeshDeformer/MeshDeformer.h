@@ -22,7 +22,7 @@ enum JOINT_TRANSFORM_SOURCE {
 class MeshDeformer{
 public:
 	MeshDeformer();
-	void Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale);
+	void Setup(Skeleton* pSkeleton, Vector3 gEntityScale);
 	void Update();
 	void recalculateMatrices(int baseJointID, dx::XMMATRIX* jointLocalTransform);
 

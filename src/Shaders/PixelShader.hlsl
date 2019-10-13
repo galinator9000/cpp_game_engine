@@ -50,7 +50,7 @@ struct PSIn {
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
 
-	float4 eyePosition : EyePosition;
+	float3 eyePosition : EyePosition;
 	matrix viewMatrix : ViewMatrix;
 };
 

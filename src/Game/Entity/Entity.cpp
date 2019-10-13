@@ -1,13 +1,13 @@
 #include "Entity.h"
-#include "Shapes.h"
+#include "Mesh/Mesh.h"
 
 // Default constructor.
 Entity::Entity(){
 	EntityProperties entProp;
 
-	this->gSize = dx::XMFLOAT3(entProp.size.x, entProp.size.y, entProp.size.z);
-	this->gPosition = dx::XMFLOAT3(entProp.position.x, entProp.position.y, entProp.position.z);
-	this->gRotationQ = dx::XMFLOAT4(entProp.rotationQ.x, entProp.rotationQ.y, entProp.rotationQ.z, entProp.rotationQ.w);
+	this->gSize = entProp.size;
+	this->gPosition = entProp.position;
+	this->gRotationQ = entProp.rotationQ;
 
 	this->entityMaterial.color = entProp.color;
 	this->entityMaterial.specularPower = 3.0f;
@@ -23,9 +23,9 @@ Entity::Entity(){
 }
 
 Entity::Entity(EntityProperties entProp){
-	this->gSize = dx::XMFLOAT3(entProp.size.x, entProp.size.y, entProp.size.z);
-	this->gPosition = dx::XMFLOAT3(entProp.position.x, entProp.position.y, entProp.position.z);
-	this->gRotationQ = dx::XMFLOAT4(entProp.rotationQ.x, entProp.rotationQ.y, entProp.rotationQ.z, entProp.rotationQ.w);
+	this->gSize = entProp.size;
+	this->gPosition = entProp.position;
+	this->gRotationQ = entProp.rotationQ;
 
 	this->entityMaterial.color = entProp.color;
 	this->entityMaterial.specularPower = 3.0f;
@@ -73,22 +73,16 @@ void Entity::updateConstantBuffer() {
 		&(this->gEntityVSConstantBuffer.worldMatrix),
 		dx::XMMatrixTranspose(
 			// Local
-			dx::XMMatrixScalingFromVector(dx::XMLoadFloat3(&this->gSize)) *
+			dx::XMMatrixScalingFromVector(this->gSize.loadXMVECTOR()) *
 
 			dx::XMMatrixRotationQuaternion(
 				dx::XMQuaternionRotationAxis(
-					dx::XMLoadFloat3(
-						&dx::XMFLOAT3(
-							this->gRotationQ.x,
-							this->gRotationQ.y,
-							this->gRotationQ.z
-						)
-					),
+					this->gRotationQ.loadXMVECTOR(),
 					this->gRotationQ.w
 				)
 			) *
 
-			dx::XMMatrixTranslationFromVector(dx::XMLoadFloat3(&this->gPosition))
+			dx::XMMatrixTranslationFromVector(this->gPosition.loadXMVECTOR())
 		)
 	);
 
@@ -226,25 +220,18 @@ void Entity::setColor(Color color) {
 }
 
 void Entity::Translate(Vector3 translationVector){
-	this->gPosition.x += translationVector.x;
-	this->gPosition.y += translationVector.y;
-	this->gPosition.z += translationVector.z;
+	this->gPosition = this->gPosition + translationVector;
 	this->dataChanged = true;
 }
 
 void Entity::rotateQuaternion(Vector4 rotationQuaternionVector){
-	this->gRotationQ.x = rotationQuaternionVector.x;
-	this->gRotationQ.y = rotationQuaternionVector.y;
-	this->gRotationQ.z = rotationQuaternionVector.z;
-	this->gRotationQ.w = rotationQuaternionVector.w;
+	this->gRotationQ = rotationQuaternionVector;
 
 	this->dataChanged = true;
 }
 
 void Entity::Scale(Vector3 scalingVector){
-	this->gSize.x *= scalingVector.x;
-	this->gSize.y *= scalingVector.y;
-	this->gSize.z *= scalingVector.z;
+	this->gSize = this->gSize * scalingVector;
 
 	this->dataChanged = true;
 }

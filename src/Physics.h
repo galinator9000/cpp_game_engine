@@ -6,7 +6,7 @@
 #include <string>
 
 #include "Entity/Entity.h"
-#include "Entity/Shapes.h"
+#include "Entity/Mesh/Mesh.h"
 
 using namespace physx;
 

@@ -2,7 +2,7 @@
 
 // Set light's color.
 void Light::setColor(Color color) {
-	this->gDiffuseColor = dx::XMFLOAT4(color.r, color.g, color.b, color.a);
+	this->gDiffuseColor = color;
 	this->dataChanged = true;
 }
 
@@ -18,7 +18,7 @@ void Light::setPosition(Vector3 newPosition) {
 		return;
 	}
 
-	this->gPosition = dx::XMFLOAT3(newPosition.x, newPosition.y, newPosition.z);
+	this->gPosition = newPosition;
 	this->dataChanged = true;
 }
 
@@ -28,7 +28,7 @@ void Light::setDirection(Vector3 newDirection) {
 		return;
 	}
 
-	this->gDirection = dx::XMFLOAT3(newDirection.x, newDirection.y, newDirection.z);
+	this->gDirection = newDirection;
 	this->dataChanged = true;
 }
 

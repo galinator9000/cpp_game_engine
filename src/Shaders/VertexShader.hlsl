@@ -11,7 +11,8 @@ cbuffer EntityVSConstantBuffer : register(b0) {
 cbuffer CameraVSConstantBuffer : register(b1) {
 	matrix viewMatrix;
 	matrix projectionMatrix;
-	float4 cameraPosition;
+	float3 cameraPosition;
+	float padding;
 };
 
 // Joint matrices provided by mesh deformer,
@@ -41,7 +42,7 @@ struct VSOut {
 	float3 normal : Normal;
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
-	float4 eyePosition : EyePosition;
+	float3 eyePosition : EyePosition;
 	matrix viewMatrix : ViewMatrix;
 
 	float4 position : SV_Position;

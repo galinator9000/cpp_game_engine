@@ -235,7 +235,6 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClInclude Include="src\Game\Game.h" />
     <ClInclude Include="src\Game\Camera.h" />
     <ClInclude Include="src\Game\Light\DirectionalLight.h" />
-    <ClInclude Include="src\Game\Entity\Shapes.h" />
     <ClInclude Include="src\Game\Entity\Entity.h" />
     <ClInclude Include="src\Game\Structs.h" />
     <ClInclude Include="src\Game\Light\PointLight.h" />
@@ -264,7 +263,6 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClCompile Include="src\Game\Entity\Collision\CollisionShape.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.cpp" />
-    <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\JointTransform.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Skeleton.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Joint.cpp" />
@@ -287,7 +285,6 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClCompile Include="src\Game\World.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Game\Texture.cpp" />
-    <ClCompile Include="src\Game\TextureSampler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cpp_game_engine.rc" />

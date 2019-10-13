@@ -2,7 +2,7 @@
 
 MeshDeformer::MeshDeformer() {}
 
-void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
+void MeshDeformer::Setup(Skeleton* pSkeleton, Vector3 gEntityScale) {
 	this->skeleton = pSkeleton;
 
 	// Create JointTransform object array.
@@ -37,32 +37,20 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 
 		// Root joint.
 		if (currentJoint->isRoot) {
-			dx::XMFLOAT3 rootJointAbsolutePos;
-			dx::XMStoreFloat3(
-				&(rootJointAbsolutePos),
-				XMVector3Transform(
+			Vector3 rootJointAbsolutePos;
+			rootJointAbsolutePos.storeXMVECTOR(
+				&XMVector3Transform(
 					dx::XMVectorZero(),
 					(
 						dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))
 					)
 				)
 			);
-			rootJointAbsolutePos.x *= gEntityScale.x;
-			rootJointAbsolutePos.y *= gEntityScale.y;
-			rootJointAbsolutePos.z *= gEntityScale.z;
 
-			this->pRagdollCollisionShape[j]->createBoxGeometry({
-				gEntityScale.x,
-				gEntityScale.y,
-				gEntityScale.z
-			});
-			this->pRagdollCollisionActor[j]->initialTransform = PxTransform(
-				PxVec3(
-					rootJointAbsolutePos.x,
-					rootJointAbsolutePos.y,
-					rootJointAbsolutePos.z
-				)
-			);
+			rootJointAbsolutePos = rootJointAbsolutePos * gEntityScale;
+
+			this->pRagdollCollisionShape[j]->createBoxGeometry(gEntityScale);
+			this->pRagdollCollisionActor[j]->initialTransform = rootJointAbsolutePos.toPxTransform();
 
 			this->pRagdollCollisionActor[j]->parentActor = NULL;
 
@@ -71,49 +59,34 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 
 		this->pRagdollCollisionActor[j]->parentActor = this->pRagdollCollisionActor[currentJoint->parentJointID];
 
-		dx::XMFLOAT3 jointAbsolutePos;
-		dx::XMStoreFloat3(
-			&jointAbsolutePos,
-			XMVector3Transform(
+		Vector3 jointAbsolutePos;
+		jointAbsolutePos.storeXMVECTOR(
+			&XMVector3Transform(
 				dx::XMVectorZero(),
 				dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))
 			)
 		);
-		jointAbsolutePos.x *= gEntityScale.x;
-		jointAbsolutePos.y *= gEntityScale.y;
-		jointAbsolutePos.z *= gEntityScale.z;
+		jointAbsolutePos = jointAbsolutePos * gEntityScale;
 
-		dx::XMFLOAT3 parentJointAbsolutePos;
-		dx::XMStoreFloat3(
-			&parentJointAbsolutePos,
-			XMVector3Transform(
+		Vector3 parentJointAbsolutePos;
+		parentJointAbsolutePos.storeXMVECTOR(
+			&XMVector3Transform(
 				dx::XMVectorZero(),
 				dx::XMLoadFloat4x4(&(currentJoint->parentJoint->globalBindPoseMatrix))
 			)
 		);
-		parentJointAbsolutePos.x *= gEntityScale.x;
-		parentJointAbsolutePos.y *= gEntityScale.y;
-		parentJointAbsolutePos.z *= gEntityScale.z;
+		parentJointAbsolutePos = parentJointAbsolutePos * gEntityScale;
 
 		// Calculate joint's actor position.
-		dx::XMFLOAT3 actorPosition = dx::XMFLOAT3(
-			parentJointAbsolutePos.x + ((jointAbsolutePos.x - parentJointAbsolutePos.x) / 2),
-			parentJointAbsolutePos.y + ((jointAbsolutePos.y - parentJointAbsolutePos.y) / 2),
-			parentJointAbsolutePos.z + ((jointAbsolutePos.z - parentJointAbsolutePos.z) / 2)
-		);
-		dx::XMVECTOR toChild = dx::XMVectorSet(
-			(jointAbsolutePos.x - parentJointAbsolutePos.x),
-			(jointAbsolutePos.y - parentJointAbsolutePos.y),
-			(jointAbsolutePos.z - parentJointAbsolutePos.z),
-			1
-		);
+		Vector3 actorPosition = parentJointAbsolutePos + (jointAbsolutePos - parentJointAbsolutePos) / 2;
+
+		dx::XMVECTOR toChild = (jointAbsolutePos - parentJointAbsolutePos).loadXMVECTOR();
 
 		// Calculate joint's actor rotation (Quaternion).
 		dx::XMVECTOR xAxisVector = dx::XMVectorSet(1, 0, 0, 0);
-		dx::XMFLOAT4 actorRotation;
-		dx::XMStoreFloat4(
-			&actorRotation,
-			dx::XMVector3Cross(
+		Vector4 actorRotation;
+		actorRotation.storeXMVECTOR(
+			&dx::XMVector3Cross(
 				xAxisVector,
 				toChild
 			)
@@ -127,29 +100,35 @@ void MeshDeformer::Setup(Skeleton* pSkeleton, dx::XMFLOAT3 gEntityScale) {
 		actorRotation.w = (float) (dotProduct + (float) sqrt((double) (upLengthSq * toChildLengthSq)));
 
 		// Normalize quaternion vector
-		dx::XMStoreFloat4(
-			&actorRotation,
-			dx::XMVector4Normalize(
-				dx::XMLoadFloat4(&actorRotation)
+		actorRotation.storeXMVECTOR(
+			&dx::XMVector4Normalize(
+				actorRotation.loadXMVECTOR()
 			)
 		);
 
 		// Measure length
-		dx::XMFLOAT3 jointAbsolutePosLen;
-		dx::XMStoreFloat3(&jointAbsolutePosLen,XMVector3Transform(dx::XMVectorZero(),dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))));
-
-		dx::XMFLOAT3 parentJointAbsolutePosLen;
-		dx::XMStoreFloat3(&parentJointAbsolutePosLen,XMVector3Transform(dx::XMVectorZero(),dx::XMLoadFloat4x4(&(currentJoint->parentJoint->globalBindPoseMatrix))));
-
-		dx::XMVECTOR toChildLen = dx::XMVectorSet(
-			(jointAbsolutePosLen.x - parentJointAbsolutePosLen.x),
-			(jointAbsolutePosLen.y - parentJointAbsolutePosLen.y),
-			(jointAbsolutePosLen.z - parentJointAbsolutePosLen.z),
-			1
+		Vector3 jointAbsolutePosLen;
+		jointAbsolutePosLen.storeXMVECTOR(
+			&XMVector3Transform(
+				dx::XMVectorZero(),
+				dx::XMLoadFloat4x4(&(currentJoint->globalBindPoseMatrix))
+			)
 		);
 
-		dx::XMFLOAT3 jointLength;
-		dx::XMStoreFloat3(&jointLength, dx::XMVector3Length(toChildLen));
+		Vector3 parentJointAbsolutePosLen;
+		parentJointAbsolutePosLen.storeXMVECTOR(
+			&XMVector3Transform(
+				dx::XMVectorZero(),
+				dx::XMLoadFloat4x4(&(currentJoint->parentJoint->globalBindPoseMatrix))
+			)
+		);
+		
+		dx::XMVECTOR toChildLen = (jointAbsolutePosLen - parentJointAbsolutePosLen).loadXMVECTOR();
+
+		Vector3 jointLength;
+		jointLength.storeXMVECTOR(
+			&dx::XMVector3Length(toChildLen)
+		);
 
 		// Store bone length.
 		this->pRagdollCollisionActor[j]->boneLength = gEntityScale.x * jointLength.y;

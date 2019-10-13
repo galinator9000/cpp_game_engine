@@ -37,9 +37,9 @@ public:
 	bool dataChanged;
 
 	//// Graphics
-	dx::XMFLOAT3 gSize;
-	dx::XMFLOAT3 gPosition;
-	dx::XMFLOAT4 gRotationQ;
+	Vector3 gSize;
+	Vector3 gPosition;
+	Vector4 gRotationQ;
 	EntityMaterial entityMaterial;
 	CollisionMaterial collisionMaterial;
 

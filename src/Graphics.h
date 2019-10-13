@@ -6,7 +6,7 @@
 #include "Texture.h"
 #include "TextureSampler.h"
 #include "Entity/Entity.h"
-#include "Entity/Shapes.h"
+#include "Entity/Mesh/Mesh.h"
 #include "Light/Light.h"
 
 #pragma comment(lib, "d3d11.lib")
