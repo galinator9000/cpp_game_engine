@@ -3,13 +3,13 @@
 // Set light's color.
 void Light::setColor(Color color) {
 	this->gDiffuseColor = dx::XMFLOAT4(color.r, color.g, color.b, color.a);
-	this->hasChanged = true;
+	this->dataChanged = true;
 }
 
 // Set light's intensity.
 void Light::setIntensity(float intensity){
 	this->gIntensity = intensity;
-	this->hasChanged = true;
+	this->dataChanged = true;
 }
 
 // Set light's position.
@@ -19,7 +19,7 @@ void Light::setPosition(Vector3 newPosition) {
 	}
 
 	this->gPosition = dx::XMFLOAT3(newPosition.x, newPosition.y, newPosition.z);
-	this->hasChanged = true;
+	this->dataChanged = true;
 }
 
 // Set light's direction.
@@ -29,17 +29,17 @@ void Light::setDirection(Vector3 newDirection) {
 	}
 
 	this->gDirection = dx::XMFLOAT3(newDirection.x, newDirection.y, newDirection.z);
-	this->hasChanged = true;
+	this->dataChanged = true;
 }
 
 void Light::Reset() {
-	this->hasChanged = false;
+	this->dataChanged = false;
 }
 
 void Light::Update() {
-	if (this->hasChanged) {
+	if (this->dataChanged) {
 		this->updateConstantBuffer();
-		this->hasChanged = false;
+		this->dataChanged = false;
 	}
 }
 

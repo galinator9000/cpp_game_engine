@@ -15,8 +15,7 @@ public:
 	void Setup();
 	void Update();
 
-	Character* mainCharacter;
-	SpotLight* spotLight;
+	Character* mainCharacter = NULL;
 
 	// Base components for a scene.
 	World* pWorld;

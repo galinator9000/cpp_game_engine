@@ -36,7 +36,7 @@ void Game::Setup(){
 	for (int bb = 0; bb<3; bb++) {
 		for (int b = 0; b < 25; b++) {
 			if (b == 0) {
-				prevBox = NULL;
+				//prevBox = NULL;
 				boxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
 			}
 			else {
@@ -146,13 +146,13 @@ void Game::Setup(){
 		this->pMainController->setMainCharacter(mainCharacter);
 
 		// Add secondary camera.
-		Camera* pEntityCamera = new Camera(
+		Camera* pCharacterCamera = new Camera(
 			Vector3(0.0f, 0.0f, 0.0f),
 			FOV,
 			WIDTH / HEIGHT
 		);
-		pEntityCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
-		pWorld->addCamera(pEntityCamera);
+		pCharacterCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
+		pWorld->addCamera(pCharacterCamera);
 	}
 
 	// Add lights to scene.
@@ -162,8 +162,36 @@ void Game::Setup(){
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(1, -1, -1), 0.3f, Color(1, 1, 1));
 	//this->pWorld->addLight(directionalLight);
 
-	this->spotLight = new SpotLight(Vector3(0, 5, 0), Vector3(0, -1, 0), 1.0f, Color(1, 1, 1));
-	this->pWorld->addLight(this->spotLight);
+	SpotLight* spotLightCharacter = new SpotLight(Vector3(0, 5, 0), Vector3(0, -1, 0), 0.25f, Color(1, 1, 1));
+	this->pWorld->addLight(spotLightCharacter);
+
+	SpotLight* spotLight = new SpotLight(Vector3(3, 13, 13), Vector3(0, -1, 0), 0.25f, Color(1, 1, 1));
+	this->pWorld->addLight(spotLight);
+
+	//// Attach a spot light to main camera.
+	SpotLight* spotLightCamera = new SpotLight(Vector3(), Vector3(), 1.0f, Color(1, 1, 1));
+	this->pWorld->addLight(spotLightCamera);
+
+	// Position relation, camera to spot light.
+	VectorRelation* camPositionSL = new Vector3RelationXM(
+		&(this->wMainCamera.camPosition),
+		&(spotLightCamera->gPosition),
+		VECTOR_RELATION_TYPE::COPY,
+		&(this->wMainCamera.dataChanged),
+		&(spotLightCamera->dataChanged)
+	);
+
+	// Direction relation, camera to spot light.
+	VectorRelation* camDirectionSL = new Vector3RelationXM(
+		&(this->wMainCamera.lookDirection),
+		&(spotLightCamera->gDirection),
+		VECTOR_RELATION_TYPE::COPY,
+		&(this->wMainCamera.dataChanged),
+		&(spotLightCamera->dataChanged)
+	);
+
+	this->pWorld->addVectorRelation(camPositionSL);
+	this->pWorld->addVectorRelation(camDirectionSL);
 }
 
 void Game::Update(){

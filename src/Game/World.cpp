@@ -37,9 +37,13 @@ void World::Update(){
 	// Step and update physics of the world.
 	this->pPhy->Update();
 
-	bool shouldUpdateLightsGPUData = false;
+	// Update vector relations.
+	for (unsigned int vr = 0; vr < allVectorRelations.size(); vr++) {
+		allVectorRelations.at(vr)->Update();
+	}
 
 	// Update all light objects.
+	bool shouldUpdateLightsGPUData = false;
 	for (unsigned int l = 0; l < allLights.size(); l++) {
 		Light* light = allLights.at(l);
 
@@ -114,7 +118,7 @@ void World::Update(){
 
 // Entity
 void World::addEntity(Entity* entity){
-	entity->id = (unsigned int)this->allEntities.size();
+	entity->id = (unsigned int) this->allEntities.size();
 	this->allEntities.push_back(entity);
 	
 	this->pPhy->addEntity(entity);
@@ -182,6 +186,12 @@ void World::createTextureSampler(TextureSampler* textureSampler){
 	textureSampler->id = (unsigned int) this->allTextureSamplers.size();
 	this->allTextureSamplers.push_back(textureSampler);
 	this->pGfx->createTextureSampler(textureSampler);
+}
+
+// Vector Relation
+void World::addVectorRelation(VectorRelation* vectorRelation) {
+	vectorRelation->id = (unsigned int) this->allVectorRelations.size();
+	this->allVectorRelations.push_back(vectorRelation);
 }
 
 // Physics

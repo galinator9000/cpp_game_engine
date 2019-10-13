@@ -23,6 +23,10 @@ void Controller::Update() {
 		if (this->pKeyb->isKeyPressed('F')) {
 			this->pMainCharacter->meshDeformer->activateRagdoll();
 		}
+		if (this->pKeyb->isKeyPressed('G')) {
+			this->pMainCharacter->useNormalMapping = !this->pMainCharacter->useNormalMapping;
+			this->pMainCharacter->dataChanged = true;
+		}
 	}
 
 	// Control character.

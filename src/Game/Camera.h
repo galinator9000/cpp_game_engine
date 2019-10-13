@@ -44,7 +44,7 @@ public:
 	CameraVSConstantBuffer gCameraVSConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pCameraVSConstantBuffer;
 	bool shouldUpdateGPUData = false;
-	bool hasChanged = false;
+	bool dataChanged = false;
 
 	Vector3 rotation;
 	dx::XMFLOAT3 camPosition;

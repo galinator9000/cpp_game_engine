@@ -73,7 +73,10 @@ PSOut main(PSIn psIn){
 
 	// Sample from normal map texture if entity uses it.
 	if (entityUseNormalMap) {
-		//normalizedNormal = NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz;
+		/*normalizedNormal = normalize(NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz);
+		normalizedNormal.x = (normalizedNormal.x * 2) - 1.0f;
+		normalizedNormal.y = (normalizedNormal.y * 2) - 1.0f;
+		normalizedNormal.z = normalizedNormal.z;*/
 	}
 
 	float4 sumDiffuse = float4(0, 0, 0, 0);

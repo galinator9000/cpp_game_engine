@@ -19,5 +19,5 @@ void SpotLight::setSpotAngle(float halfSpotAngle) {
 	}
 
 	this->gHalfSpotAngle = halfSpotAngle;
-	this->hasChanged = true;
+	this->dataChanged = true;
 }

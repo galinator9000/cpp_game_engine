@@ -33,8 +33,8 @@ Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio){
 void Camera::Update() {
 	this->shouldUpdateGPUData = false;
 
-	if (this->isFollowingEntity || this->hasChanged) {
-		this->hasChanged = false;
+	if (this->isFollowingEntity || this->dataChanged) {
+		this->dataChanged = false;
 		this->updateConstantBuffer();
 		this->shouldUpdateGPUData = true;
 	}
@@ -170,7 +170,7 @@ void Camera::Move(Vector3 translation, bool moveFast) {
 	);
 
 	this->wasMovingFast = moveFast;
-	this->hasChanged = true;
+	this->dataChanged = true;
 }
 
 void Camera::Rotate(float xDelta, float yDelta) {
@@ -208,7 +208,7 @@ void Camera::Rotate(float xDelta, float yDelta) {
 		}
 	}
 
-	this->hasChanged = true;
+	this->dataChanged = true;
 }
 
 // Entity following functionality.

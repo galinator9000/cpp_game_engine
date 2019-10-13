@@ -29,7 +29,7 @@ public:
 	void Reset();
 	void updateConstantBuffer();
 	bool shouldUpdateGPUData = true;
-	bool hasChanged = false;
+	bool dataChanged = false;
 
 	// Graphics
 	dx::XMFLOAT4 gDiffuseColor = dx::XMFLOAT4(1,1,1,1);

@@ -9,6 +9,7 @@
 
 // Base class for all entities
 #include "Camera.h"
+#include "VectorRelation.h"
 #include "Entity/Entity.h"
 #include "Light/Light.h"
 
@@ -38,6 +39,9 @@ public:
 	void createTexture(Texture* texture);
 	void createTextureSampler(TextureSampler* textureSampler);
 
+	// Vector relation functions
+	void addVectorRelation(VectorRelation* vectorRelation);
+
 	// Physics
 	bool createFixedJoint(
 		Entity* entity1, Entity* entity2,
@@ -62,6 +66,7 @@ public:
 	std::vector<Camera*> allCameras;
 	std::vector<Texture*> allTextures;
 	std::vector<TextureSampler*> allTextureSamplers;
+	std::vector<VectorRelation*> allVectorRelations;
 
 	// Buffers for providing multiple lights at the same time.
 	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
