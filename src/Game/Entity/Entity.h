@@ -43,6 +43,11 @@ public:
 	EntityMaterial entityMaterial;
 	CollisionMaterial collisionMaterial;
 
+	// Position & Rotation & Scaling setters.
+	void setPosition(Vector3 position);
+	void setRotation(Vector4 rotationQ);
+	void setScale(Vector3 scaling);
+
 	// Transformations
 	void Translate(Vector3 translationVector);
 	void rotateQuaternion(Vector4 rotationVector);

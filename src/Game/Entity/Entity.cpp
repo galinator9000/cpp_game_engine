@@ -38,8 +38,8 @@ Entity::Entity(EntityProperties entProp){
 	this->collisionMaterial.density = entProp.collisionMaterial.density;
 
 	// Attach mesh object if given.
-	if (entProp.mesh != NULL) {
-		this->attachMesh((Mesh*) entProp.mesh);
+	if (entProp.pMesh != NULL) {
+		this->attachMesh((Mesh*) entProp.pMesh);
 	}
 
 	// Attach collision objects if given.
@@ -219,6 +219,34 @@ void Entity::setColor(Color color) {
 	this->dataChanged = true;
 }
 
+// Position & Rotation & Scaling setters.
+void Entity::setPosition(Vector3 position) {
+	this->gPosition = position;
+
+	// Update physics actor.
+	if (this->pCollisionActor != NULL) {
+		this->pCollisionActor->setPosition(position);
+	}
+
+	this->dataChanged = true;
+}
+
+void Entity::setRotation(Vector4 rotationQ) {
+	this->gRotationQ = rotationQ;
+
+	// Update physics actor.
+	if (this->pCollisionActor != NULL) {
+		this->pCollisionActor->setRotation(rotationQ);
+	}
+
+	this->dataChanged = true;
+}
+
+void Entity::setScale(Vector3 scaling) {
+	this->gSize = scaling;
+	this->dataChanged = true;
+}
+
 void Entity::Translate(Vector3 translationVector){
 	this->gPosition = this->gPosition + translationVector;
 	this->dataChanged = true;
@@ -226,13 +254,11 @@ void Entity::Translate(Vector3 translationVector){
 
 void Entity::rotateQuaternion(Vector4 rotationQuaternionVector){
 	this->gRotationQ = rotationQuaternionVector;
-
 	this->dataChanged = true;
 }
 
 void Entity::Scale(Vector3 scalingVector){
 	this->gSize = this->gSize * scalingVector;
-
 	this->dataChanged = true;
 }
 

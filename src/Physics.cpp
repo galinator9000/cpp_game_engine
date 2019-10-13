@@ -264,8 +264,8 @@ void Physics::updateEntity(Entity* pEntity) {
 
 	// Initial transform
 	PxTransform tm = PxTransform(
-		PxVec3(pEntity->gPosition.x, pEntity->gPosition.y, pEntity->gPosition.z),
-		PxQuat(pEntity->gRotationQ.x, pEntity->gRotationQ.y, pEntity->gRotationQ.z, pEntity->gRotationQ.w)
+		pEntity->gPosition.toPxVec3(),
+		pEntity->gRotationQ.toPxQuat()
 	);
 
 	// Dynamic

@@ -441,6 +441,9 @@ struct Vector4 {
 	PxVec4 toPxVec4() {
 		return PxVec4(this->x, this->y, this->z, this->w);
 	}
+	PxQuat toPxQuat() {
+		return PxQuat(this->x, this->y, this->z, this->w);
+	}
 
 	float x;
 	float y;
@@ -470,7 +473,7 @@ struct Color {
 	}
 
 	// DirectXMath & PhysX conversions
-	dx::XMFLOAT4 toDX() {
+	dx::XMFLOAT4 loadXMFLOAT() {
 		return dx::XMFLOAT4(
 			this->r,
 			this->g,
@@ -506,11 +509,16 @@ struct EntityMaterial {
 };
 
 struct CollisionMaterial {
-	CollisionMaterial() {
-		this->staticFriction = 1.0f;
-		this->dynamicFriction = 1.0f;
-		this->restitution = 0.0f;
-		this->density = 10.0f;
+	CollisionMaterial(
+		float staticFriction = 1.0f,
+		float dynamicFriction = 1.0f,
+		float restitution = 0.0f,
+		float density = 10.0f
+	) {
+		this->staticFriction = staticFriction;
+		this->dynamicFriction = dynamicFriction;
+		this->restitution = restitution;
+		this->density = density;
 	}
 
 	float staticFriction = 1.0f;
@@ -522,46 +530,33 @@ struct CollisionMaterial {
 // Used for creating entities.
 struct EntityProperties {
 	// Default properties of an entity.
-	EntityProperties() {
-		this->size = Vector3(1,1,1);
-		this->position = Vector3(0,0,0);
-		this->rotationQ = Vector4(1,0,0,0);
-		this->color = Color(1,1,1,1);
-		this->mesh = NULL;
-		this->pCollisionShape = NULL;
-		this->pCollisionActor = NULL;
-		this->collisionMaterial = CollisionMaterial();
-	}
-
 	EntityProperties(
-		Vector3 size, Vector3 position, Vector4 rotationQ,
-		Color color, CollisionMaterial collisionMaterial,
-		void* mesh=NULL,
-		void* collisionShape=NULL,
-		void* collisionActor=NULL
+		Vector3 size = Vector3(1, 1, 1), Vector3 position = Vector3(0, 0, 0), Vector4 rotationQ = Vector4(1, 0, 0, 0),
+		Color color = Color(1, 1, 1, 1), CollisionMaterial collisionMaterial=CollisionMaterial(),
+		void* pMesh = NULL,
+		void* pCollisionShape = NULL,
+		void* pMollisionActor = NULL
 	) {
 		this->size = size;
 		this->position = position;
-
 		// Check quaternion vector.
 		if (rotationQ == Vector4(0, 0, 0, 0)) {
 			rotationQ.x = 1.0f;
 		}
 		this->rotationQ = rotationQ;
-
 		this->color = color;
+		this->pMesh = pMesh;
+		this->pCollisionShape = pCollisionShape;
+		this->pCollisionActor = pMollisionActor;
 		this->collisionMaterial = collisionMaterial;
-		this->mesh = mesh;
-		this->pCollisionShape = collisionShape;
-		this->pCollisionActor = collisionActor;
 	}
 
 	Vector3 size = Vector3(1,1,1);
 	Vector3 position = Vector3(0,0,0);
 	Vector4 rotationQ = Vector4(1,0,0,0);
 	Color color = Color(1,1,1,1);
-	CollisionMaterial collisionMaterial = CollisionMaterial();
-	void* mesh = NULL;
+	CollisionMaterial collisionMaterial;
+	void* pMesh = NULL;
 	void* pCollisionShape = NULL;
 	void* pCollisionActor = NULL;
 };
@@ -569,18 +564,13 @@ struct EntityProperties {
 // Used for creating characters.
 struct CharacterProperties {
 	// Default properties of an haracter.
-	CharacterProperties() {
-		this->facingDirection = Vector3(0, 0, 1);
-		this->movementSpeed = 0.6f;
-	}
-
-	CharacterProperties(Vector3 facingDirection, float movementSpeed=0.6f) {
-		this->facingDirection = facingDirection;
+	CharacterProperties(float movementSpeed = 0.1f, Vector3 facingDirection = {0, 0, 1}) {
 		this->movementSpeed = movementSpeed;
+		this->facingDirection = facingDirection;
 	}
 
+	float movementSpeed = 0.1f;
 	Vector3 facingDirection = Vector3(0, 0, 1);
-	float movementSpeed = 0.6f;
 };
 
 //// Graphics

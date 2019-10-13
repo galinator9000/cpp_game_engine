@@ -174,6 +174,7 @@ void Game::Setup(){
 		&(this->wMainCamera.dataChanged),
 		&(this->wMainCameraSpotLight->dataChanged)
 	);
+	this->pWorld->addVectorRelation(camPositionSL);
 
 	// Direction relation, camera to spot light.
 	VectorRelation* camDirectionSL = new Vector3Relation(
@@ -183,8 +184,6 @@ void Game::Setup(){
 		&(this->wMainCamera.dataChanged),
 		&(this->wMainCameraSpotLight->dataChanged)
 	);
-
-	this->pWorld->addVectorRelation(camPositionSL);
 	this->pWorld->addVectorRelation(camDirectionSL);
 }
 
