@@ -238,6 +238,7 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
     <ClInclude Include="src\Game\Entity\Entity.h" />
     <ClInclude Include="src\Game\Structs.h" />
     <ClInclude Include="src\Game\Light\PointLight.h" />
+    <ClInclude Include="src\Game\StructsBuffer.h" />
     <ClInclude Include="src\Physics.h" />
     <ClInclude Include="src\Graphics.h" />
     <ClInclude Include="src\Exception.h" />

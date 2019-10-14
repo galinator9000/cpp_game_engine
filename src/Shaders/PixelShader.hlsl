@@ -5,10 +5,11 @@ Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
 SamplerState Sampler : register(s0);
 cbuffer EntityPSConstantBuffer : register(b0) {
-	float3 entityColor;
-	bool entityUseTexture;
-	bool entityUseNormalMap;
+	float4 entityColor;
 	float4 specularHighlight;
+	bool useTexture;
+	bool useNormalMap;
+	float2 padding0;
 };
 
 cbuffer LightConstantBuffer : register(b1) {
@@ -46,7 +47,7 @@ PSOut main(PSIn psIn){
 	normalizedBinormal = normalize(psIn.binormal);
 
 	// Sample from normal map texture if entity uses it.
-	if (entityUseNormalMap) {
+	if (useNormalMap) {
 		//normalizedNormal = normalize(NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz);
 	}
 
@@ -70,7 +71,7 @@ PSOut main(PSIn psIn){
 		float distVertexToLight = 0;
 		float3 dirVertexToLight = float3(0, 0, 0);
 
-		float attenuation;
+		float attenuation = 1;
 		if (
 			allLights[light].type == POINT_LIGHT ||
 			allLights[light].type == SPOT_LIGHT
@@ -117,8 +118,8 @@ PSOut main(PSIn psIn){
 	sumSpecular = saturate(sumSpecular);
 
 	// Use solid color of entity or texture?
-	float4 texture_or_solid = float4(entityColor, 1.0f);
-	if (entityUseTexture) {
+	float4 texture_or_solid = entityColor;
+	if (useTexture) {
 		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
 	}
 

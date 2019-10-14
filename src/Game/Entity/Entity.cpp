@@ -85,19 +85,16 @@ void Entity::updateConstantBuffer() {
 			dx::XMMatrixTranslationFromVector(this->gPosition.loadXMVECTOR())
 		)
 	);
+	this->gEntityVSConstantBuffer.useMeshDeformer = (unsigned int) this->useMeshDeformer;
 
 	//// Update PS constant buffer.
 	// Material information.
-	this->gEntityPSConstantBuffer.color = dx::XMFLOAT3(
-		this->entityMaterial.color.r,
-		this->entityMaterial.color.g,
-		this->entityMaterial.color.b
-	);
-	this->gEntityPSConstantBuffer.useTexture = this->useTexture;
-	this->gEntityPSConstantBuffer.useNormalMapping = this->useNormalMapping;
-
+	this->gEntityPSConstantBuffer.color = this->entityMaterial.color.loadXMFLOAT();
 	this->gEntityPSConstantBuffer.specularHighlight.x = this->entityMaterial.specularPower;
 	this->gEntityPSConstantBuffer.specularHighlight.y = this->entityMaterial.specularIntensity;
+
+	this->gEntityPSConstantBuffer.useTexture = (unsigned int) this->useTexture;
+	this->gEntityPSConstantBuffer.useNormalMapping = (unsigned int) this->useNormalMapping;
 
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;

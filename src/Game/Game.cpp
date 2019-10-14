@@ -65,9 +65,6 @@ void Game::Setup(){
 					Vector3(0, marginBetweenBoxes / 2, 0),
 					Vector3(0, -(marginBetweenBoxes / 2), 0)
 				);
-
-				box->attachTextureAndSampler(texture, textureSampler);
-				box->attachNormalMappingTexture(normalMapTexture);
 			}
 			prevBox = box;
 		}
@@ -100,13 +97,15 @@ void Game::Setup(){
 			{ 3,2,3 },
 			{ -20, 10, 0 },
 			{ 0,0,0,0 },
-			{ 0, 1, 0, 1 },
+			{ 1, 1, 1, 1 },
 			{},
 			boxMesh,
 			bigBoxColShape,
 			bigBoxColActor
 		}
 	);
+	//bigBox->attachTextureAndSampler(texture, textureSampler);
+	//bigBox->attachNormalMappingTexture(normalMapTexture);
 	this->pWorld->addEntity(bigBox);
 
 	//// Load animated entity.
@@ -157,13 +156,13 @@ void Game::Setup(){
 
 	// Add lights to scene.
 	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(0, 0, 1));
-	this->pWorld->addLight(pointLight);
+	//this->pWorld->addLight(pointLight);
 
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 1, Color(0, 1, 0));
-	this->pWorld->addLight(directionalLight);
+	//this->pWorld->addLight(directionalLight);
 
 	//// Attach a spot light to main camera.
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(1, 0, 0));
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 0.25f, Color(1, 1, 1), dx::XM_PIDIV4/2);
 	this->pWorld->addLight(this->wMainCameraSpotLight);
 
 	// Position relation, camera to spot light.

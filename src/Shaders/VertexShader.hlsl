@@ -5,6 +5,7 @@
 cbuffer EntityVSConstantBuffer : register(b0) {
 	matrix worldMatrix;
 	bool useMeshDeformer;
+	float3 padding0;
 };
 
 // View and Projection matrices provided by active camera object.
@@ -12,7 +13,7 @@ cbuffer CameraVSConstantBuffer : register(b1) {
 	matrix viewMatrix;
 	matrix projectionMatrix;
 	float3 cameraPosition;
-	float padding;
+	float padding1;
 };
 
 // Joint matrices provided by mesh deformer,
