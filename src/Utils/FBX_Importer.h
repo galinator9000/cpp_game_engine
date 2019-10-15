@@ -7,14 +7,20 @@
 #include <vector>
 
 #include "Structs.h"
+#include "Entity/Mesh/Mesh.h"
 #include "Entity/Mesh/MeshDeformer/Animation/Animation.h"
 
 // Utils
 #include "fbxsdk.h"
 
+struct FBX_LoadResult {
+	bool success = false;
+};
+
 class FBX_Importer {
 public:
-	static bool Load(
+	static FBX_LoadResult Load(
+		Mesh* pMesh,
 		const char* fileName, const char* mainMeshName,
 		Vertex*& _vertices, unsigned int*& _indices,
 		unsigned int& _vertices_count, unsigned int& _indices_count,

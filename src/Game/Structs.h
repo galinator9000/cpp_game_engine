@@ -495,8 +495,21 @@ struct Vertex {
 };
 
 // Entity related structs.
-struct EntityMaterial {
+struct Material {
+	Material(
+		Color color = Color(1, 1, 1, 1),
+		float specularIntensity = 0.18f,
+		float specularPower = 2.0f,
+		Color specularHighlightColor = Color(0.18f, 0.18f, 0.18f)
+	) {
+		this->color = color;
+		this->specularHighlightColor = specularHighlightColor;
+		this->specularIntensity = specularIntensity;
+		this->specularPower = specularPower;
+	}
+
 	Color color;
+	Color specularHighlightColor;
 	float specularIntensity;
 	float specularPower;
 };
@@ -525,7 +538,7 @@ struct EntityProperties {
 	// Default properties of an entity.
 	EntityProperties(
 		Vector3 size = Vector3(1, 1, 1), Vector3 position = Vector3(0, 0, 0), Vector4 rotationQ = Vector4(1, 0, 0, 0),
-		Color color = Color(1, 1, 1, 1), CollisionMaterial collisionMaterial=CollisionMaterial(),
+		Material material = Material(), CollisionMaterial collisionMaterial=CollisionMaterial(),
 		void* pMesh = NULL,
 		void* pCollisionShape = NULL,
 		void* pMollisionActor = NULL
@@ -537,7 +550,7 @@ struct EntityProperties {
 			rotationQ.x = 1.0f;
 		}
 		this->rotationQ = rotationQ;
-		this->color = color;
+		this->material = material;
 		this->pMesh = pMesh;
 		this->pCollisionShape = pCollisionShape;
 		this->pCollisionActor = pMollisionActor;
@@ -547,7 +560,7 @@ struct EntityProperties {
 	Vector3 size = Vector3(1,1,1);
 	Vector3 position = Vector3(0,0,0);
 	Vector4 rotationQ = Vector4(1,0,0,0);
-	Color color = Color(1,1,1,1);
+	Material material = Material();
 	CollisionMaterial collisionMaterial;
 	void* pMesh = NULL;
 	void* pCollisionShape = NULL;

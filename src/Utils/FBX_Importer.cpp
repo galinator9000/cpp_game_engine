@@ -1,6 +1,7 @@
 #include "FBX_Importer.h"
 
-bool FBX_Importer::Load(
+FBX_LoadResult FBX_Importer::Load(
+		Mesh* pMesh,
 		const char* fileName, const char* mainMeshName,
 		Vertex*& _vertices, unsigned int*& _indices,
 		unsigned int& _vertices_count, unsigned int& _indices_count,
@@ -10,6 +11,8 @@ bool FBX_Importer::Load(
 		std::map<int, std::map<int, float>>& _indexed_joint_weights
 	)
 {
+	FBX_LoadResult result = {};
+
 	FbxManager* fbxSdkManager = FbxManager::Create();
 	FbxImporter* fbxImporter = FbxImporter::Create(fbxSdkManager, "");
 
@@ -24,7 +27,8 @@ bool FBX_Importer::Load(
 		OutputDebugStringA(myStream.str().c_str());
 		std::cout << myStream.str().c_str();
 
-		return false;
+		result.success = false;
+		return result;
 	}
 
 	// Create scene object.
@@ -67,7 +71,9 @@ bool FBX_Importer::Load(
 		myStream << ": There isn't a mesh node in current scene with given name." << "\n";
 		OutputDebugStringA(myStream.str().c_str());
 		std::cout << myStream.str().c_str();
-		return false;
+
+		result.success = false;
+		return result;
 	}
 	mesh = meshNode->GetMesh();
 
@@ -512,7 +518,8 @@ bool FBX_Importer::Load(
 		std::cout << myStream.str().c_str();
 	}
 
-	return true;
+	result.success = true;
+	return result;
 };
 
 // Walks the node child-by-child and works recursively.

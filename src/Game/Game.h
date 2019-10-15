@@ -27,5 +27,6 @@ public:
 		FOV,
 		WIDTH / HEIGHT
 	);
+	Camera* pwSecondaryCamera;
 	SpotLight* wMainCameraSpotLight;
 };

@@ -7,14 +7,19 @@ bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
 	std::map<int, int> _indexed_vertices;
 	std::map<int, std::map<int, float>> _indexed_joint_weights;
 
-	if (!FBX_Importer::Load(
+	FBX_LoadResult fbxLoadResult = FBX_Importer::Load(
+		this,
 		fileName, mainMeshName,
 		this->gVertices, this->gIndices,
 		this->gVertexCount, this->gIndexCount,
 		this->gSkeleton.gJoints, this->gSkeleton.gJointCount,
 		this->gAnimations, this->gAnimationCount,
 		_indexed_vertices, _indexed_joint_weights
-	)) {return false;}
+	);
+
+	if (!fbxLoadResult.success){
+		return false;
+	}
 
 	// Setup Skeleton
 	this->gSkeleton.Setup();

@@ -40,16 +40,15 @@ float calculateAttenuation(float distVertexToLight) {
 
 // Specular highlight calculation.
 float4 calculateSpecularHighlight(
-	float4 lightColor, float lightIntensity, float3 lightDirection,
-	float3 normal, float attenuation,
-	float specularIntensity, float specularPower,
+	float3 lightDirection, float3 normal,
+	float4 specularHighlightColor, float specularIntensity, float specularPower,
 	float3 cameraPosition, float3 pixelPosition
 ) {
 	float3 reflectionVector = reflect(
 		lightDirection,
 		normal
 	);
-	return lightColor * lightIntensity * attenuation * specularIntensity * pow(
+	return specularHighlightColor * specularIntensity * pow(
 		max(
 			0.0f,
 			dot(

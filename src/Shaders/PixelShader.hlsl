@@ -6,10 +6,11 @@ Texture2D NormalMappingTexture : register(t1);
 SamplerState Sampler : register(s0);
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
-	float4 specularHighlight;
+	float4 specularHighlightColor;
+	float specularIntensity;
+	float specularPower;
 	bool useTexture;
-	bool useNormalMap;
-	float2 padding0;
+	bool useNormalMapping;
 };
 
 cbuffer LightConstantBuffer : register(b1) {
@@ -26,7 +27,6 @@ struct PSIn {
 	float3 binormal : Binormal;
 
 	float3 eyePosition : EyePosition;
-	matrix viewMatrix : ViewMatrix;
 };
 
 // Output structure of the Pixel shader.
@@ -37,25 +37,32 @@ struct PSOut {
 PSOut main(PSIn psIn){
 	PSOut psOut;
 
-	float3 normalizedNormal;
-	float3 normalizedTangent;
-	float3 normalizedBinormal;
-
 	// Normalizing normal input vectors because Rasterizer stage interpolates them.
-	normalizedNormal = normalize(psIn.normal);
-	normalizedTangent = normalize(psIn.tangent);
-	normalizedBinormal = normalize(psIn.binormal);
+	psIn.normal = normalize(psIn.normal);
 
 	// Sample from normal map texture if entity uses it.
-	if (useNormalMap) {
-		//normalizedNormal = normalize(NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz);
+	if (useNormalMapping) {
+		psIn.tangent = normalize(psIn.tangent);
+		psIn.binormal = normalize(psIn.binormal);
+
+		// Sample normal vector from texture, these values ranges 0 to 1,
+		// we need to expand and reposition them as -1 to 1.
+		float3 sampledNormal = normalize(NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz);
+		sampledNormal = sampledNormal * 2.0f - 1.0f;
+
+		// Tangent space to object space.
+		psIn.normal = mul(
+			sampledNormal,
+			float3x3(
+				psIn.tangent,
+				psIn.binormal,
+				psIn.normal
+			)
+		);
 	}
 
 	float4 sumDiffuse = float4(0, 0, 0, 0);
 	float4 sumSpecular = float4(0, 0, 0, 0);
-
-	float specularPower = specularHighlight.x;
-	float specularIntensity = specularHighlight.y;
 
 	//// Calculate all lights.
 	for (unsigned int light = 0; light < MAX_LIGHT_COUNT; light++) {
@@ -86,15 +93,14 @@ PSOut main(PSIn psIn){
 		switch (allLights[light].type) {
 			// Directional Light calculation.
 			case DIRECTIONAL_LIGHT:
-				sumDiffuse += calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, normalizedNormal);
+				sumDiffuse += calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, psIn.normal);
 				break;
 			// Point Light calculation.
 			case POINT_LIGHT:
-				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normalizedNormal);
-				sumSpecular += calculateSpecularHighlight(
-					allLights[light].color, lightIntensity, -dirVertexToLight,
-					normalizedNormal, attenuation,
-					specularIntensity, specularPower,
+				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, psIn.normal);
+				sumSpecular += attenuation * calculateSpecularHighlight(
+					-dirVertexToLight, psIn.normal,
+					specularHighlightColor, specularIntensity, specularPower,
 					psIn.eyePosition.xyz, psIn.positionPS
 				);
 				break;
@@ -103,13 +109,7 @@ PSOut main(PSIn psIn){
 			case SPOT_LIGHT:
 				lightIntensity *= calculateConeCenterDistance(allLights[light].halfSpotAngle, allLights[light].direction, dirVertexToLight);
 
-				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normalizedNormal);
-				sumSpecular += calculateSpecularHighlight(
-					allLights[light].color, lightIntensity, -dirVertexToLight,
-					normalizedNormal, attenuation,
-					specularIntensity, specularPower,
-					psIn.eyePosition.xyz, psIn.positionPS
-				);
+				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, psIn.normal);
 				break;
 		}
 	}

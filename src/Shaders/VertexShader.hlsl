@@ -43,8 +43,8 @@ struct VSOut {
 	float3 normal : Normal;
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
+
 	float3 eyePosition : EyePosition;
-	matrix viewMatrix : ViewMatrix;
 
 	float4 position : SV_Position;
 };
@@ -120,7 +120,6 @@ VSOut main(VSIn vsIn){
 
 	vsOut.texture_UV = vsIn.texture_UV;
 	vsOut.eyePosition = cameraPosition;
-	vsOut.viewMatrix = viewMatrix;
 
 	return vsOut;
 }

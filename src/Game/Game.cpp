@@ -48,7 +48,7 @@ void Game::Setup(){
 					{ 0.1f, 0.1f, 0.1f },
 					{ bb*3.0f, 5 + (b * marginBetweenBoxes), 10+(bb * 3.0f) },
 					{ 0,0,0,0 },
-					{ 0.5f, 0, 0, 1 },
+					{{ 0.5f, 0, 0, 1 }},
 					{},
 					boxMesh,
 					dynamicBoxColShape,
@@ -79,7 +79,7 @@ void Game::Setup(){
 			{ 2000, 0.1f, 2000 },
 			{ 0, 0, 0 },
 			{ 0,0,0,0 },
-			{ 0.1f, 0.1f, 0.1f, 1 },
+			{{ 0.1f, 0.1f, 0.1f, 1 }},
 			{},
 			boxMesh,
 			groundBoxColShape,
@@ -89,22 +89,26 @@ void Game::Setup(){
 	this->pWorld->addEntity(groundBox);
 
 	// Dynamic big box.
+	Mesh* bigBoxMesh = new Mesh();
+	bigBoxMesh->createBoxGeometry({ 1,1,1 });
+	//bigBoxMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\box.fbx", "");
+
 	CollisionShape* bigBoxColShape = new CollisionShape();
-	bigBoxColShape->createBoxGeometry({ 3,2,3 });
+	bigBoxColShape->createBoxGeometry({ 3, 2, 0.1f });
 	CollisionActor* bigBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
 	Entity* bigBox = new Entity(
 		{
-			{ 3,2,3 },
+			{ 3, 2, 0.1f },
 			{ -20, 10, 0 },
 			{ 0,0,0,0 },
-			{ 1, 1, 1, 1 },
+			{{ 0.66f, 0.66f, 0.66f, 1 }, 2, 20},
 			{},
-			boxMesh,
+			bigBoxMesh,
 			bigBoxColShape,
 			bigBoxColActor
 		}
 	);
-	//bigBox->attachTextureAndSampler(texture, textureSampler);
+	bigBox->attachTextureAndSampler(texture, textureSampler);
 	//bigBox->attachNormalMappingTexture(normalMapTexture);
 	this->pWorld->addEntity(bigBox);
 
@@ -119,7 +123,7 @@ void Game::Setup(){
 			{ 0.01f, 0.01f, 0.01f },
 			{ 0,0,0 },
 			{ 0,0,0,0 },
-			{ 1,1,1,1 },
+			{{ 0.66f, 0.66f, 0.66f, 1 }, 1, 5},
 			{},
 			mainCharacterMesh,
 			mainCharacterCollisionShape,
@@ -144,7 +148,7 @@ void Game::Setup(){
 		this->pWorld->addEntity(mainCharacter);
 		this->pMainController->setMainCharacter(mainCharacter);
 
-		// Add secondary camera.
+		// Add character camera.
 		Camera* pCharacterCamera = new Camera(
 			Vector3(0.0f, 0.0f, 0.0f),
 			FOV,
@@ -154,19 +158,27 @@ void Game::Setup(){
 		pWorld->addCamera(pCharacterCamera);
 	}
 
-	// Add lights to scene.
-	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(0, 0, 1));
-	//this->pWorld->addLight(pointLight);
+	// Add secondary camera.
+	Camera* pwSecondaryCamera = new Camera(
+		Vector3(0.0f, 0.0f, 0.0f),
+		FOV,
+		WIDTH / HEIGHT
+	);
+	pWorld->addCamera(pwSecondaryCamera);
 
-	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 1, Color(0, 1, 0));
+	// Add lights to scene.
+	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1.0f, Color(0.66f, 0.66f, 0.66f));
+	this->pWorld->addLight(pointLight);
+
+	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 0.1f, Color(1, 1, 1));
 	//this->pWorld->addLight(directionalLight);
 
 	//// Attach a spot light to main camera.
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 0.25f, Color(1, 1, 1), dx::XM_PIDIV4/2);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 0.25f, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4/2);
 	this->pWorld->addLight(this->wMainCameraSpotLight);
 
 	// Position relation, camera to spot light.
-	VectorRelation* camPositionSL = new Vector3Relation(
+	/*VectorRelation* camPositionSL = new Vector3Relation(
 		&(this->wMainCamera.camPosition),
 		&(this->wMainCameraSpotLight->gPosition),
 		VECTOR_RELATION_TYPE::COPY,
@@ -183,7 +195,17 @@ void Game::Setup(){
 		&(this->wMainCamera.dataChanged),
 		&(this->wMainCameraSpotLight->dataChanged)
 	);
-	this->pWorld->addVectorRelation(camDirectionSL);
+	this->pWorld->addVectorRelation(camDirectionSL); */
+
+	// Position relation, camera to point light.
+	VectorRelation* camPositionPL = new Vector3Relation(
+		&(this->wMainCamera.camPosition),
+		&(pointLight->gPosition),
+		VECTOR_RELATION_TYPE::COPY,
+		&(this->wMainCamera.dataChanged),
+		&(pointLight->dataChanged)
+	);
+	this->pWorld->addVectorRelation(camPositionPL);
 }
 
 void Game::Update(){

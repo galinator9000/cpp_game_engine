@@ -9,9 +9,10 @@ Entity::Entity(){
 	this->gPosition = entProp.position;
 	this->gRotationQ = entProp.rotationQ;
 
-	this->entityMaterial.color = entProp.color;
-	this->entityMaterial.specularPower = 3.0f;
-	this->entityMaterial.specularIntensity = 0.5f;
+	this->material.color = entProp.material.color;
+	this->material.specularHighlightColor = entProp.material.specularHighlightColor;
+	this->material.specularPower = entProp.material.specularPower;
+	this->material.specularIntensity = entProp.material.specularIntensity;
 
 	// Physics material information
 	this->collisionMaterial.staticFriction = entProp.collisionMaterial.staticFriction;
@@ -27,9 +28,10 @@ Entity::Entity(EntityProperties entProp){
 	this->gPosition = entProp.position;
 	this->gRotationQ = entProp.rotationQ;
 
-	this->entityMaterial.color = entProp.color;
-	this->entityMaterial.specularPower = 3.0f;
-	this->entityMaterial.specularIntensity = 0.5f;
+	this->material.color = entProp.material.color;
+	this->material.specularHighlightColor = entProp.material.specularHighlightColor;
+	this->material.specularPower = entProp.material.specularPower;
+	this->material.specularIntensity = entProp.material.specularIntensity;
 
 	// Physics material information
 	this->collisionMaterial.staticFriction = entProp.collisionMaterial.staticFriction;
@@ -89,9 +91,10 @@ void Entity::updateConstantBuffer() {
 
 	//// Update PS constant buffer.
 	// Material information.
-	this->gEntityPSConstantBuffer.color = this->entityMaterial.color.loadXMFLOAT();
-	this->gEntityPSConstantBuffer.specularHighlight.x = this->entityMaterial.specularPower;
-	this->gEntityPSConstantBuffer.specularHighlight.y = this->entityMaterial.specularIntensity;
+	this->gEntityPSConstantBuffer.color = this->material.color.loadXMFLOAT();
+	this->gEntityPSConstantBuffer.specularHighlightColor = this->material.specularHighlightColor.loadXMFLOAT();
+	this->gEntityPSConstantBuffer.specularPower = this->material.specularPower;
+	this->gEntityPSConstantBuffer.specularIntensity = this->material.specularIntensity;
 
 	this->gEntityPSConstantBuffer.useTexture = (unsigned int) this->useTexture;
 	this->gEntityPSConstantBuffer.useNormalMapping = (unsigned int) this->useNormalMapping;
@@ -212,7 +215,7 @@ unsigned int Entity::getChildCount() {
 
 // General
 void Entity::setColor(Color color) {
-	this->entityMaterial.color = color;
+	this->material.color = color;
 	this->dataChanged = true;
 }
 

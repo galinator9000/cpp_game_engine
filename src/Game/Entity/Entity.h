@@ -40,7 +40,7 @@ public:
 	Vector3 gSize;
 	Vector3 gPosition;
 	Vector4 gRotationQ;
-	EntityMaterial entityMaterial;
+	Material material;
 	CollisionMaterial collisionMaterial;
 
 	// Position & Rotation & Scaling setters.
