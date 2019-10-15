@@ -51,15 +51,14 @@ PSOut main(PSIn psIn){
 		sampledNormal = sampledNormal * 2.0f - 1.0f;
 
 		// Tangent space to object space.
-		/*psIn.normal = mul(
-			sampledNormal,
+		psIn.normal = mul(
+			sampledNormal.xyz,
 			float3x3(
 				psIn.tangent,
 				psIn.binormal,
 				psIn.normal
 			)
-		);*/
-		psIn.normal = sampledNormal.xyz;
+		);
 	}
 
 	float4 sumDiffuse = float4(0, 0, 0, 0);

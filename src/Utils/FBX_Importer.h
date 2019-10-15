@@ -15,6 +15,7 @@
 
 struct FBX_LoadResult {
 	bool success = false;
+	bool binormaltangent_Loaded = false;
 };
 
 class FBX_Importer {

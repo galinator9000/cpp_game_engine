@@ -36,7 +36,7 @@ void Game::Setup(){
 	for (int bb = 0; bb<3; bb++) {
 		for (int b = 0; b < 25; b++) {
 			if (b == 0) {
-				//prevBox = NULL;
+				prevBox = NULL;
 				boxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
 			}
 			else {
@@ -60,6 +60,9 @@ void Game::Setup(){
 
 			// Create joint.
 			if (prevBox != NULL) {
+				box->attachTextureAndSampler(texture, textureSampler);
+				box->attachNormalMappingTexture(normalMapTexture);
+
 				this->pWorld->createSphericalJoint(
 					prevBox, box,
 					Vector3(0, marginBetweenBoxes / 2, 0),
@@ -72,7 +75,6 @@ void Game::Setup(){
 
 	// Ground box.
 	CollisionShape* groundBoxColShape = new CollisionShape();
-	groundBoxColShape->createBoxGeometry({ 2000, 0.1f, 2000 });
 	CollisionActor* groundBoxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
 	Entity* groundBox = new Entity(
 		{
@@ -94,11 +96,10 @@ void Game::Setup(){
 	//bigBoxMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\box.fbx", "");
 
 	CollisionShape* bigBoxColShape = new CollisionShape();
-	bigBoxColShape->createBoxGeometry({ 3, 2, 0.1f });
 	CollisionActor* bigBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
 	Entity* bigBox = new Entity(
 		{
-			{ 3, 2, 0.1f },
+			{ 3, 3, 3 },
 			{ -20, 10, 0 },
 			{ 0,0,0,0 },
 			{{ 0.66f, 0.66f, 0.66f, 1 }, 1, 5},
@@ -129,9 +130,7 @@ void Game::Setup(){
 			mainCharacterCollisionShape,
 			mainCharacterCollisionActor
 		},
-		{
-
-		}
+		{}
 	);
 
 	// Load mesh.
@@ -140,9 +139,6 @@ void Game::Setup(){
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
 		this->mainCharacter->setAnimation("Take 001");
-
-		this->mainCharacter->attachTextureAndSampler(texture, textureSampler);
-		this->mainCharacter->attachNormalMappingTexture(normalMapTexture, textureSampler);
 
 		// Add entity to world.
 		this->pWorld->addEntity(mainCharacter);
@@ -162,10 +158,10 @@ void Game::Setup(){
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 0.1f, Color(1, 1, 1));
 	//this->pWorld->addLight(directionalLight);
 
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 0.5f, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4 / 2);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 0.25f, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
 	this->pWorld->addLight(this->wMainCameraSpotLight);
 
-	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(0.66f, 0.66f, 0.66f));
+	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 0.25f, Color(0.66f, 0.66f, 0.66f));
 	this->pWorld->addLight(pointLight);
 
 	//// Attach point light to main camera.

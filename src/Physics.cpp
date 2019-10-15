@@ -86,18 +86,14 @@ bool Physics::addEntity(Entity* pEntity){
 	// CCT (Character Controller)
 	if (pEntity->pCollisionActor->actorType == COLLISION_ACTOR_CCT) {
 		// Calculate bounding box that fits to mesh.
-		Vector3 meshScale = pEntity->mesh->calculateBoundingBox();
-		meshScale = Vector3(
-			meshScale.x * pEntity->gSize.x,
-			meshScale.y * pEntity->gSize.y,
-			meshScale.z * pEntity->gSize.z
-		);
+		Vector3 meshBBox = pEntity->mesh->calculateBoundingBox();
+		meshBBox = meshBBox * pEntity->gSize;
 		
 		// Capsule
 		PxCapsuleControllerDesc pxCDesc;
 		pxCDesc.climbingMode = PxCapsuleClimbingMode::eEASY;
-		pxCDesc.height = meshScale.y * 0.8f;
-		pxCDesc.radius = meshScale.y * 0.2f;
+		pxCDesc.height = meshBBox.y * 0.8f;
+		pxCDesc.radius = meshBBox.y * 0.2f;
 
 		// Box
 		/*PxBoxControllerDesc pxCDesc;
@@ -129,9 +125,11 @@ bool Physics::addEntity(Entity* pEntity){
 		return true;
 	}
 
-	// Entity needs geometry for creation.
+	// Entity needs geometry for creation, if not provided, create a bounding box for it.
 	if (pEntity->pCollisionShape->pGeometry == NULL) {
-		return false;
+		Vector3 meshBBox = pEntity->mesh->calculateBoundingBox();
+		meshBBox = meshBBox * pEntity->gSize;
+		pEntity->pCollisionShape->createBoxGeometry(meshBBox / 2);
 	}
 
 	// Create shape

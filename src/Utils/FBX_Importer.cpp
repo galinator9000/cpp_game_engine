@@ -82,21 +82,31 @@ FBX_LoadResult FBX_Importer::Load(
 	FbxDouble3 meshNodeScaling = meshNode->LclScaling;
 
 	//// Read mesh elements.
-	
+	// Read normal, tangent and binormal values.
+
 	// Normal
 	FbxGeometryElementNormal* fbxNormalElement = mesh->GetElementNormal();
 	FbxLayerElement::EMappingMode fbxNormalMapMode = fbxNormalElement->GetMappingMode();
 	FbxLayerElement::EReferenceMode fbxNormalReferenceMode = fbxNormalElement->GetReferenceMode();
 
-	// Tangent
+	// Tangent, Binormal
 	FbxGeometryElementTangent* fbxTangentElement = mesh->GetElementTangent();
-	FbxLayerElement::EMappingMode fbxTangentMapMode = fbxTangentElement->GetMappingMode();
-	FbxLayerElement::EReferenceMode fbxTangentReferenceMode = fbxTangentElement->GetReferenceMode();
-
-	// Binormal
 	FbxGeometryElementBinormal* fbxBinormalElement = mesh->GetElementBinormal();
-	FbxLayerElement::EMappingMode fbxBinormalMapMode = fbxBinormalElement->GetMappingMode();
-	FbxLayerElement::EReferenceMode fbxBinormalReferenceMode = fbxBinormalElement->GetReferenceMode();
+
+	FbxLayerElement::EMappingMode fbxTangentMapMode;
+	FbxLayerElement::EMappingMode fbxBinormalMapMode;
+	FbxLayerElement::EReferenceMode fbxTangentReferenceMode;
+	FbxLayerElement::EReferenceMode fbxBinormalReferenceMode;
+	if (fbxTangentElement != NULL && fbxBinormalElement != NULL) {
+		fbxTangentMapMode = fbxTangentElement->GetMappingMode();
+		fbxBinormalMapMode = fbxBinormalElement->GetMappingMode();
+		fbxTangentReferenceMode = fbxTangentElement->GetReferenceMode();
+		fbxBinormalReferenceMode = fbxBinormalElement->GetReferenceMode();
+		result.binormaltangent_Loaded = true;
+	}
+	else {
+		result.binormaltangent_Loaded = false;
+	}
 
 	// UV
 	FbxGeometryElementUV* fbxUVElement = mesh->GetElementUV();
@@ -206,7 +216,7 @@ FBX_LoadResult FBX_Importer::Load(
 	}
 
 	// Collect Tangent layer data.
-	if (fbxTangentMapMode == FbxGeometryElement::eByPolygonVertex) {
+	if (fbxTangentElement != NULL && fbxTangentMapMode == FbxGeometryElement::eByPolygonVertex) {
 		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
@@ -226,7 +236,7 @@ FBX_LoadResult FBX_Importer::Load(
 			}
 		}
 	}
-	else if (fbxTangentMapMode == FbxGeometryElement::eByControlPoint) {
+	else if (fbxTangentElement != NULL && fbxTangentMapMode == FbxGeometryElement::eByControlPoint) {
 		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
@@ -249,7 +259,7 @@ FBX_LoadResult FBX_Importer::Load(
 	}
 
 	// Collect Binormal layer data.
-	if (fbxBinormalMapMode == FbxGeometryElement::eByPolygonVertex) {
+	if (fbxBinormalElement != NULL && fbxBinormalMapMode == FbxGeometryElement::eByPolygonVertex) {
 		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
@@ -269,7 +279,7 @@ FBX_LoadResult FBX_Importer::Load(
 			}
 		}
 	}
-	else if (fbxBinormalMapMode == FbxGeometryElement::eByControlPoint) {
+	else if (fbxBinormalElement != NULL && fbxBinormalMapMode == FbxGeometryElement::eByControlPoint) {
 		for (int polygonIndex = 0; polygonIndex < polygonCount; polygonIndex++) {
 			for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++) {
 				vertexArrayIndex = polygonIndex * 3 + vertexIndex;
