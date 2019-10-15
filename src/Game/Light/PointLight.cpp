@@ -9,5 +9,7 @@ PointLight::PointLight(Vector3 position, float intensity, Color color){
 
 	this->gDirection = Vector3(0, 0, 0);
 
+	this->isActive = true;
+
 	this->updateConstantBuffer();
 }

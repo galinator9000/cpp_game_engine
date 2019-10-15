@@ -8,5 +8,8 @@ DirectionalLight::DirectionalLight(Vector3 direction, float intensity, Color col
 	this->gDiffuseColor = color;
 
 	this->gPosition = Vector3(0, 0, 0);
+
+	this->isActive = true;
+
 	this->updateConstantBuffer();
 }

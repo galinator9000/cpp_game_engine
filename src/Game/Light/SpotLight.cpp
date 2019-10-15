@@ -9,6 +9,8 @@ SpotLight::SpotLight(Vector3 position, Vector3 direction, float intensity, Color
 	this->gIntensity = intensity;
 	this->gDiffuseColor = color;
 
+	this->isActive = true;
+
 	this->updateConstantBuffer();
 }
 

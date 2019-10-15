@@ -16,8 +16,15 @@ const enum LIGHT_TYPE {
 
 class Light {
 public:
-	unsigned int id;
 	unsigned int type;
+	bool isActive = false;
+	unsigned int id;
+
+	Color gDiffuseColor = Color(1, 1, 1, 1);
+	float gIntensity = 0;
+	Vector3 gPosition = Vector3(0, 0, 0);
+	Vector3 gDirection = Vector3(0, 1, 0);
+	float gHalfSpotAngle = 0;
 
 	// Functions for all light types.
 	void setIntensity(float intensity);
@@ -30,11 +37,4 @@ public:
 	void updateConstantBuffer();
 	bool shouldUpdateGPUData = true;
 	bool dataChanged = false;
-
-	// Graphics
-	Color gDiffuseColor = Color(1,1,1,1);
-	float gIntensity = 0;
-	Vector3 gPosition = Vector3(0,0,0);
-	Vector3 gDirection = Vector3(0,1,0);
-	float gHalfSpotAngle = 0;
 };

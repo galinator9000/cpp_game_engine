@@ -55,12 +55,13 @@ void World::Update(){
 
 		if (light->shouldUpdateGPUData) {
 			// Update data for each light.
-			this->gAllLightConstantBuffers[light->id].color = light->gDiffuseColor.loadXMFLOAT();
-			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
-			this->gAllLightConstantBuffers[light->id].direction = light->gDirection.loadXMFLOAT();
-			this->gAllLightConstantBuffers[light->id].position = light->gPosition.loadXMFLOAT();
 			this->gAllLightConstantBuffers[light->id].type = light->type;
+			this->gAllLightConstantBuffers[light->id].isActive = light->isActive;
+			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
 			this->gAllLightConstantBuffers[light->id].halfSpotAngle = light->gHalfSpotAngle;
+			this->gAllLightConstantBuffers[light->id].color = light->gDiffuseColor.loadXMFLOAT();
+			this->gAllLightConstantBuffers[light->id].position = light->gPosition.loadXMFLOAT();
+			this->gAllLightConstantBuffers[light->id].direction = light->gDirection.loadXMFLOAT();
 
 			light->shouldUpdateGPUData = false;
 			shouldUpdateLightsGPUData = true;

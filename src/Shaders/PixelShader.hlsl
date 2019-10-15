@@ -47,18 +47,19 @@ PSOut main(PSIn psIn){
 
 		// Sample normal vector from texture, these values ranges 0 to 1,
 		// we need to expand and reposition them as -1 to 1.
-		float3 sampledNormal = normalize(NormalMappingTexture.Sample(Sampler, psIn.texture_UV).xyz);
+		float4 sampledNormal = NormalMappingTexture.Sample(Sampler, psIn.texture_UV);
 		sampledNormal = sampledNormal * 2.0f - 1.0f;
 
 		// Tangent space to object space.
-		psIn.normal = mul(
+		/*psIn.normal = mul(
 			sampledNormal,
 			float3x3(
 				psIn.tangent,
 				psIn.binormal,
 				psIn.normal
 			)
-		);
+		);*/
+		psIn.normal = sampledNormal.xyz;
 	}
 
 	float4 sumDiffuse = float4(0, 0, 0, 0);
@@ -67,7 +68,7 @@ PSOut main(PSIn psIn){
 	//// Calculate all lights.
 	for (unsigned int light = 0; light < MAX_LIGHT_COUNT; light++) {
 		// Undefined lights' intensity is set to -1.
-		if (allLights[light].intensity <= 0.0f) {
+		if (!allLights[light].isActive || allLights[light].intensity <= 0.0f) {
 			continue;
 		}
 
