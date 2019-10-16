@@ -105,6 +105,7 @@ void Controller::Update() {
 }
 
 void Controller::Reset() {
+	this->pKeyb->Reset();
 	this->pMouse->Reset();
 }
 

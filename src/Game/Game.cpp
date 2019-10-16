@@ -81,7 +81,7 @@ void Game::Setup(){
 			{ 2000, 0.1f, 2000 },
 			{ 0, 0, 0 },
 			{ 0,0,0,0 },
-			{{ 0.1f, 0.1f, 0.1f, 1 }},
+			{{ 1, 1, 1, 1 }},
 			{},
 			boxMesh,
 			groundBoxColShape,
@@ -124,7 +124,7 @@ void Game::Setup(){
 			{ 0.01f, 0.01f, 0.01f },
 			{ 0,0,0 },
 			{ 0,0,0,0 },
-			{{ 0.66f, 0.66f, 0.66f, 1 }, 1, 5},
+			{{ 1, 1, 1, 1 }, 1, 5},
 			{},
 			mainCharacterMesh,
 			mainCharacterCollisionShape,
@@ -134,7 +134,7 @@ void Game::Setup(){
 	);
 
 	// Load mesh.
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01_uv.fbx", "")) {
+	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
 		// Set Animation
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
@@ -158,10 +158,10 @@ void Game::Setup(){
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 0.1f, Color(1, 1, 1));
 	//this->pWorld->addLight(directionalLight);
 
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 0.25f, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
-	this->pWorld->addLight(this->wMainCameraSpotLight);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
+	//this->pWorld->addLight(this->wMainCameraSpotLight);
 
-	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 0.25f, Color(0.66f, 0.66f, 0.66f));
+	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));
 	this->pWorld->addLight(pointLight);
 
 	//// Attach point light to main camera.

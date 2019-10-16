@@ -118,8 +118,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	dsDesc.DepthEnable = TRUE;
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &pDSState);
+	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &this->pDSState);
 	this->pDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1);
 
 	// Create 2D texture for Depth Buffer.

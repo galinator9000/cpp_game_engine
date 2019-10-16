@@ -61,8 +61,8 @@ PSOut main(PSIn psIn){
 		);
 	}
 
-	float4 sumDiffuse = float4(0, 0, 0, 0);
-	float4 sumSpecular = float4(0, 0, 0, 0);
+	float4 sumDiffuse;
+	float4 sumSpecular;
 
 	//// Calculate all lights.
 	for (unsigned int light = 0; light < MAX_LIGHT_COUNT; light++) {
@@ -123,9 +123,9 @@ PSOut main(PSIn psIn){
 		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
 	}
 
-	//// Add ambient light & blend the color of the entity.
+	// Add ambient light & blend the color of the entity.
 	psOut.color = float4(
-		texture_or_solid + (ambient + sumDiffuse + sumSpecular)
+		(sumDiffuse + ambient) * (texture_or_solid + sumSpecular)
 	);
 
 	return psOut;

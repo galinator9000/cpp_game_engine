@@ -2,6 +2,10 @@
 
 Keyboard::Keyboard(){}
 
+void Keyboard::Reset() {
+	//memset(&this->keyStatus, false, this->keyStatus.size());
+}
+
 // Game Engine
 bool Keyboard::isKeyPressed(unsigned int key) {
 	return this->keyStatus[key];

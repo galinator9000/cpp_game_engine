@@ -11,7 +11,7 @@ static const float attenuation_linear = 0.014;
 static const float attenuation_quadratic = 0.0007;
 
 // Global ambient value for diffuse calculation.
-static const float4 ambient = float4(0.01f, 0.01f, 0.01f, 0);
+static const float4 ambient = float4(0.1f, 0.1f, 0.1f, 0);
 
 // Light intensity, direction and position values.
 struct Light {
