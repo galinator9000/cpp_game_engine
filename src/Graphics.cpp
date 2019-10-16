@@ -452,7 +452,7 @@ void Graphics::updateEntity(Entity* entity) {
 
 // Light
 // Create buffers that will contain multiple lights at the same time.
-void Graphics::createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights) {
+bool Graphics::createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = (unsigned int) (sizeof(*gAllLights) * lightCount);
@@ -465,6 +465,7 @@ void Graphics::createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned in
 		&cSd,
 		pAllLights->GetAddressOf()
 	);
+	return true;
 }
 
 // Update buffer that contains multiple lights at the same time.
@@ -491,7 +492,7 @@ void Graphics::bindLightsBuffer(ID3D11Buffer* pAllLights) {
 }
 
 // Camera
-void Graphics::addCamera(Camera* camera, bool setAsMain) {
+bool Graphics::addCamera(Camera* camera, bool setAsMain) {
 	// Create buffer for View and Projection matrices on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = sizeof(camera->gCameraVSConstantBuffer);
@@ -508,6 +509,7 @@ void Graphics::addCamera(Camera* camera, bool setAsMain) {
 	if (setAsMain) {
 		this->activateCamera(camera);
 	}
+	return true;
 }
 
 void Graphics::activateCamera(Camera* camera) {
@@ -535,7 +537,7 @@ void Graphics::updateCamera(Camera* camera) {
 }
 
 // Texture
-void Graphics::createTextureDDS(Texture* texture) {
+bool Graphics::createTextureDDS(Texture* texture) {
 	this->hr = CreateDDSTextureFromFile(
 		this->pDevice.Get(),
 		this->pDeviceContext.Get(),
@@ -543,9 +545,10 @@ void Graphics::createTextureDDS(Texture* texture) {
 		texture->pResource.GetAddressOf(),
 		texture->pShaderResourceView.GetAddressOf()
 	);
+	return true;
 }
 
-void Graphics::createTextureSampler(TextureSampler* textureSampler) {
+bool Graphics::createTextureSampler(TextureSampler* textureSampler) {
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -559,4 +562,5 @@ void Graphics::createTextureSampler(TextureSampler* textureSampler) {
 		&sampDesc,
 		&textureSampler->pSamplerState
 	);
+	return true;
 }

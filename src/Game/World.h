@@ -23,14 +23,14 @@ public:
 	void Update();
 
 	// Entity functions
-	void addEntity(Entity* bEntity);
+	bool addEntity(Entity* bEntity);
 
 	// Light functions
 	bool addLight(Light* light);
 
 	// Camera functions
-	void addCamera(Camera* camera, bool setAsMain=false);
-	void setCamera(Camera* camera);
+	bool addCamera(Camera* camera, bool setAsMain=false);
+	bool setCamera(Camera* camera);
 	void switchCamera();
 	// Active camera pointer.
 	Camera* activeCamera = NULL;

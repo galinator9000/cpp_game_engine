@@ -52,18 +52,18 @@ public:
 	void updateEntity(Entity* entity);
 
 	// Light
-	void createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);
+	bool createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);
 	void updateLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights);
 	void bindLightsBuffer(ID3D11Buffer* pAllLights);
 	
 	// Camera
-	void addCamera(Camera* camera, bool setAsMain);
+	bool addCamera(Camera* camera, bool setAsMain);
 	void activateCamera(Camera* camera);
 	void updateCamera(Camera* camera);
 
 	// Texturing
-	void createTextureDDS(Texture* texture);
-	void createTextureSampler(TextureSampler* textureSampler);
+	bool createTextureDDS(Texture* texture);
+	bool createTextureSampler(TextureSampler* textureSampler);
 
 	unsigned int gWidth;
 	unsigned int gHeight;

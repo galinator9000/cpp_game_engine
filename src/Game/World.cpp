@@ -118,12 +118,18 @@ void World::Update(){
 }
 
 // Entity
-void World::addEntity(Entity* entity){
+bool World::addEntity(Entity* entity){
+	bool pAddResult = this->pPhy->addEntity(entity);
+	bool gAddResult = this->pGfx->addEntity(entity);
+
+	if (!pAddResult || !gAddResult) {
+		return false;
+	}
+
 	entity->id = (unsigned int) this->allEntities.size();
 	this->allEntities.push_back(entity);
-	
-	this->pPhy->addEntity(entity);
-	this->pGfx->addEntity(entity);
+
+	return true;
 }
 
 // Light
@@ -139,21 +145,34 @@ bool World::addLight(Light* light) {
 }
 
 // Camera
-void World::addCamera(Camera* camera, bool setAsMain){
+bool World::addCamera(Camera* camera, bool setAsMain){
 	camera->id = (unsigned int)this->allCameras.size();
 	this->allCameras.push_back(camera);
 
 	setAsMain = (setAsMain || this->activeCamera == NULL);
+	bool gAddResult = this->pGfx->addCamera(camera, setAsMain);
 
-	if (setAsMain) {
-		this->setCamera(camera);
+	if (gAddResult) {
+		if (setAsMain) {
+			this->setCamera(camera);
+		}
+
+		return true;
 	}
-	this->pGfx->addCamera(camera, setAsMain);
+	else {
+		return false;
+	}
 }
 
-void World::setCamera(Camera* camera) {
-	this->activeCamera = camera;
-	this->pGfx->activateCamera(this->activeCamera);
+bool World::setCamera(Camera* camera) {
+	if (std::find(this->allCameras.begin(), this->allCameras.end(), camera) != this->allCameras.end()) {
+		this->activeCamera = camera;
+		this->pGfx->activateCamera(this->activeCamera);
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 void World::switchCamera() {
