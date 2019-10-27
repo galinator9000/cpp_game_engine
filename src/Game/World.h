@@ -72,6 +72,13 @@ public:
 	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
+	// Main (or default) shader pointers.
+	VertexShader* vertexShader = NULL;
+	PixelShader* pixelShader = NULL;
+
+	VertexShader* depthVertexShader = NULL;
+	PixelShader* depthPixelShader = NULL;
+
 private:
 	Graphics* pGfx;
 	Physics* pPhy;

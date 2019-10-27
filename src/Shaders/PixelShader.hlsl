@@ -94,6 +94,11 @@ PSOut main(PSIn psIn){
 			// Directional Light calculation.
 			case DIRECTIONAL_LIGHT:
 				sumDiffuse += calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, psIn.normal);
+				sumSpecular += attenuation * calculateSpecularHighlight(
+					allLights[light].direction, psIn.normal,
+					specularHighlightColor, specularIntensity, specularPower,
+					psIn.eyePosition.xyz, psIn.positionPS
+				);
 				break;
 			// Point Light calculation.
 			case POINT_LIGHT:
@@ -110,6 +115,11 @@ PSOut main(PSIn psIn){
 				lightIntensity *= calculateConeCenterDistance(allLights[light].halfSpotAngle, allLights[light].direction, dirVertexToLight);
 
 				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, psIn.normal);
+				sumSpecular += attenuation * calculateSpecularHighlight(
+					-dirVertexToLight, psIn.normal,
+					specularHighlightColor, specularIntensity, specularPower,
+					psIn.eyePosition.xyz, psIn.positionPS
+				);
 				break;
 		}
 	}

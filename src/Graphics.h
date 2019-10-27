@@ -1,14 +1,4 @@
 #pragma once
-#include "Config.h"
-#include "Camera.h"
-#include "Timer.h"
-#include "Structs.h"
-#include "Texture.h"
-#include "TextureSampler.h"
-#include "Entity/Entity.h"
-#include "Entity/Mesh/Mesh.h"
-#include "Light/Light.h"
-
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
 #pragma comment(lib, "DirectXTK.lib")
@@ -24,6 +14,17 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+
+#include "Shaders/Shader.h"
+#include "Config.h"
+#include "Camera.h"
+#include "Timer.h"
+#include "Structs.h"
+#include "Texture.h"
+#include "TextureSampler.h"
+#include "Entity/Entity.h"
+#include "Entity/Mesh/Mesh.h"
+#include "Light/Light.h"
 
 // Macro for handling HRESULT graphics errors from Direct3D API calls.
 #define GFX_ERROR_CHECK(hr)
@@ -44,6 +45,11 @@ public:
 	void beginFrame();
 	void endFrame();
 	void Clear(Color c = {0.0f, 0.0f, 0.0f, 1.0f});
+
+	void createVertexShader(VertexShader* shader, bool setShader = false);
+	void setVertexShader(VertexShader* vertexShader);
+	void createPixelShader(PixelShader* shader, bool setShader = false);
+	void setPixelShader(PixelShader* pixelShader);
 
 	////// GAME ENGINE SECTION
 	// Entity
@@ -82,8 +88,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
 
 	// Pipeline
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;

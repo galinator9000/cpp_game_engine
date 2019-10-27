@@ -1,7 +1,6 @@
 #include "Animator.h"
 
 void Animator::Update(JointTransform** jointTransforms, unsigned int gJointCount) {
-	// Keep animation progressing with usage of Timer.
 	if (this->currentAnimation == NULL) return;
 
 	// Reset timer when it reaches end so animation keeps playing over again.

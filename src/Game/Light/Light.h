@@ -19,8 +19,9 @@ public:
 	unsigned int type;
 	bool isActive = false;
 	unsigned int id;
+	bool shadowCasting = false;
 
-	Color gDiffuseColor = Color(1, 1, 1, 1);
+	Color gColor = Color(1, 1, 1, 1);
 	float gIntensity = 0;
 	Vector3 gPosition = Vector3(0, 0, 0);
 	Vector3 gDirection = Vector3(0, 1, 0);
@@ -31,6 +32,7 @@ public:
 	void setColor(Color color);
 	void setDirection(Vector3 newDirection);
 	void setPosition(Vector3 newPosition);
+	void setShadowCasting(bool shadowCasting);
 
 	void Update();
 	void Reset();

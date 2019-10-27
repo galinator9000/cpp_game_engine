@@ -268,11 +268,11 @@ void MeshDeformer::recalculateMatrices(int baseJointID, dx::XMMATRIX* parentMode
 }
 
 void MeshDeformer::setAnimation(Animation* animation) {
-	// If animator isn't created yet, create it.
 	if (animation == NULL) {
 		return;
 	}
 
+	// If animator isn't created yet, create it.
 	if (this->gAnimator == NULL) {
 		this->gAnimator = new Animator();
 	}

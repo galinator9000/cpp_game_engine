@@ -9,6 +9,18 @@ World::World(Graphics* pGfx, Physics* pPhy, Audio* pAud){
 }
 
 void World::Setup() {
+	// Create default shaders.
+	this->vertexShader = new VertexShader(L"VertexShader.cso");
+	this->pixelShader = new PixelShader(L"PixelShader.cso");
+	this->pGfx->createVertexShader(vertexShader, true);
+	this->pGfx->createPixelShader(pixelShader, true);
+
+	// Create depth shaders.
+	this->depthVertexShader = new VertexShader(L"DepthVS.cso");
+	this->depthPixelShader = new PixelShader(L"DepthPS.cso");
+	this->pGfx->createVertexShader(this->depthVertexShader);
+	this->pGfx->createPixelShader(this->depthPixelShader);
+
 	// Create buffer that will hold multiple lights.
 	// Set undefined lights' intensity to -1.
 	for (unsigned int light = 0; light<MAX_LIGHT_COUNT; light++) {
@@ -59,7 +71,7 @@ void World::Update(){
 			this->gAllLightConstantBuffers[light->id].isActive = light->isActive;
 			this->gAllLightConstantBuffers[light->id].intensity = light->gIntensity;
 			this->gAllLightConstantBuffers[light->id].halfSpotAngle = light->gHalfSpotAngle;
-			this->gAllLightConstantBuffers[light->id].color = light->gDiffuseColor.loadXMFLOAT();
+			this->gAllLightConstantBuffers[light->id].color = light->gColor.loadXMFLOAT();
 			this->gAllLightConstantBuffers[light->id].position = light->gPosition.loadXMFLOAT();
 			this->gAllLightConstantBuffers[light->id].direction = light->gDirection.loadXMFLOAT();
 
@@ -82,25 +94,33 @@ void World::Update(){
 	this->activeCamera->Update();
 	this->pGfx->updateCamera(this->activeCamera);
 
-	//// Draw section.
-	// Clear frame and redraw state of the world.
-	this->pGfx->beginFrame();
-
-	// Update and draw all entities.
-	for (unsigned int e = 0; e < this->allEntities.size(); e++){
+	// Update all entities.
+	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);
 
-		if(ent == NULL){
+		if (ent == NULL) {
 			continue;
 		}
 
 		this->pPhy->updateEntity(ent);
 		ent->Update();
-
 		this->pGfx->updateEntity(ent);
-		this->pGfx->drawEntity(ent);
-
 		ent->Reset();
+	}
+
+	//// Draw section.
+	// Clear frame and redraw state of the world.
+	this->pGfx->beginFrame();
+
+	// Draw all entities.
+	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
+		Entity* ent = this->allEntities.at(e);
+
+		if (ent == NULL) {
+			continue;
+		}
+
+		this->pGfx->drawEntity(ent);
 	}
 
 	this->pGfx->endFrame();

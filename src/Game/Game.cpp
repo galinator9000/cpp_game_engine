@@ -10,15 +10,6 @@ void Game::Setup(){
 	// Add main camera.
 	this->pWorld->addCamera(&this->wMainCamera);
 
-	// Create Texture and Normal Mapping
-	Texture* texture = new Texture("diffuse", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds");
-	Texture* normalMapTexture = new Texture("normalmap", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds");
-	TextureSampler* textureSampler = new TextureSampler();
-
-	this->pWorld->createTexture(texture);
-	this->pWorld->createTexture(normalMapTexture);
-	this->pWorld->createTextureSampler(textureSampler);
-
 	// Create box mesh.
 	Mesh* boxMesh = new Mesh();
 	boxMesh->createBoxGeometry({ 1,1,1 });
@@ -60,9 +51,6 @@ void Game::Setup(){
 
 			// Create joint.
 			if (prevBox != NULL) {
-				box->attachTextureAndSampler(texture, textureSampler);
-				box->attachNormalMappingTexture(normalMapTexture);
-
 				this->pWorld->createSphericalJoint(
 					prevBox, box,
 					Vector3(0, marginBetweenBoxes / 2, 0),
@@ -91,6 +79,15 @@ void Game::Setup(){
 	this->pWorld->addEntity(groundBox);
 
 	// Dynamic big box.
+	// Create Texture and Normal Mapping
+	Texture* texture = new Texture("diffuse", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds");
+	Texture* normalMapTexture = new Texture("normalmap", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds");
+	TextureSampler* textureSampler = new TextureSampler();
+
+	this->pWorld->createTexture(texture);
+	this->pWorld->createTexture(normalMapTexture);
+	this->pWorld->createTextureSampler(textureSampler);
+
 	Mesh* bigBoxMesh = new Mesh();
 	bigBoxMesh->createBoxGeometry({ 1,1,1 });
 	//bigBoxMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\box.fbx", "");
@@ -158,8 +155,8 @@ void Game::Setup(){
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 0.1f, Color(1, 1, 1));
 	//this->pWorld->addLight(directionalLight);
 
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
-	//this->pWorld->addLight(this->wMainCameraSpotLight);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
+	this->pWorld->addLight(this->wMainCameraSpotLight);
 
 	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));
 	this->pWorld->addLight(pointLight);
