@@ -28,5 +28,4 @@ public:
 		WIDTH / HEIGHT
 	);
 	Camera* pwSecondaryCamera;
-	SpotLight* wMainCameraSpotLight;
 };

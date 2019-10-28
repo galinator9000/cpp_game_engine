@@ -84,7 +84,6 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &this->pDSState);
-	this->pDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1);
 
 	// Create 2D texture for Depth Buffer.
 	wrl::ComPtr<ID3D11Texture2D> pDSTXT;
@@ -107,7 +106,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	descDSV.Texture2D.MipSlice = 0;
 	this->pDevice->CreateDepthStencilView(pDSTXT.Get(), &descDSV, &this->pDSView);
 
-	// Set DepthStencilView as render target.
+	// Set depth state and render target view.
+	this->pDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1);
 	this->pDeviceContext->OMSetRenderTargets(1, this->pRenderTargetView.GetAddressOf(), this->pDSView.Get());
 
 	// Create InputLayout
@@ -145,6 +145,14 @@ void Graphics::Clear(Color c) {
 	);
 
 	// Clear Z-buffer.
+	this->pDeviceContext->ClearDepthStencilView(
+		this->pDSView.Get(),
+		D3D11_CLEAR_DEPTH,
+		1.0f,
+		0u
+	);
+
+	// Clear Depth buffer.
 	this->pDeviceContext->ClearDepthStencilView(
 		this->pDSView.Get(),
 		D3D11_CLEAR_DEPTH,

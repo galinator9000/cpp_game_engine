@@ -38,6 +38,13 @@ void World::Setup() {
 		&this->pAllLightConstantBuffers
 	);
 	this->pGfx->bindLightsBuffer(this->pAllLightConstantBuffers.Get());
+
+	// Set NULL all shadow casters initially.
+	memset(
+		&gShadowCasters,
+		NULL,
+		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
+	);
 }
 
 void World::Reset() {
@@ -55,6 +62,17 @@ void World::Update(){
 	}
 
 	// Update all light objects.
+
+	// Also pick lights that will cast shadow.
+	// (directional lights has priority, nearest to active camera)
+	unsigned int shadowCasterIndex = 0;
+	memset(
+		&gShadowCasters,
+		NULL,
+		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
+	);
+	gShadowCastersDistanceLPMap.clear();
+
 	bool shouldUpdateLightsGPUData = false;
 	for (unsigned int l = 0; l < allLights.size(); l++) {
 		Light* light = allLights.at(l);
@@ -78,8 +96,34 @@ void World::Update(){
 			light->shouldUpdateGPUData = false;
 			shouldUpdateLightsGPUData = true;
 		}
+
+		if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
+			if (light->type == DIRECTIONAL_LIGHT) {
+				//gShadowCasters[shadowCasterIndex] = light;
+				//shadowCasterIndex++;
+			}
+			else {
+				float lightDist = Vector3::distance(
+					light->gPosition,
+					this->activeCamera->camPosition
+				);
+
+				if (light->type == SPOT_LIGHT) { gShadowCastersDistanceLPMap[lightDist] = light; }
+			}
+		}
 	}
 
+	// Fill shadow caster array, starting from nearest lights.
+	if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
+		for (const auto entry : gShadowCastersDistanceLPMap) {
+			gShadowCasters[shadowCasterIndex] = entry.second;
+			shadowCasterIndex++;
+			if (shadowCasterIndex >= MAX_SHADOW_CASTER_COUNT) {
+				break;
+			}
+		}
+	}
+	
 	// Update lights buffer on GPU side.
 	if (shouldUpdateLightsGPUData) {
 		this->pGfx->updateLightsBuffer(
@@ -108,7 +152,33 @@ void World::Update(){
 		ent->Reset();
 	}
 
-	//// Draw section.
+	// Render current state of the world.
+	this->Render();
+
+	//// Reset section
+	for (unsigned int l = 0; l < allLights.size(); l++) {
+		Light* light = allLights.at(l);
+
+		if (light == NULL) {
+			continue;
+		}
+
+		light->Reset();
+	}
+}
+
+void World::Render() {
+	// Create shadow map.
+	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
+		Entity* ent = this->allEntities.at(e);
+
+		if (ent == NULL) {
+			continue;
+		}
+
+		this->pGfx->drawEntity(ent);
+	}
+
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
 
@@ -124,17 +194,6 @@ void World::Update(){
 	}
 
 	this->pGfx->endFrame();
-
-	//// Reset section
-	for (unsigned int l = 0; l < allLights.size(); l++) {
-		Light* light = allLights.at(l);
-
-		if (light == NULL) {
-			continue;
-		}
-
-		light->Reset();
-	}
 }
 
 // Entity

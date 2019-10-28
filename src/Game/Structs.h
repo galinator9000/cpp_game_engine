@@ -65,6 +65,25 @@ struct Vector2 {
 		);
 	}
 
+	static float distance(Vector2 v1, Vector2 v2) {
+		dx::XMVECTOR distVector = dx::XMVector2Length(
+			(v1 - v2).loadXMVECTOR()
+		);
+		float dist;
+		dx::XMStoreFloat(
+			&dist,
+			distVector
+		);
+
+		return dist;
+	}
+	float distance(Vector2 other) {
+		return this->distance(
+			(*this),
+			other
+		);
+	}
+
 	Vector2 normalize() {
 		float _max = this->maximum();
 		return Vector2(
@@ -198,6 +217,25 @@ struct Vector3 {
 			this->x / other,
 			this->y / other,
 			this->z / other
+		);
+	}
+
+	static float distance(Vector3 v1, Vector3 v2) {
+		dx::XMVECTOR distVector = dx::XMVector3Length(
+			(v1 - v2).loadXMVECTOR()
+		);
+		float dist;
+		dx::XMStoreFloat(
+			&dist,
+			distVector
+		);
+
+		return dist;
+	}
+	float distance(Vector3 other) {
+		return this->distance(
+			(*this),
+			other
 		);
 	}
 
@@ -353,6 +391,25 @@ struct Vector4 {
 			this->y / other,
 			this->z / other,
 			this->w / other
+		);
+	}
+
+	static float distance(Vector4 v1, Vector4 v2) {
+		dx::XMVECTOR distVector = dx::XMVector4Length(
+			(v1 - v2).loadXMVECTOR()
+		);
+		float dist;
+		dx::XMStoreFloat(
+			&dist,
+			distVector
+		);
+
+		return dist;
+	}
+	float distance(Vector4 other) {
+		return this->distance(
+			(*this),
+			other
 		);
 	}
 

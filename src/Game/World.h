@@ -1,5 +1,6 @@
 #pragma once
-#define MAX_LIGHT_COUNT 8
+#define MAX_LIGHT_COUNT 32
+#define MAX_SHADOW_CASTER_COUNT 4
 
 #include <vector>
 
@@ -21,6 +22,7 @@ public:
 	void Setup();
 	void Reset();
 	void Update();
+	void Render();
 
 	// Entity functions
 	bool addEntity(Entity* bEntity);
@@ -72,10 +74,15 @@ public:
 	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
+	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];
+	std::map<float, Light*> gShadowCastersDistanceLPMap;
+
+	//// Shaders.
 	// Main (or default) shader pointers.
 	VertexShader* vertexShader = NULL;
 	PixelShader* pixelShader = NULL;
 
+	// Depth shaders.
 	VertexShader* depthVertexShader = NULL;
 	PixelShader* depthPixelShader = NULL;
 

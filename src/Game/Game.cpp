@@ -152,14 +152,14 @@ void Game::Setup(){
 	}
 
 	//// Add lights to scene.
-	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0, -1, 0), 0.1f, Color(1, 1, 1));
+	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0.25f, -1, 0.25f), 1, Color(0.95f, 0.95f, 0.74f));
 	//this->pWorld->addLight(directionalLight);
 
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
-	this->pWorld->addLight(this->wMainCameraSpotLight);
+	SpotLight* wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
+	this->pWorld->addLight(wMainCameraSpotLight);
 
 	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));
-	this->pWorld->addLight(pointLight);
+	//this->pWorld->addLight(pointLight);
 
 	//// Attach point light to main camera.
 	// Position relation, camera to point light.
@@ -183,20 +183,20 @@ void Game::Setup(){
 	// Position relation, camera to spot light.
 	VectorRelation* camPositionSL = new Vector3Relation(
 		&(pwSecondaryCamera->camPosition),
-		&(this->wMainCameraSpotLight->gPosition),
+		&(wMainCameraSpotLight->gPosition),
 		VECTOR_RELATION_TYPE::COPY,
 		&(pwSecondaryCamera->dataChanged),
-		&(this->wMainCameraSpotLight->dataChanged)
+		&(wMainCameraSpotLight->dataChanged)
 	);
 	this->pWorld->addVectorRelation(camPositionSL);
 
 	// Direction relation, camera to spot light.
 	VectorRelation* camDirectionSL = new Vector3Relation(
 		&(pwSecondaryCamera->lookDirection),
-		&(this->wMainCameraSpotLight->gDirection),
+		&(wMainCameraSpotLight->gDirection),
 		VECTOR_RELATION_TYPE::COPY,
 		&(pwSecondaryCamera->dataChanged),
-		&(this->wMainCameraSpotLight->dataChanged)
+		&(wMainCameraSpotLight->dataChanged)
 	);
 	this->pWorld->addVectorRelation(camDirectionSL);
 }
