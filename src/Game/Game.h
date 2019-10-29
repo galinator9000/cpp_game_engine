@@ -24,6 +24,7 @@ public:
 
 	Camera wMainCamera = Camera(
 		Vector3(0.0f, 0.0f, 0.0f),
+		Vector3::ZAxis(),
 		FOV,
 		WIDTH / HEIGHT
 	);

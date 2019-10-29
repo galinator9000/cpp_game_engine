@@ -1,15 +1,16 @@
 #include "Camera.h"
 
-Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio){
+Camera::Camera(Vector3 position, Vector3 direction, unsigned int fov, float aspectRatio){
+	this->camPosition = position;
+	this->initialLookingDirection = direction.normalize();
 	this->gFieldOfView = fov;
 	this->gAspectRatio = aspectRatio;
 
 	this->rotation = Vector3();
 
-	// Set looking direction vector to +Z axis
 	this->lookDirection.storeXMVECTOR(
 		&dx::XMVector3Transform(
-			dx::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
+			dx::XMVectorSet(0, 0, 1, 0),
 			dx::XMMatrixRotationRollPitchYaw(
 				this->rotation.x,
 				this->rotation.y,
@@ -17,9 +18,6 @@ Camera::Camera(Vector3 position, unsigned int fov, float aspectRatio){
 			)
 		)
 	);
-
-	// Fill camera position and looking direction vector
-	this->camPosition = position;
 	this->camLookAt = camPosition + lookDirection;
 
 	this->updateConstantBuffer();
@@ -65,7 +63,7 @@ void Camera::updateConstantBuffer() {
 		// Update looking direction vector
 		this->lookDirection.storeXMVECTOR(
 			&dx::XMVector3Transform(
-				dx::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
+				dx::XMVectorSet(0, 0, 1, 0),
 				dx::XMMatrixRotationRollPitchYaw(
 					this->rotation.x,
 					this->rotation.y,
@@ -198,6 +196,7 @@ void Camera::followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vect
 	float currentMovementSpeed = initialMovementSpeed;
 	float currentRotationSpeed = initialRotationSpeed;
 	this->rotation = Vector3();
+	this->initialLookingDirection = Vector3::ZAxis();
 
 	this->isFollowingEntity = true;
 }

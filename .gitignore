@@ -342,4 +342,5 @@ healthchecksdb
 
 # Keep .obj files in assets directory.
 !assets/*.obj
+*.cso
 *.py

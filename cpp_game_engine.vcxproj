@@ -110,14 +110,16 @@
       <AdditionalLibraryDirectories>C:\VisualStudioProjects\ThirdParty\DirectXTK\Bin\Desktop_2019\$(Platform)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(Directory)%(Filename).cso</ObjectFileOutput>
+      <ShaderModel>4.0</ShaderModel>
     </FxCompile>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)..\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
-xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"</Command>
+xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
+xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(SolutionDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -139,14 +141,16 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
       <AdditionalLibraryDirectories>C:\VisualStudioProjects\ThirdParty\DirectXTK\Bin\Desktop_2019\$(Platform)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(Directory)%(Filename).cso</ObjectFileOutput>
+      <ShaderModel>4.0</ShaderModel>
     </FxCompile>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)..\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
-xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"</Command>
+xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
+xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(SolutionDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -172,14 +176,16 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
       <AdditionalLibraryDirectories>C:\VisualStudioProjects\ThirdParty\DirectXTK\Bin\Desktop_2019\$(Platform)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(Directory)%(Filename).cso</ObjectFileOutput>
+      <ShaderModel>4.0</ShaderModel>
     </FxCompile>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)..\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
-xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"</Command>
+xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
+xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(SolutionDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -205,14 +211,16 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
       <AdditionalLibraryDirectories>C:\VisualStudioProjects\ThirdParty\DirectXTK\Bin\Desktop_2019\$(Platform)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\;C:\VisualStudioProjects\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)bin\$(Platform)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(Directory)%(Filename).cso</ObjectFileOutput>
+      <ShaderModel>4.0</ShaderModel>
     </FxCompile>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)..\ThirdParty\PhysX\physx\bin\win.x86_64.vc141.mt\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
-xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"</Command>
+xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(PlatformTarget)\$(Configuration)\*.dll" "$(SolutionDir)bin\$(Platform)\$(Configuration)\"
+xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(SolutionDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -312,11 +320,14 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="src\Shaders\DepthPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -327,6 +338,10 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="src\Shaders\DepthVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -337,17 +352,24 @@ xcopy /y /d "$(SolutionDir)..\ThirdParty\Autodesk\FBX_SDK\2019.2\lib\vs2017\$(Pl
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="src\Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

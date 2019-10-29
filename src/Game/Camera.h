@@ -8,7 +8,7 @@
 
 class Camera{
 public:
-	Camera(Vector3 pos, unsigned int fov, float aspectRatio);
+	Camera(Vector3 pos, Vector3 dir, unsigned int fov, float aspectRatio);
 	void Update();
 	void updateConstantBuffer();
 
@@ -21,13 +21,13 @@ public:
 	void Rotate(float x, float y);
 
 	// Movement factors
-	const float fastMovementFactor = 1.02f;
-	const float zoomFactor = 1.02f;
 	bool wasMovingFast;
 	const float initialMovementSpeed = 0.15f;
 	const float initialRotationSpeed = 0.005f;
 	float currentMovementSpeed = initialMovementSpeed;
 	float currentRotationSpeed = initialRotationSpeed;
+	const float fastMovementFactor = 1.02f;
+	const float zoomFactor = 1.02f;
 
 	// Entity following functionality
 	void followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followOffset);
@@ -50,4 +50,5 @@ public:
 	Vector3 camPosition;
 	Vector3 camLookAt;
 	Vector3 lookDirection;
+	Vector3 initialLookingDirection;
 };

@@ -60,12 +60,12 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	);
 
 	// Create a RenderTargetView for rendering.
-	wrl::ComPtr<ID3D11Resource> pBackBuffer;
-	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(pBackBuffer.GetAddressOf()));
+	wrl::ComPtr<ID3D11Resource> pBackBufferRes;
+	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(pBackBufferRes.GetAddressOf()));
 	this->hr = this->pDevice->CreateRenderTargetView(
-		pBackBuffer.Get(),
+		pBackBufferRes.Get(),
 		NULL,
-		&this->pRenderTargetView
+		&this->pBackBufferRTV
 	);
 
 	// Create a viewport configuration & bind it to pipeline.
@@ -108,7 +108,15 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 
 	// Set depth state and render target view.
 	this->pDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1);
-	this->pDeviceContext->OMSetRenderTargets(1, this->pRenderTargetView.GetAddressOf(), this->pDSView.Get());
+	this->pDeviceContext->OMSetRenderTargets(1, this->pBackBufferRTV.GetAddressOf(), this->pDSView.Get());
+
+	//// Shader creation.
+	// Create default shaders.
+	this->createVertexShader(this->mainVertexShader, true);
+	this->createPixelShader(this->mainPixelShader, true);
+	// Create depth shaders.
+	this->createVertexShader(this->depthVertexShader);
+	this->createPixelShader(this->depthPixelShader);
 
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
@@ -122,7 +130,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 		{"JointWeights", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"JointIDs", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
+
+	this->hr = D3DReadFileToBlob(this->mainVertexShader->fileName, &this->pBlob);
 	this->hr = this->pDevice->CreateInputLayout(
 		ied,
 		(UINT) std::size(ied),
@@ -140,7 +149,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 void Graphics::Clear(Color c) {
 	// Clear back buffer.
 	this->pDeviceContext->ClearRenderTargetView(
-		this->pRenderTargetView.Get(),
+		this->pBackBufferRTV.Get(),
 		new float[4]{ c.r, c.g, c.b, c.a }
 	);
 
@@ -158,50 +167,6 @@ void Graphics::Clear(Color c) {
 		D3D11_CLEAR_DEPTH,
 		1.0f,
 		0u
-	);
-}
-
-// Shaders
-void Graphics::createVertexShader(VertexShader* vertexShader, bool setShader) {
-	this->hr = D3DReadFileToBlob(L"VertexShader.cso", &this->pBlob);
-	this->hr = this->pDevice->CreateVertexShader(
-		this->pBlob->GetBufferPointer(),
-		this->pBlob->GetBufferSize(),
-		NULL,
-		&vertexShader->pVertexShader
-	);
-
-	if (setShader) {
-		this->setVertexShader(vertexShader);
-	}
-}
-void Graphics::setVertexShader(VertexShader* vertexShader) {
-	this->pDeviceContext->VSSetShader(
-		vertexShader->pVertexShader.Get(),
-		NULL,
-		0
-	);
-}
-
-void Graphics::createPixelShader(PixelShader* pixelShader, bool setShader) {
-	pixelShader->fileName;
-	this->hr = D3DReadFileToBlob(L"PixelShader.cso", &this->pBlob);
-	this->hr = this->pDevice->CreatePixelShader(
-		this->pBlob->GetBufferPointer(),
-		this->pBlob->GetBufferSize(),
-		NULL,
-		&pixelShader->pPixelShader
-	);
-
-	if (setShader) {
-		this->setPixelShader(pixelShader);
-	}
-}
-void Graphics::setPixelShader(PixelShader* pixelShader) {
-	this->pDeviceContext->PSSetShader(
-		pixelShader->pPixelShader.Get(),
-		NULL,
-		0
 	);
 }
 
@@ -230,6 +195,51 @@ void Graphics::endFrame() {
 	}
 
 	this->hr = this->pSwapChain->Present(1, 0);
+}
+
+// Shaders
+void Graphics::createVertexShader(VertexShader* vertexShader, bool setShader) {
+	this->hr = D3DReadFileToBlob(vertexShader->fileName, &this->pBlob);
+	this->hr = this->pDevice->CreateVertexShader(
+		this->pBlob->GetBufferPointer(),
+		this->pBlob->GetBufferSize(),
+		NULL,
+		&vertexShader->pVertexShader
+	);
+
+	if (setShader) {
+		this->setVertexShader(vertexShader);
+	}
+}
+void Graphics::setVertexShader(VertexShader* vertexShader) {
+	this->pDeviceContext->VSSetShader(
+		vertexShader->pVertexShader.Get(),
+		NULL,
+		0
+	);
+	this->activeVertexShader = vertexShader;
+}
+
+void Graphics::createPixelShader(PixelShader* pixelShader, bool setShader) {
+	this->hr = D3DReadFileToBlob(pixelShader->fileName, &this->pBlob);
+	this->hr = this->pDevice->CreatePixelShader(
+		this->pBlob->GetBufferPointer(),
+		this->pBlob->GetBufferSize(),
+		NULL,
+		&pixelShader->pPixelShader
+	);
+
+	if (setShader) {
+		this->setPixelShader(pixelShader);
+	}
+}
+void Graphics::setPixelShader(PixelShader* pixelShader) {
+	this->pDeviceContext->PSSetShader(
+		pixelShader->pPixelShader.Get(),
+		NULL,
+		0
+	);
+	this->activePixelShader = pixelShader;
 }
 
 ////// GAME ENGINE SECTION

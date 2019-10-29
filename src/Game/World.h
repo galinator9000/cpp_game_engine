@@ -77,15 +77,6 @@ public:
 	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];
 	std::map<float, Light*> gShadowCastersDistanceLPMap;
 
-	//// Shaders.
-	// Main (or default) shader pointers.
-	VertexShader* vertexShader = NULL;
-	PixelShader* pixelShader = NULL;
-
-	// Depth shaders.
-	VertexShader* depthVertexShader = NULL;
-	PixelShader* depthPixelShader = NULL;
-
 private:
 	Graphics* pGfx;
 	Physics* pPhy;

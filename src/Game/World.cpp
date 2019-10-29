@@ -9,18 +9,6 @@ World::World(Graphics* pGfx, Physics* pPhy, Audio* pAud){
 }
 
 void World::Setup() {
-	// Create default shaders.
-	this->vertexShader = new VertexShader(L"VertexShader.cso");
-	this->pixelShader = new PixelShader(L"PixelShader.cso");
-	this->pGfx->createVertexShader(vertexShader, true);
-	this->pGfx->createPixelShader(pixelShader, true);
-
-	// Create depth shaders.
-	this->depthVertexShader = new VertexShader(L"DepthVS.cso");
-	this->depthPixelShader = new PixelShader(L"DepthPS.cso");
-	this->pGfx->createVertexShader(this->depthVertexShader);
-	this->pGfx->createPixelShader(this->depthPixelShader);
-
 	// Create buffer that will hold multiple lights.
 	// Set undefined lights' intensity to -1.
 	for (unsigned int light = 0; light<MAX_LIGHT_COUNT; light++) {
@@ -62,7 +50,6 @@ void World::Update(){
 	}
 
 	// Update all light objects.
-
 	// Also pick lights that will cast shadow.
 	// (directional lights has priority, nearest to active camera)
 	unsigned int shadowCasterIndex = 0;
@@ -168,7 +155,12 @@ void World::Update(){
 }
 
 void World::Render() {
+	this->pGfx->beginFrame();
+
 	// Create shadow map.
+	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
+	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
+
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);
 
@@ -180,7 +172,8 @@ void World::Render() {
 	}
 
 	// Clear frame and redraw state of the world.
-	this->pGfx->beginFrame();
+	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
+	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 
 	// Draw all entities.
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {

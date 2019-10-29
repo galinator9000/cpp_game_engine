@@ -99,7 +99,7 @@ void Game::Setup(){
 			{ 3, 3, 3 },
 			{ -20, 10, 0 },
 			{ 0,0,0,0 },
-			{{ 0.66f, 0.66f, 0.66f, 1 }, 1, 5},
+			{{ 0, 0, 0.66f, 1 }, 1, 5},
 			{},
 			bigBoxMesh,
 			bigBoxColShape,
@@ -107,7 +107,7 @@ void Game::Setup(){
 		}
 	);
 	bigBox->attachTextureAndSampler(texture, textureSampler);
-	bigBox->attachNormalMappingTexture(normalMapTexture);
+	bigBox->attachNormalMappingTexture(normalMapTexture, textureSampler);
 	this->pWorld->addEntity(bigBox);
 
 	//// Load animated entity.
@@ -144,6 +144,7 @@ void Game::Setup(){
 		// Add character camera.
 		Camera* pCharacterCamera = new Camera(
 			Vector3(0.0f, 0.0f, 0.0f),
+			Vector3::ZAxis(),
 			FOV,
 			WIDTH / HEIGHT
 		);
@@ -174,11 +175,12 @@ void Game::Setup(){
 
 	//// Create secondary camera, attach spot light to it.
 	Camera* pwSecondaryCamera = new Camera(
-		Vector3(0.0f, 0.0f, 0.0f),
+		Vector3(-10.0f, 10.0f, 0.0f),
+		Vector3::ZAxis() + -Vector3::XAxis(),
 		FOV,
 		WIDTH / HEIGHT
 	);
-	pWorld->addCamera(pwSecondaryCamera);
+	pWorld->addCamera(pwSecondaryCamera, true);
 
 	// Position relation, camera to spot light.
 	VectorRelation* camPositionSL = new Vector3Relation(

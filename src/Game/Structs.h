@@ -37,6 +37,13 @@ struct Vector2 {
 		);
 	}
 
+	Vector2 operator-() {
+		return Vector2(
+			-(this->x),
+			-(this->y)
+		);
+	}
+
 	Vector2 operator/(const Vector2& other) {
 		return Vector2(
 			this->x / other.x,
@@ -65,18 +72,6 @@ struct Vector2 {
 		);
 	}
 
-	static float distance(Vector2 v1, Vector2 v2) {
-		dx::XMVECTOR distVector = dx::XMVector2Length(
-			(v1 - v2).loadXMVECTOR()
-		);
-		float dist;
-		dx::XMStoreFloat(
-			&dist,
-			distVector
-		);
-
-		return dist;
-	}
 	float distance(Vector2 other) {
 		return this->distance(
 			(*this),
@@ -149,6 +144,22 @@ struct Vector2 {
 		return PxVec2(this->x, this->y);
 	}
 
+	// Static functions
+	static float distance(Vector2 v1, Vector2 v2) {
+		dx::XMVECTOR distVector = dx::XMVector2Length(
+			(v1 - v2).loadXMVECTOR()
+		);
+		float dist;
+		dx::XMStoreFloat(
+			&dist,
+			distVector
+		);
+
+		return dist;
+	}
+	static Vector2 XAxis() { return Vector2(1, 0); }
+	static Vector2 YAxis() { return Vector2(0, 1); }
+
 	float x;
 	float y;
 };
@@ -188,6 +199,14 @@ struct Vector3 {
 		);
 	}
 
+	Vector3 operator-() {
+		return Vector3(
+			-(this->x),
+			-(this->y),
+			-(this->z)
+		);
+	}
+
 	Vector3 operator/(const Vector3& other) {
 		return Vector3(
 			this->x / other.x,
@@ -220,18 +239,6 @@ struct Vector3 {
 		);
 	}
 
-	static float distance(Vector3 v1, Vector3 v2) {
-		dx::XMVECTOR distVector = dx::XMVector3Length(
-			(v1 - v2).loadXMVECTOR()
-		);
-		float dist;
-		dx::XMStoreFloat(
-			&dist,
-			distVector
-		);
-
-		return dist;
-	}
 	float distance(Vector3 other) {
 		return this->distance(
 			(*this),
@@ -314,6 +321,23 @@ struct Vector3 {
 		return PxVec3(this->x, this->y, this->z);
 	}
 
+	// Static functions
+	static float distance(Vector3 v1, Vector3 v2) {
+		dx::XMVECTOR distVector = dx::XMVector3Length(
+			(v1 - v2).loadXMVECTOR()
+		);
+		float dist;
+		dx::XMStoreFloat(
+			&dist,
+			distVector
+		);
+
+		return dist;
+	}
+	static Vector3 XAxis() { return Vector3(1, 0, 0); }
+	static Vector3 YAxis() { return Vector3(0, 1, 0); }
+	static Vector3 ZAxis() { return Vector3(0, 0, 1); }
+
 	float x;
 	float y;
 	float z;
@@ -358,6 +382,15 @@ struct Vector4 {
 		);
 	}
 
+	Vector4 operator-() {
+		return Vector4(
+			-(this->x),
+			-(this->y),
+			-(this->z),
+			-(this->w)
+		);
+	}
+
 	Vector4 operator/(const Vector4& other) {
 		return Vector4(
 			this->x / other.x,
@@ -394,18 +427,6 @@ struct Vector4 {
 		);
 	}
 
-	static float distance(Vector4 v1, Vector4 v2) {
-		dx::XMVECTOR distVector = dx::XMVector4Length(
-			(v1 - v2).loadXMVECTOR()
-		);
-		float dist;
-		dx::XMStoreFloat(
-			&dist,
-			distVector
-		);
-
-		return dist;
-	}
 	float distance(Vector4 other) {
 		return this->distance(
 			(*this),
@@ -494,6 +515,24 @@ struct Vector4 {
 	PxQuat toPxQuat() {
 		return PxQuat(this->x, this->y, this->z, this->w);
 	}
+
+	// Static functions
+	static float distance(Vector4 v1, Vector4 v2) {
+		dx::XMVECTOR distVector = dx::XMVector4Length(
+			(v1 - v2).loadXMVECTOR()
+		);
+		float dist;
+		dx::XMStoreFloat(
+			&dist,
+			distVector
+		);
+
+		return dist;
+	}
+	static Vector4 XAxis() { return Vector4(1, 0, 0, 0); }
+	static Vector4 YAxis() { return Vector4(0, 1, 0, 0); }
+	static Vector4 ZAxis() { return Vector4(0, 0, 1, 0); }
+	static Vector4 WAxis() { return Vector4(0, 0, 0, 1); }
 
 	float x;
 	float y;

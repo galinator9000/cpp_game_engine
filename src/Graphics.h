@@ -50,6 +50,18 @@ public:
 	void setVertexShader(VertexShader* vertexShader);
 	void createPixelShader(PixelShader* shader, bool setShader = false);
 	void setPixelShader(PixelShader* pixelShader);
+	
+	//// Shaders.
+	VertexShader* activeVertexShader = NULL;
+	PixelShader* activePixelShader = NULL;
+
+	// Main (or default) shader pointers.
+	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
+	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
+
+	// Depth shaders.
+	VertexShader* depthVertexShader = new VertexShader(L"DepthVS.cso");
+	PixelShader* depthPixelShader = new PixelShader(L"DepthPS.cso");
 
 	////// GAME ENGINE SECTION
 	// Entity
@@ -85,7 +97,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pBackBufferRTV;
 
 	// Pipeline
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
