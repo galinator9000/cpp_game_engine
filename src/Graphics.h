@@ -15,7 +15,8 @@
 #include <string>
 #include <sstream>
 
-#include "Shaders/Shader.h"
+#include "Graphics/Shader.h"
+#include "Graphics/RenderTarget.h"
 #include "Config.h"
 #include "Camera.h"
 #include "Timer.h"
@@ -46,22 +47,27 @@ public:
 	void endFrame();
 	void Clear(Color c = {0.0f, 0.0f, 0.0f, 1.0f});
 
+	//// Shaders.
 	void createVertexShader(VertexShader* shader, bool setShader = false);
 	void setVertexShader(VertexShader* vertexShader);
 	void createPixelShader(PixelShader* shader, bool setShader = false);
 	void setPixelShader(PixelShader* pixelShader);
-	
-	//// Shaders.
-	VertexShader* activeVertexShader = NULL;
-	PixelShader* activePixelShader = NULL;
-
 	// Main (or default) shader pointers.
 	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
 	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
-
 	// Depth shaders.
 	VertexShader* depthVertexShader = new VertexShader(L"DepthVS.cso");
 	PixelShader* depthPixelShader = new PixelShader(L"DepthPS.cso");
+
+	//// Render targets.
+	void createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pBackBufferRes=NULL, bool setRenderTarget = false);
+	void setRenderTarget(RenderTarget* renderTarget);
+	void clearStateRenderTarget(RenderTarget* renderTarget, Color c = { 0.0f, 0.0f, 0.0f, 1.0f });
+	std::vector<RenderTarget*> renderTargets;
+	// Main (or default) render target pointer.
+	RenderTarget* mainRenderTarget = new RenderTarget();
+	// Depth render target pointer.
+	RenderTarget* depthRenderTarget = new RenderTarget();
 
 	////// GAME ENGINE SECTION
 	// Entity
@@ -97,11 +103,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pBackBufferRTV;
 
 	// Pipeline
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
 };

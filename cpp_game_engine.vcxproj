@@ -224,6 +224,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Graphics\RenderTarget.h" />
     <ClInclude Include="src\Audio.h" />
     <ClInclude Include="src\Game\Light\SpotLight.h" />
     <ClInclude Include="src\Game\Entity\Collision\CollisionActor.h" />
@@ -254,7 +255,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Main.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\Shaders\Shader.h" />
+    <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Utils\FBX_Importer.h" />
     <ClInclude Include="src\Utils\OBJ_Loader.h" />
     <ClInclude Include="src\Window.h" />

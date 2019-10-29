@@ -155,9 +155,11 @@ void World::Update(){
 }
 
 void World::Render() {
+	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
-
+	
 	// Create shadow map.
+	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
 
@@ -171,11 +173,11 @@ void World::Render() {
 		this->pGfx->drawEntity(ent);
 	}
 
-	// Clear frame and redraw state of the world.
+	// Draw all entities.
+	this->pGfx->setRenderTarget(this->pGfx->depthRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
-
-	// Draw all entities.
+	
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);
 
