@@ -74,6 +74,7 @@ public:
 	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
+	Camera* depthTesterCamera;
 	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];
 	std::map<float, Light*> gShadowCastersDistanceLPMap;
 

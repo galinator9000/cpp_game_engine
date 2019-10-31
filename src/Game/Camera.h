@@ -21,10 +21,13 @@ public:
 	PROJECTION_TYPE projectionType;
 
 	// Game Engine
-	void Move(Vector3 moveDir, bool moveFast);
-	void Rotate(float x, float y);
+	void setPosition(Vector3 newPos);
+	void setDirection(Vector3 newDir);
 	void setPerspectiveProjection(float fieldOfView=90, float aspectRatio=4/3, float nearZ=0.5f, float farZ=100.0f);
 	void setOrthographicProjection(float viewWidth, float viewHeight, float nearZ = 0.5f, float farZ = 100.0f);
+
+	void Move(Vector3 moveDir, bool moveFast);
+	void Rotate(float x, float y);
 
 	// Movement factors
 	bool wasMovingFast;
@@ -52,9 +55,9 @@ public:
 	bool shouldUpdateGPUData = false;
 	bool dataChanged = false;
 
+	Vector3 gPosition;
+	Vector3 gDirection;
+
 	Vector3 rotation;
-	Vector3 camPosition;
 	Vector3 camLookAt;
-	Vector3 lookDirection;
-	Vector3 initialLookingDirection;
 };

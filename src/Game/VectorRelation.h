@@ -2,8 +2,9 @@
 #include <Structs.h>
 
 const enum VECTOR_RELATION_TYPE {
-	RLTV,	// Relative to source
-	COPY	// Direct copy
+	DCOPY,	// Direct copy
+	COPY,	// (If modified) Direct copy
+	RLTV	// (If modified) Copy relative to source
 };
 
 class VectorRelation {
@@ -22,7 +23,7 @@ public:
 	Vector2* pDstVector;
 	Vector2 initialRelative;
 
-	Vector2Relation(Vector2* pSrc, Vector2* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged, bool* pDstDataChanged) {
+	Vector2Relation(Vector2* pSrc, Vector2* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
@@ -34,8 +35,14 @@ public:
 	}
 
 	void Update() {
+		if (this->type == VECTOR_RELATION_TYPE::DCOPY) {
+			(*this->pDstVector) = (*this->pSrcVector);
+			return;
+		}
+
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
 			this->_Update();
+			return;
 		}
 	}
 
@@ -48,7 +55,10 @@ public:
 				(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
 				break;
 		}
-		(*this->pDstDataChanged) = true;
+
+		if (this->pDstDataChanged != NULL) {
+			(*this->pDstDataChanged) = true;
+		}
 	}
 };
 
@@ -58,7 +68,7 @@ public:
 	Vector3* pDstVector;
 	Vector3 initialRelative;
 
-	Vector3Relation(Vector3* pSrc, Vector3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged, bool* pDstDataChanged) {
+	Vector3Relation(Vector3* pSrc, Vector3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
@@ -70,8 +80,14 @@ public:
 	}
 
 	void Update() {
+		if (this->type == VECTOR_RELATION_TYPE::DCOPY) {
+			(*this->pDstVector) = (*this->pSrcVector);
+			return;
+		}
+
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
 			this->_Update();
+			return;
 		}
 	}
 
@@ -84,7 +100,10 @@ public:
 				(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
 				break;
 		}
-		(*this->pDstDataChanged) = true;
+
+		if (this->pDstDataChanged != NULL) {
+			(*this->pDstDataChanged) = true;
+		}
 	}
 };
 
@@ -94,7 +113,7 @@ public:
 	dx::XMFLOAT3* pDstVector;
 	dx::XMFLOAT3 initialRelative;
 
-	Vector3RelationXM(dx::XMFLOAT3* pSrc, dx::XMFLOAT3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged, bool* pDstDataChanged) {
+	Vector3RelationXM(dx::XMFLOAT3* pSrc, dx::XMFLOAT3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
@@ -109,8 +128,14 @@ public:
 	}
 
 	void Update() {
+		if (this->type == VECTOR_RELATION_TYPE::DCOPY) {
+			(*this->pDstVector) = (*this->pSrcVector);
+			return;
+		}
+
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
 			this->_Update();
+			return;
 		}
 	}
 
@@ -125,7 +150,10 @@ public:
 				this->pDstVector->z = this->pSrcVector->z + this->initialRelative.z;
 				break;
 		}
-		(*this->pDstDataChanged) = true;
+
+		if (this->pDstDataChanged != NULL) {
+			(*this->pDstDataChanged) = true;
+		}
 	}
 };
 
@@ -135,7 +163,7 @@ public:
 	Vector4* pDstVector;
 	Vector4 initialRelative;
 
-	Vector4Relation(Vector4* pSrc, Vector4* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged, bool* pDstDataChanged) {
+	Vector4Relation(Vector4* pSrc, Vector4* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
@@ -147,8 +175,14 @@ public:
 	}
 
 	void Update() {
+		if (this->type == VECTOR_RELATION_TYPE::DCOPY) {
+			(*this->pDstVector) = (*this->pSrcVector);
+			return;
+		}
+
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
 			this->_Update();
+			return;
 		}
 	}
 
@@ -161,6 +195,9 @@ public:
 				(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
 				break;
 		}
-		(*this->pDstDataChanged) = true;
+
+		if (this->pDstDataChanged != NULL) {
+			(*this->pDstDataChanged) = true;
+		}
 	}
 };

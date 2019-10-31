@@ -8,8 +8,7 @@ Game::Game(World* pWorld, Controller* pMainController){
 void Game::Setup(){
 	// Setup game scene.
 	// Add main camera.
-	//wMainCamera.setPerspectiveProjection(FOV, WIDTH / HEIGHT);
-	wMainCamera.setOrthographicProjection(25, 25);
+	wMainCamera.setPerspectiveProjection(FOV, WIDTH / HEIGHT);
 	this->pWorld->addCamera(&this->wMainCamera);
 
 	// Create box mesh.
@@ -168,7 +167,7 @@ void Game::Setup(){
 	//// Attach point light to main camera.
 	// Position relation, camera to point light.
 	VectorRelation* camPositionPL = new Vector3Relation(
-		&(this->wMainCamera.camPosition),
+		&(this->wMainCamera.gPosition),
 		&(pointLight->gPosition),
 		VECTOR_RELATION_TYPE::COPY,
 		&(this->wMainCamera.dataChanged),
@@ -178,8 +177,8 @@ void Game::Setup(){
 
 	//// Create secondary camera, attach spot light to it.
 	Camera* pwSecondaryCamera = new Camera(
-		Vector3(-10.0f, 10.0f, 0.0f),
-		Vector3::ZAxis() + -Vector3::XAxis(),
+		Vector3(0, 5, 0),
+		Vector3::ZAxis(),
 		WIDTH, HEIGHT,
 		PROJECTION_TYPE::PERSPECTIVE
 	);
@@ -188,7 +187,7 @@ void Game::Setup(){
 
 	// Position relation, camera to spot light.
 	VectorRelation* camPositionSL = new Vector3Relation(
-		&(pwSecondaryCamera->camPosition),
+		&(pwSecondaryCamera->gPosition),
 		&(wMainCameraSpotLight->gPosition),
 		VECTOR_RELATION_TYPE::COPY,
 		&(pwSecondaryCamera->dataChanged),
@@ -198,7 +197,7 @@ void Game::Setup(){
 
 	// Direction relation, camera to spot light.
 	VectorRelation* camDirectionSL = new Vector3Relation(
-		&(pwSecondaryCamera->lookDirection),
+		&(pwSecondaryCamera->gDirection),
 		&(wMainCameraSpotLight->gDirection),
 		VECTOR_RELATION_TYPE::COPY,
 		&(pwSecondaryCamera->dataChanged),

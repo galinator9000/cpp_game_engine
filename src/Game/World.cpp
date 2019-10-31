@@ -33,6 +33,16 @@ void World::Setup() {
 		NULL,
 		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
 	);
+	// Create depth tester camera object.
+	this->depthTesterCamera = new Camera(
+		{ 0,0,0 },
+		Vector3::ZAxis(),
+		WIDTH,
+		HEIGHT,
+		PROJECTION_TYPE::ORTHOGRAPHIC
+	);
+	depthTesterCamera->setOrthographicProjection(15, 15);
+	this->pGfx->addCamera(this->depthTesterCamera, false);
 }
 
 void World::Reset() {
@@ -92,7 +102,7 @@ void World::Update(){
 			else {
 				float lightDist = Vector3::distance(
 					light->gPosition,
-					this->activeCamera->camPosition
+					this->activeCamera->gPosition
 				);
 
 				if (light->type == SPOT_LIGHT) { gShadowCastersDistanceLPMap[lightDist] = light; }
@@ -121,8 +131,17 @@ void World::Update(){
 		shouldUpdateLightsGPUData = false;
 	}
 
-	// Update active camera.
-	this->activeCamera->Update();
+	// Update all cameras.
+	for (unsigned int c = 0; c < this->allCameras.size(); c++) {
+		Camera* cam = allCameras.at(c);
+
+		if (cam == NULL) {
+			continue;
+		}
+
+		cam->Update();
+	}
+	// Update GPU data of active camera.
 	this->pGfx->updateCamera(this->activeCamera);
 
 	// Update all entities.
@@ -157,13 +176,21 @@ void World::Update(){
 void World::Render() {
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
-
-
 	
-	// Create shadow map.
+	//// Create shadow map from active shadow caster.
+	// Set render targets and shaders.
 	this->pGfx->setRenderTarget(this->pGfx->depthRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
+
+	// Copy position & direction values from light to camera.
+	this->depthTesterCamera->setPosition(this->gShadowCasters[0]->gPosition);
+	this->depthTesterCamera->setDirection(this->gShadowCasters[0]->gDirection);
+	this->depthTesterCamera->updateConstantBuffer();
+
+	// Update and set active camera as depth camera for rendering scene from light's "view".
+	this->pGfx->updateCamera(this->depthTesterCamera);
+	this->pGfx->activateCamera(this->depthTesterCamera);
 
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);
@@ -175,7 +202,10 @@ void World::Render() {
 		this->pGfx->drawEntity(ent);
 	}
 
-	// Draw all entities.
+	//// Draw all entities.
+	// Set scene camera back.
+	this->pGfx->activateCamera(this->activeCamera);
+
 	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);

@@ -278,7 +278,7 @@ bool Graphics::addEntity(Entity* entity){
 		return false;
 	}
 
-	/// CONSTANT BUFFER	
+	/// CONSTANT BUFFER
 	// Create constant buffer on GPU side for Vertex Shader.
 	D3D11_BUFFER_DESC cBdVS = { 0 };
 	cBdVS.ByteWidth = sizeof(entity->gEntityVSConstantBuffer);
