@@ -60,7 +60,7 @@ public:
 	PixelShader* depthPixelShader = new PixelShader(L"DepthPS.cso");
 
 	//// Render targets.
-	void createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pBackBufferRes=NULL, bool setRenderTarget = false);
+	void createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pTargetResource=NULL, bool setRenderTarget = false);
 	void setRenderTarget(RenderTarget* renderTarget);
 	void clearStateRenderTarget(RenderTarget* renderTarget, Color c = { 0.0f, 0.0f, 0.0f, 1.0f });
 	std::vector<RenderTarget*> renderTargets;

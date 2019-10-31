@@ -70,11 +70,11 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->pDeviceContext->RSSetViewports(1, &vp);
 
 	// Get back-buffer from swap chain created by API call.
-	wrl::ComPtr<ID3D11Resource> pBackBufferRes;
-	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(pBackBufferRes.GetAddressOf()));
+	wrl::ComPtr<ID3D11Texture2D> pBackBufferTexture;
+	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(pBackBufferTexture.GetAddressOf()));
 
 	//// Render target creations.
-	this->createRenderTarget(this->mainRenderTarget, pBackBufferRes.Get(), true);
+	this->createRenderTarget(this->mainRenderTarget, pBackBufferTexture.Get(), true);
 	this->createRenderTarget(this->depthRenderTarget);
 	renderTargets.push_back(this->mainRenderTarget);
 	renderTargets.push_back(this->depthRenderTarget);
@@ -151,39 +151,25 @@ void Graphics::endFrame() {
 }
 
 // Render targets.
-void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pBackBufferRes, bool setRenderTarget) {
-	if (pBackBufferRes == NULL) {
-		// Create 2D texture resource for render target.
-		wrl::ComPtr<ID3D11Texture2D> pTexture;
-		D3D11_TEXTURE2D_DESC descTexture = {};
-		descTexture.Width = WIDTH;
-		descTexture.Height = HEIGHT;
-		descTexture.MipLevels = 1;
-		descTexture.ArraySize = 1;
-		descTexture.Format = DXGI_FORMAT_D32_FLOAT;
-		descTexture.SampleDesc.Count = 1;
-		descTexture.SampleDesc.Quality = 0;
-		descTexture.Usage = D3D11_USAGE_DEFAULT;
-		descTexture.BindFlags = D3D11_BIND_RENDER_TARGET;
-		this->hr = this->pDevice->CreateTexture2D(&descTexture, NULL, &pTexture);
-
-		pBackBufferRes = pTexture.Get();
+void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pTargetResource, bool setRenderTarget) {
+	// If resource provided, create render target view.
+	if (pTargetResource != NULL) {
+		this->hr = this->pDevice->CreateRenderTargetView(
+			pTargetResource,
+			NULL,
+			&renderTarget->pRenderTargetView
+		);
 	}
 
-	this->hr = this->pDevice->CreateRenderTargetView(
-		pBackBufferRes,
-		NULL,
-		&renderTarget->pBackBufferRTV
-	);
-
-	// Create depth buffer & bind it to pipeline. (a.k.a Z-Buffer)
+	//// Create depth view & state objects and bind it to pipeline. (a.k.a Z-Buffer)
+	// Create Depth state.
 	CD3D11_DEPTH_STENCIL_DESC dsDesc = {};
 	dsDesc.DepthEnable = TRUE;
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &renderTarget->pDSState);
+	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &renderTarget->pDepthState);
 
-	// Create 2D texture for Depth State.
+	// Create 2D texture for Depth View.
 	wrl::ComPtr<ID3D11Texture2D> pDSTexture;
 	D3D11_TEXTURE2D_DESC descDSTXT = {};
 	descDSTXT.Width = WIDTH;
@@ -197,12 +183,12 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pB
 	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
 
-	// Create DepthStencilView object.
+	// Create Depth View.
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
-	this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDSView);
+	this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDepthView);
 
 	if (setRenderTarget) {
 		this->setRenderTarget(renderTarget);
@@ -210,23 +196,31 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pB
 }
 
 void Graphics::setRenderTarget(RenderTarget* renderTarget) {
-	// Set depth state and render target view.
-	this->pDeviceContext->OMSetDepthStencilState(renderTarget->pDSState.Get(), 1);
-	this->pDeviceContext->OMSetRenderTargets(1, renderTarget->pBackBufferRTV.GetAddressOf(), renderTarget->pDSView.Get());
+	// Set depth state.
+	this->pDeviceContext->OMSetDepthStencilState(renderTarget->pDepthState.Get(), 1);
+
+	// Set render target view and depth view.
+	if (renderTarget->pRenderTargetView != NULL) {
+		this->pDeviceContext->OMSetRenderTargets(1, renderTarget->pRenderTargetView.GetAddressOf(), renderTarget->pDepthView.Get());
+	}
+	// Unbind current render target.
+	else {
+		this->pDeviceContext->OMSetRenderTargets(0, NULL, renderTarget->pDepthView.Get());
+	}
 }
 
 void Graphics::clearStateRenderTarget(RenderTarget* renderTarget, Color c) {
-	if (renderTarget->pBackBufferRTV != NULL) {
+	if (renderTarget->pRenderTargetView != NULL) {
 		// Clear back buffer.
 		this->pDeviceContext->ClearRenderTargetView(
-			renderTarget->pBackBufferRTV.Get(),
+			renderTarget->pRenderTargetView.Get(),
 			new float[4]{ c.r, c.g, c.b, c.a }
 		);
 	}
-	if (renderTarget->pDSView != NULL) {
+	if (renderTarget->pDepthView != NULL) {
 		// Clear depth buffer.
 		this->pDeviceContext->ClearDepthStencilView(
-			renderTarget->pDSView.Get(),
+			renderTarget->pDepthView.Get(),
 			D3D11_CLEAR_DEPTH,
 			1.0f,
 			0u

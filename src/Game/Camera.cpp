@@ -1,10 +1,8 @@
 #include "Camera.h"
 
-Camera::Camera(Vector3 position, Vector3 direction, unsigned int fov, float aspectRatio){
+Camera::Camera(Vector3 position, Vector3 direction, float WIDTH, float HEIGHT, PROJECTION_TYPE projectionType){
 	this->camPosition = position;
 	this->initialLookingDirection = direction.normalize();
-	this->gFieldOfView = fov;
-	this->gAspectRatio = aspectRatio;
 
 	this->rotation = Vector3();
 
@@ -19,6 +17,16 @@ Camera::Camera(Vector3 position, Vector3 direction, unsigned int fov, float aspe
 		)
 	);
 	this->camLookAt = camPosition + lookDirection;
+
+	// Default perspective.
+	switch (projectionType) {
+		case PERSPECTIVE:
+			this->setPerspectiveProjection();
+			break;
+		case ORTHOGRAPHIC:
+			this->setOrthographicProjection(WIDTH, HEIGHT);
+			break;
+	}
 
 	this->updateConstantBuffer();
 }
@@ -84,19 +92,6 @@ void Camera::updateConstantBuffer() {
 				this->camPosition.loadXMVECTOR(),
 				this->camLookAt.loadXMVECTOR(),
 				dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
-			)
-		)
-	);
-
-	// Update Projection matrix.
-	dx::XMStoreFloat4x4(
-		&this->gCameraVSConstantBuffer.projectionMatrix,
-		dx::XMMatrixTranspose(
-			dx::XMMatrixPerspectiveFovLH(
-			((float)this->gFieldOfView / 360) * (2.0f * dx::XM_PI),
-				this->gAspectRatio,
-				0.5f,
-				100.0f
 			)
 		)
 	);
@@ -223,4 +218,39 @@ void Camera::Zoom(int zoomDirection) {
 			this->followEntityOffset.z -= followEntityOffsetDirection.z * (zoomDirection * this->zoomFactor);
 		}
 	}
+}
+
+
+void Camera::setPerspectiveProjection(float fieldOfView, float aspectRatio, float nearZ, float farZ) {
+	this->projectionType = PERSPECTIVE;
+
+	// Perspective
+	dx::XMStoreFloat4x4(
+		&this->gCameraVSConstantBuffer.projectionMatrix,
+		dx::XMMatrixTranspose(
+			dx::XMMatrixPerspectiveFovLH(
+			((float)fieldOfView / 360) * (2.0f * dx::XM_PI),
+				aspectRatio,
+				0.5f,
+				100.0f
+			)
+		)
+	);
+	this->shouldUpdateGPUData = true;
+}
+
+void Camera::setOrthographicProjection(float viewWidth, float viewHeight, float nearZ, float farZ) {
+	this->projectionType = ORTHOGRAPHIC;
+
+	// Orthographic
+	dx::XMStoreFloat4x4(
+		&this->gCameraVSConstantBuffer.projectionMatrix,
+		dx::XMMatrixTranspose(
+			dx::XMMatrixOrthographicLH(
+				viewWidth, viewHeight,
+				nearZ, farZ
+			)
+		)
+	);
+	this->shouldUpdateGPUData = true;
 }

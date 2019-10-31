@@ -8,6 +8,8 @@ Game::Game(World* pWorld, Controller* pMainController){
 void Game::Setup(){
 	// Setup game scene.
 	// Add main camera.
+	//wMainCamera.setPerspectiveProjection(FOV, WIDTH / HEIGHT);
+	wMainCamera.setOrthographicProjection(25, 25);
 	this->pWorld->addCamera(&this->wMainCamera);
 
 	// Create box mesh.
@@ -145,9 +147,10 @@ void Game::Setup(){
 		Camera* pCharacterCamera = new Camera(
 			Vector3(0.0f, 0.0f, 0.0f),
 			Vector3::ZAxis(),
-			FOV,
-			WIDTH / HEIGHT
+			WIDTH, HEIGHT,
+			PROJECTION_TYPE::PERSPECTIVE
 		);
+		pCharacterCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
 		pCharacterCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
 		pWorld->addCamera(pCharacterCamera);
 	}
@@ -177,9 +180,10 @@ void Game::Setup(){
 	Camera* pwSecondaryCamera = new Camera(
 		Vector3(-10.0f, 10.0f, 0.0f),
 		Vector3::ZAxis() + -Vector3::XAxis(),
-		FOV,
-		WIDTH / HEIGHT
+		WIDTH, HEIGHT,
+		PROJECTION_TYPE::PERSPECTIVE
 	);
+	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
 	pWorld->addCamera(pwSecondaryCamera, true);
 
 	// Position relation, camera to spot light.

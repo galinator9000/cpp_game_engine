@@ -7,7 +7,7 @@ namespace wrl = Microsoft::WRL;
 
 class RenderTarget{
 public:
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pBackBufferRTV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDSState;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDepthState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDepthView;
 };

@@ -29,7 +29,7 @@ void World::Setup() {
 
 	// Set NULL all shadow casters initially.
 	memset(
-		&gShadowCasters,
+		&this->gShadowCasters,
 		NULL,
 		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
 	);
@@ -54,7 +54,7 @@ void World::Update(){
 	// (directional lights has priority, nearest to active camera)
 	unsigned int shadowCasterIndex = 0;
 	memset(
-		&gShadowCasters,
+		&this->gShadowCasters,
 		NULL,
 		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
 	);
@@ -103,7 +103,7 @@ void World::Update(){
 	// Fill shadow caster array, starting from nearest lights.
 	if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
 		for (const auto entry : gShadowCastersDistanceLPMap) {
-			gShadowCasters[shadowCasterIndex] = entry.second;
+			this->gShadowCasters[shadowCasterIndex] = entry.second;
 			shadowCasterIndex++;
 			if (shadowCasterIndex >= MAX_SHADOW_CASTER_COUNT) {
 				break;
@@ -157,9 +157,11 @@ void World::Update(){
 void World::Render() {
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
+
+
 	
 	// Create shadow map.
-	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
+	this->pGfx->setRenderTarget(this->pGfx->depthRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
 
@@ -174,7 +176,7 @@ void World::Render() {
 	}
 
 	// Draw all entities.
-	this->pGfx->setRenderTarget(this->pGfx->depthRenderTarget);
+	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 	

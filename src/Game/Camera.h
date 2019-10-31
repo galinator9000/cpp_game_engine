@@ -6,19 +6,25 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
+const enum PROJECTION_TYPE {
+	PERSPECTIVE,
+	ORTHOGRAPHIC
+};
+
 class Camera{
 public:
-	Camera(Vector3 pos, Vector3 dir, unsigned int fov, float aspectRatio);
+	Camera(Vector3 pos, Vector3 dir, float WIDTH, float HEIGHT, PROJECTION_TYPE projectionType);
 	void Update();
 	void updateConstantBuffer();
 
 	unsigned int id;
-	unsigned int gFieldOfView;
-	float gAspectRatio;
+	PROJECTION_TYPE projectionType;
 
 	// Game Engine
 	void Move(Vector3 moveDir, bool moveFast);
 	void Rotate(float x, float y);
+	void setPerspectiveProjection(float fieldOfView=90, float aspectRatio=4/3, float nearZ=0.5f, float farZ=100.0f);
+	void setOrthographicProjection(float viewWidth, float viewHeight, float nearZ = 0.5f, float farZ = 100.0f);
 
 	// Movement factors
 	bool wasMovingFast;

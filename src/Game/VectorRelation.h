@@ -29,20 +29,26 @@ public:
 		this->pSrcDataChanged = pSrcDataChanged;
 		this->pDstDataChanged = pDstDataChanged;
 		this->initialRelative = (*this->pDstVector) - (*this->pSrcVector);
+
+		this->_Update();
 	}
 
 	void Update() {
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			switch (this->type) {
-				case VECTOR_RELATION_TYPE::COPY:
-					(*this->pDstVector) = (*this->pSrcVector);
-					break;
-				case VECTOR_RELATION_TYPE::RLTV:
-					(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
-					break;
-			}
-			(*this->pDstDataChanged) = true;
+			this->_Update();
 		}
+	}
+
+	void _Update() {
+		switch (this->type) {
+			case VECTOR_RELATION_TYPE::COPY:
+				(*this->pDstVector) = (*this->pSrcVector);
+				break;
+			case VECTOR_RELATION_TYPE::RLTV:
+				(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
+				break;
+		}
+		(*this->pDstDataChanged) = true;
 	}
 };
 
@@ -59,20 +65,26 @@ public:
 		this->pSrcDataChanged = pSrcDataChanged;
 		this->pDstDataChanged = pDstDataChanged;
 		this->initialRelative = (*this->pDstVector) - (*this->pSrcVector);
+
+		this->_Update();
 	}
 
 	void Update() {
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			switch (this->type) {
-				case VECTOR_RELATION_TYPE::COPY:
-					(*this->pDstVector) = (*this->pSrcVector);
-					break;
-				case VECTOR_RELATION_TYPE::RLTV:
-					(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
-					break;
-			}
-			(*this->pDstDataChanged) = true;
+			this->_Update();
 		}
+	}
+
+	void _Update() {
+		switch (this->type) {
+			case VECTOR_RELATION_TYPE::COPY:
+				(*this->pDstVector) = (*this->pSrcVector);
+				break;
+			case VECTOR_RELATION_TYPE::RLTV:
+				(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
+				break;
+		}
+		(*this->pDstDataChanged) = true;
 	}
 };
 
@@ -92,22 +104,28 @@ public:
 		this->initialRelative.x = this->pDstVector->x - this->pSrcVector->x;
 		this->initialRelative.y = this->pDstVector->y - this->pSrcVector->y;
 		this->initialRelative.z = this->pDstVector->z - this->pSrcVector->z;
+
+		this->_Update();
 	}
 
 	void Update() {
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			switch (this->type) {
-				case VECTOR_RELATION_TYPE::COPY:
-					(*this->pDstVector) = (*this->pSrcVector);
-					break;
-				case VECTOR_RELATION_TYPE::RLTV:
-					this->pDstVector->x = this->pSrcVector->x + this->initialRelative.x;
-					this->pDstVector->y = this->pSrcVector->y + this->initialRelative.y;
-					this->pDstVector->z = this->pSrcVector->z + this->initialRelative.z;
-					break;
-			}
-			(*this->pDstDataChanged) = true;
+			this->_Update();
 		}
+	}
+
+	void _Update() {
+		switch (this->type) {
+			case VECTOR_RELATION_TYPE::COPY:
+				(*this->pDstVector) = (*this->pSrcVector);
+				break;
+			case VECTOR_RELATION_TYPE::RLTV:
+				this->pDstVector->x = this->pSrcVector->x + this->initialRelative.x;
+				this->pDstVector->y = this->pSrcVector->y + this->initialRelative.y;
+				this->pDstVector->z = this->pSrcVector->z + this->initialRelative.z;
+				break;
+		}
+		(*this->pDstDataChanged) = true;
 	}
 };
 
@@ -124,19 +142,25 @@ public:
 		this->pSrcDataChanged = pSrcDataChanged;
 		this->pDstDataChanged = pDstDataChanged;
 		this->initialRelative = (*this->pDstVector) - (*this->pSrcVector);
+
+		this->_Update();
 	}
 
 	void Update() {
 		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			switch (this->type) {
-				case VECTOR_RELATION_TYPE::COPY:
-					(*this->pDstVector) = (*this->pSrcVector);
-					break;
-				case VECTOR_RELATION_TYPE::RLTV:
-					(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
-					break;
-			}
-			(*this->pDstDataChanged) = true;
+			this->_Update();
 		}
+	}
+
+	void _Update() {
+		switch (this->type) {
+			case VECTOR_RELATION_TYPE::COPY:
+				(*this->pDstVector) = (*this->pSrcVector);
+				break;
+			case VECTOR_RELATION_TYPE::RLTV:
+				(*this->pDstVector) = (*this->pSrcVector) + this->initialRelative;
+				break;
+		}
+		(*this->pDstDataChanged) = true;
 	}
 };
