@@ -17,12 +17,13 @@
 
 #include "Graphics/Shader.h"
 #include "Graphics/RenderTarget.h"
+#include "Graphics/Texture.h"
+#include "Graphics/TextureSampler.h"
+
 #include "Config.h"
 #include "Camera.h"
 #include "Timer.h"
 #include "Structs.h"
-#include "Texture.h"
-#include "TextureSampler.h"
 #include "Entity/Entity.h"
 #include "Entity/Mesh/Mesh.h"
 #include "Light/Light.h"
@@ -57,17 +58,15 @@ public:
 	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
 	// Depth shaders.
 	VertexShader* depthVertexShader = new VertexShader(L"DepthVS.cso");
-	PixelShader* depthPixelShader = new PixelShader(L"DepthPS.cso");
 
 	//// Render targets.
-	void createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pTargetResource=NULL, bool setRenderTarget = false);
+	void createRenderTarget(RenderTarget* renderTarget, bool isShaderResource = false, ID3D11Resource* pTargetResource = NULL, bool setRenderTarget = false);
 	void setRenderTarget(RenderTarget* renderTarget);
 	void clearStateRenderTarget(RenderTarget* renderTarget, Color c = { 0.0f, 0.0f, 0.0f, 1.0f });
+
 	std::vector<RenderTarget*> renderTargets;
 	// Main (or default) render target pointer.
 	RenderTarget* mainRenderTarget = new RenderTarget();
-	// Depth render target pointer.
-	RenderTarget* depthRenderTarget = new RenderTarget();
 
 	////// GAME ENGINE SECTION
 	// Entity

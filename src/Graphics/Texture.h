@@ -17,7 +17,6 @@ public:
 	std::wstring textureReferenceName;
 	std::wstring fileName;
 
-	// These values will be filled with CreateDDSTextureFromFile function from DirectXTex
 	wrl::ComPtr<ID3D11Resource> pResource;
 	wrl::ComPtr<ID3D11ShaderResourceView> pShaderResourceView;
 };

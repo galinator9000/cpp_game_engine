@@ -6,11 +6,6 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-const enum PROJECTION_TYPE {
-	PERSPECTIVE,
-	ORTHOGRAPHIC
-};
-
 class Camera{
 public:
 	Camera(Vector3 pos, Vector3 dir, float WIDTH, float HEIGHT, PROJECTION_TYPE projectionType);

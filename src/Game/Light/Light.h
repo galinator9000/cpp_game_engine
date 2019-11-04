@@ -1,4 +1,5 @@
 #pragma once
+#include "Shadow/ShadowBox.h"
 #include "Structs.h"
 
 #include <wrl.h>
@@ -8,18 +9,12 @@
 using namespace DirectX;
 namespace wrl = Microsoft::WRL;
 
-const enum LIGHT_TYPE {
-	DIRECTIONAL_LIGHT,
-	POINT_LIGHT,
-	SPOT_LIGHT
-};
-
 class Light {
 public:
-	unsigned int type;
+	LIGHT_TYPE type;
 	bool isActive = false;
 	unsigned int id;
-	bool shadowCasting = false;
+	bool isCastingShadow = false;
 
 	Color gColor = Color(1, 1, 1, 1);
 	float gIntensity = 0;
@@ -32,7 +27,8 @@ public:
 	void setColor(Color color);
 	void setDirection(Vector3 newDirection);
 	void setPosition(Vector3 newPosition);
-	void setShadowCasting(bool shadowCasting);
+
+	ShadowBox* gShadowBox;
 
 	void Update();
 	void Reset();

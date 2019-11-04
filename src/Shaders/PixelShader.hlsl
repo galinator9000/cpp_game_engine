@@ -4,6 +4,11 @@
 Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
 SamplerState Sampler : register(s0);
+
+// Shadow mapping texture & samplers.
+Texture2D ShadowMappingTexture : register(t2);
+SamplerState ShadowMappingSampler : register(s1);
+
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
 	float4 specularHighlightColor;
@@ -133,9 +138,11 @@ PSOut main(PSIn psIn){
 		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
 	}
 
+	float4 pixelDepth = ShadowMappingTexture.Sample(ShadowMappingSampler, float2(0.5f, 0.5f));
+
 	// Add ambient light & blend the color of the entity.
 	psOut.color = float4(
-		(sumDiffuse + ambient) * (texture_or_solid + sumSpecular)
+		(sumDiffuse + ambient) * (texture_or_solid + sumSpecular) * (0.9 - pixelDepth.r)
 	);
 
 	return psOut;

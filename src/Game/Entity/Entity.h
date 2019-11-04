@@ -10,17 +10,11 @@
 #include "Collision/CollisionShape.h"
 #include "Collision/CollisionActor.h"
 #include "Structs.h"
-#include "Texture.h"
-#include "TextureSampler.h"
+#include "../Graphics/Texture.h"
+#include "../Graphics/TextureSampler.h"
 
 namespace dx = DirectX;
 namespace wrl = Microsoft::WRL;
-
-const enum ENTITY_TYPE{
-	BOX,
-	PLANE,
-	TRIANGLE_MESH
-};
 
 class Entity {
 public:

@@ -74,18 +74,15 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(pBackBufferTexture.GetAddressOf()));
 
 	//// Render target creations.
-	this->createRenderTarget(this->mainRenderTarget, pBackBufferTexture.Get(), true);
-	this->createRenderTarget(this->depthRenderTarget);
+	this->createRenderTarget(this->mainRenderTarget, false, pBackBufferTexture.Get(), true);
 	renderTargets.push_back(this->mainRenderTarget);
-	renderTargets.push_back(this->depthRenderTarget);
 
 	//// Shader creation.
-	// Create default shaders.
+	// Create main shaders.
 	this->createVertexShader(this->mainVertexShader, true);
 	this->createPixelShader(this->mainPixelShader, true);
 	// Create depth shaders.
 	this->createVertexShader(this->depthVertexShader);
-	this->createPixelShader(this->depthPixelShader);
 
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
@@ -150,8 +147,8 @@ void Graphics::endFrame() {
 	this->hr = this->pSwapChain->Present(1, 0);
 }
 
-// Render targets.
-void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pTargetResource, bool setRenderTarget) {
+//// Render targets.
+void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResource, ID3D11Resource* pTargetResource, bool setRenderTarget) {
 	// If resource provided, create render target view.
 	if (pTargetResource != NULL) {
 		this->hr = this->pDevice->CreateRenderTargetView(
@@ -181,14 +178,53 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pT
 	descDSTXT.SampleDesc.Quality = 0;
 	descDSTXT.Usage = D3D11_USAGE_DEFAULT;
 	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	if(isShaderResource){
+		descDSTXT.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		descDSTXT.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	}
 	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
 
 	// Create Depth View.
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+	descDSV.Flags = 0;
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
-	this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDepthView);
+	if (isShaderResource) {
+		descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	}
+	this->hr = this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDepthView);
+
+	// Create Shader Resource View for providing DepthView to shader.
+	if (isShaderResource) {
+		// Shader resource view
+		D3D11_SHADER_RESOURCE_VIEW_DESC resViewDsc = {};
+		resViewDsc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		resViewDsc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		resViewDsc.Texture2D.MipLevels = 1;
+		resViewDsc.Texture2D.MostDetailedMip = 0;
+
+		this->hr = this->pDevice->CreateShaderResourceView(
+			pDSTexture.Get(),
+			&resViewDsc,
+			&renderTarget->pShaderResourceView
+		);
+
+		// Sampler state
+		D3D11_SAMPLER_DESC sampDesc = {};
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.MipLODBias = 0;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = 0;
+
+		this->hr = this->pDevice->CreateSamplerState(
+			&sampDesc,
+			&renderTarget->pSamplerState
+		);
+	}
 
 	if (setRenderTarget) {
 		this->setRenderTarget(renderTarget);
@@ -196,16 +232,36 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pT
 }
 
 void Graphics::setRenderTarget(RenderTarget* renderTarget) {
-	// Set depth state.
-	this->pDeviceContext->OMSetDepthStencilState(renderTarget->pDepthState.Get(), 1);
-
-	// Set render target view and depth view.
-	if (renderTarget->pRenderTargetView != NULL) {
-		this->pDeviceContext->OMSetRenderTargets(1, renderTarget->pRenderTargetView.GetAddressOf(), renderTarget->pDepthView.Get());
+	if (renderTarget == NULL) {
+		return;
 	}
-	// Unbind current render target.
-	else {
+
+	// Set render target.
+	if (renderTarget->pRenderTargetView.Get() != NULL) {
+		this->pDeviceContext->OMSetRenderTargets(1, renderTarget->pRenderTargetView.GetAddressOf(), renderTarget->pDepthView.Get());
+	}else {
+		// Unbind current render target.
 		this->pDeviceContext->OMSetRenderTargets(0, NULL, renderTarget->pDepthView.Get());
+	}
+
+	// Set depth state.
+	if (renderTarget->pDepthState.Get() != NULL) {
+		this->pDeviceContext->OMSetDepthStencilState(renderTarget->pDepthState.Get(), 1);
+	}
+
+	// Set shader resource view if exists.
+	if (renderTarget->pShaderResourceView.Get() != NULL) {
+		this->pDeviceContext->PSSetSamplers(
+			1,
+			1,
+			renderTarget->pSamplerState.GetAddressOf()
+		);
+
+		this->pDeviceContext->PSSetShaderResources(
+			2,
+			1,
+			renderTarget->pShaderResourceView.GetAddressOf()
+		);
 	}
 }
 
@@ -228,7 +284,7 @@ void Graphics::clearStateRenderTarget(RenderTarget* renderTarget, Color c) {
 	}
 }
 
-// Shaders
+//// Shaders
 void Graphics::createVertexShader(VertexShader* vertexShader, bool setShader) {
 	this->hr = D3DReadFileToBlob(vertexShader->fileName, &this->pBlob);
 	this->hr = this->pDevice->CreateVertexShader(
@@ -243,8 +299,13 @@ void Graphics::createVertexShader(VertexShader* vertexShader, bool setShader) {
 	}
 }
 void Graphics::setVertexShader(VertexShader* vertexShader) {
+	ID3D11VertexShader* pD3D11VertexShader = NULL;
+	if (vertexShader != NULL) {
+		pD3D11VertexShader = vertexShader->pVertexShader.Get();
+	}
+
 	this->pDeviceContext->VSSetShader(
-		vertexShader->pVertexShader.Get(),
+		pD3D11VertexShader,
 		NULL,
 		0
 	);
@@ -264,8 +325,13 @@ void Graphics::createPixelShader(PixelShader* pixelShader, bool setShader) {
 	}
 }
 void Graphics::setPixelShader(PixelShader* pixelShader) {
+	ID3D11PixelShader* pD3D11PixelShader = NULL;
+	if (pixelShader != NULL) {
+		pD3D11PixelShader = pixelShader->pPixelShader.Get();
+	}
+
 	this->pDeviceContext->PSSetShader(
-		pixelShader->pPixelShader.Get(),
+		pD3D11PixelShader,
 		NULL,
 		0
 	);

@@ -1,13 +1,17 @@
 #include "SpotLight.h"
 
-SpotLight::SpotLight(Vector3 position, Vector3 direction, float intensity, Color color, float halfSpotAngle, bool shadowCasting) {
+SpotLight::SpotLight(Vector3 position, Vector3 direction, float intensity, Color color, float halfSpotAngle, bool isCastingShadow) {
 	this->type = LIGHT_TYPE::SPOT_LIGHT;
 
 	this->gPosition = position;
 	this->gDirection = direction;
 	this->gColor = color;
 	this->gIntensity = intensity;
-	this->shadowCasting = shadowCasting;
+
+	this->isCastingShadow = isCastingShadow;
+	if (this->isCastingShadow) {
+		this->gShadowBox = new ShadowBox(this->gPosition, this->gDirection, this->type);
+	}
 
 	this->gHalfSpotAngle = halfSpotAngle;
 

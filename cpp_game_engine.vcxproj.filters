@@ -75,12 +75,6 @@
     <ClInclude Include="src\Game\Light\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Game\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Game\TextureSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Game\Entity\Mesh\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -138,6 +132,15 @@
     <ClInclude Include="src\Graphics\RenderTarget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graphics\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\TextureSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Exception.cpp">
@@ -185,9 +188,6 @@
     <ClCompile Include="src\Game\Light\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Game\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Game\Entity\Mesh\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -230,6 +230,12 @@
     <ClCompile Include="src\Audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Graphics\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Light\Shadow\ShadowBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cpp_game_engine.rc">
@@ -244,7 +250,6 @@
     <FxCompile Include="src\Shaders\VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="src\Shaders\DepthPS.hlsl" />
     <FxCompile Include="src\Shaders\DepthVS.hlsl" />
   </ItemGroup>
   <ItemGroup>

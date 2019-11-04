@@ -224,6 +224,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h" />
     <ClInclude Include="src\Graphics\RenderTarget.h" />
     <ClInclude Include="src\Audio.h" />
     <ClInclude Include="src\Game\Light\SpotLight.h" />
@@ -261,11 +262,12 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\Game\World.h" />
     <ClInclude Include="src\Timer.h" />
-    <ClInclude Include="src\Game\Texture.h" />
-    <ClInclude Include="src\Game\TextureSampler.h" />
+    <ClInclude Include="src\Graphics\Texture.h" />
+    <ClInclude Include="src\Graphics\TextureSampler.h" />
     <ClInclude Include="src\Game\VectorRelation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Light\Shadow\ShadowBox.cpp" />
     <ClCompile Include="src\Audio.cpp" />
     <ClCompile Include="src\Game\Light\SpotLight.cpp" />
     <ClCompile Include="src\Game\Entity\Collision\CollisionActor.cpp" />
@@ -295,7 +297,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\Game\World.cpp" />
     <ClCompile Include="src\Timer.cpp" />
-    <ClCompile Include="src\Game\Texture.cpp" />
+    <ClCompile Include="src\Graphics\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cpp_game_engine.rc" />
@@ -328,20 +330,6 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
-    <FxCompile Include="src\Shaders\DepthPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="src\Shaders\DepthVS.hlsl">

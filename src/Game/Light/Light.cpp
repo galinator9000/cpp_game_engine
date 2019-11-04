@@ -32,10 +32,6 @@ void Light::setPosition(Vector3 newPosition) {
 	this->dataChanged = true;
 }
 
-void Light::setShadowCasting(bool shadowCasting) {
-	this->shadowCasting = shadowCasting;
-}
-
 void Light::Reset() {
 	this->dataChanged = false;
 }
@@ -44,6 +40,10 @@ void Light::Update() {
 	if (this->dataChanged) {
 		this->updateConstantBuffer();
 		this->dataChanged = false;
+		
+		if (this->isCastingShadow && this->gShadowBox != NULL) {
+			this->gShadowBox->Update(this->gPosition, this->gDirection);
+		}
 	}
 }
 

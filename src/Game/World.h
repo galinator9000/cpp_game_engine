@@ -1,6 +1,6 @@
 #pragma once
 #define MAX_LIGHT_COUNT 32
-#define MAX_SHADOW_CASTER_COUNT 4
+#define MAX_SHADOW_CASTERS_COUNT 4
 
 #include <vector>
 
@@ -74,8 +74,7 @@ public:
 	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
-	Camera* depthTesterCamera;
-	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];
+	Light* gShadowCasters[MAX_SHADOW_CASTERS_COUNT];
 	std::map<float, Light*> gShadowCastersDistanceLPMap;
 
 private:

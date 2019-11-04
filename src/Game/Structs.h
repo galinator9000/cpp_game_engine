@@ -6,6 +6,24 @@
 #include "Entity/Mesh/MeshDeformer/JointTransform.h"
 #include "Entity/Mesh/MeshDeformer/Skeleton.h"
 
+const enum LIGHT_TYPE {
+	DIRECTIONAL_LIGHT,
+	POINT_LIGHT,
+	SPOT_LIGHT
+};
+
+const enum PROJECTION_TYPE {
+	PERSPECTIVE,
+	ORTHOGRAPHIC
+};
+
+const enum COLLISION_ACTOR_TYPE {
+	COLLISION_ACTOR_STATIC,
+	COLLISION_ACTOR_DYNAMIC,
+	COLLISION_ACTOR_KINEMATIC,
+	COLLISION_ACTOR_CCT
+};
+
 struct Vector2 {
 	Vector2() {
 		this->x = 0;

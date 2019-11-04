@@ -31,18 +31,8 @@ void World::Setup() {
 	memset(
 		&this->gShadowCasters,
 		NULL,
-		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
+		sizeof(Light*) * MAX_SHADOW_CASTERS_COUNT
 	);
-	// Create depth tester camera object.
-	this->depthTesterCamera = new Camera(
-		{ 0,0,0 },
-		Vector3::ZAxis(),
-		WIDTH,
-		HEIGHT,
-		PROJECTION_TYPE::ORTHOGRAPHIC
-	);
-	depthTesterCamera->setOrthographicProjection(15, 15);
-	this->pGfx->addCamera(this->depthTesterCamera, false);
 }
 
 void World::Reset() {
@@ -66,7 +56,7 @@ void World::Update(){
 	memset(
 		&this->gShadowCasters,
 		NULL,
-		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
+		sizeof(Light*) * MAX_SHADOW_CASTERS_COUNT
 	);
 	gShadowCastersDistanceLPMap.clear();
 
@@ -94,28 +84,35 @@ void World::Update(){
 			shouldUpdateLightsGPUData = true;
 		}
 
-		if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
-			if (light->type == DIRECTIONAL_LIGHT) {
-				//gShadowCasters[shadowCasterIndex] = light;
-				//shadowCasterIndex++;
-			}
-			else {
-				float lightDist = Vector3::distance(
-					light->gPosition,
-					this->activeCamera->gPosition
-				);
+		if (light->isCastingShadow) {
+			if (shadowCasterIndex < MAX_SHADOW_CASTERS_COUNT) {
+				float lightDist = 0;
 
-				if (light->type == SPOT_LIGHT) { gShadowCastersDistanceLPMap[lightDist] = light; }
+				switch (light->type) {
+					case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+						break;
+
+					case LIGHT_TYPE::SPOT_LIGHT:
+						lightDist = Vector3::distance(
+							light->gPosition,
+							this->activeCamera->gPosition
+						);
+						gShadowCastersDistanceLPMap[lightDist] = light;
+						break;
+
+					case LIGHT_TYPE::POINT_LIGHT:
+						break;
+				}
 			}
 		}
 	}
 
 	// Fill shadow caster array, starting from nearest lights.
-	if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
+	if (shadowCasterIndex < MAX_SHADOW_CASTERS_COUNT) {
 		for (const auto entry : gShadowCastersDistanceLPMap) {
 			this->gShadowCasters[shadowCasterIndex] = entry.second;
 			shadowCasterIndex++;
-			if (shadowCasterIndex >= MAX_SHADOW_CASTER_COUNT) {
+			if (shadowCasterIndex >= MAX_SHADOW_CASTERS_COUNT) {
 				break;
 			}
 		}
@@ -178,37 +175,54 @@ void World::Render() {
 	this->pGfx->beginFrame();
 	
 	//// Create shadow map from active shadow caster.
-	// Set render targets and shaders.
-	this->pGfx->setRenderTarget(this->pGfx->depthRenderTarget);
+	// Set depth-only rendering shaders first.
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
-	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
+	this->pGfx->setPixelShader(NULL);
+	//this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 
-	// Copy position & direction values from light to camera.
-	this->depthTesterCamera->setPosition(this->gShadowCasters[0]->gPosition);
-	this->depthTesterCamera->setDirection(this->gShadowCasters[0]->gDirection);
-	this->depthTesterCamera->updateConstantBuffer();
-
-	// Update and set active camera as depth camera for rendering scene from light's "view".
-	this->pGfx->updateCamera(this->depthTesterCamera);
-	this->pGfx->activateCamera(this->depthTesterCamera);
-
-	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
-		Entity* ent = this->allEntities.at(e);
-
-		if (ent == NULL) {
+	// Render only depth values of entities for each shadow map.
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTERS_COUNT; sc++) {
+		if (this->gShadowCasters[sc] == NULL) {
 			continue;
 		}
 
-		this->pGfx->drawEntity(ent);
+		// Copy position & direction values from light to camera.
+		this->gShadowCasters[sc]->gShadowBox->Update(
+			this->gShadowCasters[sc]->gPosition,
+			this->gShadowCasters[sc]->gDirection
+		);
+
+		for (unsigned int sm = 0; sm < this->gShadowCasters[sc]->gShadowBox->gShadowMaps.size(); sm++) {
+			Camera* shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(sm).first;
+			RenderTarget* shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(sm).second;
+
+			// Set render target and camera for rendering scene from light's "view".
+			this->pGfx->setRenderTarget(shadowMapRenderTarget);
+			//this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
+			this->pGfx->updateCamera(shadowMapCamera);
+			this->pGfx->activateCamera(shadowMapCamera);
+
+			// Render entity.
+			for (unsigned int e = 0; e < this->allEntities.size(); e++) {
+				Entity* ent = this->allEntities.at(e);
+
+				if (ent == NULL) {
+					continue;
+				}
+
+				this->pGfx->drawEntity(ent);
+			}
+		}
 	}
 
 	//// Draw all entities.
 	// Set scene camera back.
 	this->pGfx->activateCamera(this->activeCamera);
 
-	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
+	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
+	//this->pGfx->setRenderTarget(this->gShadowCasters[0]->gShadowBox->gShadowMaps.at(0).second);
 	
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);
@@ -244,7 +258,20 @@ bool World::addLight(Light* light) {
 		return false;
 	}
 
-	light->id = (unsigned int)this->allLights.size();
+	// Create render target for shadow maps.
+	if (light->isCastingShadow && light->gShadowBox != NULL) {
+		for (unsigned int sm = 0; sm < light->gShadowBox->gShadowMaps.size(); sm++) {
+			Camera* shadowMapCamera = light->gShadowBox->gShadowMaps.at(sm).first;
+			RenderTarget* shadowMapRenderTarget = light->gShadowBox->gShadowMaps.at(sm).second;
+
+			this->pGfx->addCamera(shadowMapCamera, false);
+
+			this->pGfx->createRenderTarget(shadowMapRenderTarget, true);
+			this->pGfx->renderTargets.push_back(shadowMapRenderTarget);
+		}
+	}
+
+	light->id = (unsigned int) this->allLights.size();
 	this->allLights.push_back(light);
 
 	return true;

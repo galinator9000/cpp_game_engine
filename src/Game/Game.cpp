@@ -177,7 +177,7 @@ void Game::Setup(){
 
 	//// Create secondary camera, attach spot light to it.
 	Camera* pwSecondaryCamera = new Camera(
-		Vector3(0, 5, 0),
+		Vector3(-20, 5, -12),
 		Vector3::ZAxis(),
 		WIDTH, HEIGHT,
 		PROJECTION_TYPE::PERSPECTIVE

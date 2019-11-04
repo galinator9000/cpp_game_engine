@@ -4,13 +4,6 @@
 
 using namespace physx;
 
-const enum COLLISION_ACTOR_TYPE {
-	COLLISION_ACTOR_STATIC,
-	COLLISION_ACTOR_DYNAMIC,
-	COLLISION_ACTOR_KINEMATIC,
-	COLLISION_ACTOR_CCT
-};
-
 class CollisionActor{
 public:
 	CollisionActor(COLLISION_ACTOR_TYPE actorType);
