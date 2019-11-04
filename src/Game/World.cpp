@@ -178,7 +178,6 @@ void World::Render() {
 	// Set depth-only rendering shaders first.
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
 	this->pGfx->setPixelShader(NULL);
-	//this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 
 	// Render only depth values of entities for each shadow map.
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTERS_COUNT; sc++) {
@@ -198,7 +197,6 @@ void World::Render() {
 
 			// Set render target and camera for rendering scene from light's "view".
 			this->pGfx->setRenderTarget(shadowMapRenderTarget);
-			//this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 			this->pGfx->updateCamera(shadowMapCamera);
 			this->pGfx->activateCamera(shadowMapCamera);
 
@@ -222,7 +220,10 @@ void World::Render() {
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
-	//this->pGfx->setRenderTarget(this->gShadowCasters[0]->gShadowBox->gShadowMaps.at(0).second);
+
+	// Provide shadow mappings to pixel shader.
+	this->pGfx->setTexturePixelShader(2, this->gShadowCasters[0]->gShadowBox->gShadowMaps.at(0).second->pTexture);
+	this->pGfx->setTextureSamplerPixelShader(1, this->gShadowCasters[0]->gShadowBox->gShadowMaps.at(0).second->pTextureSampler);
 	
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);

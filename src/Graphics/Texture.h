@@ -12,6 +12,7 @@ namespace wrl = Microsoft::WRL;
 
 class Texture{
 public:
+	Texture(){}
 	Texture(const char* textureReferenceName, const char* fileName);
 
 	std::wstring textureReferenceName;

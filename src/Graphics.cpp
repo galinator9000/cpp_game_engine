@@ -179,7 +179,7 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 	descDSTXT.Usage = D3D11_USAGE_DEFAULT;
 	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	if(isShaderResource){
-		descDSTXT.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		descDSTXT.Format = DXGI_FORMAT_R32_TYPELESS;
 		descDSTXT.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 	}
 	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
@@ -191,7 +191,7 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	if (isShaderResource) {
-		descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	}
 	this->hr = this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDepthView);
 
@@ -199,7 +199,7 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 	if (isShaderResource) {
 		// Shader resource view
 		D3D11_SHADER_RESOURCE_VIEW_DESC resViewDsc = {};
-		resViewDsc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		resViewDsc.Format = DXGI_FORMAT_R32_FLOAT;
 		resViewDsc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		resViewDsc.Texture2D.MipLevels = 1;
 		resViewDsc.Texture2D.MostDetailedMip = 0;
@@ -207,7 +207,7 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 		this->hr = this->pDevice->CreateShaderResourceView(
 			pDSTexture.Get(),
 			&resViewDsc,
-			&renderTarget->pShaderResourceView
+			&renderTarget->pTexture->pShaderResourceView
 		);
 
 		// Sampler state
@@ -222,7 +222,7 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 
 		this->hr = this->pDevice->CreateSamplerState(
 			&sampDesc,
-			&renderTarget->pSamplerState
+			&renderTarget->pTextureSampler->pSamplerState
 		);
 	}
 
@@ -247,21 +247,6 @@ void Graphics::setRenderTarget(RenderTarget* renderTarget) {
 	// Set depth state.
 	if (renderTarget->pDepthState.Get() != NULL) {
 		this->pDeviceContext->OMSetDepthStencilState(renderTarget->pDepthState.Get(), 1);
-	}
-
-	// Set shader resource view if exists.
-	if (renderTarget->pShaderResourceView.Get() != NULL) {
-		this->pDeviceContext->PSSetSamplers(
-			1,
-			1,
-			renderTarget->pSamplerState.GetAddressOf()
-		);
-
-		this->pDeviceContext->PSSetShaderResources(
-			2,
-			1,
-			renderTarget->pShaderResourceView.GetAddressOf()
-		);
 	}
 }
 
@@ -334,6 +319,30 @@ void Graphics::setPixelShader(PixelShader* pixelShader) {
 		pD3D11PixelShader,
 		NULL,
 		0
+	);
+}
+
+void Graphics::setTexturePixelShader(unsigned int slot, Texture* texture) {
+	if (texture == NULL || texture->pShaderResourceView.Get() == NULL) {
+		return;
+	}
+
+	this->pDeviceContext->PSSetShaderResources(
+		slot,
+		1,
+		texture->pShaderResourceView.GetAddressOf()
+	);
+}
+
+void Graphics::setTextureSamplerPixelShader(unsigned int slot, TextureSampler* textureSampler) {
+	if (textureSampler == NULL || textureSampler->pSamplerState.Get() == NULL) {
+		return;
+	}
+
+	this->pDeviceContext->PSSetSamplers(
+		slot,
+		1,
+		textureSampler->pSamplerState.GetAddressOf()
 	);
 }
 
@@ -476,31 +485,17 @@ void Graphics::drawEntity(Entity* entity){
 	// Bind sampler.
 	if (entity->useTexture || entity->useNormalMapping) {
 		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
-		this->pDeviceContext->PSSetSamplers(
-			0,
-			1,
-			entity->textureSampler->pSamplerState.GetAddressOf()
-		);
+		this->setTextureSamplerPixelShader(0, entity->textureSampler);
 	}
 
 	// Bind texture resources, only if entity uses textures.
 	if (entity->useTexture) {
-		// Bind entity's shader resource view (texture) to first (index 0) resource slot of the Pixel Shader.
-		this->pDeviceContext->PSSetShaderResources(
-			0,
-			1,
-			entity->texture->pShaderResourceView.GetAddressOf()
-		);
+		this->setTexturePixelShader(0, entity->texture);
 	}
 
 	// Bind normal mapping texture resources, only if entity uses normal mapping.
 	if (entity->useNormalMapping) {
-		// Bind entity's shader resource view (normal mapping texture) to second (index 1) resource slot of the Pixel Shader.
-		this->pDeviceContext->PSSetShaderResources(
-			1,
-			1,
-			entity->normalMappingTexture->pShaderResourceView.GetAddressOf()
-		);
+		this->setTexturePixelShader(1, entity->normalMappingTexture);
 	}
 
 	// If mesh deformer is attached to mesh, set buffers to Vertex Shader.

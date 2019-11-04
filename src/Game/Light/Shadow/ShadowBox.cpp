@@ -3,61 +3,83 @@
 ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) {
 	this->lightType = lightType;
 
+	Camera* shadowBoxCamera;
+	RenderTarget* shadowBoxRenderTarget = new RenderTarget();
+
 	switch (this->lightType) {
 		case LIGHT_TYPE::SPOT_LIGHT:
+			shadowBoxCamera = new Camera(position, direction, WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, direction, WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
 			break;
 
 		case LIGHT_TYPE::POINT_LIGHT:
 			// One camera for each axes.
+			// +X
+			shadowBoxCamera = new Camera(position, Vector3::XAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, Vector3::XAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
+
+			// +Y
+			shadowBoxCamera = new Camera(position, Vector3::YAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, Vector3::YAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
+
+			// +Z
+			shadowBoxCamera = new Camera(position, Vector3::ZAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, Vector3::ZAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
+
+			// -X
+			shadowBoxCamera = new Camera(position, -Vector3::XAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, -Vector3::XAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
+
+			// -Y
+			shadowBoxCamera = new Camera(position, -Vector3::YAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, -Vector3::YAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
+
+			// -Z
+			shadowBoxCamera = new Camera(position, -Vector3::ZAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(position, -Vector3::ZAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
 			break;
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+			shadowBoxCamera = new Camera(Vector3(0, 0, 0), direction, WIDTH, HEIGHT, PROJECTION_TYPE::ORTHOGRAPHIC);
 			this->gShadowMaps.push_back(
 				std::make_pair(
-					new Camera(Vector3(0, 0, 0), direction, WIDTH, HEIGHT, PROJECTION_TYPE::ORTHOGRAPHIC),
-					new RenderTarget()
+					shadowBoxCamera,
+					shadowBoxRenderTarget
 				)
 			);
 			break;

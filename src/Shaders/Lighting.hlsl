@@ -4,6 +4,7 @@
 #define SPOT_LIGHT 2
 
 #define MAX_LIGHT_COUNT 8
+#define MAX_SHADOW_CASTERS_COUNT 4
 
 // Attenuation calculation values for Point & Spot light calculation.
 static const float attenuation_constant = 1.0f;

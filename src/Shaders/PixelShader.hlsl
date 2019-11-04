@@ -138,11 +138,11 @@ PSOut main(PSIn psIn){
 		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
 	}
 
-	float4 pixelDepth = ShadowMappingTexture.Sample(ShadowMappingSampler, float2(0.5f, 0.5f));
+	//float4 pixelDepth = ShadowMappingTexture.Sample(ShadowMappingSampler, float2(?, ?));
 
 	// Add ambient light & blend the color of the entity.
 	psOut.color = float4(
-		(sumDiffuse + ambient) * (texture_or_solid + sumSpecular) * (0.9 - pixelDepth.r)
+		(sumDiffuse + ambient) * (texture_or_solid + sumSpecular)
 	);
 
 	return psOut;

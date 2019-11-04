@@ -51,8 +51,12 @@ public:
 	//// Shaders.
 	void createVertexShader(VertexShader* shader, bool setShader = false);
 	void setVertexShader(VertexShader* vertexShader);
+
 	void createPixelShader(PixelShader* shader, bool setShader = false);
 	void setPixelShader(PixelShader* pixelShader);
+	void setTexturePixelShader(unsigned int slot, Texture* texture);
+	void setTextureSamplerPixelShader(unsigned int slot, TextureSampler* textureSampler);
+
 	// Main (or default) shader pointers.
 	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
 	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
