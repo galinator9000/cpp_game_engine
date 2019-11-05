@@ -7,6 +7,7 @@
 
 #include "Entity/Entity.h"
 #include "Entity/Mesh/Mesh.h"
+#include "Camera.h"
 
 using namespace physx;
 
@@ -25,12 +26,16 @@ class Physics{
 public:
 	Physics(Vector3 gravity, float stepPerSecond);
 	~Physics();
+	void Update();
 
 	// Entity
-	void Update();
 	bool addEntity(Entity* bEntity);
 	void setupEntityRagdoll(Entity* pEntity);
 	void updateEntity(Entity* bEntity);
+	
+	// Camera
+	bool addCamera(Camera* camera);
+	void updateCamera(Camera* camera);
 
 	// Physical Joints
 	std::vector<PxJoint*> pJoints;

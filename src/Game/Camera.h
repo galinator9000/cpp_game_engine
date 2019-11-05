@@ -50,6 +50,10 @@ public:
 	bool shouldUpdateGPUData = false;
 	bool dataChanged = false;
 
+	// Physics
+	CollisionActor* pCollisionActor;
+	CollisionShape* pCollisionShape;
+
 	Vector3 gPosition;
 	Vector3 gDirection;
 

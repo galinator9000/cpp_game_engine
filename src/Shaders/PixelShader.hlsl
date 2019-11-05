@@ -6,8 +6,8 @@ Texture2D NormalMappingTexture : register(t1);
 SamplerState Sampler : register(s0);
 
 // Shadow mapping texture & samplers.
-Texture2D ShadowMappingTexture : register(t2);
-SamplerState ShadowMappingSampler : register(s1);
+/*Texture2D ShadowMappingTexture : register(t2);
+SamplerState ShadowMappingSampler : register(s1);*/
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -137,8 +137,6 @@ PSOut main(PSIn psIn){
 	if (useTexture) {
 		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
 	}
-
-	//float4 pixelDepth = ShadowMappingTexture.Sample(ShadowMappingSampler, float2(?, ?));
 
 	// Add ambient light & blend the color of the entity.
 	psOut.color = float4(

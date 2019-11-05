@@ -27,11 +27,25 @@ Camera::Camera(Vector3 position, Vector3 direction, float WIDTH, float HEIGHT, P
 			break;
 	}
 
+	// Create physics shape&actor.
+	this->pCollisionActor = new CollisionActor(COLLISION_ACTOR_KINEMATIC);
+	this->pCollisionShape = new CollisionShape();
+	this->pCollisionShape->createBoxGeometry({ 0.1f, 0.1f, 0.1f });
+
 	this->updateConstantBuffer();
 }
 
 void Camera::setPosition(Vector3 newPos) {
 	this->gPosition = newPos;
+
+	// Update physics actor's position.
+	if (this->pCollisionActor->pActor != NULL) {
+		PxRigidDynamic* rigidDynamic = this->pCollisionActor->pActor->is<PxRigidDynamic>();
+		if (rigidDynamic != NULL) {
+			rigidDynamic->setGlobalPose(this->gPosition.toPxTransform());
+		}
+	}
+
 	this->dataChanged = true;
 }
 
@@ -67,6 +81,14 @@ void Camera::Update() {
 					)
 				)
 			);
+
+			// Update physics actor's position.
+			if (this->pCollisionActor->pActor != NULL) {
+				PxRigidDynamic* rigidDynamic = this->pCollisionActor->pActor->is<PxRigidDynamic>();
+				if (rigidDynamic != NULL) {
+					rigidDynamic->setGlobalPose(this->gPosition.toPxTransform());
+				}
+			}
 		}
 		else {
 			// Update looking direction vector
@@ -149,6 +171,14 @@ void Camera::Move(Vector3 translation, bool moveFast) {
 	this->gPosition.x += camTranslation.x;
 	this->gPosition.y += camTranslation.y;
 	this->gPosition.z += camTranslation.z;
+
+	// Update physics actor's position.
+	if (this->pCollisionActor->pActor != NULL) {
+		PxRigidDynamic* rigidDynamic = this->pCollisionActor->pActor->is<PxRigidDynamic>();
+		if (rigidDynamic != NULL) {
+			rigidDynamic->setGlobalPose(this->gPosition.toPxTransform());
+		}
+	}
 
 	// Update looking direction vector
 	this->camLookAt = this->gPosition + this->gDirection;

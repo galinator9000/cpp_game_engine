@@ -137,6 +137,7 @@ void World::Update(){
 		}
 
 		cam->Update();
+		this->pPhy->updateCamera(cam);
 	}
 	// Update GPU data of active camera.
 	this->pGfx->updateCamera(this->activeCamera);
@@ -174,6 +175,8 @@ void World::Render() {
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
 	
+	/*
+	Depth-only rendering for shadowing.
 	//// Create shadow map from active shadow caster.
 	// Set depth-only rendering shaders first.
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
@@ -212,6 +215,7 @@ void World::Render() {
 			}
 		}
 	}
+	*/
 
 	//// Draw all entities.
 	// Set scene camera back.
@@ -280,22 +284,21 @@ bool World::addLight(Light* light) {
 
 // Camera
 bool World::addCamera(Camera* camera, bool setAsMain){
-	camera->id = (unsigned int)this->allCameras.size();
-	this->allCameras.push_back(camera);
-
 	setAsMain = (setAsMain || this->activeCamera == NULL);
 	bool gAddResult = this->pGfx->addCamera(camera, setAsMain);
+	bool pAddResult = this->pPhy->addCamera(camera);
 
-	if (gAddResult) {
+	if (gAddResult || pAddResult) {
+		camera->id = (unsigned int)this->allCameras.size();
+		this->allCameras.push_back(camera);
+
 		if (setAsMain) {
 			this->setCamera(camera);
 		}
 
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 bool World::setCamera(Camera* camera) {
