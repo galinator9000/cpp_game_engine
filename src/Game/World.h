@@ -1,6 +1,6 @@
 #pragma once
 #define MAX_LIGHT_COUNT 32
-#define MAX_SHADOW_CASTERS_COUNT 4
+#define MAX_SHADOW_CASTER_COUNT 4
 
 #include <vector>
 
@@ -71,10 +71,14 @@ public:
 	std::vector<VectorRelation*> allVectorRelations;
 
 	// Buffers for providing multiple lights at the same time.
-	LightPSConstantBuffer gAllLightConstantBuffers[MAX_LIGHT_COUNT];
+	LightPSStruct gAllLightConstantBuffers[MAX_LIGHT_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
-	Light* gShadowCasters[MAX_SHADOW_CASTERS_COUNT];
+	// Buffer for providing shadow casters.
+	ShadowMapVSStruct gAllShadowMapConstantBuffers[MAX_SHADOW_CASTER_COUNT];
+	wrl::ComPtr<ID3D11Buffer> pAllShadowMapConstantBuffers;
+
+	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];
 	std::map<float, Light*> gShadowCastersDistanceLPMap;
 
 private:

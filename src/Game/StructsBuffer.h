@@ -32,7 +32,7 @@ struct MeshDeformerVSConstantBuffer {
 };
 
 // Each light object holds this, light's intensity, direction and position values.
-struct LightPSConstantBuffer {
+struct LightPSStruct {
 	dx::XMFLOAT4 color;
 	dx::XMFLOAT3 position;
 	float intensity;
@@ -49,4 +49,10 @@ struct CameraVSConstantBuffer {
 	dx::XMFLOAT4X4 projectionMatrix;
 	dx::XMFLOAT3 cameraPosition;
 	float padding;
+};
+
+// Each camera object holds this, camera's position and projection information held.
+struct ShadowMapVSStruct {
+	dx::XMFLOAT4X4 viewMatrix;
+	dx::XMFLOAT4X4 projectionMatrix;
 };

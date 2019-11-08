@@ -1,5 +1,6 @@
 #define MAX_JOINT_COUNT 256
 #define MAX_JOINT_PER_VERTEX 4
+#define MAX_SHADOW_CASTER_COUNT 4
 
 // World matrix is provided by the entity we are currently processing.
 cbuffer EntityVSConstantBuffer : register(b0) {
@@ -22,6 +23,23 @@ cbuffer MeshDeformerVSConstantBuffer : register(b2) {
 	matrix jointsTransformMatrix[MAX_JOINT_COUNT];
 };
 
+// Shadow map struct and constant buffers.
+struct ShadowMap {
+	matrix viewMatrix;
+	matrix projectionMatrix;
+};
+cbuffer ShadowMapVSConstantBuffer : register(b3) {
+	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
+};
+
+// Constant identity matrix.
+static const matrix identityMatrix = {
+	{ 1, 0, 0, 0 },
+	{ 0, 1, 0, 0 },
+	{ 0, 0, 1, 0 },
+	{ 0, 0, 0, 1 }
+};
+
 // Input structure of the Vertex shader.
 struct VSIn {
 	float3 position : Position;
@@ -37,24 +55,22 @@ struct VSIn {
 
 // Output structure of the Vertex shader.
 struct VSOut {
-	// These values will be passed to pixel shader.
+	// Vertex values
 	float3 positionPS : Position;
 	float2 texture_UV : TextureUV;
 	float3 normal : Normal;
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
 
+	// Camera position
 	float3 eyePosition : EyePosition;
 
-	float4 position : SV_Position;
-};
+	// Shadow map
+	float2 shadowMapCoord[MAX_SHADOW_CASTER_COUNT] : ShadowMapCoord;
+	float finalDepth[MAX_SHADOW_CASTER_COUNT] : FinalDepth;
 
-// Constant identity matrix.
-static const matrix identityMatrix = {
-	{ 1, 0, 0, 0 },
-	{ 0, 1, 0, 0 },
-	{ 0, 0, 1, 0 },
-	{ 0, 0, 0, 1 }
+	// Final vertex shader output
+	float4 position : SV_Position;
 };
 
 VSOut main(VSIn vsIn){
@@ -101,6 +117,25 @@ VSOut main(VSIn vsIn){
 	//// Apply "Model, View, Projection" transform matrices.
 	// Apply "Model" matrix.
 	finalWorldPosition = mul(finalWorldPosition, worldMatrix);
+
+	// Apply shadow map projection & view matrices.
+	// These values will be processed by pixel shader for shadowing.
+	/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		float4 shadowMapPosition = mul(
+			mul(
+				finalWorldPosition, shadowMaps[sc].viewMatrix
+			),
+			shadowMaps[sc].projectionMatrix
+		);
+
+		vsOut.shadowMapCoord[sc] = shadowMapPosition.xy;
+		vsOut.finalDepth[sc] = shadowMapPosition.z;
+	}*/
+	float4 shadowMapPosition = mul(finalWorldPosition, shadowMaps[0].viewMatrix);
+	shadowMapPosition = mul(shadowMapPosition, shadowMaps[0].projectionMatrix);
+
+	vsOut.shadowMapCoord[0] = shadowMapPosition.xy;
+	vsOut.finalDepth[0] = shadowMapPosition.z;
 
 	// Apply "View" and "Projection" transform matrices.
 	vsOut.position = mul(finalWorldPosition, viewMatrix);

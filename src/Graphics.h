@@ -57,6 +57,10 @@ public:
 	void setTexturePixelShader(unsigned int slot, Texture* texture);
 	void setTextureSamplerPixelShader(unsigned int slot, TextureSampler* textureSampler);
 
+	// Buffer
+	void bindVertexShaderBuffer(unsigned int slot, ID3D11Buffer* pBuffer);
+	void bindPixelShaderBuffer(unsigned int slot, ID3D11Buffer* pBuffer);
+
 	// Main (or default) shader pointers.
 	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
 	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
@@ -79,9 +83,11 @@ public:
 	void updateEntity(Entity* entity);
 
 	// Light
-	bool createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);
-	void updateLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights);
-	void bindLightsBuffer(ID3D11Buffer* pAllLights);
+	bool createLightsBuffer(LightPSStruct* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);
+	void updateLightsBuffer(LightPSStruct* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights);
+	// Shadow
+	bool createShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps);
+	void updateShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps);
 	
 	// Camera
 	bool addCamera(Camera* camera, bool setAsMain);

@@ -213,9 +213,9 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 		// Sampler state
 		D3D11_SAMPLER_DESC sampDesc = {};
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		sampDesc.MipLODBias = 0;
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = 0;
@@ -343,6 +343,22 @@ void Graphics::setTextureSamplerPixelShader(unsigned int slot, TextureSampler* t
 		slot,
 		1,
 		textureSampler->pSamplerState.GetAddressOf()
+	);
+}
+
+void Graphics::bindVertexShaderBuffer(unsigned int slot, ID3D11Buffer* pBuffer) {
+	this->pDeviceContext->VSSetConstantBuffers(
+		slot,
+		1,
+		&pBuffer
+	);
+}
+
+void Graphics::bindPixelShaderBuffer(unsigned int slot, ID3D11Buffer* pBuffer) {
+	this->pDeviceContext->PSSetConstantBuffers(
+		slot,
+		1,
+		&pBuffer
 	);
 }
 
@@ -568,7 +584,7 @@ void Graphics::updateEntity(Entity* entity) {
 
 // Light
 // Create buffers that will contain multiple lights at the same time.
-bool Graphics::createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights) {
+bool Graphics::createLightsBuffer(LightPSStruct* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights) {
 	// Create buffer for holding light direction, position and intensity values on GPU side.
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = (unsigned int) (sizeof(*gAllLights) * lightCount);
@@ -585,7 +601,7 @@ bool Graphics::createLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned in
 }
 
 // Update buffer that contains multiple lights at the same time.
-void Graphics::updateLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights) {
+void Graphics::updateLightsBuffer(LightPSStruct* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 	this->hr = this->pDeviceContext->Map(
 		pAllLights,
@@ -598,13 +614,33 @@ void Graphics::updateLightsBuffer(LightPSConstantBuffer* gAllLights, unsigned in
 	this->pDeviceContext->Unmap(pAllLights, 0);
 }
 
-// Bind buffer that contains all lights in world.
-void Graphics::bindLightsBuffer(ID3D11Buffer* pAllLights) {
-	this->pDeviceContext->PSSetConstantBuffers(
-		1,
-		1,
-		&pAllLights
+// Shadow Maps
+// Create buffers that will contain shadow maps.
+bool Graphics::createShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps) {
+	D3D11_BUFFER_DESC cBd = { 0 };
+	cBd.ByteWidth = (unsigned int)(sizeof(*gAllShadowMaps) * shadowMapCount);
+	cBd.Usage = D3D11_USAGE_DYNAMIC;
+	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_SUBRESOURCE_DATA cSd = { gAllShadowMaps, 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cBd,
+		&cSd,
+		pAllShadowMaps->GetAddressOf()
 	);
+	return true;
+}
+void Graphics::updateShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps) {
+	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+	this->hr = this->pDeviceContext->Map(
+		pAllShadowMaps,
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mappedResource
+	);
+	memcpy(mappedResource.pData, gAllShadowMaps, (unsigned int)(sizeof(*gAllShadowMaps) * shadowMapCount));
+	this->pDeviceContext->Unmap(pAllShadowMaps, 0);
 }
 
 // Camera

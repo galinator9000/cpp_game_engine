@@ -20,7 +20,7 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) 
 		case LIGHT_TYPE::POINT_LIGHT:
 			// One camera for each axes.
 			// +X
-			shadowBoxCamera = new Camera(position, Vector3::XAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
+			/*shadowBoxCamera = new Camera(position, Vector3::XAxis(), WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);
 			this->gShadowMaps.push_back(
 				std::make_pair(
 					shadowBoxCamera,
@@ -71,7 +71,7 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) 
 					shadowBoxCamera,
 					shadowBoxRenderTarget
 				)
-			);
+			);*/
 			break;
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:

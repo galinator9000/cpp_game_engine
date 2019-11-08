@@ -9,7 +9,7 @@ World::World(Graphics* pGfx, Physics* pPhy, Audio* pAud){
 }
 
 void World::Setup() {
-	// Create buffer that will hold multiple lights.
+	// Create buffer that will hold lights.
 	// Set undefined lights' intensity to -1.
 	for (unsigned int light = 0; light<MAX_LIGHT_COUNT; light++) {
 		gAllLightConstantBuffers[light].intensity = -1.0f;
@@ -19,19 +19,37 @@ void World::Setup() {
 		gAllLightConstantBuffers[light].position = dx::XMFLOAT3(0, 0, 0);
 		gAllLightConstantBuffers[light].halfSpotAngle = 0;
 	}
-
 	this->pGfx->createLightsBuffer(
 		&this->gAllLightConstantBuffers[0],
 		MAX_LIGHT_COUNT,
 		&this->pAllLightConstantBuffers
 	);
-	this->pGfx->bindLightsBuffer(this->pAllLightConstantBuffers.Get());
+	this->pGfx->bindPixelShaderBuffer(1, this->pAllLightConstantBuffers.Get());
+
+	// Create buffer that will hold shadow casters.
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		dx::XMStoreFloat4x4(
+			&(gAllShadowMapConstantBuffers[sc].viewMatrix),
+			dx::XMMatrixIdentity()
+		);
+
+		dx::XMStoreFloat4x4(
+			&(gAllShadowMapConstantBuffers[sc].projectionMatrix),
+			dx::XMMatrixIdentity()
+		);
+	}
+	this->pGfx->createShadowMapsBuffer(
+		&this->gAllShadowMapConstantBuffers[0],
+		MAX_SHADOW_CASTER_COUNT,
+		&this->pAllShadowMapConstantBuffers
+	);
+	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
 
 	// Set NULL all shadow casters initially.
 	memset(
 		&this->gShadowCasters,
 		NULL,
-		sizeof(Light*) * MAX_SHADOW_CASTERS_COUNT
+		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
 	);
 }
 
@@ -56,7 +74,7 @@ void World::Update(){
 	memset(
 		&this->gShadowCasters,
 		NULL,
-		sizeof(Light*) * MAX_SHADOW_CASTERS_COUNT
+		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
 	);
 	gShadowCastersDistanceLPMap.clear();
 
@@ -85,7 +103,7 @@ void World::Update(){
 		}
 
 		if (light->isCastingShadow) {
-			if (shadowCasterIndex < MAX_SHADOW_CASTERS_COUNT) {
+			if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
 				float lightDist = 0;
 
 				switch (light->type) {
@@ -108,11 +126,11 @@ void World::Update(){
 	}
 
 	// Fill shadow caster array, starting from nearest lights.
-	if (shadowCasterIndex < MAX_SHADOW_CASTERS_COUNT) {
+	if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
 		for (const auto entry : gShadowCastersDistanceLPMap) {
 			this->gShadowCasters[shadowCasterIndex] = entry.second;
 			shadowCasterIndex++;
-			if (shadowCasterIndex >= MAX_SHADOW_CASTERS_COUNT) {
+			if (shadowCasterIndex >= MAX_SHADOW_CASTER_COUNT) {
 				break;
 			}
 		}
@@ -175,15 +193,13 @@ void World::Render() {
 	// Clear frame and redraw state of the world.
 	this->pGfx->beginFrame();
 	
-	/*
-	Depth-only rendering for shadowing.
 	//// Create shadow map from active shadow caster.
 	// Set depth-only rendering shaders first.
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
 	this->pGfx->setPixelShader(NULL);
 
 	// Render only depth values of entities for each shadow map.
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTERS_COUNT; sc++) {
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (this->gShadowCasters[sc] == NULL) {
 			continue;
 		}
@@ -194,40 +210,58 @@ void World::Render() {
 			this->gShadowCasters[sc]->gDirection
 		);
 
-		for (unsigned int sm = 0; sm < this->gShadowCasters[sc]->gShadowBox->gShadowMaps.size(); sm++) {
-			Camera* shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(sm).first;
-			RenderTarget* shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(sm).second;
+		Camera* shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).first;
+		RenderTarget* shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).second;
 
-			// Set render target and camera for rendering scene from light's "view".
-			this->pGfx->setRenderTarget(shadowMapRenderTarget);
-			this->pGfx->updateCamera(shadowMapCamera);
-			this->pGfx->activateCamera(shadowMapCamera);
+		// Set render target and camera for rendering scene from light's "view".
+		this->pGfx->setRenderTarget(shadowMapRenderTarget);
+		this->pGfx->updateCamera(shadowMapCamera);
+		this->pGfx->activateCamera(shadowMapCamera);
 
-			// Render entity.
-			for (unsigned int e = 0; e < this->allEntities.size(); e++) {
-				Entity* ent = this->allEntities.at(e);
+		// Render entity.
+		for (unsigned int e = 0; e < this->allEntities.size(); e++) {
+			Entity* ent = this->allEntities.at(e);
 
-				if (ent == NULL) {
-					continue;
-				}
-
-				this->pGfx->drawEntity(ent);
+			if (ent == NULL) {
+				continue;
 			}
+
+			this->pGfx->drawEntity(ent);
 		}
 	}
-	*/
 
 	//// Draw all entities.
 	// Set scene camera back.
 	this->pGfx->activateCamera(this->activeCamera);
 
+	// Set main shaders & render target.
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 
-	// Provide shadow mappings to pixel shader.
-	this->pGfx->setTexturePixelShader(2, this->gShadowCasters[0]->gShadowBox->gShadowMaps.at(0).second->pTexture);
-	this->pGfx->setTextureSamplerPixelShader(1, this->gShadowCasters[0]->gShadowBox->gShadowMaps.at(0).second->pTextureSampler);
+	// Provide View & Projection matrices of shadow boxes to Vertex Shader.
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		if (this->gShadowCasters[sc] == NULL) {
+			continue;
+		}
+
+		this->gAllShadowMapConstantBuffers[sc].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).first->gCameraVSConstantBuffer.viewMatrix;;
+		this->gAllShadowMapConstantBuffers[sc].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).first->gCameraVSConstantBuffer.projectionMatrix;
+	}
+	this->pGfx->updateShadowMapsBuffer(&this->gAllShadowMapConstantBuffers[0], MAX_SHADOW_CASTER_COUNT, this->pAllShadowMapConstantBuffers.Get());
+	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
+
+	// Provide shadow mappings to Pixel Shader
+	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 2;
+	const unsigned int SHADOW_MAP_TEXTURESAMPLER_PS_START_SLOT = 1;
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		if (this->gShadowCasters[sc] == NULL) {
+			continue;
+		}
+
+		this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + sc, this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).second->pTexture);
+		this->pGfx->setTextureSamplerPixelShader(SHADOW_MAP_TEXTURESAMPLER_PS_START_SLOT + sc, this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).second->pTextureSampler);
+	}
 	
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
 		Entity* ent = this->allEntities.at(e);
@@ -270,7 +304,6 @@ bool World::addLight(Light* light) {
 			RenderTarget* shadowMapRenderTarget = light->gShadowBox->gShadowMaps.at(sm).second;
 
 			this->pGfx->addCamera(shadowMapCamera, false);
-
 			this->pGfx->createRenderTarget(shadowMapRenderTarget, true);
 			this->pGfx->renderTargets.push_back(shadowMapRenderTarget);
 		}

@@ -6,8 +6,8 @@ Texture2D NormalMappingTexture : register(t1);
 SamplerState Sampler : register(s0);
 
 // Shadow mapping texture & samplers.
-/*Texture2D ShadowMappingTexture : register(t2);
-SamplerState ShadowMappingSampler : register(s1);*/
+Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t2);
+SamplerState ShadowMapSampler[MAX_SHADOW_CASTER_COUNT] : register(s1);
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -22,16 +22,29 @@ cbuffer LightConstantBuffer : register(b1) {
 	Light allLights[MAX_LIGHT_COUNT];
 };
 
+// Constant identity matrix.
+static const matrix identityMatrix = {
+	{ 1, 0, 0, 0 },
+	{ 0, 1, 0, 0 },
+	{ 0, 0, 1, 0 },
+	{ 0, 0, 0, 1 }
+};
+
 // Input structure of the Pixel shader.
 struct PSIn {
+	// Vertex values
 	float3 positionPS : Position;
 	float2 texture_UV : TextureUV;
-
 	float3 normal : Normal;
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
 
+	// Camera position
 	float3 eyePosition : EyePosition;
+
+	// Shadow map
+	float2 shadowMapCoord[MAX_SHADOW_CASTER_COUNT] : ShadowMapCoord;
+	float finalDepth[MAX_SHADOW_CASTER_COUNT] : FinalDepth;
 };
 
 // Output structure of the Pixel shader.
@@ -131,6 +144,20 @@ PSOut main(PSIn psIn){
 
 	sumDiffuse = saturate(sumDiffuse);
 	sumSpecular = saturate(sumSpecular);
+
+	// Process shadow maps.
+	/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		float sampledDepth = ShadowMapTexture[sc].Sample(ShadowMapSampler[sc], psIn.shadowMapCoord[sc]).r;
+
+		if (psIn.finalDepth[sc] > sampledDepth) {
+			sumDiffuse = sumDiffuse * 0.4f;
+		}
+	}*/
+	float4 sampledDepth = ShadowMapTexture[0].Sample(ShadowMapSampler[0], psIn.shadowMapCoord[0]);
+
+	if (psIn.finalDepth[0] > sampledDepth.r) {
+		sumDiffuse = sumDiffuse * 0.4f;
+	}
 
 	// Use solid color of entity or texture?
 	float4 texture_or_solid = entityColor;
