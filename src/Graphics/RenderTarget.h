@@ -16,5 +16,4 @@ public:
 
 	// For sampling values from DepthView object.
 	Texture* pTexture = new Texture();
-	TextureSampler* pTextureSampler = new TextureSampler();
 };

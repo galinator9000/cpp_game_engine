@@ -3,11 +3,12 @@
 // Provided by entity object.
 Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
-SamplerState Sampler : register(s0);
-
-// Shadow mapping texture & samplers.
+// Shadow mapping textures.
 Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t2);
-SamplerState ShadowMapSampler[MAX_SHADOW_CASTER_COUNT] : register(s1);
+
+// Various samplers.
+SamplerState defaultSampler : register(s0);
+SamplerState clampSampler : register(s1);
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -66,7 +67,7 @@ PSOut main(PSIn psIn){
 
 		// Sample normal vector from texture, these values ranges 0 to 1,
 		// we need to expand and reposition them as -1 to 1.
-		float4 sampledNormal = NormalMappingTexture.Sample(Sampler, psIn.texture_UV);
+		float4 sampledNormal = NormalMappingTexture.Sample(defaultSampler, psIn.texture_UV);
 		sampledNormal = sampledNormal * 2.0f - 1.0f;
 
 		// Tangent space to object space.
@@ -161,14 +162,14 @@ PSOut main(PSIn psIn){
 			sumDiffuse = sumDiffuse * 0.4f;
 		}
 	}*/
-	if (finalDepth > ShadowMapTexture[0].Sample(ShadowMapSampler[0], shadowMapCoords).r) {
+	if (finalDepth > ShadowMapTexture[0].Sample(clampSampler, shadowMapCoords).r) {
 		sumDiffuse = sumDiffuse * 0.4f;
 	}
 
 	// Use solid color of entity or texture?
 	float4 texture_or_solid = entityColor;
 	if (useTexture) {
-		texture_or_solid = Texture.Sample(Sampler, psIn.texture_UV);
+		texture_or_solid = Texture.Sample(defaultSampler, psIn.texture_UV);
 	}
 
 	// Add ambient light & blend the color of the entity.

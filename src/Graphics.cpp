@@ -109,6 +109,40 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	// Set input layout and primitive topology.
 	this->pDeviceContext->IASetInputLayout(this->pInputLayout.Get());
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//// Create & Set various Samplers
+	D3D11_SAMPLER_DESC sampDesc = {};
+
+	// Default (WRAP) sampler.
+	this->defaultSampler = new TextureSampler();
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.MipLODBias = 0;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = 0;
+	this->hr = this->pDevice->CreateSamplerState(
+		&sampDesc,
+		&defaultSampler->pSamplerState
+	);
+	this->setTextureSamplerPixelShader(0, this->defaultSampler);
+
+	// Clamp sampler.
+	sampDesc = {};
+	this->clampSampler = new TextureSampler();
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.MipLODBias = 0;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = 0;
+	this->hr = this->pDevice->CreateSamplerState(
+		&sampDesc,
+		&clampSampler->pSamplerState
+	);
+	this->setTextureSamplerPixelShader(1, this->clampSampler);
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
@@ -208,21 +242,6 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 			pDSTexture.Get(),
 			&resViewDsc,
 			&renderTarget->pTexture->pShaderResourceView
-		);
-
-		// Sampler state
-		D3D11_SAMPLER_DESC sampDesc = {};
-		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-		sampDesc.MipLODBias = 0;
-		sampDesc.MinLOD = 0;
-		sampDesc.MaxLOD = 0;
-
-		this->hr = this->pDevice->CreateSamplerState(
-			&sampDesc,
-			&renderTarget->pTextureSampler->pSamplerState
 		);
 	}
 
@@ -492,19 +511,23 @@ void Graphics::drawEntity(Entity* entity){
 	);
 
 	//// Binding Texture & Samplers
-	// Clear texture & sampler slots.
+	// Clear texture slots.
 	ID3D11ShaderResourceView* nullShaderResourceView = { nullptr };
 	this->pDeviceContext->PSSetShaderResources(0, 1, &nullShaderResourceView);
 	this->pDeviceContext->PSSetShaderResources(1, 1, &nullShaderResourceView);
-	ID3D11SamplerState* nullSamplerState = { nullptr }; this->pDeviceContext->PSSetSamplers(0, 1, &nullSamplerState);
 
-	// Bind sampler.
+	// Set samplers to default.
+	this->setTextureSamplerPixelShader(0, this->defaultSampler);
+	this->setTextureSamplerPixelShader(1, this->clampSampler);
+
+	// Bind texture sampler if this entity uses a different one.
 	if (entity->useTexture || entity->useNormalMapping) {
-		// Bind entity's sampler state to first (index 0) sampler slot of the Pixel Shader.
-		this->setTextureSamplerPixelShader(0, entity->textureSampler);
+		if (entity->textureSampler != NULL) {
+			this->setTextureSamplerPixelShader(0, entity->textureSampler);
+		}
 	}
 
-	// Bind texture resources, only if entity uses textures.
+	// Bind shader resources, only if entity uses textures.
 	if (entity->useTexture) {
 		this->setTexturePixelShader(0, entity->texture);
 	}

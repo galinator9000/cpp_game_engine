@@ -98,6 +98,9 @@ public:
 	bool createTextureDDS(Texture* texture);
 	bool createTextureSampler(TextureSampler* textureSampler);
 
+	TextureSampler* defaultSampler;
+	TextureSampler* clampSampler;
+
 	unsigned int gWidth;
 	unsigned int gHeight;
 

@@ -50,13 +50,13 @@ public:
 	// Texture
 	Texture* texture = NULL;
 	TextureSampler* textureSampler = NULL;
-	void attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler);
-	void detachTextureAndSampler();
+	void attachTexture(Texture* texture);
+	void attachTextureSampler(TextureSampler* textureSampler);
 	bool useTexture = false;
 
 	// Normal map
 	Texture* normalMappingTexture = NULL;
-	void attachNormalMappingTexture(Texture* normalMappingTexture, TextureSampler* normalMappingTextureSampler=NULL);
+	void attachNormalMappingTexture(Texture* normalMappingTexture);
 	bool useNormalMapping = false;
 
 	// Hierarchy system

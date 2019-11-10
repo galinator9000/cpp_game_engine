@@ -260,7 +260,6 @@ void World::Render() {
 		}
 
 		this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + sc, this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).second->pTexture);
-		this->pGfx->setTextureSamplerPixelShader(SHADOW_MAP_TEXTURESAMPLER_PS_START_SLOT + sc, this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0).second->pTextureSampler);
 	}
 	
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {

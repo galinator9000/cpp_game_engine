@@ -107,8 +107,8 @@ void Game::Setup(){
 			bigBoxColActor
 		}
 	);
-	bigBox->attachTextureAndSampler(texture, textureSampler);
-	bigBox->attachNormalMappingTexture(normalMapTexture, textureSampler);
+	bigBox->attachTexture(texture);
+	bigBox->attachNormalMappingTexture(normalMapTexture);
 	this->pWorld->addEntity(bigBox);
 
 	//// Load animated entity.
@@ -155,8 +155,8 @@ void Game::Setup(){
 	}
 
 	//// Add lights to scene.
-	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0.25f, -1, 0.25f), 1, Color(0.95f, 0.95f, 0.74f));
-	//this->pWorld->addLight(directionalLight);
+	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0.25f, -1, 0.25f), 0.1f, Color(0.66f, 0.66f, 0.66f));
+	this->pWorld->addLight(directionalLight);
 
 	SpotLight* wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
 	this->pWorld->addLight(wMainCameraSpotLight);

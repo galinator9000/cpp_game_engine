@@ -109,36 +109,34 @@ void Entity::Reset() {
 }
 
 // Texture
-void Entity::attachTextureAndSampler(Texture* texture, TextureSampler* textureSampler){
-	this->texture = texture;
-	this->textureSampler = textureSampler;
-	this->useTexture = true;
-
-	this->dataChanged = true;
-}
-
-void Entity::detachTextureAndSampler() {
-	this->texture = NULL;
-	this->textureSampler = NULL;
-	this->useTexture = false;
-
-	this->dataChanged = true;
-}
-
-void Entity::attachNormalMappingTexture(Texture* normalMappingTexture, TextureSampler* normalMappingTextureSampler) {
-	// Normal mapping requires a sampler.
-	if (normalMappingTextureSampler == NULL && this->textureSampler == NULL) {
+void Entity::attachTexture(Texture* texture){
+	if (texture == NULL) {
 		return;
 	}
 
+	this->texture = texture;
+	this->useTexture = true;
+	this->dataChanged = true;
+}
+
+void Entity::attachTextureSampler(TextureSampler* textureSampler) {
+	if (textureSampler == NULL) {
+		return;
+	}
+
+	this->textureSampler = textureSampler;
+	this->dataChanged = true;
+}
+
+void Entity::attachNormalMappingTexture(Texture* normalMappingTexture) {
 	// If no sampler provided before, assign given one.
-	if (normalMappingTextureSampler != NULL && this->textureSampler == NULL) {
-		this->textureSampler = normalMappingTextureSampler;
+	if (normalMappingTexture == NULL){
+		return;
 	}
 
 	this->normalMappingTexture = normalMappingTexture;
-	this->useNormalMapping = true;
 
+	this->useNormalMapping = true;
 	this->dataChanged = true;
 }
 
