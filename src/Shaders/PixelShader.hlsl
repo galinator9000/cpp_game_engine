@@ -43,8 +43,9 @@ struct PSIn {
 	float3 eyePosition : EyePosition;
 
 	// Shadow map
-	float2 shadowMapCoord[MAX_SHADOW_CASTER_COUNT] : ShadowMapCoord;
-	float finalDepth[MAX_SHADOW_CASTER_COUNT] : FinalDepth;
+	// XY, shadow map texture UV coordinates
+	// Z, distance from light.
+	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : ShadowMapPosition;
 };
 
 // Output structure of the Pixel shader.
@@ -145,6 +146,13 @@ PSOut main(PSIn psIn){
 	sumDiffuse = saturate(sumDiffuse);
 	sumSpecular = saturate(sumSpecular);
 
+	// Calculate shadow map texture UV coordinates.
+	float2 shadowMapCoords;
+	shadowMapCoords.x = psIn.shadowMapPosition[0].x / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
+	shadowMapCoords.y = -psIn.shadowMapPosition[0].y / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
+
+	float finalDepth = (psIn.shadowMapPosition[0].z / psIn.shadowMapPosition[0].w) - 0.001f;
+
 	// Process shadow maps.
 	/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		float sampledDepth = ShadowMapTexture[sc].Sample(ShadowMapSampler[sc], psIn.shadowMapCoord[sc]).r;
@@ -153,9 +161,7 @@ PSOut main(PSIn psIn){
 			sumDiffuse = sumDiffuse * 0.4f;
 		}
 	}*/
-	float4 sampledDepth = ShadowMapTexture[0].Sample(ShadowMapSampler[0], psIn.shadowMapCoord[0]);
-
-	if (psIn.finalDepth[0] > sampledDepth.r) {
+	if (finalDepth > ShadowMapTexture[0].Sample(ShadowMapSampler[0], shadowMapCoords).r) {
 		sumDiffuse = sumDiffuse * 0.4f;
 	}
 

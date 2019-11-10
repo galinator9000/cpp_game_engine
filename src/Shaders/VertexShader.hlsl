@@ -66,8 +66,9 @@ struct VSOut {
 	float3 eyePosition : EyePosition;
 
 	// Shadow map
-	float2 shadowMapCoord[MAX_SHADOW_CASTER_COUNT] : ShadowMapCoord;
-	float finalDepth[MAX_SHADOW_CASTER_COUNT] : FinalDepth;
+	// XY, shadow map texture UV coordinates
+	// Z, distance from light.
+	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : ShadowMapPosition;
 
 	// Final vertex shader output
 	float4 position : SV_Position;
@@ -119,7 +120,7 @@ VSOut main(VSIn vsIn){
 	finalWorldPosition = mul(finalWorldPosition, worldMatrix);
 
 	// Apply shadow map projection & view matrices.
-	// These values will be processed by pixel shader for shadowing.
+	// These values will be processed for shadowing.
 	/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		float4 shadowMapPosition = mul(
 			mul(
@@ -133,9 +134,7 @@ VSOut main(VSIn vsIn){
 	}*/
 	float4 shadowMapPosition = mul(finalWorldPosition, shadowMaps[0].viewMatrix);
 	shadowMapPosition = mul(shadowMapPosition, shadowMaps[0].projectionMatrix);
-
-	vsOut.shadowMapCoord[0] = shadowMapPosition.xy;
-	vsOut.finalDepth[0] = shadowMapPosition.z;
+	vsOut.shadowMapPosition[0] = shadowMapPosition;
 
 	// Apply "View" and "Projection" transform matrices.
 	vsOut.position = mul(finalWorldPosition, viewMatrix);
