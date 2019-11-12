@@ -68,7 +68,7 @@ struct VSOut {
 	// Shadow map
 	// XY, shadow map texture UV coordinates
 	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : ShadowMapPosition;
+	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : TEXCOORD0;
 
 	// Final vertex shader output
 	float4 position : SV_Position;

@@ -38,7 +38,7 @@ public:
 	bool hasGPUBuffers = false;
 
 	// Shapes
-	void createBoxGeometry(Vector3 gSize);
+	void createBoxGeometry(Vector3 gSize, bool reverseFaces = false);
 
 	// Calculates smallest bounding box that fits to mesh's vertices.
 	Vector3 calculateBoundingBox();

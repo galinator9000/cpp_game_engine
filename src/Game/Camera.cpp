@@ -50,7 +50,7 @@ void Camera::setPosition(Vector3 newPos) {
 }
 
 void Camera::setDirection(Vector3 newDir) {
-	this->gDirection = newDir.normalize();
+	this->gDirection = newDir;
 	this->dataChanged = true;
 }
 

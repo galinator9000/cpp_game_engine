@@ -236,9 +236,6 @@
     <ClCompile Include="src\Audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Game\Light\Shadow\ShadowBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

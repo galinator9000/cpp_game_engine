@@ -90,6 +90,7 @@ public:
 	void updateCamera(Camera* camera);
 
 	// Texturing
+	void setTexture(Texture* texture);
 	bool createTextureDDS(Texture* texture);
 	bool createTextureSampler(TextureSampler* textureSampler);
 
@@ -126,4 +127,5 @@ private:
 	// Pipeline
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> pBlendState;
 };

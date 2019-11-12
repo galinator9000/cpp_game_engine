@@ -81,11 +81,13 @@ void Game::Setup(){
 
 	// Dynamic big box.
 	// Create Texture and Normal Mapping
-	Texture* texture = new Texture("diffuse", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds");
-	Texture* normalMapTexture = new Texture("normalmap", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds");
-
-	this->pWorld->createTexture(texture);
-	this->pWorld->createTexture(normalMapTexture);
+	Texture* brickTexture = new Texture(
+		"brick",
+		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds",
+		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds",
+		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_alpha.dds"
+	);
+	this->pWorld->createTexture(brickTexture);
 
 	Mesh* bigBoxMesh = new Mesh();
 	bigBoxMesh->createBoxGeometry({ 1,1,1 });
@@ -105,8 +107,7 @@ void Game::Setup(){
 			bigBoxColActor
 		}
 	);
-	bigBox->attachTexture(texture);
-	bigBox->attachNormalMappingTexture(normalMapTexture);
+	bigBox->attachTexture(brickTexture);
 	this->pWorld->addEntity(bigBox);
 
 	//// Load animated entity.

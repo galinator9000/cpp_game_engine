@@ -105,6 +105,26 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->pDeviceContext->IASetInputLayout(this->pInputLayout.Get());
 	this->pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// Create & set blend state for output-merger stage.
+	D3D11_BLEND_DESC bDesc = {0};
+	bDesc.IndependentBlendEnable = false;
+	bDesc.RenderTarget[0].BlendEnable = true;
+	bDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	bDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	bDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	bDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	bDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	bDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	bDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	this->hr = this->pDevice->CreateBlendState(&bDesc, this->pBlendState.GetAddressOf());
+
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	this->pDeviceContext->OMSetBlendState(
+		this->pBlendState.Get(),
+		blendFactor,
+		0xffffffff
+	);
+
 	//// Create & Set various Samplers
 	D3D11_SAMPLER_DESC sampDesc = {};
 
@@ -265,7 +285,7 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 		this->hr = this->pDevice->CreateShaderResourceView(
 			pDSTexture.Get(),
 			&resViewDsc,
-			&renderTarget->pTexture->pShaderResourceView
+			&renderTarget->pTexture->pColorShaderResourceView
 		);
 	}
 
@@ -366,14 +386,14 @@ void Graphics::setPixelShader(PixelShader* pixelShader) {
 }
 
 void Graphics::setTexturePixelShader(unsigned int slot, Texture* texture) {
-	if (texture == NULL || texture->pShaderResourceView.Get() == NULL) {
+	if (texture == NULL || texture->pColorShaderResourceView.Get() == NULL) {
 		return;
 	}
 
 	this->pDeviceContext->PSSetShaderResources(
 		slot,
 		1,
-		texture->pShaderResourceView.GetAddressOf()
+		texture->pColorShaderResourceView.GetAddressOf()
 	);
 }
 
@@ -544,20 +564,12 @@ void Graphics::drawEntity(Entity* entity){
 	this->setDefault();
 
 	// Bind texture sampler if this entity uses a different one.
-	if (entity->useTexture || entity->useNormalMapping) {
+	if (entity->useTexture) {
 		if (entity->textureSampler != NULL) {
 			this->setTextureSamplerPixelShader(0, entity->textureSampler);
 		}
-	}
 
-	// Bind shader resources, only if entity uses textures.
-	if (entity->useTexture) {
-		this->setTexturePixelShader(0, entity->texture);
-	}
-
-	// Bind normal mapping texture resources, only if entity uses normal mapping.
-	if (entity->useNormalMapping) {
-		this->setTexturePixelShader(1, entity->normalMappingTexture);
+		this->setTexture(entity->texture);
 	}
 
 	// If mesh deformer is attached to mesh, set buffers to Vertex Shader.
@@ -739,11 +751,59 @@ bool Graphics::createTextureDDS(Texture* texture) {
 	this->hr = CreateDDSTextureFromFile(
 		this->pDevice.Get(),
 		this->pDeviceContext.Get(),
-		texture->fileName.c_str(),
-		texture->pResource.GetAddressOf(),
-		texture->pShaderResourceView.GetAddressOf()
+		texture->colorFileName.c_str(),
+		texture->pColorResource.GetAddressOf(),
+		texture->pColorShaderResourceView.GetAddressOf()
 	);
+
+	if (texture->useNormalMapping) {
+		this->hr = CreateDDSTextureFromFile(
+			this->pDevice.Get(),
+			this->pDeviceContext.Get(),
+			texture->normalFileName.c_str(),
+			texture->pNormalResource.GetAddressOf(),
+			texture->pNormalShaderResourceView.GetAddressOf()
+		);
+	}
+
+	if (texture->useAlpha) {
+		this->hr = CreateDDSTextureFromFile(
+			this->pDevice.Get(),
+			this->pDeviceContext.Get(),
+			texture->alphaFileName.c_str(),
+			texture->pAlphaResource.GetAddressOf(),
+			texture->pAlphaShaderResourceView.GetAddressOf()
+		);
+	}
 	return true;
+}
+
+void Graphics::setTexture(Texture* texture) {
+	if (texture == NULL || texture->pColorShaderResourceView.Get() == NULL) {
+		return;
+	}
+
+	this->pDeviceContext->PSSetShaderResources(
+		0,
+		1,
+		texture->pColorShaderResourceView.GetAddressOf()
+	);
+
+	if (texture->useNormalMapping) {
+		this->pDeviceContext->PSSetShaderResources(
+			1,
+			1,
+			texture->pNormalShaderResourceView.GetAddressOf()
+		);
+	}
+
+	if (texture->useAlpha) {
+		this->pDeviceContext->PSSetShaderResources(
+			2,
+			1,
+			texture->pAlphaShaderResourceView.GetAddressOf()
+		);
+	}
 }
 
 void Graphics::setDefault() {

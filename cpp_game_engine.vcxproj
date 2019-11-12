@@ -299,7 +299,6 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\Game\World.cpp" />
     <ClCompile Include="src\Timer.cpp" />
-    <ClCompile Include="src\Graphics\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cpp_game_engine.rc" />

@@ -71,7 +71,7 @@ bool Mesh::LoadFBX(const char* fileName, const char* mainMeshName) {
 	return true;
 }
 
-void Mesh::createBoxGeometry(Vector3 gSize) {
+void Mesh::createBoxGeometry(Vector3 gSize, bool reverseFaces) {
 	// 3D Cube vertices
 	Vertex _vertices[] = {
 		// Front (Normal -Z)
@@ -110,7 +110,16 @@ void Mesh::createBoxGeometry(Vector3 gSize) {
 		{{ -1.0f, -1.0f, -1.0f }, {1,0}, {0, -1, 0}, {-1, 0, 0}, {0, 0, -1}},
 		{{ 1.0f, -1.0f, -1.0f }, {1,1}, {0, -1, 0}, {-1, 0, 0}, {0, 0, -1}},
 	};
-	this->gVertexCount = (UINT)std::size(_vertices);
+	this->gVertexCount = (UINT) std::size(_vertices);
+
+	// Reverse normals.
+	if (reverseFaces) {
+		for (unsigned int v = 0; v < this->gVertexCount; v++) {
+			_vertices[v].normal = -_vertices[v].normal;;
+			_vertices[v].tangent = -_vertices[v].tangent;;
+			_vertices[v].binormal = -_vertices[v].binormal;
+		}
+	}
 	
 	// Apply scaling.
 	for (unsigned int v = 0; v < this->gVertexCount; v++) {
@@ -142,6 +151,15 @@ void Mesh::createBoxGeometry(Vector3 gSize) {
 		20,22,21, 22,23,21
 	};
 	this->gIndexCount = (UINT)std::size(_indices);
+
+	// Reverse winding.
+	if (reverseFaces) {
+		for (unsigned int i = 0; i < this->gIndexCount/3; i++) {
+			_indices[i + 0] = _indices[i + 0];
+			_indices[i + 1] = _indices[i + 2];
+			_indices[i + 2] = _indices[i + 1];
+		}
+	}
 
 	unsigned int* indices = new unsigned int[this->gIndexCount];
 	std::copy(_indices, _indices + this->gIndexCount, indices);

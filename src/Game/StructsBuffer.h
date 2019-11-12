@@ -24,6 +24,8 @@ struct EntityPSConstantBuffer {
 	float specularPower;
 	unsigned int useTexture;
 	unsigned int useNormalMapping;
+	unsigned int useAlpha;
+	dx::XMFLOAT3 padding1;
 };
 
 // Mesh Deformer constant buffer for Vertex Shader.

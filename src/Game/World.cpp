@@ -254,8 +254,7 @@ void World::Render() {
 	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
 
 	// Provide shadow mappings to Pixel Shader
-	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 2;
-	const unsigned int SHADOW_MAP_TEXTURESAMPLER_PS_START_SLOT = 1;
+	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 3;
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (this->gShadowCasters[sc] == NULL) {
 			continue;

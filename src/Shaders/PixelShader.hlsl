@@ -3,13 +3,21 @@
 // Provided by entity object.
 Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
+Texture2D AlphaTexture : register(t2);
 // Shadow mapping textures.
-Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t2);
+Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
 
 // Various samplers.
 SamplerState defaultSampler : register(s0);
 SamplerState clampSampler : register(s1);
 SamplerState whiteBorderSampler : register(s2);
+
+SamplerComparisonState shadowPCFSampler{
+	Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
+	AddressU = MIRROR;
+	AddressV = MIRROR;
+	ComparisonFunc = LESS_EQUAL;
+};
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -18,6 +26,8 @@ cbuffer EntityPSConstantBuffer : register(b0) {
 	float specularPower;
 	bool useTexture;
 	bool useNormalMapping;
+	bool useAlpha;
+	float3 padding;
 };
 
 cbuffer LightConstantBuffer : register(b1) {
@@ -47,7 +57,7 @@ struct PSIn {
 	// Shadow map
 	// XY, shadow map texture UV coordinates
 	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : ShadowMapPosition;
+	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : TEXCOORD0;
 };
 
 // Output structure of the Pixel shader.
@@ -152,25 +162,47 @@ PSOut main(PSIn psIn){
 	float2 shadowMapCoords;
 	shadowMapCoords.x = psIn.shadowMapPosition[0].x / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
 	shadowMapCoords.y = -psIn.shadowMapPosition[0].y / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
-
 	float finalDepth = (psIn.shadowMapPosition[0].z / psIn.shadowMapPosition[0].w) - 0.001f;
 
-	// Process shadow maps.
-	/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		float sampledDepth = ShadowMapTexture[sc].Sample(ShadowMapSampler[sc], psIn.shadowMapCoord[sc]).r;
+	if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
+		//// Process shadow maps.
+		/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+			float sampledDepth = ShadowMapTexture[sc].Sample(ShadowMapSampler[sc], psIn.shadowMapCoord[sc]).r;
 
-		if (psIn.finalDepth[sc] > sampledDepth) {
-			sumDiffuse = sumDiffuse * 0.4f;
+			if (psIn.finalDepth[sc] > sampledDepth) {
+				sumDiffuse = sumDiffuse * 0.4f;
+			}
+		}*/
+
+		// PCF shadow
+		/*float shadowFactor = ShadowMapTexture[0].SampleCmpLevelZero(shadowPCFSampler, shadowMapCoords, finalDepth);
+		sumDiffuse = sumDiffuse * (1-shadowFactor);*/
+
+		float sampledDepth = ShadowMapTexture[0].Sample(whiteBorderSampler, shadowMapCoords).r;
+		if (finalDepth > sampledDepth) {
+			sumDiffuse = sumDiffuse * float4(0.4f, 0.4f, 0.4f, 1);
 		}
-	}*/
-	if (finalDepth > ShadowMapTexture[0].Sample(whiteBorderSampler, shadowMapCoords).r) {
-		sumDiffuse = sumDiffuse * 0.4f;
 	}
 
 	// Use solid color of entity or texture?
 	float4 texture_or_solid = entityColor;
 	if (useTexture) {
 		texture_or_solid = Texture.Sample(defaultSampler, psIn.texture_UV);
+	}
+
+	// Set alpha values to 1.
+	sumDiffuse.a = 1.0f;
+	sumSpecular.a = 1.0f;
+
+	// If uses alpha value from texture, sample it. 
+	if (useNormalMapping) {
+		float3 alpha = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).rgb;
+
+		texture_or_solid.a = (alpha.r + alpha.g + alpha.b) / 3;
+		sumSpecular.a = (alpha.r + alpha.g + alpha.b) / 3;
+		sumDiffuse.a = (alpha.r + alpha.g + alpha.b) / 3;
+	}else {
+		texture_or_solid.a = 1.0f;
 	}
 
 	// Add ambient light & blend the color of the entity.

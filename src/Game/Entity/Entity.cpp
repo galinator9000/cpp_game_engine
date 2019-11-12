@@ -97,7 +97,14 @@ void Entity::updateConstantBuffer() {
 	this->gEntityPSConstantBuffer.specularIntensity = this->material.specularIntensity;
 
 	this->gEntityPSConstantBuffer.useTexture = (unsigned int) this->useTexture;
-	this->gEntityPSConstantBuffer.useNormalMapping = (unsigned int) this->useNormalMapping;
+	if (this->texture != NULL) {
+		this->gEntityPSConstantBuffer.useNormalMapping = (unsigned int) this->texture->useNormalMapping;
+		this->gEntityPSConstantBuffer.useAlpha = (unsigned int) this->texture->useAlpha;
+	}
+	else {
+		this->gEntityPSConstantBuffer.useNormalMapping = false;
+		this->gEntityPSConstantBuffer.useAlpha = false;
+	}
 
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;
@@ -125,18 +132,6 @@ void Entity::attachTextureSampler(TextureSampler* textureSampler) {
 	}
 
 	this->textureSampler = textureSampler;
-	this->dataChanged = true;
-}
-
-void Entity::attachNormalMappingTexture(Texture* normalMappingTexture) {
-	// If no sampler provided before, assign given one.
-	if (normalMappingTexture == NULL){
-		return;
-	}
-
-	this->normalMappingTexture = normalMappingTexture;
-
-	this->useNormalMapping = true;
 	this->dataChanged = true;
 }
 
