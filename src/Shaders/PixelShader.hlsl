@@ -9,6 +9,7 @@ Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t2);
 // Various samplers.
 SamplerState defaultSampler : register(s0);
 SamplerState clampSampler : register(s1);
+SamplerState whiteBorderSampler : register(s2);
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -162,7 +163,7 @@ PSOut main(PSIn psIn){
 			sumDiffuse = sumDiffuse * 0.4f;
 		}
 	}*/
-	if (finalDepth > ShadowMapTexture[0].Sample(clampSampler, shadowMapCoords).r) {
+	if (finalDepth > ShadowMapTexture[0].Sample(whiteBorderSampler, shadowMapCoords).r) {
 		sumDiffuse = sumDiffuse * 0.4f;
 	}
 

@@ -39,7 +39,6 @@ public:
 
 	// Texture functions
 	void createTexture(Texture* texture);
-	void createTextureSampler(TextureSampler* textureSampler);
 
 	// Vector relation functions
 	void addVectorRelation(VectorRelation* vectorRelation);
@@ -67,7 +66,6 @@ public:
 	std::vector<Light*> allLights;
 	std::vector<Camera*> allCameras;
 	std::vector<Texture*> allTextures;
-	std::vector<TextureSampler*> allTextureSamplers;
 	std::vector<VectorRelation*> allVectorRelations;
 
 	// Buffers for providing multiple lights at the same time.

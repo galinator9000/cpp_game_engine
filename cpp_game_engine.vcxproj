@@ -225,6 +225,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h" />
+    <ClInclude Include="src\Game\Light\Shadow\ShadowMap.h" />
     <ClInclude Include="src\Graphics\RenderTarget.h" />
     <ClInclude Include="src\Audio.h" />
     <ClInclude Include="src\Game\Light\SpotLight.h" />
@@ -249,6 +250,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Game\Structs.h" />
     <ClInclude Include="src\Game\Light\PointLight.h" />
     <ClInclude Include="src\Game\StructsBuffer.h" />
+    <ClInclude Include="src\Graphics\Viewport.h" />
     <ClInclude Include="src\Physics.h" />
     <ClInclude Include="src\Graphics.h" />
     <ClInclude Include="src\Exception.h" />

@@ -47,6 +47,7 @@ public:
 	void beginFrame();
 	void endFrame();
 	void Clear(Color c = {0.0f, 0.0f, 0.0f, 1.0f});
+	void setDefault();
 
 	//// Shaders.
 	void createVertexShader(VertexShader* shader, bool setShader = false);
@@ -61,20 +62,14 @@ public:
 	void bindVertexShaderBuffer(unsigned int slot, ID3D11Buffer* pBuffer);
 	void bindPixelShaderBuffer(unsigned int slot, ID3D11Buffer* pBuffer);
 
-	// Main (or default) shader pointers.
-	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
-	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
-	// Depth shaders.
-	VertexShader* depthVertexShader = new VertexShader(L"DepthVS.cso");
+	//// Viewports.
+	void setViewport(Viewport* viewPort);
 
 	//// Render targets.
 	void createRenderTarget(RenderTarget* renderTarget, bool isShaderResource = false, ID3D11Resource* pTargetResource = NULL, bool setRenderTarget = false);
 	void setRenderTarget(RenderTarget* renderTarget);
 	void clearStateRenderTarget(RenderTarget* renderTarget, Color c = { 0.0f, 0.0f, 0.0f, 1.0f });
-
 	std::vector<RenderTarget*> renderTargets;
-	// Main (or default) render target pointer.
-	RenderTarget* mainRenderTarget = new RenderTarget();
 
 	////// GAME ENGINE SECTION
 	// Entity
@@ -98,8 +93,20 @@ public:
 	bool createTextureDDS(Texture* texture);
 	bool createTextureSampler(TextureSampler* textureSampler);
 
+	//// Graphics components
+	// Main render target.
+	RenderTarget* mainRenderTarget;
+	Viewport* viewPort;
+
+	// Samplers
 	TextureSampler* defaultSampler;
 	TextureSampler* clampSampler;
+	TextureSampler* borderSampler;
+
+	// Shaders.
+	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
+	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
+	VertexShader* depthVertexShader = new VertexShader(L"DepthVS.cso");
 
 	unsigned int gWidth;
 	unsigned int gHeight;

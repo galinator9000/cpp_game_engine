@@ -5,8 +5,8 @@
 
 namespace{
 	const auto WND_TITLE = L"Direct3D";
-	const int WIDTH = 1024;
-	const int HEIGHT = 768;
+	const int WIDTH = 1200;
+	const int HEIGHT = 900;
 	const int GRAPHICS_REFRESH_RATE = 60;
 	const float PHYSICS_REFRESH_RATE = 60.0f;
 	const int FOV = 90;

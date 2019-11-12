@@ -1,7 +1,6 @@
 #pragma once
 #include "Config.h"
-#include "Camera.h"
-#include "../Graphics/RenderTarget.h"
+#include "ShadowMap.h"
 
 #include <stdio.h>
 
@@ -11,5 +10,5 @@ public:
 	void Update(Vector3 position, Vector3 direction);
 
 	LIGHT_TYPE lightType;
-	std::vector<std::pair<Camera*, RenderTarget*>> gShadowMaps;
+	std::vector<ShadowMap*> gShadowMaps;
 };

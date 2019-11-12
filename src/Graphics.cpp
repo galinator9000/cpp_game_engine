@@ -60,20 +60,15 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	);
 
 	// Create a viewport configuration & bind it to pipeline.
-	D3D11_VIEWPORT vp;
-	vp.Width = float(WIDTH);
-	vp.Height = float(HEIGHT);
-	vp.MinDepth = 0;
-	vp.MaxDepth = 1;
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
-	this->pDeviceContext->RSSetViewports(1, &vp);
+	this->viewPort = new Viewport({ (float) WIDTH, (float) HEIGHT });
+	this->setViewport(this->viewPort);
 
 	// Get back-buffer from swap chain created by API call.
 	wrl::ComPtr<ID3D11Texture2D> pBackBufferTexture;
 	this->hr = this->pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(pBackBufferTexture.GetAddressOf()));
 
 	//// Render target creations.
+	this->mainRenderTarget = new RenderTarget();
 	this->createRenderTarget(this->mainRenderTarget, false, pBackBufferTexture.Get(), true);
 	renderTargets.push_back(this->mainRenderTarget);
 
@@ -126,7 +121,6 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 		&sampDesc,
 		&defaultSampler->pSamplerState
 	);
-	this->setTextureSamplerPixelShader(0, this->defaultSampler);
 
 	// Clamp sampler.
 	sampDesc = {};
@@ -142,7 +136,30 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 		&sampDesc,
 		&clampSampler->pSamplerState
 	);
-	this->setTextureSamplerPixelShader(1, this->clampSampler);
+
+	// Border sampler.
+	sampDesc = {};
+	this->borderSampler = new TextureSampler();
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.MipLODBias = 0;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = 0;
+
+	// White color.
+	sampDesc.BorderColor[0] = 1;
+	sampDesc.BorderColor[1] = 1;
+	sampDesc.BorderColor[2] = 1;
+	sampDesc.BorderColor[3] = 1;
+
+	this->hr = this->pDevice->CreateSamplerState(
+		&sampDesc,
+		&borderSampler->pSamplerState
+	);
+
+	this->setDefault();
 }
 
 // Clears target view with specified RGBA color, if not specified, does it with black color.
@@ -179,6 +196,13 @@ void Graphics::endFrame() {
 	}
 
 	this->hr = this->pSwapChain->Present(1, 0);
+}
+
+//// Viewports.
+void Graphics::setViewport(Viewport* viewPort) {
+	if (viewPort != NULL) {
+		this->pDeviceContext->RSSetViewports(1, &viewPort->viewPortStruct);
+	}
 }
 
 //// Render targets.
@@ -517,8 +541,7 @@ void Graphics::drawEntity(Entity* entity){
 	this->pDeviceContext->PSSetShaderResources(1, 1, &nullShaderResourceView);
 
 	// Set samplers to default.
-	this->setTextureSamplerPixelShader(0, this->defaultSampler);
-	this->setTextureSamplerPixelShader(1, this->clampSampler);
+	this->setDefault();
 
 	// Bind texture sampler if this entity uses a different one.
 	if (entity->useTexture || entity->useNormalMapping) {
@@ -723,19 +746,8 @@ bool Graphics::createTextureDDS(Texture* texture) {
 	return true;
 }
 
-bool Graphics::createTextureSampler(TextureSampler* textureSampler) {
-	D3D11_SAMPLER_DESC sampDesc = {};
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.MipLODBias = 0;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = 0;
-
-	this->hr = this->pDevice->CreateSamplerState(
-		&sampDesc,
-		&textureSampler->pSamplerState
-	);
-	return true;
+void Graphics::setDefault() {
+	this->setTextureSamplerPixelShader(0, this->defaultSampler);
+	this->setTextureSamplerPixelShader(1, this->clampSampler);
+	this->setTextureSamplerPixelShader(2, this->borderSampler);
 }

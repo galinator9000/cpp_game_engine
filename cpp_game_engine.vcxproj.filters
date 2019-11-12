@@ -141,6 +141,12 @@
     <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Game\Light\Shadow\ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Viewport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Exception.cpp">
@@ -243,7 +249,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Shaders\Lighting.hlsl" />
     <FxCompile Include="src\Shaders\PixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -254,5 +259,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="src\Shaders\Lighting.hlsl" />
   </ItemGroup>
 </Project>

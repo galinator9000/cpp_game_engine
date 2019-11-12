@@ -83,11 +83,9 @@ void Game::Setup(){
 	// Create Texture and Normal Mapping
 	Texture* texture = new Texture("diffuse", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds");
 	Texture* normalMapTexture = new Texture("normalmap", "C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds");
-	TextureSampler* textureSampler = new TextureSampler();
 
 	this->pWorld->createTexture(texture);
 	this->pWorld->createTexture(normalMapTexture);
-	this->pWorld->createTextureSampler(textureSampler);
 
 	Mesh* bigBoxMesh = new Mesh();
 	bigBoxMesh->createBoxGeometry({ 1,1,1 });
