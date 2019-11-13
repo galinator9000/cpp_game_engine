@@ -7,12 +7,6 @@
 #define MAX_LIGHT_COUNT 8
 #define MAX_SHADOW_CASTER_COUNT 4
 
-// Lighting calculation result struct.
-struct LightingOutput {
-	float4 diffuse;
-	float4 specularHighlight;
-};
-
 // Constant identity matrix.
 static const matrix identityMatrix = {
 	{ 1, 0, 0, 0 },
@@ -100,7 +94,7 @@ float calculateConeCenterDistance(float halfSpotAngle, float3 lightDirection, fl
 }
 
 // Calculates diffuse, specular highlight values of all lights with given position & normal values.
-LightingOutput calculateAllLights(
+float4 calculateAllLights(
 	float3 position,
 	float3 normal,
 	float3 eyePosition,
@@ -108,10 +102,8 @@ LightingOutput calculateAllLights(
 	float specularIntensity,
 	float specularPower
 ) {
-	LightingOutput lightingOut;
-
-	lightingOut.diffuse = float4(0, 0, 0, 0);
-	lightingOut.specularHighlight = float4(0, 0, 0, 0);
+	float4 sumDiffuse = float4(0, 0, 0, 0);
+	float4 sumSpecularHighlight = float4(0, 0, 0, 0);
 
 	//// Calculate all lights.
 	for (unsigned int light = 0; light < MAX_LIGHT_COUNT; light++) {
@@ -142,8 +134,8 @@ LightingOutput calculateAllLights(
 		switch (allLights[light].type) {
 			// Directional Light calculation.
 			case DIRECTIONAL_LIGHT:
-				lightingOut.diffuse += calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, normal);
-				lightingOut.specularHighlight += attenuation * calculateSpecularHighlight(
+				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, normal);
+				sumSpecularHighlight += attenuation * calculateSpecularHighlight(
 					allLights[light].direction, normal,
 					specularHighlightColor, specularIntensity, specularPower,
 					eyePosition, position
@@ -151,8 +143,8 @@ LightingOutput calculateAllLights(
 				break;
 			// Point Light calculation.
 			case POINT_LIGHT:
-				lightingOut.diffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normal);
-				lightingOut.specularHighlight += attenuation * calculateSpecularHighlight(
+				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normal);
+				sumSpecularHighlight += attenuation * calculateSpecularHighlight(
 					-dirVertexToLight, normal,
 					specularHighlightColor, specularIntensity, specularPower,
 					eyePosition, position
@@ -161,10 +153,10 @@ LightingOutput calculateAllLights(
 
 			// Spot Light calculation.
 			case SPOT_LIGHT:
-				lightIntensity *= calculateConeCenterDistance(allLights[light].halfSpotAngle, allLights[light].direction, dirVertexToLight);
+				attenuation *= calculateConeCenterDistance(allLights[light].halfSpotAngle, allLights[light].direction, dirVertexToLight);
 
-				lightingOut.diffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normal);
-				lightingOut.specularHighlight += attenuation * calculateSpecularHighlight(
+				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normal);
+				sumSpecularHighlight += attenuation * calculateSpecularHighlight(
 					-dirVertexToLight, normal,
 					specularHighlightColor, specularIntensity, specularPower,
 					eyePosition, position
@@ -173,8 +165,12 @@ LightingOutput calculateAllLights(
 		}
 	}
 
-	lightingOut.diffuse = saturate(lightingOut.diffuse);
-	lightingOut.specularHighlight = saturate(lightingOut.specularHighlight);
+	sumDiffuse = saturate(sumDiffuse);
+	sumSpecularHighlight = saturate(sumSpecularHighlight);
 
-	return lightingOut;
+	// Set alpha values to 1.
+	sumDiffuse.a = 1.0f;
+	sumSpecularHighlight.a = 1.0f;
+
+	return (sumDiffuse + sumSpecularHighlight + ambient);
 }

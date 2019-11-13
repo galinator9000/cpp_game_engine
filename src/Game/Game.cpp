@@ -85,6 +85,7 @@ void Game::Setup(){
 		"brick",
 		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds",
 		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds"
+		//"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_alpha.dds"
 	);
 	this->pWorld->createTexture(brickTexture);
 

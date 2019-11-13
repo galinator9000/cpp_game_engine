@@ -47,9 +47,13 @@ struct PSOut {
 PSOut main(PSIn psIn){
 	PSOut psOut;
 
-	// Normalizing normal input vectors because Rasterizer stage interpolates them.
-	psIn.normal = normalize(psIn.normal);
+	// Current pixel color: Use solid entity color, or sample from texture if entity provides it.
+	float4 pixelColor = entityColor;
+	if (useTexture) {
+		pixelColor = Texture.Sample(defaultSampler, psIn.texture_UV);
+	}
 
+	psIn.normal = normalize(psIn.normal);
 	// Sample from normal map texture if entity uses it.
 	if (useNormalMapping) {
 		psIn.tangent = normalize(psIn.tangent);
@@ -67,16 +71,26 @@ PSOut main(PSIn psIn){
 				psIn.tangent,
 				psIn.binormal,
 				psIn.normal
-			)
+				)
 		);
 	}
 
-	LightingOutput lightingOutput = calculateAllLights(
+	// If uses alpha value from texture, sample it.
+	if (useAlpha) {
+		float3 alpha = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).rgb;
+		pixelColor.a = (alpha.r + alpha.g + alpha.b) / 3;
+	}
+	else {
+		pixelColor.a = 1.0f;
+	}
+
+	// Calculate lighting.
+	float4 lightingFactor = calculateAllLights(
 		psIn.positionPS, psIn.normal, psIn.eyePosition,
 		specularHighlightColor, specularIntensity, specularPower
 	);
 
-	// Calculate shadow map texture UV coordinates.
+	// Calculate shadowing.
 	float2 shadowMapCoords;
 	shadowMapCoords.x = psIn.shadowMapPosition[0].x / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
 	shadowMapCoords.y = -psIn.shadowMapPosition[0].y / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
@@ -98,35 +112,12 @@ PSOut main(PSIn psIn){
 
 		float sampledDepth = ShadowMapTexture[0].Sample(whiteBorderSampler, shadowMapCoords).r;
 		if (finalDepth > sampledDepth) {
-			lightingOutput.diffuse = lightingOutput.diffuse * float4(0.4f, 0.4f, 0.4f, 1);
+			lightingFactor = lightingFactor * 0.4f;
 		}
 	}
 
-	// Use solid color of entity or texture?
-	float4 texture_or_solid = entityColor;
-	if (useTexture) {
-		texture_or_solid = Texture.Sample(defaultSampler, psIn.texture_UV);
-	}
-
-	// Set alpha values to 1.
-	lightingOutput.diffuse.a = 1.0f;
-	lightingOutput.specularHighlight.a = 1.0f;
-
-	// If uses alpha value from texture, sample it. 
-	if (useAlpha) {
-		float3 alpha = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).rgb;
-
-		texture_or_solid.a = (alpha.r + alpha.g + alpha.b) / 3;
-		lightingOutput.specularHighlight.a = (alpha.r + alpha.g + alpha.b) / 3;
-		lightingOutput.diffuse.a = (alpha.r + alpha.g + alpha.b) / 3;
-	}else {
-		texture_or_solid.a = 1.0f;
-	}
-
-	// Add ambient light & blend the color of the entity.
-	psOut.color = float4(
-		(lightingOutput.diffuse + ambient) * (texture_or_solid + lightingOutput.specularHighlight)
-	);
+	// Final result: Combine light & pixel color.
+	psOut.color = float4(lightingFactor * pixelColor);
 
 	return psOut;
 }
