@@ -113,7 +113,7 @@ PSOut main(PSIn psIn){
 	lightingOutput.specularHighlight.a = 1.0f;
 
 	// If uses alpha value from texture, sample it. 
-	if (useNormalMapping) {
+	if (useAlpha) {
 		float3 alpha = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).rgb;
 
 		texture_or_solid.a = (alpha.r + alpha.g + alpha.b) / 3;
