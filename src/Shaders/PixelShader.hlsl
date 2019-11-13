@@ -4,20 +4,11 @@
 Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
 Texture2D AlphaTexture : register(t2);
-// Shadow mapping textures.
-Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
 
 // Various samplers.
 SamplerState defaultSampler : register(s0);
 SamplerState clampSampler : register(s1);
 SamplerState whiteBorderSampler : register(s2);
-
-SamplerComparisonState shadowPCFSampler{
-	Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
-	ComparisonFunc = LESS_EQUAL;
-};
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -28,18 +19,6 @@ cbuffer EntityPSConstantBuffer : register(b0) {
 	bool useNormalMapping;
 	bool useAlpha;
 	float3 padding;
-};
-
-cbuffer LightConstantBuffer : register(b1) {
-	Light allLights[MAX_LIGHT_COUNT];
-};
-
-// Constant identity matrix.
-static const matrix identityMatrix = {
-	{ 1, 0, 0, 0 },
-	{ 0, 1, 0, 0 },
-	{ 0, 0, 1, 0 },
-	{ 0, 0, 0, 1 }
 };
 
 // Input structure of the Pixel shader.
@@ -92,71 +71,10 @@ PSOut main(PSIn psIn){
 		);
 	}
 
-	float4 sumDiffuse;
-	float4 sumSpecular;
-
-	//// Calculate all lights.
-	for (unsigned int light = 0; light < MAX_LIGHT_COUNT; light++) {
-		// Undefined lights' intensity is set to -1.
-		if (!allLights[light].isActive || allLights[light].intensity <= 0.0f) {
-			continue;
-		}
-
-		float lightIntensity = allLights[light].intensity;
-
-		// Vertex and Light vector calculations.
-		float3 vertexToLight = float3(0, 0, 0);
-		float distVertexToLight = 0;
-		float3 dirVertexToLight = float3(0, 0, 0);
-
-		float attenuation = 1;
-		if (
-			allLights[light].type == POINT_LIGHT ||
-			allLights[light].type == SPOT_LIGHT
-		) {
-			vertexToLight = allLights[light].position - psIn.positionPS;
-			distVertexToLight = length(vertexToLight);
-			dirVertexToLight = normalize(vertexToLight);
-
-			attenuation = calculateAttenuation(distVertexToLight);
-		}
-		
-		switch (allLights[light].type) {
-			// Directional Light calculation.
-			case DIRECTIONAL_LIGHT:
-				sumDiffuse += calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, psIn.normal);
-				sumSpecular += attenuation * calculateSpecularHighlight(
-					allLights[light].direction, psIn.normal,
-					specularHighlightColor, specularIntensity, specularPower,
-					psIn.eyePosition.xyz, psIn.positionPS
-				);
-				break;
-			// Point Light calculation.
-			case POINT_LIGHT:
-				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, psIn.normal);
-				sumSpecular += attenuation * calculateSpecularHighlight(
-					-dirVertexToLight, psIn.normal,
-					specularHighlightColor, specularIntensity, specularPower,
-					psIn.eyePosition.xyz, psIn.positionPS
-				);
-				break;
-
-			// Spot Light calculation.
-			case SPOT_LIGHT:
-				lightIntensity *= calculateConeCenterDistance(allLights[light].halfSpotAngle, allLights[light].direction, dirVertexToLight);
-
-				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, psIn.normal);
-				sumSpecular += attenuation * calculateSpecularHighlight(
-					-dirVertexToLight, psIn.normal,
-					specularHighlightColor, specularIntensity, specularPower,
-					psIn.eyePosition.xyz, psIn.positionPS
-				);
-				break;
-		}
-	}
-
-	sumDiffuse = saturate(sumDiffuse);
-	sumSpecular = saturate(sumSpecular);
+	LightingOutput lightingOutput = calculateAllLights(
+		psIn.positionPS, psIn.normal, psIn.eyePosition,
+		specularHighlightColor, specularIntensity, specularPower
+	);
 
 	// Calculate shadow map texture UV coordinates.
 	float2 shadowMapCoords;
@@ -180,7 +98,7 @@ PSOut main(PSIn psIn){
 
 		float sampledDepth = ShadowMapTexture[0].Sample(whiteBorderSampler, shadowMapCoords).r;
 		if (finalDepth > sampledDepth) {
-			sumDiffuse = sumDiffuse * float4(0.4f, 0.4f, 0.4f, 1);
+			lightingOutput.diffuse = lightingOutput.diffuse * float4(0.4f, 0.4f, 0.4f, 1);
 		}
 	}
 
@@ -191,23 +109,23 @@ PSOut main(PSIn psIn){
 	}
 
 	// Set alpha values to 1.
-	sumDiffuse.a = 1.0f;
-	sumSpecular.a = 1.0f;
+	lightingOutput.diffuse.a = 1.0f;
+	lightingOutput.specularHighlight.a = 1.0f;
 
 	// If uses alpha value from texture, sample it. 
 	if (useNormalMapping) {
 		float3 alpha = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).rgb;
 
 		texture_or_solid.a = (alpha.r + alpha.g + alpha.b) / 3;
-		sumSpecular.a = (alpha.r + alpha.g + alpha.b) / 3;
-		sumDiffuse.a = (alpha.r + alpha.g + alpha.b) / 3;
+		lightingOutput.specularHighlight.a = (alpha.r + alpha.g + alpha.b) / 3;
+		lightingOutput.diffuse.a = (alpha.r + alpha.g + alpha.b) / 3;
 	}else {
 		texture_or_solid.a = 1.0f;
 	}
 
 	// Add ambient light & blend the color of the entity.
 	psOut.color = float4(
-		(sumDiffuse + ambient) * (texture_or_solid + sumSpecular)
+		(lightingOutput.diffuse + ambient) * (texture_or_solid + lightingOutput.specularHighlight)
 	);
 
 	return psOut;
