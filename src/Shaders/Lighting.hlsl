@@ -172,5 +172,8 @@ float4 calculateAllLights(
 	sumDiffuse.a = 1.0f;
 	sumSpecularHighlight.a = 1.0f;
 
-	return (sumDiffuse + sumSpecularHighlight + ambient);
+	float4 finalOutput = (sumDiffuse + sumSpecularHighlight + ambient);
+	finalOutput.a = 1;
+
+	return finalOutput;
 }

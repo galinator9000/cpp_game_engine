@@ -27,6 +27,7 @@ cbuffer MeshDeformerVSConstantBuffer : register(b2) {
 struct ShadowMap {
 	matrix viewMatrix;
 	matrix projectionMatrix;
+	bool isActive;
 };
 cbuffer ShadowMapVSConstantBuffer : register(b3) {
 	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
@@ -121,20 +122,14 @@ VSOut main(VSIn vsIn){
 
 	// Apply shadow map projection & view matrices.
 	// These values will be processed for shadowing.
-	/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		float4 shadowMapPosition = mul(
-			mul(
-				finalWorldPosition, shadowMaps[sc].viewMatrix
-			),
-			shadowMaps[sc].projectionMatrix
-		);
-
-		vsOut.shadowMapCoord[sc] = shadowMapPosition.xy;
-		vsOut.finalDepth[sc] = shadowMapPosition.z;
-	}*/
-	float4 shadowMapPosition = mul(finalWorldPosition, shadowMaps[0].viewMatrix);
-	shadowMapPosition = mul(shadowMapPosition, shadowMaps[0].projectionMatrix);
-	vsOut.shadowMapPosition[0] = shadowMapPosition;
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		float4 shadowMapPosition = float4(-1, -1, -1, 1);
+		if (shadowMaps[sc].isActive) {
+			shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].viewMatrix);
+			shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].projectionMatrix);
+		}
+		vsOut.shadowMapPosition[sc] = shadowMapPosition;
+	}
 
 	// Apply "View" and "Projection" transform matrices.
 	vsOut.position = mul(finalWorldPosition, viewMatrix);

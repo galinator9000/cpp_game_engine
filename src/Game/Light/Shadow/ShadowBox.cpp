@@ -9,6 +9,8 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) 
 		{WIDTH, HEIGHT}
 	);
 
+	this->isActive = true;
+
 	switch (this->lightType) {
 		case LIGHT_TYPE::SPOT_LIGHT:
 			shadowMapCamera = new Camera(position, direction, WIDTH, HEIGHT, PROJECTION_TYPE::PERSPECTIVE);

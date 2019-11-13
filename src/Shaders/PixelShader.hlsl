@@ -21,6 +21,16 @@ cbuffer EntityPSConstantBuffer : register(b0) {
 	float3 padding;
 };
 
+// Shadow map struct and constant buffers.
+struct ShadowMap {
+	matrix viewMatrix;
+	matrix projectionMatrix;
+	bool isActive;
+};
+cbuffer ShadowMapVSConstantBuffer : register(b2) {
+	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
+};
+
 // Input structure of the Pixel shader.
 struct PSIn {
 	// Vertex values
@@ -92,27 +102,25 @@ PSOut main(PSIn psIn){
 
 	// Calculate shadowing.
 	float2 shadowMapCoords;
-	shadowMapCoords.x = psIn.shadowMapPosition[0].x / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
-	shadowMapCoords.y = -psIn.shadowMapPosition[0].y / psIn.shadowMapPosition[0].w * 0.5 + 0.5;
-	float finalDepth = (psIn.shadowMapPosition[0].z / psIn.shadowMapPosition[0].w) - 0.001f;
+	float finalDepth;
+	float nearestObjectDepth;
+	// Process shadow maps.
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		if (shadowMaps[sc].isActive) {
+			shadowMapCoords.x = psIn.shadowMapPosition[sc].x / psIn.shadowMapPosition[sc].w * 0.5 + 0.5;
+			shadowMapCoords.y = -psIn.shadowMapPosition[sc].y / psIn.shadowMapPosition[sc].w * 0.5 + 0.5;
 
-	if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
-		//// Process shadow maps.
-		/*for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-			float sampledDepth = ShadowMapTexture[sc].Sample(ShadowMapSampler[sc], psIn.shadowMapCoord[sc]).r;
+			if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
+				finalDepth = (psIn.shadowMapPosition[sc].z / psIn.shadowMapPosition[sc].w) - 0.001f;
+				nearestObjectDepth = ShadowMapTexture[sc].Sample(whiteBorderSampler, shadowMapCoords).r;
 
-			if (psIn.finalDepth[sc] > sampledDepth) {
-				sumDiffuse = sumDiffuse * 0.4f;
+				if (finalDepth > nearestObjectDepth) {
+					lightingFactor *= float4(0.4, 0.4, 0.4, 1);
+
+					// Shadow each pixel only once.
+					break;
+				}
 			}
-		}*/
-
-		// PCF shadow
-		/*float shadowFactor = ShadowMapTexture[0].SampleCmpLevelZero(shadowPCFSampler, shadowMapCoords, finalDepth);
-		sumDiffuse = sumDiffuse * (1-shadowFactor);*/
-
-		float sampledDepth = ShadowMapTexture[0].Sample(whiteBorderSampler, shadowMapCoords).r;
-		if (finalDepth > sampledDepth) {
-			lightingFactor = lightingFactor * 0.4f;
 		}
 	}
 

@@ -37,6 +37,7 @@ void World::Setup() {
 			&(gAllShadowMapConstantBuffers[sc].projectionMatrix),
 			dx::XMMatrixIdentity()
 		);
+		gAllShadowMapConstantBuffers[sc].isActive = false;
 	}
 	this->pGfx->createShadowMapsBuffer(
 		&this->gAllShadowMapConstantBuffers[0],
@@ -241,7 +242,7 @@ void World::Render() {
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
 	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 
-	// Provide View & Projection matrices of shadow boxes to Vertex Shader.
+	// Provide View & Projection matrices of shadow boxes to Vertex & Pixel Shader.
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (this->gShadowCasters[sc] == NULL) {
 			continue;
@@ -249,9 +250,11 @@ void World::Render() {
 
 		this->gAllShadowMapConstantBuffers[sc].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera->gCameraVSConstantBuffer.viewMatrix;;
 		this->gAllShadowMapConstantBuffers[sc].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera->gCameraVSConstantBuffer.projectionMatrix;
+		this->gAllShadowMapConstantBuffers[sc].isActive = this->gShadowCasters[sc]->gShadowBox->isActive;
 	}
 	this->pGfx->updateShadowMapsBuffer(&this->gAllShadowMapConstantBuffers[0], MAX_SHADOW_CASTER_COUNT, this->pAllShadowMapConstantBuffers.Get());
 	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
+	this->pGfx->bindPixelShaderBuffer(2, this->pAllShadowMapConstantBuffers.Get());
 
 	// Provide shadow mappings to Pixel Shader
 	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 3;

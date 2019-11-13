@@ -11,4 +11,5 @@ public:
 
 	LIGHT_TYPE lightType;
 	std::vector<ShadowMap*> gShadowMaps;
+	bool isActive = false;
 };
