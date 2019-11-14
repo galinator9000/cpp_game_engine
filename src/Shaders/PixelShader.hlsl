@@ -101,7 +101,7 @@ PSOut main(PSIn psIn){
 	);
 
 	// Calculate shadowing.
-	float2 shadowMapCoords;
+	/*float2 shadowMapCoords;
 	float finalDepth;
 	float nearestObjectDepth;
 	// Process shadow maps.
@@ -122,7 +122,7 @@ PSOut main(PSIn psIn){
 				}
 			}
 		}
-	}
+	}*/
 
 	// Final result: Combine light & pixel color.
 	psOut.color = float4(lightingFactor * pixelColor);

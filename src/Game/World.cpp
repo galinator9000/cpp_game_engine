@@ -248,7 +248,7 @@ void World::Render() {
 			continue;
 		}
 
-		this->gAllShadowMapConstantBuffers[sc].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera->gCameraVSConstantBuffer.viewMatrix;;
+		this->gAllShadowMapConstantBuffers[sc].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera->gCameraVSConstantBuffer.viewMatrix;
 		this->gAllShadowMapConstantBuffers[sc].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera->gCameraVSConstantBuffer.projectionMatrix;
 		this->gAllShadowMapConstantBuffers[sc].isActive = this->gShadowCasters[sc]->gShadowBox->isActive;
 	}

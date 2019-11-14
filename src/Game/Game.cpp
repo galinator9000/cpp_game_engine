@@ -157,7 +157,7 @@ void Game::Setup(){
 	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0.25f, -1, 0.25f), 0.1f, Color(0.66f, 0.66f, 0.66f));
 	this->pWorld->addLight(directionalLight);
 
-	SpotLight* wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
+	SpotLight* wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
 	this->pWorld->addLight(wMainCameraSpotLight);
 
 	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));

@@ -20,7 +20,7 @@ static const float attenuation_constant = 1.0f;
 static const float attenuation_linear = 0.014;
 static const float attenuation_quadratic = 0.0007;
 // Global ambient value for diffuse calculation.
-static const float4 ambient = float4(0.1f, 0.1f, 0.1f, 0);
+static const float4 ambient = float4(0.25f, 0.25f, 0.25f, 0);
 
 //// Pixel Shader buffers & resources.
 // Shadow mapping textures.
