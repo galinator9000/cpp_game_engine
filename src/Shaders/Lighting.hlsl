@@ -20,11 +20,23 @@ static const float attenuation_constant = 1.0f;
 static const float attenuation_linear = 0.014;
 static const float attenuation_quadratic = 0.0007;
 // Global ambient value for diffuse calculation.
-static const float4 ambient = float4(0.25f, 0.25f, 0.25f, 0);
+static const float4 ambientDiffuseLightGlobal = float4(0.25f, 0.25f, 0.25f, 0);
 
 //// Pixel Shader buffers & resources.
+SamplerState whiteBorderSampler : register(s2);
+
 // Shadow mapping textures.
 Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
+
+// Shadow map struct and constant buffers.
+struct ShadowMap {
+	matrix viewMatrix;
+	matrix projectionMatrix;
+	bool isActive;
+};
+cbuffer ShadowMapVSConstantBuffer : register(b2) {
+	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
+};
 
 // Light intensity, direction and position values.
 struct Light {
@@ -172,8 +184,42 @@ float4 calculateAllLights(
 	sumDiffuse.a = 1.0f;
 	sumSpecularHighlight.a = 1.0f;
 
-	float4 finalOutput = (sumDiffuse + sumSpecularHighlight + ambient);
+	float4 finalOutput = (sumDiffuse + sumSpecularHighlight);
 	finalOutput.a = 1;
 
 	return finalOutput;
+}
+
+float calculateAllShadows(in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT]) {
+	float2 shadowMapCoords;
+	float finalDepth;
+	float nearestObjectDepth;
+
+	float shadowFactor = 0;
+
+	// Process shadow maps.
+	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
+		if (shadowMaps[sc].isActive) {
+			shadowMapCoords.x = shadowMapPosition[sc].x / shadowMapPosition[sc].w * 0.5 + 0.5;
+			shadowMapCoords.y = -shadowMapPosition[sc].y / shadowMapPosition[sc].w * 0.5 + 0.5;
+
+			if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
+				finalDepth = (shadowMapPosition[sc].z / shadowMapPosition[sc].w) - 0.001f;
+				if (finalDepth > 1.0f) {
+					finalDepth = 0;
+				}
+
+				nearestObjectDepth = ShadowMapTexture[sc].Sample(whiteBorderSampler, shadowMapCoords).r;
+
+				if (finalDepth > nearestObjectDepth) {
+					shadowFactor = 0.6;
+
+					// Shadow each pixel only once.
+					break;
+				}
+			}
+		}
+	}
+
+	return shadowFactor;
 }

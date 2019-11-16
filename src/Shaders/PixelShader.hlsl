@@ -8,7 +8,6 @@ Texture2D AlphaTexture : register(t2);
 // Various samplers.
 SamplerState defaultSampler : register(s0);
 SamplerState clampSampler : register(s1);
-SamplerState whiteBorderSampler : register(s2);
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -19,16 +18,6 @@ cbuffer EntityPSConstantBuffer : register(b0) {
 	bool useNormalMapping;
 	bool useAlpha;
 	float3 padding;
-};
-
-// Shadow map struct and constant buffers.
-struct ShadowMap {
-	matrix viewMatrix;
-	matrix projectionMatrix;
-	bool isActive;
-};
-cbuffer ShadowMapVSConstantBuffer : register(b2) {
-	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
 };
 
 // Input structure of the Pixel shader.
@@ -100,32 +89,14 @@ PSOut main(PSIn psIn){
 		specularHighlightColor, specularIntensity, specularPower
 	);
 
-	// Calculate shadowing.
-	/*float2 shadowMapCoords;
-	float finalDepth;
-	float nearestObjectDepth;
-	// Process shadow maps.
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (shadowMaps[sc].isActive) {
-			shadowMapCoords.x = psIn.shadowMapPosition[sc].x / psIn.shadowMapPosition[sc].w * 0.5 + 0.5;
-			shadowMapCoords.y = -psIn.shadowMapPosition[sc].y / psIn.shadowMapPosition[sc].w * 0.5 + 0.5;
+	// Calculate shadows.
+	float shadowFactor = calculateAllShadows(psIn.shadowMapPosition);
 
-			if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
-				finalDepth = (psIn.shadowMapPosition[sc].z / psIn.shadowMapPosition[sc].w) - 0.001f;
-				nearestObjectDepth = ShadowMapTexture[sc].Sample(whiteBorderSampler, shadowMapCoords).r;
-
-				if (finalDepth > nearestObjectDepth) {
-					lightingFactor *= float4(0.4, 0.4, 0.4, 1);
-
-					// Shadow each pixel only once.
-					break;
-				}
-			}
-		}
-	}*/
+	// Apply shadow.
+	lightingFactor = float4((lightingFactor * (1 - shadowFactor)).rgb, 1);
 
 	// Final result: Combine light & pixel color.
-	psOut.color = float4(lightingFactor * pixelColor);
+	psOut.color = float4((lightingFactor + ambientDiffuseLightGlobal) * pixelColor);
 
 	return psOut;
 }
