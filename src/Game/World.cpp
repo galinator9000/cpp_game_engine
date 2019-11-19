@@ -109,6 +109,8 @@ void World::Update(){
 
 				switch (light->type) {
 					case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+						this->gShadowCasters[shadowCasterIndex] = light;
+						shadowCasterIndex++;
 						break;
 
 					case LIGHT_TYPE::SPOT_LIGHT:
@@ -120,6 +122,11 @@ void World::Update(){
 						break;
 
 					case LIGHT_TYPE::POINT_LIGHT:
+						/*lightDist = Vector3::distance(
+							light->gPosition,
+							this->activeCamera->gPosition
+						);
+						gShadowCastersDistanceLPMap[lightDist] = light;*/
 						break;
 				}
 			}
@@ -144,7 +151,6 @@ void World::Update(){
 			MAX_LIGHT_COUNT,
 			this->pAllLightConstantBuffers.Get()
 		);
-		shouldUpdateLightsGPUData = false;
 	}
 
 	// Update all cameras.
@@ -206,10 +212,25 @@ void World::Render() {
 		}
 
 		// Copy position & direction values from light to camera.
-		this->gShadowCasters[sc]->gShadowBox->Update(
-			this->gShadowCasters[sc]->gPosition,
-			this->gShadowCasters[sc]->gDirection
-		);
+		switch (this->gShadowCasters[sc]->gShadowBox->lightType) {
+			case DIRECTIONAL_LIGHT:
+				this->gShadowCasters[sc]->gShadowBox->Update(
+					(
+						this->activeCamera->gPosition +
+						-this->gShadowCasters[sc]->gDirection.normalize() * 25
+					),
+					this->gShadowCasters[sc]->gDirection.normalize()
+				);
+				break;
+			case SPOT_LIGHT:
+				this->gShadowCasters[sc]->gShadowBox->Update(
+					this->gShadowCasters[sc]->gPosition,
+					this->gShadowCasters[sc]->gDirection
+				);
+				break;
+			case POINT_LIGHT:
+				break;
+		}
 
 		Camera* shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera;
 		RenderTarget* shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pRenderTarget;

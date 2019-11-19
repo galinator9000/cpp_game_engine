@@ -15,6 +15,10 @@ public:
 	void Setup();
 	void Update();
 
+	DirectionalLight* directionalSunLight;
+	PointLight* pointLight;
+	SpotLight* wMainCameraSpotLight;
+
 	Character* mainCharacter = NULL;
 
 	// Base components for a scene.

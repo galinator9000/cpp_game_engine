@@ -90,6 +90,7 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) 
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
 			shadowMapCamera = new Camera(Vector3(0, 0, 0), direction, WIDTH, HEIGHT, PROJECTION_TYPE::ORTHOGRAPHIC);
+			shadowMapCamera->setOrthographicProjection(24, 24);
 			shadowMapRenderTarget = new RenderTarget();
 
 			this->gShadowMaps.push_back(
@@ -105,12 +106,23 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) 
 
 void ShadowBox::Update(Vector3 position, Vector3 direction) {
 	for (unsigned int a = 0; a < this->gShadowMaps.size(); a++) {
-		if (this->lightType == DIRECTIONAL_LIGHT || this->lightType == SPOT_LIGHT) {
-			this->gShadowMaps.at(a)->pCamera->setDirection(direction);
+		switch (this->lightType) {
+			case LIGHT_TYPE::SPOT_LIGHT:
+				this->gShadowMaps.at(a)->pCamera->setPosition(position);
+				this->gShadowMaps.at(a)->pCamera->setDirection(direction);
+				break;
+
+			case LIGHT_TYPE::POINT_LIGHT:
+				this->gShadowMaps.at(a)->pCamera->setPosition(position);
+				this->gShadowMaps.at(a)->pCamera->setDirection(direction);
+				break;
+
+			case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+				this->gShadowMaps.at(a)->pCamera->setPosition(position);
+				this->gShadowMaps.at(a)->pCamera->setDirection(direction);
+				break;
 		}
-		if (this->lightType == POINT_LIGHT || this->lightType == SPOT_LIGHT) {
-			this->gShadowMaps.at(a)->pCamera->setPosition(position);
-		}
+
 		this->gShadowMaps.at(a)->pCamera->updateConstantBuffer();
 	}
 }

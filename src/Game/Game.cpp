@@ -154,14 +154,14 @@ void Game::Setup(){
 	}
 
 	//// Add lights to scene.
-	DirectionalLight* directionalLight = new DirectionalLight(Vector3(0.25f, -1, 0.25f), 0.1f, Color(0.66f, 0.66f, 0.66f));
-	this->pWorld->addLight(directionalLight);
+	this->directionalSunLight = new DirectionalLight(Vector3(-1, -1, 1), 0.15f, Color(0.99f, 0.72f, 0.074f), true);
+	this->pWorld->addLight(this->directionalSunLight);
 
-	SpotLight* wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
-	this->pWorld->addLight(wMainCameraSpotLight);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
+	this->pWorld->addLight(this->wMainCameraSpotLight);
 
-	PointLight* pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));
-	//this->pWorld->addLight(pointLight);
+	this->pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));
+	//this->pWorld->addLight(this->pointLight);
 
 	//// Attach point light to main camera.
 	// Position relation, camera to point light.
@@ -187,20 +187,20 @@ void Game::Setup(){
 	// Position relation, camera to spot light.
 	VectorRelation* camPositionSL = new Vector3Relation(
 		&(pwSecondaryCamera->gPosition),
-		&(wMainCameraSpotLight->gPosition),
+		&(this->wMainCameraSpotLight->gPosition),
 		VECTOR_RELATION_TYPE::COPY,
 		&(pwSecondaryCamera->dataChanged),
-		&(wMainCameraSpotLight->dataChanged)
+		&(this->wMainCameraSpotLight->dataChanged)
 	);
 	this->pWorld->addVectorRelation(camPositionSL);
 
 	// Direction relation, camera to spot light.
 	VectorRelation* camDirectionSL = new Vector3Relation(
 		&(pwSecondaryCamera->gDirection),
-		&(wMainCameraSpotLight->gDirection),
+		&(this->wMainCameraSpotLight->gDirection),
 		VECTOR_RELATION_TYPE::COPY,
 		&(pwSecondaryCamera->dataChanged),
-		&(wMainCameraSpotLight->dataChanged)
+		&(this->wMainCameraSpotLight->dataChanged)
 	);
 	this->pWorld->addVectorRelation(camDirectionSL);
 }
@@ -211,6 +211,6 @@ void Game::Update(){
 	}
 
 	// Circular motion
-	float cosx = cos(timer.Peek() * dx::XM_2PI) * 5.0f;
-	float siny = sin(timer.Peek() * dx::XM_2PI) * 5.0f;
+	float cosx = cos(timer.Peek() * dx::XM_2PI) * 5;
+	float siny = sin(timer.Peek() * dx::XM_2PI) * 5;
 }
