@@ -104,7 +104,7 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType) 
 	}
 }
 
-void ShadowBox::Update(Vector3 position, Vector3 direction) {
+void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera) {
 	for (unsigned int a = 0; a < this->gShadowMaps.size(); a++) {
 		switch (this->lightType) {
 			case LIGHT_TYPE::SPOT_LIGHT:
@@ -118,6 +118,25 @@ void ShadowBox::Update(Vector3 position, Vector3 direction) {
 				break;
 
 			case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+				// Calculate active camera's frustum vertices.
+				dx::BoundingFrustum activeCameraFrustum(
+					dx::XMMatrixTranspose(
+						dx::XMLoadFloat4x4(&activeCamera->gCameraVSConstantBuffer.projectionMatrix)
+					)
+				);
+				dx::XMMATRIX viewInverse = dx::XMMatrixInverse(NULL,
+					dx::XMMatrixTranspose(
+						dx::XMLoadFloat4x4(&activeCamera->gCameraVSConstantBuffer.viewMatrix)
+					)
+				);
+				activeCameraFrustum.Transform(activeCameraFrustum, viewInverse);
+
+				// Calculate shadow box position and orientation with using active camera's frustum.
+				// Get corner positions.
+				//dx::XMFLOAT3* shadowMapFrustumCorners = new dx::XMFLOAT3[shadowMapFrustum.CORNER_COUNT];
+				dx::XMFLOAT3 activeCameraFrustumCorners[activeCameraFrustum.CORNER_COUNT];
+				activeCameraFrustum.GetCorners(activeCameraFrustumCorners);
+
 				this->gShadowMaps.at(a)->pCamera->setPosition(position);
 				this->gShadowMaps.at(a)->pCamera->setDirection(direction);
 				break;

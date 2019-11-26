@@ -40,10 +40,6 @@ void Light::Update() {
 	if (this->dataChanged) {
 		this->updateConstantBuffer();
 		this->dataChanged = false;
-		
-		if (this->isCastingShadow && this->gShadowBox != NULL) {
-			this->gShadowBox->Update(this->gPosition, this->gDirection);
-		}
 	}
 }
 

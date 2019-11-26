@@ -272,7 +272,7 @@ void Camera::setPerspectiveProjection(float fieldOfView, float aspectRatio, floa
 		&this->gCameraVSConstantBuffer.projectionMatrix,
 		dx::XMMatrixTranspose(
 			dx::XMMatrixPerspectiveFovLH(
-			((float)fieldOfView / 360) * (2.0f * dx::XM_PI),
+			((float)fieldOfView / 360) * (dx::XM_2PI),
 				aspectRatio,
 				0.5f,
 				100.0f

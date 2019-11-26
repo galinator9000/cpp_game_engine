@@ -219,13 +219,15 @@ void World::Render() {
 						this->activeCamera->gPosition +
 						-this->gShadowCasters[sc]->gDirection.normalize() * 25
 					),
-					this->gShadowCasters[sc]->gDirection.normalize()
+					this->gShadowCasters[sc]->gDirection.normalize(),
+					this->activeCamera
 				);
 				break;
 			case SPOT_LIGHT:
 				this->gShadowCasters[sc]->gShadowBox->Update(
 					this->gShadowCasters[sc]->gPosition,
-					this->gShadowCasters[sc]->gDirection
+					this->gShadowCasters[sc]->gDirection.normalize(),
+					this->activeCamera
 				);
 				break;
 			case POINT_LIGHT:
