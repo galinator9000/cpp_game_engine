@@ -83,8 +83,8 @@ void Game::Setup(){
 	// Create Texture and Normal Mapping
 	Texture* brickTexture = new Texture(
 		"brick",
-		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds",
-		"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds"
+		"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds",
+		"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds"
 		//"C:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_alpha.dds"
 	);
 	this->pWorld->createTexture(brickTexture);
@@ -131,7 +131,7 @@ void Game::Setup(){
 	);
 
 	// Load mesh.
-	if (mainCharacterMesh->LoadFBX("C:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
+	if (mainCharacterMesh->LoadFBX("D:\\VisualStudioProjects\\cpp_game_engine\\assets\\character01.fbx", "")) {
 		// Set Animation
 		MeshDeformer* mainCharacterMeshDeformer = new MeshDeformer();
 		mainCharacter->attachMeshDeformer(mainCharacterMeshDeformer);
@@ -181,7 +181,7 @@ void Game::Setup(){
 		WIDTH, HEIGHT,
 		PROJECTION_TYPE::PERSPECTIVE
 	);
-	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
+	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT, 0.5f, 2.0f);
 	pWorld->addCamera(pwSecondaryCamera, true);
 
 	// Position relation, camera to spot light.

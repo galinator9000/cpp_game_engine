@@ -206,6 +206,10 @@ void World::Render() {
 	this->pGfx->setPixelShader(NULL);
 
 	// Render only depth values of entities for each shadow map.
+	Camera* shadowMapCamera;
+	RenderTarget* shadowMapRenderTarget;
+	Viewport* shadowMapViewport;
+
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (this->gShadowCasters[sc] == NULL) {
 			continue;
@@ -215,10 +219,7 @@ void World::Render() {
 		switch (this->gShadowCasters[sc]->gShadowBox->lightType) {
 			case DIRECTIONAL_LIGHT:
 				this->gShadowCasters[sc]->gShadowBox->Update(
-					(
-						this->activeCamera->gPosition +
-						-this->gShadowCasters[sc]->gDirection.normalize() * 25
-					),
+					this->gShadowCasters[sc]->gPosition,
 					this->gShadowCasters[sc]->gDirection.normalize(),
 					this->activeCamera
 				);
@@ -234,9 +235,9 @@ void World::Render() {
 				break;
 		}
 
-		Camera* shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera;
-		RenderTarget* shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pRenderTarget;
-		Viewport* shadowMapViewport = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pViewPort;
+		shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pCamera;
+		shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pRenderTarget;
+		shadowMapViewport = this->gShadowCasters[sc]->gShadowBox->gShadowMaps.at(0)->pViewPort;
 
 		// Set render target and camera for rendering scene from light's "view".
 		this->pGfx->setViewport(shadowMapViewport);
