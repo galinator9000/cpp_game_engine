@@ -181,7 +181,7 @@ void Game::Setup(){
 		WIDTH, HEIGHT,
 		PROJECTION_TYPE::PERSPECTIVE
 	);
-	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT, 0.5f, 2.0f);
+	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT, 0.5f, 50.0f);
 	pWorld->addCamera(pwSecondaryCamera, true);
 
 	// Position relation, camera to spot light.

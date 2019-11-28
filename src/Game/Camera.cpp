@@ -274,8 +274,8 @@ void Camera::setPerspectiveProjection(float fieldOfView, float aspectRatio, floa
 			dx::XMMatrixPerspectiveFovLH(
 			((float)fieldOfView / 360) * (dx::XM_2PI),
 				aspectRatio,
-				0.5f,
-				100.0f
+				nearZ,
+				farZ
 			)
 		)
 	);
