@@ -1,13 +1,13 @@
 #include "Lighting.hlsl"
 
+// Various samplers.
+SamplerState defaultSampler : register(s0);
+SamplerState clampSampler : register(s1);
+
 // Provided by entity object.
 Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
 Texture2D AlphaTexture : register(t2);
-
-// Various samplers.
-SamplerState defaultSampler : register(s0);
-SamplerState clampSampler : register(s1);
 
 cbuffer EntityPSConstantBuffer : register(b0) {
 	float4 entityColor;
@@ -70,7 +70,7 @@ PSOut main(PSIn psIn){
 				psIn.tangent,
 				psIn.binormal,
 				psIn.normal
-				)
+			)
 		);
 	}
 
@@ -90,7 +90,11 @@ PSOut main(PSIn psIn){
 	);
 
 	// Calculate shadows.
-	float shadowFactor = calculateAllShadows(psIn.shadowMapPosition);
+	float shadowFactor = calculateAllShadows(
+		psIn.shadowMapPosition,
+		psIn.positionPS,
+		psIn.eyePosition
+	);
 
 	// Apply shadow.
 	lightingFactor = float4((lightingFactor * (1 - shadowFactor)).rgb, 1);

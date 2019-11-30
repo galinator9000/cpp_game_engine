@@ -108,6 +108,7 @@ public:
 	VertexShader* mainVertexShader = new VertexShader(L"VertexShader.cso");
 	PixelShader* mainPixelShader = new PixelShader(L"PixelShader.cso");
 	VertexShader* depthVertexShader = new VertexShader(L"DepthVS.cso");
+	PixelShader* depthPixelShader = new PixelShader(L"DepthPS.cso");
 
 	unsigned int gWidth;
 	unsigned int gHeight;

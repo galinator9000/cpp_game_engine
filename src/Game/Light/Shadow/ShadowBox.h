@@ -14,10 +14,17 @@ public:
 	ShadowMap* gShadowMap;
 	bool isActive = false;
 
-	float gShadowDistanceRatio = 0.2f;
+	// Distance
+	float gShadowDistanceRatio = 0.33f;
 	void setShadowDistanceRatio(float ratio) {
 		if (ratio > 0 && ratio <= 1) {
 			this->gShadowDistanceRatio = ratio;
 		}
 	}
+	float getShadowDistance() {
+		return this->gShadowDistance;
+	}
+
+protected:
+	float gShadowDistance = 100.0f;
 };

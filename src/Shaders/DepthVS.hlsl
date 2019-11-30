@@ -37,6 +37,8 @@ struct VSIn {
 
 // Output structure of the Vertex shader.
 struct VSOut {
+	// Vertex values
+	float2 texture_UV : TextureUV;
 	float4 position : SV_Position;
 };
 
@@ -50,6 +52,8 @@ static const matrix identityMatrix = {
 
 VSOut main(VSIn vsIn) {
 	VSOut vsOut;
+
+	vsOut.texture_UV = vsIn.texture_UV;
 
 	//// Apply joint transforms.
 	// Check if current entity uses any mesh deformer.

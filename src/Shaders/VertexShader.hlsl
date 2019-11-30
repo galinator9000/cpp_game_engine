@@ -1,6 +1,5 @@
-#define MAX_JOINT_COUNT 256
-#define MAX_JOINT_PER_VERTEX 4
-#define MAX_SHADOW_CASTER_COUNT 4
+#include "Structs.hlsli"
+#include "Constants.hlsli"
 
 // World matrix is provided by the entity we are currently processing.
 cbuffer EntityVSConstantBuffer : register(b0) {
@@ -22,23 +21,8 @@ cbuffer CameraVSConstantBuffer : register(b1) {
 cbuffer MeshDeformerVSConstantBuffer : register(b2) {
 	matrix jointsTransformMatrix[MAX_JOINT_COUNT];
 };
-
-// Shadow map struct and constant buffers.
-struct ShadowMap {
-	matrix viewMatrix;
-	matrix projectionMatrix;
-	bool isActive;
-};
 cbuffer ShadowMapVSConstantBuffer : register(b3) {
 	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
-};
-
-// Constant identity matrix.
-static const matrix identityMatrix = {
-	{ 1, 0, 0, 0 },
-	{ 0, 1, 0, 0 },
-	{ 0, 0, 1, 0 },
-	{ 0, 0, 0, 1 }
 };
 
 // Input structure of the Vertex shader.
@@ -122,13 +106,13 @@ VSOut main(VSIn vsIn){
 
 	// Apply shadow map projection & view matrices.
 	// These values will be processed for shadowing.
+	float4 shadowMapPosition = float4(0,0,0,1);
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		float4 shadowMapPosition = float4(-1, -1, -1, 1);
 		if (shadowMaps[sc].isActive) {
 			shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].viewMatrix);
 			shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].projectionMatrix);
+			vsOut.shadowMapPosition[sc] = shadowMapPosition;
 		}
-		vsOut.shadowMapPosition[sc] = shadowMapPosition;
 	}
 
 	// Apply "View" and "Projection" transform matrices.

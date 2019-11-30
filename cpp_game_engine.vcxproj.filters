@@ -253,9 +253,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="src\Shaders\DepthVS.hlsl" />
+    <FxCompile Include="src\Shaders\DepthPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="src\Shaders\Lighting.hlsl" />
+    <None Include="src\Shaders\Structs.hlsli" />
+    <None Include="src\Shaders\Constants.hlsli" />
   </ItemGroup>
 </Project>

@@ -78,6 +78,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->createPixelShader(this->mainPixelShader, true);
 	// Create depth shaders.
 	this->createVertexShader(this->depthVertexShader);
+	this->createPixelShader(this->depthPixelShader);
 
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {

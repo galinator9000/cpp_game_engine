@@ -52,7 +52,8 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 				)
 			);
 			// Adjust far plane distance.
-			activeCameraFrustum.Far = (float) abs(activeCamera->farPlaneZ) * this->gShadowDistanceRatio;
+			this->gShadowDistance = (float) abs(activeCamera->farPlaneZ) * this->gShadowDistanceRatio;
+			activeCameraFrustum.Far = gShadowDistance;
 
 			dx::XMMATRIX activeCameraViewMatrix = dx::XMLoadFloat4x4(&activeCamera->gCameraVSConstantBuffer.viewMatrix);
 			dx::XMMATRIX activeCameraViewMatrixInverse = dx::XMMatrixInverse(
@@ -113,6 +114,12 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 					maxCorner.z = activeCameraFrustumCornersLightSpace[cc].z;
 				}
 			}
+
+			double floor = 0.001;
+			minCorner.x = (float) (minCorner.x - (float) modf(minCorner.x, &floor));
+			minCorner.y = (float) (minCorner.y - (float) modf(minCorner.y, &floor));
+			maxCorner.x = (float) (maxCorner.x - (float) modf(maxCorner.x, &floor));
+			maxCorner.y = (float) (maxCorner.y - (float) modf(maxCorner.y, &floor));
 
 			// Calculate shadow box dimensions.
 			Vector3 shadowBoxDimensions;

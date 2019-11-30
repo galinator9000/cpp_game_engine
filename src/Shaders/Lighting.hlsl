@@ -1,64 +1,17 @@
-//// Constants
-// Light type enums.
-#define DIRECTIONAL_LIGHT 0
-#define POINT_LIGHT 1
-#define SPOT_LIGHT 2
+#include "Structs.hlsli"
+#include "Constants.hlsli"
 
-#define MAX_LIGHT_COUNT 8
-#define MAX_SHADOW_CASTER_COUNT 4
-
-// Constant identity matrix.
-static const matrix identityMatrix = {
-	{ 1, 0, 0, 0 },
-	{ 0, 1, 0, 0 },
-	{ 0, 0, 1, 0 },
-	{ 0, 0, 0, 1 }
-};
-
-// Attenuation calculation values for Point & Spot light calculation.
-static const float attenuation_constant = 1.0f;
-static const float attenuation_linear = 0.014;
-static const float attenuation_quadratic = 0.0007;
-// Global ambient value for diffuse calculation.
-static const float4 ambientDiffuseLightGlobal = float4(0.25f, 0.25f, 0.25f, 0);
-
-//// Pixel Shader buffers & resources.
 SamplerState whiteBorderSampler : register(s2);
-
-// Shadow mapping textures.
 Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
 
-// Shadow map struct and constant buffers.
-struct ShadowMap {
-	matrix viewMatrix;
-	matrix projectionMatrix;
-	bool isActive;
-	float3 padding;
-};
-cbuffer ShadowMapVSConstantBuffer : register(b2) {
-	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
-};
-
-// Light intensity, direction and position values.
-struct Light {
-	float4 color;
-	float3 position;
-	float intensity;
-	float3 direction;
-	unsigned int isActive;
-	unsigned int type;
-	float halfSpotAngle;
-	float2 padding;
-};
+// Lights constant buffer.
 cbuffer LightConstantBuffer : register(b1) {
 	Light allLights[MAX_LIGHT_COUNT];
 };
 
-SamplerComparisonState shadowPCFSampler {
-	Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
-	ComparisonFunc = LESS_EQUAL;
+// Shadow map constant buffers.
+cbuffer ShadowMapVSConstantBuffer : register(b2) {
+	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
 };
 
 //// Calculations.
@@ -136,7 +89,7 @@ float4 calculateAllLights(
 		if (
 			allLights[light].type == POINT_LIGHT ||
 			allLights[light].type == SPOT_LIGHT
-			) {
+		) {
 			vertexToLight = allLights[light].position - position;
 			distVertexToLight = length(vertexToLight);
 			dirVertexToLight = normalize(vertexToLight);
@@ -191,16 +144,45 @@ float4 calculateAllLights(
 	return finalOutput;
 }
 
-float calculateAllShadows(in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT]) {
+float calculateAllShadows(
+	in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT],
+	float3 position,
+	float3 eyePosition
+) {
 	float2 shadowMapCoords;
 	float finalDepth;
 	float nearestObjectDepth;
 
-	float shadowFactor = 0;
+	float shadowDistance;
+	float transitionDistance;
+	float distanceVal;
+	float fadingFactor = 0;
 
 	// Process shadow maps.
+	float shadowFactor = 0;
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (shadowMaps[sc].isActive) {
+			// Distance calculations for smooth shadow transition.
+			switch (shadowMaps[sc].lightType) {
+				case DIRECTIONAL_LIGHT:
+					shadowDistance = shadowMaps[sc].shadowDistance;
+					transitionDistance = shadowMaps[sc].shadowDistance * 0.03;
+					distanceVal = distance(eyePosition, position);
+					distanceVal = distanceVal - (shadowDistance - transitionDistance);
+					distanceVal = distanceVal / transitionDistance;
+					fadingFactor = clamp(1.0 - distanceVal, 0, 1);
+
+					break;
+				case SPOT_LIGHT:
+					fadingFactor = calculateConeCenterDistance(
+						allLights[shadowMaps[sc].lightID].halfSpotAngle,
+						allLights[shadowMaps[sc].lightID].direction,
+						normalize(allLights[shadowMaps[sc].lightID].position - position)
+					);
+
+					break;
+			}
+
 			shadowMapCoords.x = shadowMapPosition[sc].x / shadowMapPosition[sc].w * 0.5 + 0.5;
 			shadowMapCoords.y = -shadowMapPosition[sc].y / shadowMapPosition[sc].w * 0.5 + 0.5;
 
@@ -213,7 +195,7 @@ float calculateAllShadows(in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT]) 
 				nearestObjectDepth = ShadowMapTexture[sc].Sample(whiteBorderSampler, shadowMapCoords).r;
 
 				if (finalDepth > nearestObjectDepth) {
-					shadowFactor = 0.6;
+					shadowFactor = 0.6 * fadingFactor;
 
 					// Shadow each pixel only once.
 					break;

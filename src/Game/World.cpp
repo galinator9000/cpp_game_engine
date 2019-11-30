@@ -203,7 +203,7 @@ void World::Render() {
 	//// Create shadow map from active shadow caster.
 	// Set depth-only rendering shaders first.
 	this->pGfx->setVertexShader(this->pGfx->depthVertexShader);
-	this->pGfx->setPixelShader(NULL);
+	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
 
 	// Render only depth values of entities for each shadow map.
 	Camera* shadowMapCamera;
@@ -282,6 +282,9 @@ void World::Render() {
 			this->gAllShadowMapConstantBuffers[sc].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera->gCameraVSConstantBuffer.viewMatrix;
 			this->gAllShadowMapConstantBuffers[sc].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera->gCameraVSConstantBuffer.projectionMatrix;
 			this->gAllShadowMapConstantBuffers[sc].isActive = this->gShadowCasters[sc]->gShadowBox->isActive;
+			this->gAllShadowMapConstantBuffers[sc].shadowDistance = this->gShadowCasters[sc]->gShadowBox->getShadowDistance();
+			this->gAllShadowMapConstantBuffers[sc].lightType = this->gShadowCasters[sc]->gShadowBox->lightType;
+			this->gAllShadowMapConstantBuffers[sc].lightID = this->gShadowCasters[sc]->id;
 		}
 	}
 	this->pGfx->updateShadowMapsBuffer(&this->gAllShadowMapConstantBuffers[0], MAX_SHADOW_CASTER_COUNT, this->pAllShadowMapConstantBuffers.Get());
