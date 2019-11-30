@@ -304,6 +304,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ResourceCompile Include="cpp_game_engine.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Shaders\Buffers.hlsli" />
     <None Include="src\Shaders\Constants.hlsli" />
     <None Include="src\Shaders\Lighting.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

@@ -45,6 +45,7 @@ void World::Setup() {
 		&this->pAllShadowMapConstantBuffers
 	);
 	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
+	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
 
 	// Set NULL all shadow casters initially.
 	memset(
@@ -289,7 +290,7 @@ void World::Render() {
 	}
 	this->pGfx->updateShadowMapsBuffer(&this->gAllShadowMapConstantBuffers[0], MAX_SHADOW_CASTER_COUNT, this->pAllShadowMapConstantBuffers.Get());
 	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
-	this->pGfx->bindPixelShaderBuffer(2, this->pAllShadowMapConstantBuffers.Get());
+	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
 
 	// Provide shadow mappings to Pixel Shader
 	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 3;

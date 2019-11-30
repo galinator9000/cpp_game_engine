@@ -1,5 +1,6 @@
 #include "Structs.hlsli"
 #include "Constants.hlsli"
+#include "Buffers.hlsli"
 
 // World matrix is provided by the entity we are currently processing.
 cbuffer EntityVSConstantBuffer : register(b0) {
@@ -20,9 +21,6 @@ cbuffer CameraVSConstantBuffer : register(b1) {
 // if any deformer attached to current processed entity's mesh.
 cbuffer MeshDeformerVSConstantBuffer : register(b2) {
 	matrix jointsTransformMatrix[MAX_JOINT_COUNT];
-};
-cbuffer ShadowMapVSConstantBuffer : register(b3) {
-	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
 };
 
 // Input structure of the Vertex shader.

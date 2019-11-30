@@ -7,6 +7,11 @@ namespace dx = DirectX;
 #define MAX_JOINT_COUNT 256
 #define MAX_JOINT_PER_VERTEX 4
 
+struct GraphicsSettingsStruct {
+	int PCFLevel = 0;
+	dx::XMFLOAT3 padding;
+};
+
 //// Constant buffers that provided to Shaders.
 // Entity constant buffer for Vertex Shader.
 struct EntityVSConstantBuffer {

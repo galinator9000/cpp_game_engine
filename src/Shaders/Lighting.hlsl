@@ -1,5 +1,6 @@
 #include "Structs.hlsli"
 #include "Constants.hlsli"
+#include "Buffers.hlsli"
 
 SamplerState whiteBorderSampler : register(s2);
 Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
@@ -7,11 +8,6 @@ Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
 // Lights constant buffer.
 cbuffer LightConstantBuffer : register(b1) {
 	Light allLights[MAX_LIGHT_COUNT];
-};
-
-// Shadow map constant buffers.
-cbuffer ShadowMapVSConstantBuffer : register(b2) {
-	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
 };
 
 //// Calculations.

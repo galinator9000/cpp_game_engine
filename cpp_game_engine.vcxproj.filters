@@ -260,5 +260,6 @@
     <None Include="src\Shaders\Lighting.hlsl" />
     <None Include="src\Shaders\Structs.hlsli" />
     <None Include="src\Shaders\Constants.hlsli" />
+    <None Include="src\Shaders\Buffers.hlsli" />
   </ItemGroup>
 </Project>

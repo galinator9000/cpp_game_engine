@@ -80,6 +80,31 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	this->createVertexShader(this->depthVertexShader);
 	this->createPixelShader(this->depthPixelShader);
 
+	// Create graphics settings buffer.
+	gGraphicsSettingsStruct.PCFLevel = 1;
+
+	D3D11_BUFFER_DESC cBdPS = { 0 };
+	cBdPS.ByteWidth = sizeof(this->gGraphicsSettingsStruct);
+	cBdPS.Usage = D3D11_USAGE_DYNAMIC;
+	cBdPS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBdPS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_SUBRESOURCE_DATA cSdPS = { &(this->gGraphicsSettingsStruct), 0, 0 };
+	this->hr = this->pDevice->CreateBuffer(
+		&cBdPS,
+		&cSdPS,
+		&(this->pGraphicsSettingsStruct)
+	);
+	this->pDeviceContext->VSSetConstantBuffers(
+		13,
+		1,
+		this->pGraphicsSettingsStruct.GetAddressOf()
+	);
+	this->pDeviceContext->PSSetConstantBuffers(
+		13,
+		1,
+		this->pGraphicsSettingsStruct.GetAddressOf()
+	);
+
 	// Create InputLayout
 	const D3D11_INPUT_ELEMENT_DESC ied[] = {
 		{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},

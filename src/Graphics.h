@@ -95,6 +95,9 @@ public:
 	bool createTextureSampler(TextureSampler* textureSampler);
 
 	//// Graphics components
+	GraphicsSettingsStruct gGraphicsSettingsStruct;
+	wrl::ComPtr<ID3D11Buffer> pGraphicsSettingsStruct;
+
 	// Main render target.
 	RenderTarget* mainRenderTarget;
 	Viewport* viewPort;
