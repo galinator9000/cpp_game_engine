@@ -58,4 +58,5 @@ struct ShadowMapVSStruct {
 	dx::XMFLOAT4X4 viewMatrix;
 	dx::XMFLOAT4X4 projectionMatrix;
 	unsigned int isActive;
+	dx::XMFLOAT3 padding;
 };

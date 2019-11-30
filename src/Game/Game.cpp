@@ -157,10 +157,10 @@ void Game::Setup(){
 	this->directionalSunLight = new DirectionalLight(Vector3(-1, -1, 1), 0.15f, Color(0.99f, 0.72f, 0.074f), true);
 	this->pWorld->addLight(this->directionalSunLight);
 
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
 	this->pWorld->addLight(this->wMainCameraSpotLight);
 
-	this->pointLight = new PointLight(Vector3(0, 5, 0), 1, Color(1,1,1));
+	this->pointLight = new PointLight(Vector3(15, 5, 3), 1, Color(1,1,1));
 	//this->pWorld->addLight(this->pointLight);
 
 	//// Attach point light to main camera.
@@ -181,7 +181,7 @@ void Game::Setup(){
 		WIDTH, HEIGHT,
 		PROJECTION_TYPE::PERSPECTIVE
 	);
-	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT, 0.5f, 50.0f);
+	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
 	pWorld->addCamera(pwSecondaryCamera, true);
 
 	// Position relation, camera to spot light.

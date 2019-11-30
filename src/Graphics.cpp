@@ -259,6 +259,9 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 	if(isShaderResource){
 		descDSTXT.Format = DXGI_FORMAT_R32_TYPELESS;
 		descDSTXT.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
+		//descDSTXT.Width = 2048;
+		//descDSTXT.Height = 2048;
 	}
 	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
 

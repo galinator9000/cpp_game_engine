@@ -33,6 +33,7 @@ struct ShadowMap {
 	matrix viewMatrix;
 	matrix projectionMatrix;
 	bool isActive;
+	float3 padding;
 };
 cbuffer ShadowMapVSConstantBuffer : register(b2) {
 	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];

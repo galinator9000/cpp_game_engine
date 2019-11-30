@@ -11,6 +11,13 @@ public:
 	void Update(Vector3 position, Vector3 direction, Camera* activeCamera);
 
 	LIGHT_TYPE lightType;
-	std::vector<ShadowMap*> gShadowMaps;
+	ShadowMap* gShadowMap;
 	bool isActive = false;
+
+	float gShadowDistanceRatio = 0.2f;
+	void setShadowDistanceRatio(float ratio) {
+		if (ratio > 0 && ratio <= 1) {
+			this->gShadowDistanceRatio = ratio;
+		}
+	}
 };

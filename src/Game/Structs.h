@@ -24,7 +24,8 @@ const enum COLLISION_ACTOR_TYPE {
 	COLLISION_ACTOR_CCT
 };
 
-struct Vector2 {
+class Vector2{
+public:
 	Vector2() {
 		this->x = 0;
 		this->y = 0;
@@ -182,7 +183,8 @@ struct Vector2 {
 	float y;
 };
 
-struct Vector3 {
+class Vector3{
+public:
 	Vector3() {
 		this->x = 0;
 		this->y = 0;
@@ -361,7 +363,8 @@ struct Vector3 {
 	float z;
 };
 
-struct Vector4 {
+class Vector4 {
+public:
 	Vector4() {
 		this->x = 0;
 		this->y = 0;
