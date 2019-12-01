@@ -1,4 +1,4 @@
-cbuffer ShadowMapVSConstantBuffer : register(b3) {
+cbuffer ShadowMapSConstantBuffer : register(b3) {
 	ShadowMap shadowMaps[MAX_SHADOW_CASTER_COUNT];
 };
 

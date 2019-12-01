@@ -11,5 +11,5 @@ namespace wrl = Microsoft::WRL;
 
 class DirectionalLight : public Light {
 public:
-	DirectionalLight(Vector3 direction, float intensity, Color color=Color(1, 1, 1, 1), bool shadowCasting = false);
+	DirectionalLight(Vector3 direction, float intensity, Color color=Color(1, 1, 1, 1), bool shadowCasting = false, unsigned int CSMLevel=1);
 };

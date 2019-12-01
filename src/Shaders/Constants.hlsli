@@ -19,7 +19,8 @@ static const matrix identityMatrix = {
 #define SPOT_LIGHT 2
 
 #define MAX_LIGHT_COUNT 8
-#define MAX_SHADOW_CASTER_COUNT 4
+#define MAX_SHADOW_CASTER_COUNT 2
+#define MAX_CSM_SUBFRUSTUM_COUNT 3
 
 // Attenuation calculation values for Point & Spot light calculation.
 static const float attenuation_constant = 1.0f;

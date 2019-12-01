@@ -1,6 +1,4 @@
 #pragma once
-#define MAX_LIGHT_COUNT 32
-#define MAX_SHADOW_CASTER_COUNT 4
 
 #include <vector>
 
@@ -73,7 +71,7 @@ public:
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
 	// Buffer for providing shadow casters.
-	ShadowMapVSStruct gAllShadowMapConstantBuffers[MAX_SHADOW_CASTER_COUNT];
+	ShadowMapSStruct gAllShadowMapConstantBuffers[MAX_SHADOW_CASTER_COUNT];
 	wrl::ComPtr<ID3D11Buffer> pAllShadowMapConstantBuffers;
 
 	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];

@@ -1,5 +1,14 @@
 #include "Camera.h"
 
+Camera::Camera() {
+	this->gPosition = Vector3();
+	this->gDirection = Vector3();
+	this->rotation = Vector3();
+	this->camLookAt = this->gPosition + this->gDirection;
+	this->setPerspectiveProjection();
+	this->updateConstantBuffer();
+}
+
 Camera::Camera(Vector3 position, Vector3 direction, float WIDTH, float HEIGHT, PROJECTION_TYPE projectionType){
 	this->gPosition = position;
 	this->gDirection = direction.normalize();
@@ -15,7 +24,7 @@ Camera::Camera(Vector3 position, Vector3 direction, float WIDTH, float HEIGHT, P
 			)
 		)
 	);
-	this->camLookAt = position + direction;
+	this->camLookAt = this->gPosition + this->gDirection;
 
 	// Default perspective.
 	switch (projectionType) {

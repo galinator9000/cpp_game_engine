@@ -28,16 +28,18 @@ void World::Setup() {
 
 	// Create buffer that will hold shadow casters.
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		dx::XMStoreFloat4x4(
-			&(gAllShadowMapConstantBuffers[sc].viewMatrix),
-			dx::XMMatrixIdentity()
-		);
+		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+			dx::XMStoreFloat4x4(
+				&(this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].viewMatrix),
+				dx::XMMatrixIdentity()
+			);
 
-		dx::XMStoreFloat4x4(
-			&(gAllShadowMapConstantBuffers[sc].projectionMatrix),
-			dx::XMMatrixIdentity()
-		);
-		gAllShadowMapConstantBuffers[sc].isActive = false;
+			dx::XMStoreFloat4x4(
+				&(this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].projectionMatrix),
+				dx::XMMatrixIdentity()
+			);
+			this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].isActive = false;
+		}
 	}
 	this->pGfx->createShadowMapsBuffer(
 		&this->gAllShadowMapConstantBuffers[0],
@@ -207,10 +209,6 @@ void World::Render() {
 	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
 
 	// Render only depth values of entities for each shadow map.
-	Camera* shadowMapCamera;
-	RenderTarget* shadowMapRenderTarget;
-	Viewport* shadowMapViewport;
-
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (this->gShadowCasters[sc] == NULL) {
 			continue;
@@ -241,25 +239,23 @@ void World::Render() {
 				break;
 		}
 
-		shadowMapCamera = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera;
-		shadowMapRenderTarget = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget;
-		shadowMapViewport = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pViewPort;
+		for (unsigned int sfc = 0; sfc < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sfc++) {
+			// Set render target and camera for rendering scene from light's "view".
+			this->pGfx->setViewport(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pViewPort[sfc]);
+			this->pGfx->setRenderTarget(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget[sfc]);
+			this->pGfx->updateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sfc]);
+			this->pGfx->activateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sfc]);
 
-		// Set render target and camera for rendering scene from light's "view".
-		this->pGfx->setViewport(shadowMapViewport);
-		this->pGfx->setRenderTarget(shadowMapRenderTarget);
-		this->pGfx->updateCamera(shadowMapCamera);
-		this->pGfx->activateCamera(shadowMapCamera);
+			// Render entity.
+			for (unsigned int e = 0; e < this->allEntities.size(); e++) {
+				Entity* ent = this->allEntities.at(e);
 
-		// Render entity.
-		for (unsigned int e = 0; e < this->allEntities.size(); e++) {
-			Entity* ent = this->allEntities.at(e);
+				if (ent == NULL) {
+					continue;
+				}
 
-			if (ent == NULL) {
-				continue;
+				this->pGfx->drawEntity(ent);
 			}
-
-			this->pGfx->drawEntity(ent);
 		}
 	}
 
@@ -275,17 +271,21 @@ void World::Render() {
 	// Provide View & Projection matrices of shadow boxes to Vertex & Pixel Shader.
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (this->gShadowCasters[sc] == NULL) {
-			dx::XMStoreFloat4x4(&this->gAllShadowMapConstantBuffers[sc].viewMatrix, dx::XMMatrixIdentity());
-			dx::XMStoreFloat4x4(&this->gAllShadowMapConstantBuffers[sc].projectionMatrix, dx::XMMatrixIdentity());
-			this->gAllShadowMapConstantBuffers[sc].isActive = false;
+			for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+				dx::XMStoreFloat4x4(&this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].viewMatrix, dx::XMMatrixIdentity());
+				dx::XMStoreFloat4x4(&this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].projectionMatrix, dx::XMMatrixIdentity());
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].isActive = false;
+			}
 		}
 		else {
-			this->gAllShadowMapConstantBuffers[sc].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera->gCameraVSConstantBuffer.viewMatrix;
-			this->gAllShadowMapConstantBuffers[sc].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera->gCameraVSConstantBuffer.projectionMatrix;
-			this->gAllShadowMapConstantBuffers[sc].isActive = this->gShadowCasters[sc]->gShadowBox->isActive;
-			this->gAllShadowMapConstantBuffers[sc].shadowDistance = this->gShadowCasters[sc]->gShadowBox->getShadowDistance();
-			this->gAllShadowMapConstantBuffers[sc].lightType = this->gShadowCasters[sc]->gShadowBox->lightType;
-			this->gAllShadowMapConstantBuffers[sc].lightID = this->gShadowCasters[sc]->id;
+			for (unsigned int sf = 0; sf < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sf++) {
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]->gCameraVSConstantBuffer.viewMatrix;
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]->gCameraVSConstantBuffer.projectionMatrix;
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].isActive = this->gShadowCasters[sc]->gShadowBox->isActive;
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].shadowDistance = this->gShadowCasters[sc]->gShadowBox->getShadowDistance();
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].lightType = this->gShadowCasters[sc]->gShadowBox->lightType;
+				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].lightID = this->gShadowCasters[sc]->id;
+			}
 		}
 	}
 	this->pGfx->updateShadowMapsBuffer(&this->gAllShadowMapConstantBuffers[0], MAX_SHADOW_CASTER_COUNT, this->pAllShadowMapConstantBuffers.Get());
@@ -299,7 +299,9 @@ void World::Render() {
 			continue;
 		}
 
-		this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + sc, this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget->pTexture);
+		for (unsigned int sf = 0; sf < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sf++) {
+			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sc * MAX_CSM_SUBFRUSTUM_COUNT + sf), this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget[sf]->pTexture);
+		}
 	}
 	
 	for (unsigned int e = 0; e < this->allEntities.size(); e++) {
@@ -338,12 +340,11 @@ bool World::addLight(Light* light) {
 
 	// Create render target for shadow maps.
 	if (light->isCastingShadow && light->gShadowBox != NULL) {
-		Camera* shadowMapCamera = light->gShadowBox->gShadowMap->pCamera;
-		RenderTarget* shadowMapRenderTarget = light->gShadowBox->gShadowMap->pRenderTarget;
-
-		this->pGfx->addCamera(shadowMapCamera, false);
-		this->pGfx->createRenderTarget(shadowMapRenderTarget, true);
-		this->pGfx->renderTargets.push_back(shadowMapRenderTarget);
+		for (unsigned int sfc = 0; sfc < light->gShadowBox->gShadowMap->subFrustumCount; sfc++) {
+			this->pGfx->addCamera(light->gShadowBox->gShadowMap->pCamera[sfc], false);
+			this->pGfx->createRenderTarget(light->gShadowBox->gShadowMap->pRenderTarget[sfc], true);
+			this->pGfx->renderTargets.push_back(light->gShadowBox->gShadowMap->pRenderTarget[sfc]);
+		}
 	}
 
 	light->id = (unsigned int) this->allLights.size();

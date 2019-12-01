@@ -703,7 +703,7 @@ void Graphics::updateLightsBuffer(LightPSStruct* gAllLights, unsigned int lightC
 
 // Shadow Maps
 // Create buffers that will contain shadow maps.
-bool Graphics::createShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps) {
+bool Graphics::createShadowMapsBuffer(ShadowMapSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps) {
 	D3D11_BUFFER_DESC cBd = { 0 };
 	cBd.ByteWidth = (unsigned int)(sizeof(*gAllShadowMaps) * shadowMapCount);
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
@@ -717,7 +717,7 @@ bool Graphics::createShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigne
 	);
 	return true;
 }
-void Graphics::updateShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps) {
+void Graphics::updateShadowMapsBuffer(ShadowMapSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 	this->hr = this->pDeviceContext->Map(
 		pAllShadowMaps,

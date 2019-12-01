@@ -154,7 +154,7 @@ void Game::Setup(){
 	}
 
 	//// Add lights to scene.
-	this->directionalSunLight = new DirectionalLight(Vector3(-1, -1, 1), 0.15f, Color(0.99f, 0.72f, 0.074f), true);
+	this->directionalSunLight = new DirectionalLight(Vector3(-1, -1, 1), 0.15f, Color(0.99f, 0.72f, 0.074f), true, 3);
 	this->pWorld->addLight(this->directionalSunLight);
 
 	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);

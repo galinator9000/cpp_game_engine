@@ -1,9 +1,8 @@
 #include "Structs.hlsli"
-#include "Constants.hlsli"
 #include "Buffers.hlsli"
 
 SamplerState whiteBorderSampler : register(s2);
-Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT] : register(t3);
+Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT] : register(t3);
 
 // Lights constant buffer.
 cbuffer LightConstantBuffer : register(b1) {
@@ -141,7 +140,7 @@ float4 calculateAllLights(
 }
 
 float calculateAllShadows(
-	in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT],
+	in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT],
 	float3 position,
 	float3 eyePosition
 ) {
@@ -157,12 +156,13 @@ float calculateAllShadows(
 	// Process shadow maps.
 	float shadowFactor = 0;
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (shadowMaps[sc].isActive) {
-			// Distance calculations for smooth shadow transition.
-			switch (shadowMaps[sc].lightType) {
+		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+			if (shadowMaps[sc].subfrustum[sf].isActive) {
+				// Distance calculations for smooth shadow transition.
+				switch (shadowMaps[sc].subfrustum[sf].lightType) {
 				case DIRECTIONAL_LIGHT:
-					shadowDistance = shadowMaps[sc].shadowDistance;
-					transitionDistance = shadowMaps[sc].shadowDistance * 0.03;
+					shadowDistance = shadowMaps[sc].subfrustum[sf].shadowDistance;
+					transitionDistance = shadowMaps[sc].subfrustum[sf].shadowDistance * 0.03;
 					distanceVal = distance(eyePosition, position);
 					distanceVal = distanceVal - (shadowDistance - transitionDistance);
 					distanceVal = distanceVal / transitionDistance;
@@ -171,30 +171,31 @@ float calculateAllShadows(
 					break;
 				case SPOT_LIGHT:
 					fadingFactor = calculateConeCenterDistance(
-						allLights[shadowMaps[sc].lightID].halfSpotAngle,
-						allLights[shadowMaps[sc].lightID].direction,
-						normalize(allLights[shadowMaps[sc].lightID].position - position)
+						allLights[shadowMaps[sc].subfrustum[sf].lightID].halfSpotAngle,
+						allLights[shadowMaps[sc].subfrustum[sf].lightID].direction,
+						normalize(allLights[shadowMaps[sc].subfrustum[sf].lightID].position - position)
 					);
 
 					break;
-			}
-
-			shadowMapCoords.x = shadowMapPosition[sc].x / shadowMapPosition[sc].w * 0.5 + 0.5;
-			shadowMapCoords.y = -shadowMapPosition[sc].y / shadowMapPosition[sc].w * 0.5 + 0.5;
-
-			if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
-				finalDepth = (shadowMapPosition[sc].z / shadowMapPosition[sc].w) - 0.001f;
-				if (finalDepth > 1.0f) {
-					finalDepth = 0;
 				}
 
-				nearestObjectDepth = ShadowMapTexture[sc].Sample(whiteBorderSampler, shadowMapCoords).r;
+				shadowMapCoords.x = shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].x / shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].w * 0.5 + 0.5;
+				shadowMapCoords.y = -shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].y / shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].w * 0.5 + 0.5;
 
-				if (finalDepth > nearestObjectDepth) {
-					shadowFactor = 0.6 * fadingFactor;
+				if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
+					finalDepth = (shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].z / shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].w) - 0.001f;
+					if (finalDepth > 1.0f) {
+						finalDepth = 0;
+					}
 
-					// Shadow each pixel only once.
-					break;
+					nearestObjectDepth = ShadowMapTexture[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].Sample(whiteBorderSampler, shadowMapCoords).r;
+
+					if (finalDepth > nearestObjectDepth) {
+						shadowFactor = 0.6 * fadingFactor;
+
+						// Shadow each pixel only once.
+						break;
+					}
 				}
 			}
 		}

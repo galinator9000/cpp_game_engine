@@ -81,8 +81,8 @@ public:
 	bool createLightsBuffer(LightPSStruct* gAllLights, unsigned int lightCount, wrl::ComPtr<ID3D11Buffer>* pAllLights);
 	void updateLightsBuffer(LightPSStruct* gAllLights, unsigned int lightCount, ID3D11Buffer* pAllLights);
 	// Shadow
-	bool createShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps);
-	void updateShadowMapsBuffer(ShadowMapVSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps);
+	bool createShadowMapsBuffer(ShadowMapSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps);
+	void updateShadowMapsBuffer(ShadowMapSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps);
 	
 	// Camera
 	bool addCamera(Camera* camera, bool setAsMain);

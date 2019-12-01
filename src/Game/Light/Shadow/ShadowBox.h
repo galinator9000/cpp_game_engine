@@ -7,7 +7,7 @@
 
 class ShadowBox{
 public:
-	ShadowBox(Vector3 position, Vector3 direction, LIGHT_TYPE lightType);
+	ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions, LIGHT_TYPE lightType, unsigned int CSMLevel=1);
 	void Update(Vector3 position, Vector3 direction, Camera* activeCamera);
 
 	LIGHT_TYPE lightType;

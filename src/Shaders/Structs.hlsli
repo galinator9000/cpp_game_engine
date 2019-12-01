@@ -1,12 +1,18 @@
+#include "Constants.hlsli"
+
 //// Main VertexShader
 // Shadow map struct.
-struct ShadowMap {
+struct ShadowMapSubfrustum {
 	matrix viewMatrix;
 	matrix projectionMatrix;
 	bool isActive;
 	unsigned int lightType;
 	float shadowDistance;
 	unsigned int lightID;
+};
+
+struct ShadowMap {
+	ShadowMapSubfrustum subfrustum[MAX_CSM_SUBFRUSTUM_COUNT];
 };
 
 //// Main PixelShader

@@ -8,6 +8,7 @@
 
 class Camera{
 public:
+	Camera();
 	Camera(Vector3 pos, Vector3 dir, float WIDTH, float HEIGHT, PROJECTION_TYPE projectionType);
 	void Update();
 	void updateConstantBuffer();

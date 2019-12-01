@@ -1,5 +1,4 @@
 #include "Structs.hlsli"
-#include "Constants.hlsli"
 #include "Buffers.hlsli"
 
 // World matrix is provided by the entity we are currently processing.
@@ -51,7 +50,7 @@ struct VSOut {
 	// Shadow map
 	// XY, shadow map texture UV coordinates
 	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : TEXCOORD0;
+	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT] : TEXCOORD0;
 
 	// Final vertex shader output
 	float4 position : SV_Position;
@@ -106,10 +105,12 @@ VSOut main(VSIn vsIn){
 	// These values will be processed for shadowing.
 	float4 shadowMapPosition = float4(0,0,0,1);
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (shadowMaps[sc].isActive) {
-			shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].viewMatrix);
-			shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].projectionMatrix);
-			vsOut.shadowMapPosition[sc] = shadowMapPosition;
+		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+			if (shadowMaps[sc].subfrustum[sf].isActive) {
+				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].subfrustum[sf].viewMatrix);
+				shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].subfrustum[sf].projectionMatrix);
+			}
+			vsOut.shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf] = shadowMapPosition;
 		}
 	}
 

@@ -35,7 +35,7 @@ struct PSIn {
 	// Shadow map
 	// XY, shadow map texture UV coordinates
 	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT] : TEXCOORD0;
+	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT] : TEXCOORD0;
 };
 
 // Output structure of the Pixel shader.
