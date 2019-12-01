@@ -106,8 +106,8 @@ VSOut main(VSIn vsIn){
 	float4 shadowMapPosition = float4(0,0,0,1);
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
-			if (shadowMaps[sc].subfrustum[sf].isActive) {
-				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].subfrustum[sf].viewMatrix);
+			if (shadowMaps[sc].isActive) {
+				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].viewMatrix);
 				shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].subfrustum[sf].projectionMatrix);
 			}
 			vsOut.shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf] = shadowMapPosition;

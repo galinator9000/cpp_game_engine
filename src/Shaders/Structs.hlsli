@@ -3,16 +3,16 @@
 //// Main VertexShader
 // Shadow map struct.
 struct ShadowMapSubfrustum {
-	matrix viewMatrix;
 	matrix projectionMatrix;
-	bool isActive;
-	unsigned int lightType;
-	float shadowDistance;
-	unsigned int lightID;
 };
 
 struct ShadowMap {
 	ShadowMapSubfrustum subfrustum[MAX_CSM_SUBFRUSTUM_COUNT];
+	matrix viewMatrix;
+	bool isActive;
+	unsigned int lightType;
+	float shadowDistance;
+	unsigned int lightID;
 };
 
 //// Main PixelShader

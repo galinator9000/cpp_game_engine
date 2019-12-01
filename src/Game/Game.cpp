@@ -182,7 +182,7 @@ void Game::Setup(){
 		PROJECTION_TYPE::PERSPECTIVE
 	);
 	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
-	pWorld->addCamera(pwSecondaryCamera, true);
+	pWorld->addCamera(pwSecondaryCamera);
 
 	// Position relation, camera to spot light.
 	VectorRelation* camPositionSL = new Vector3Relation(

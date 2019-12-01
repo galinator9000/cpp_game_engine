@@ -6,16 +6,9 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions,
 	this->isActive = true;
 	switch (this->lightType) {
 		case LIGHT_TYPE::SPOT_LIGHT:
-			if (CSMLevel > 1) {
-				this->gShadowMap = new ShadowMap(
-					position, direction, mapDimensions, PROJECTION_TYPE::PERSPECTIVE, CSMLevel
-				);
-			}
-			else {
-				this->gShadowMap = new ShadowMap(
-					position, direction, mapDimensions, PROJECTION_TYPE::PERSPECTIVE
-				);
-			}
+			this->gShadowMap = new ShadowMap(
+				position, direction, mapDimensions, PROJECTION_TYPE::PERSPECTIVE
+			);
 			break;
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
@@ -36,16 +29,8 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions,
 void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera) {
 	switch (this->lightType) {
 		case LIGHT_TYPE::SPOT_LIGHT:
-			if (this->gShadowMap->isCascaded) {
-				for (unsigned sfc = 0; sfc < this->gShadowMap->subFrustumCount; sfc++) {
-					this->gShadowMap->pCamera[sfc]->setPosition(position);
-					this->gShadowMap->pCamera[sfc]->setDirection(direction);
-				}
-			}
-			else {
-				this->gShadowMap->pCamera[0]->setPosition(position);
-				this->gShadowMap->pCamera[0]->setDirection(direction);
-			}
+			this->gShadowMap->pCamera[0]->setPosition(position);
+			this->gShadowMap->pCamera[0]->setDirection(direction);
 			break;
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
@@ -55,9 +40,10 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 					dx::XMLoadFloat4x4(&activeCamera->gCameraVSConstantBuffer.projectionMatrix)
 				)
 			);
+
 			// Adjust far plane distance.
-			this->gShadowDistance = (float)abs(activeCamera->farPlaneZ) * this->gShadowDistanceRatio;
-			activeCameraFrustum.Far = gShadowDistance;
+			this->gShadowDistance = (float) abs(activeCameraFrustum.Far - activeCameraFrustum.Near) * this->gShadowDistanceRatio;
+			activeCameraFrustum.Far = this->gShadowDistance;
 
 			dx::XMMATRIX activeCameraViewMatrix = dx::XMLoadFloat4x4(&activeCamera->gCameraVSConstantBuffer.viewMatrix);
 			dx::XMMATRIX activeCameraViewMatrixInverse = dx::XMMatrixInverse(
@@ -66,141 +52,97 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 					activeCameraViewMatrix
 				)
 			);
-			activeCameraFrustum.Transform(activeCameraFrustum, activeCameraViewMatrixInverse);
 
-			// Get corner positions.
-			dx::XMFLOAT3 activeCameraFrustumCorners[activeCameraFrustum.CORNER_COUNT];
-			dx::XMFLOAT3 activeCameraFrustumCornersLightSpace[activeCameraFrustum.CORNER_COUNT];
-			activeCameraFrustum.GetCorners(activeCameraFrustumCorners);
+			// Get corner positions of each frustum.
+			float subFrustumZStep = (activeCameraFrustum.Far - activeCameraFrustum.Near) / this->gShadowMap->subFrustumCount;
 
-			// Calculate shadow box position and orientation with using active camera's frustum corner vertices.
-			dx::XMMATRIX lightViewMatrix = dx::XMLoadFloat4x4(&this->gShadowMap->pCamera[0]->gCameraVSConstantBuffer.viewMatrix);
-			dx::XMMATRIX lightViewMatrixInverse = dx::XMMatrixInverse(
-				NULL,
-				lightViewMatrix
-			);
+			dx::BoundingFrustum* subFrustum;
+			dx::XMFLOAT3 subFrustumCorners[activeCameraFrustum.CORNER_COUNT];
+			dx::XMFLOAT3 subFrustumCornersLightSpace[activeCameraFrustum.CORNER_COUNT];
+			for (unsigned int sf = 0; sf < this->gShadowMap->subFrustumCount; sf++) {
+				// Copy active camera's view frustum, adjust far and near planes and finally calculate subfrustum's corners.
+				subFrustum = new dx::BoundingFrustum(activeCameraFrustum);
+				subFrustum->Near = activeCameraFrustum.Near + subFrustumZStep * sf;
+				subFrustum->Far = activeCameraFrustum.Near + subFrustumZStep * (sf + 1);
 
-			// Transform frustum vertices from world space to light space.
-			for (unsigned int cc = 0; cc < activeCameraFrustum.CORNER_COUNT; cc++) {
-				dx::XMStoreFloat3(
-					&activeCameraFrustumCornersLightSpace[cc],
-					dx::XMVector3Transform(
-						dx::XMLoadFloat3(&activeCameraFrustumCorners[cc]),
-						lightViewMatrix
-					)
-				);
-			}
+				// Transform corner positions to world space.
+				subFrustum->Transform(*subFrustum, activeCameraViewMatrixInverse);
 
-			// Calculate dimensions of the shadow box.
-			Vector3 minCorner(INFINITY, INFINITY, INFINITY), maxCorner(-INFINITY, -INFINITY, -INFINITY);
-			for (unsigned int cc = 0; cc < activeCameraFrustum.CORNER_COUNT; cc++) {
-				// X
-				if (activeCameraFrustumCornersLightSpace[cc].x < minCorner.x) {
-					minCorner.x = activeCameraFrustumCornersLightSpace[cc].x;
-				}
-				if (activeCameraFrustumCornersLightSpace[cc].x > maxCorner.x) {
-					maxCorner.x = activeCameraFrustumCornersLightSpace[cc].x;
-				}
+				// Get corners of the subfrustum.
+				subFrustum->GetCorners(subFrustumCorners);
 
-				// Y
-				if (activeCameraFrustumCornersLightSpace[cc].y < minCorner.y) {
-					minCorner.y = activeCameraFrustumCornersLightSpace[cc].y;
-				}
-				if (activeCameraFrustumCornersLightSpace[cc].y > maxCorner.y) {
-					maxCorner.y = activeCameraFrustumCornersLightSpace[cc].y;
-				}
-
-				// Z
-				if (activeCameraFrustumCornersLightSpace[cc].z < minCorner.z) {
-					minCorner.z = activeCameraFrustumCornersLightSpace[cc].z;
-				}
-				if (activeCameraFrustumCornersLightSpace[cc].z > maxCorner.z) {
-					maxCorner.z = activeCameraFrustumCornersLightSpace[cc].z;
-				}
-			}
-
-			double floor = 0.001;
-			minCorner.x = (float)(minCorner.x - (float)modf(minCorner.x, &floor));
-			minCorner.y = (float)(minCorner.y - (float)modf(minCorner.y, &floor));
-			maxCorner.x = (float)(maxCorner.x - (float)modf(maxCorner.x, &floor));
-			maxCorner.y = (float)(maxCorner.y - (float)modf(maxCorner.y, &floor));
-
-			// Calculate shadow box dimensions.
-			Vector3 shadowBoxDimensions;
-			shadowBoxDimensions.x = maxCorner.x - minCorner.x;
-			shadowBoxDimensions.y = maxCorner.y - minCorner.y;
-			shadowBoxDimensions.z = maxCorner.z - minCorner.z;
-
-			if (this->gShadowMap->isCascaded) {
-				for (unsigned sf = 0; sf < this->gShadowMap->subFrustumCount; sf++) {
-					// Calculate new position of the shadow map's camera.
-					Vector3 newPosition;
-					Vector3 shadowMapFrustumForward;
-					shadowMapFrustumForward.storeXMVECTOR(
-						&dx::XMVector3Transform(
-							dx::XMVectorSet(0, 0, 1, 1),
+				// Transform subfrustum vertices from world space to light space.
+				dx::XMMATRIX lightViewMatrix = dx::XMLoadFloat4x4(&this->gShadowMap->pCamera[sf]->gCameraVSConstantBuffer.viewMatrix);
+				for (unsigned int cc = 0; cc < subFrustum->CORNER_COUNT; cc++) {
+					dx::XMStoreFloat3(
+						&subFrustumCornersLightSpace[cc],
+						dx::XMVector3Transform(
+							dx::XMLoadFloat3(&subFrustumCorners[cc]),
 							lightViewMatrix
 						)
 					);
-					shadowMapFrustumForward.normalize();
-
-					// Calculate center of active camera's frustum.
-					Vector3 activeCameraFrustumCenter;
-					Vector3 activeCameraFrustumForward;
-					activeCameraFrustumForward.storeXMVECTOR(
-						&dx::XMVector3Transform(
-							dx::XMVectorSet(0, 0, 1, 1),
-							activeCameraViewMatrix
-						)
-					);
-					activeCameraFrustumForward.normalize();
-					activeCameraFrustumCenter = activeCamera->gPosition + activeCameraFrustumForward * (((activeCameraFrustum.Far - activeCameraFrustum.Near) / 2) + activeCameraFrustum.Near);
-
-					// Set shadow box's center position to center of the view frustum.
-					this->gShadowMap->pCamera[sf]->setPosition(
-						activeCameraFrustumCenter + (-shadowMapFrustumForward * shadowBoxDimensions.z / 2)
-					);
-					this->gShadowMap->pCamera[sf]->setDirection(direction);
-					this->gShadowMap->pCamera[sf]->setOrthographicProjection(
-						shadowBoxDimensions.x, shadowBoxDimensions.y,
-						0.5, shadowBoxDimensions.z
-					);
 				}
-			}
-			else {
-				// Calculate new position of the shadow map's camera.
-				Vector3 newPosition;
-				Vector3 shadowMapFrustumForward;
-				shadowMapFrustumForward.storeXMVECTOR(
-					&dx::XMVector3Transform(
-						dx::XMVectorSet(0, 0, 1, 1),
-						lightViewMatrix
-					)
-				);
-				shadowMapFrustumForward.normalize();
 
-				// Calculate center of active camera's frustum.
-				Vector3 activeCameraFrustumCenter;
-				Vector3 activeCameraFrustumForward;
-				activeCameraFrustumForward.storeXMVECTOR(
-					&dx::XMVector3Transform(
-						dx::XMVectorSet(0, 0, 1, 1),
-						activeCameraViewMatrix
-					)
-				);
-				activeCameraFrustumForward.normalize();
-				activeCameraFrustumCenter = activeCamera->gPosition + activeCameraFrustumForward * (((activeCameraFrustum.Far - activeCameraFrustum.Near) / 2) + activeCameraFrustum.Near);
+				// Calculate dimensions of the shadow box.
+				Vector3 minCorner(INFINITY, INFINITY, INFINITY), maxCorner(-INFINITY, -INFINITY, -INFINITY);
+				for (unsigned int cc = 0; cc < activeCameraFrustum.CORNER_COUNT; cc++) {
+					// X
+					if (subFrustumCornersLightSpace[cc].x < minCorner.x) {
+						minCorner.x = subFrustumCornersLightSpace[cc].x;
+					}
+					if (subFrustumCornersLightSpace[cc].x > maxCorner.x) {
+						maxCorner.x = subFrustumCornersLightSpace[cc].x;
+					}
 
-				// Set shadow box's center position to center of the view frustum.
-				this->gShadowMap->pCamera[0]->setPosition(
-					activeCameraFrustumCenter + (-shadowMapFrustumForward * shadowBoxDimensions.z / 2)
+					// Y
+					if (subFrustumCornersLightSpace[cc].y < minCorner.y) {
+						minCorner.y = subFrustumCornersLightSpace[cc].y;
+					}
+					if (subFrustumCornersLightSpace[cc].y > maxCorner.y) {
+						maxCorner.y = subFrustumCornersLightSpace[cc].y;
+					}
+
+					// Z
+					if (subFrustumCornersLightSpace[cc].z < minCorner.z) {
+						minCorner.z = subFrustumCornersLightSpace[cc].z;
+					}
+					if (subFrustumCornersLightSpace[cc].z > maxCorner.z) {
+						maxCorner.z = subFrustumCornersLightSpace[cc].z;
+					}
+				}
+
+				double floor = 0.001;
+				minCorner.x = (float)(minCorner.x - (float)modf(minCorner.x, &floor));
+				minCorner.y = (float)(minCorner.y - (float)modf(minCorner.y, &floor));
+				minCorner.z = (float)(minCorner.z - (float)modf(minCorner.z, &floor));
+				maxCorner.x = (float)(maxCorner.x - (float)modf(maxCorner.x, &floor));
+				maxCorner.y = (float)(maxCorner.y - (float)modf(maxCorner.y, &floor));
+				maxCorner.z = (float)(maxCorner.z - (float)modf(maxCorner.z, &floor));
+
+				// Calculate shadow box dimensions.
+				Vector3 shadowBoxDimensions;
+				shadowBoxDimensions.x = abs(maxCorner.x - minCorner.x);
+				shadowBoxDimensions.y = abs(maxCorner.y - minCorner.y);
+				shadowBoxDimensions.z = abs(maxCorner.z - minCorner.z);
+
+				// Calculate center of subfrustum.
+				Vector3 subFrustumCenter;
+				subFrustumCenter = activeCamera->gPosition + (activeCamera->gDirection.normalize() * (((subFrustum->Far - subFrustum->Near) / 2) + subFrustum->Near));
+
+				// Set shadow box's position to center of the subfrustum.
+				this->gShadowMap->pCamera[sf]->setDirection(direction);
+				this->gShadowMap->pCamera[sf]->setPosition(
+					subFrustumCenter + (-this->gShadowMap->pCamera[sf]->gDirection * shadowBoxDimensions.z / 2)
 				);
-				this->gShadowMap->pCamera[0]->setDirection(direction);
-				this->gShadowMap->pCamera[0]->setOrthographicProjection(
+
+				// Set each subfrustum's near and far planes.
+				this->gShadowMap->pCamera[sf]->setOrthographicProjection(
 					shadowBoxDimensions.x, shadowBoxDimensions.y,
-					0.5, shadowBoxDimensions.z
+					0.5f,
+					shadowBoxDimensions.z
 				);
 			}
+
 			break;
 	}
 

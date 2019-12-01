@@ -22,15 +22,6 @@ public:
 	void setPerspectiveProjection(float fieldOfView=90, float aspectRatio=4/3, float nearZ=0.5f, float farZ=100.0f);
 	void setOrthographicProjection(float viewWidth, float viewHeight, float nearZ = 0.5f, float farZ = 100.0f);
 
-	float farPlaneZ;
-	float nearPlaneZ;
-	void setFarPlaneDistance(float farPlaneZ) {
-		this->farPlaneZ = farPlaneZ;
-	}
-	void setNearPlaneDistance(float nearPlaneZ) {
-		this->nearPlaneZ = nearPlaneZ;
-	}
-
 	void Move(Vector3 moveDir, bool moveFast);
 	void Rotate(float x, float y);
 

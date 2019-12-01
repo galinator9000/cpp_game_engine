@@ -15,7 +15,7 @@ public:
 	bool isActive = false;
 
 	// Distance
-	float gShadowDistanceRatio = 0.33f;
+	float gShadowDistanceRatio = 1;
 	void setShadowDistanceRatio(float ratio) {
 		if (ratio > 0 && ratio <= 1) {
 			this->gShadowDistanceRatio = ratio;

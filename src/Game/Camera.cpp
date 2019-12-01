@@ -276,9 +276,6 @@ void Camera::Zoom(int zoomDirection) {
 void Camera::setPerspectiveProjection(float fieldOfView, float aspectRatio, float nearZ, float farZ) {
 	this->projectionType = PERSPECTIVE;
 
-	this->setNearPlaneDistance(nearZ);
-	this->setFarPlaneDistance(farZ);
-
 	// Perspective
 	dx::XMStoreFloat4x4(
 		&this->gCameraVSConstantBuffer.projectionMatrix,
@@ -296,9 +293,6 @@ void Camera::setPerspectiveProjection(float fieldOfView, float aspectRatio, floa
 
 void Camera::setOrthographicProjection(float viewWidth, float viewHeight, float nearZ, float farZ) {
 	this->projectionType = ORTHOGRAPHIC;
-
-	this->setNearPlaneDistance(nearZ);
-	this->setFarPlaneDistance(farZ);
 
 	// Orthographic
 	dx::XMStoreFloat4x4(
