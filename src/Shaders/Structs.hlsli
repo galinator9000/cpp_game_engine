@@ -4,11 +4,14 @@
 // Shadow map struct.
 struct ShadowMapSubfrustum {
 	matrix projectionMatrix;
+	matrix viewMatrix;
+	float activeCameraSubfrustumNearPlaneDistance;
+	float activeCameraSubfrustumFarPlaneDistance;
+	float2 padding;
 };
 
 struct ShadowMap {
 	ShadowMapSubfrustum subfrustum[MAX_CSM_SUBFRUSTUM_COUNT];
-	matrix viewMatrix;
 	bool isActive;
 	unsigned int lightType;
 	float shadowDistance;

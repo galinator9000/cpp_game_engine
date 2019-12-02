@@ -5,6 +5,7 @@
 #include <wrl.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <directxcollision.h>
 
 class Camera{
 public:
@@ -15,11 +16,12 @@ public:
 
 	unsigned int id;
 	PROJECTION_TYPE projectionType;
+	dx::BoundingFrustum frustum;
 
 	// Game Engine
 	void setPosition(Vector3 newPos);
 	void setDirection(Vector3 newDir);
-	void setPerspectiveProjection(float fieldOfView=90, float aspectRatio=4/3, float nearZ=0.5f, float farZ=100.0f);
+	void setPerspectiveProjection(float fieldOfView=90, float aspectRatio=4/3, float nearZ=0.5f, float farZ = 100.0f);
 	void setOrthographicProjection(float viewWidth, float viewHeight, float nearZ = 0.5f, float farZ = 100.0f);
 
 	void Move(Vector3 moveDir, bool moveFast);

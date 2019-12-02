@@ -83,47 +83,36 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 					);
 				}
 
-				// Calculate dimensions of the shadow box.
+				// Calculate dimensions of the current subfrustum's shadow box.
 				Vector3 minCorner(INFINITY, INFINITY, INFINITY), maxCorner(-INFINITY, -INFINITY, -INFINITY);
 				for (unsigned int cc = 0; cc < activeCameraFrustum.CORNER_COUNT; cc++) {
 					// X
-					if (subFrustumCornersLightSpace[cc].x < minCorner.x) {
-						minCorner.x = subFrustumCornersLightSpace[cc].x;
-					}
-					if (subFrustumCornersLightSpace[cc].x > maxCorner.x) {
-						maxCorner.x = subFrustumCornersLightSpace[cc].x;
-					}
+					minCorner.x = min(minCorner.x, subFrustumCornersLightSpace[cc].x);
+					maxCorner.x = max(maxCorner.x, subFrustumCornersLightSpace[cc].x);
 
 					// Y
-					if (subFrustumCornersLightSpace[cc].y < minCorner.y) {
-						minCorner.y = subFrustumCornersLightSpace[cc].y;
-					}
-					if (subFrustumCornersLightSpace[cc].y > maxCorner.y) {
-						maxCorner.y = subFrustumCornersLightSpace[cc].y;
-					}
+					minCorner.y = min(minCorner.y, subFrustumCornersLightSpace[cc].y);
+					maxCorner.y = max(maxCorner.y, subFrustumCornersLightSpace[cc].y);
 
 					// Z
-					if (subFrustumCornersLightSpace[cc].z < minCorner.z) {
-						minCorner.z = subFrustumCornersLightSpace[cc].z;
-					}
-					if (subFrustumCornersLightSpace[cc].z > maxCorner.z) {
-						maxCorner.z = subFrustumCornersLightSpace[cc].z;
-					}
+					minCorner.z = min(minCorner.z, subFrustumCornersLightSpace[cc].z);
+					maxCorner.z = max(maxCorner.z, subFrustumCornersLightSpace[cc].z);
 				}
 
 				double floor = 0.001;
-				minCorner.x = (float)(minCorner.x - (float)modf(minCorner.x, &floor));
-				minCorner.y = (float)(minCorner.y - (float)modf(minCorner.y, &floor));
-				minCorner.z = (float)(minCorner.z - (float)modf(minCorner.z, &floor));
-				maxCorner.x = (float)(maxCorner.x - (float)modf(maxCorner.x, &floor));
-				maxCorner.y = (float)(maxCorner.y - (float)modf(maxCorner.y, &floor));
-				maxCorner.z = (float)(maxCorner.z - (float)modf(maxCorner.z, &floor));
+				minCorner.x = (float)(minCorner.x - (float) modf(minCorner.x, &floor));
+				minCorner.y = (float)(minCorner.y - (float) modf(minCorner.y, &floor));
+				minCorner.z = (float)(minCorner.z - (float) modf(minCorner.z, &floor));
+				maxCorner.x = (float)(maxCorner.x - (float) modf(maxCorner.x, &floor));
+				maxCorner.y = (float)(maxCorner.y - (float) modf(maxCorner.y, &floor));
+				maxCorner.z = (float)(maxCorner.z - (float) modf(maxCorner.z, &floor));
 
 				// Calculate shadow box dimensions.
-				Vector3 shadowBoxDimensions;
-				shadowBoxDimensions.x = abs(maxCorner.x - minCorner.x);
-				shadowBoxDimensions.y = abs(maxCorner.y - minCorner.y);
-				shadowBoxDimensions.z = abs(maxCorner.z - minCorner.z);
+				Vector3 shadowBoxDimensions(
+					abs(maxCorner.x - minCorner.x),
+					abs(maxCorner.y - minCorner.y),
+					abs(maxCorner.z - minCorner.z)
+				);
 
 				// Calculate center of subfrustum.
 				Vector3 subFrustumCenter;
@@ -135,18 +124,20 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 					subFrustumCenter + (-this->gShadowMap->pCamera[sf]->gDirection * shadowBoxDimensions.z / 2)
 				);
 
-				// Set each subfrustum's near and far planes.
+				// Recalculate orthographic projection matrices on subfrustum cameras.
 				this->gShadowMap->pCamera[sf]->setOrthographicProjection(
 					shadowBoxDimensions.x, shadowBoxDimensions.y,
 					0.5f,
 					shadowBoxDimensions.z
 				);
+
+				// Update constant buffer & frustum information.
+				this->gShadowMap->pCamera[sf]->updateConstantBuffer();
+
+				this->gShadowMap->activeCameraSubfrustumFarPlaneDistance[sf] = subFrustum->Near;
+				this->gShadowMap->activeCameraSubfrustumNearPlaneDistance[sf] = subFrustum->Far;
 			}
 
 			break;
-	}
-
-	for (unsigned int sf = 0; sf < this->gShadowMap->subFrustumCount; sf++) {
-		this->gShadowMap->pCamera[sf]->updateConstantBuffer();
 	}
 }

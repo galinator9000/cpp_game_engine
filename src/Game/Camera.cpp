@@ -6,6 +6,7 @@ Camera::Camera() {
 	this->rotation = Vector3();
 	this->camLookAt = this->gPosition + this->gDirection;
 	this->setPerspectiveProjection();
+
 	this->updateConstantBuffer();
 }
 
@@ -114,7 +115,6 @@ void Camera::Update() {
 		}
 
 		this->updateConstantBuffer();
-
 		this->shouldUpdateGPUData = true;
 	}
 }
@@ -143,6 +143,22 @@ void Camera::updateConstantBuffer() {
 
 	// Provide position of the camera to buffer.
 	this->gCameraVSConstantBuffer.cameraPosition = this->gPosition.loadXMFLOAT();
+
+	// Update frustum.
+	this->frustum = dx::BoundingFrustum(
+		dx::XMMatrixTranspose(
+			dx::XMLoadFloat4x4(&this->gCameraVSConstantBuffer.projectionMatrix)
+		)
+	);
+	this->frustum.Transform(
+		this->frustum,
+		dx::XMMatrixInverse(
+			NULL,
+			dx::XMMatrixTranspose(
+				dx::XMLoadFloat4x4(&this->gCameraVSConstantBuffer.viewMatrix)
+			)
+		)
+	);
 }
 
 void Camera::Move(Vector3 translation, bool moveFast) {

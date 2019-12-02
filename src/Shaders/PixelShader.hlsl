@@ -29,8 +29,10 @@ struct PSIn {
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
 
-	// Camera position
+	// Camera position in world space.
 	float3 eyePosition : EyePosition;
+	// Specifies which subfrustum to sample from.
+	unsigned int subFrustumIndices[MAX_SHADOW_CASTER_COUNT]: SubFrustumIndices;
 
 	// Shadow map
 	// XY, shadow map texture UV coordinates
@@ -92,6 +94,7 @@ PSOut main(PSIn psIn){
 	// Calculate shadows.
 	float shadowFactor = calculateAllShadows(
 		psIn.shadowMapPosition,
+		psIn.subFrustumIndices,
 		psIn.positionPS,
 		psIn.eyePosition
 	);

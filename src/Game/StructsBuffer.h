@@ -64,11 +64,14 @@ struct CameraVSConstantBuffer {
 // Each camera object holds this, camera's position and projection information held.
 struct ShadowMapSubfrustumSStruct {
 	dx::XMFLOAT4X4 projectionMatrix;
+	dx::XMFLOAT4X4 viewMatrix;
+	float activeCameraSubfrustumNearPlaneDistance;
+	float activeCameraSubfrustumFarPlaneDistance;
+	dx::XMFLOAT2 padding;
 };
 
 struct ShadowMapSStruct {
 	ShadowMapSubfrustumSStruct shadowMapSubfrustum[MAX_CSM_SUBFRUSTUM_COUNT];
-	dx::XMFLOAT4X4 viewMatrix;
 	unsigned int isActive;
 	unsigned int lightType;
 	float shadowDistance;

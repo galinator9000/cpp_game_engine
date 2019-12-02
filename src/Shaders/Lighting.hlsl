@@ -141,6 +141,7 @@ float4 calculateAllLights(
 
 float calculateAllShadows(
 	in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT],
+	in unsigned int subFrustumIndices[MAX_SHADOW_CASTER_COUNT],
 	float3 position,
 	float3 eyePosition
 ) {
@@ -155,9 +156,10 @@ float calculateAllShadows(
 
 	// Process shadow maps.
 	float shadowFactor = 0;
+	unsigned int shadowMapIndex;
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		for (unsigned int sf = 0; sf < 1; sf++) {
-			if (shadowMaps[sc].isActive) {
+		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+			if (shadowMaps[sc].isActive && sf == subFrustumIndices[sc]) {
 				// Distance calculations for smooth shadow transition.
 				switch (shadowMaps[sc].lightType) {
 					case DIRECTIONAL_LIGHT:
@@ -182,16 +184,17 @@ float calculateAllShadows(
 						break;
 				}
 
-				shadowMapCoords.x = shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].x / shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].w * 0.5 + 0.5;
-				shadowMapCoords.y = -shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].y / shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].w * 0.5 + 0.5;
+				shadowMapIndex = sc * MAX_CSM_SUBFRUSTUM_COUNT + sf;
+				shadowMapCoords.x = shadowMapPosition[shadowMapIndex].x / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;
+				shadowMapCoords.y = -shadowMapPosition[shadowMapIndex].y / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;
 
 				if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
-					finalDepth = (shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].z / shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].w) - 0.0001f;
+					finalDepth = (shadowMapPosition[shadowMapIndex].z / shadowMapPosition[shadowMapIndex].w) - 0.0001f;
 					if (finalDepth > 1.0f) {
 						finalDepth = 0;
 					}
 
-					nearestObjectDepth = ShadowMapTexture[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf].Sample(whiteBorderSampler, shadowMapCoords).r;
+					nearestObjectDepth = ShadowMapTexture[shadowMapIndex].Sample(whiteBorderSampler, shadowMapCoords).r;
 
 					if (finalDepth > nearestObjectDepth && distance(finalDepth, nearestObjectDepth) > 0.001f) {
 						shadowFactor = 0.6 * fadingFactor;

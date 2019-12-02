@@ -44,8 +44,10 @@ struct VSOut {
 	float3 tangent : Tangent;
 	float3 binormal : Binormal;
 
-	// Camera position
+	// Camera position in world space.
 	float3 eyePosition : EyePosition;
+	// Specifies which subfrustum to sample from.
+	unsigned int subFrustumIndices[MAX_SHADOW_CASTER_COUNT]: SubFrustumIndices;
 
 	// Shadow map
 	// XY, shadow map texture UV coordinates
@@ -101,22 +103,31 @@ VSOut main(VSIn vsIn){
 	// Apply "Model" matrix.
 	finalWorldPosition = mul(finalWorldPosition, worldMatrix);
 
+	// Apply "View" and "Projection" transform matrices.
+	vsOut.position = mul(finalWorldPosition, viewMatrix);
+	vsOut.position = mul(vsOut.position, projectionMatrix);
+
 	// Apply shadow map projection & view matrices.
 	// These values will be processed for shadowing.
 	float4 shadowMapPosition = float4(0,0,0,1);
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
-			if (shadowMaps[sc].isActive) {
-				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].viewMatrix);
-				shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].subfrustum[sf].projectionMatrix);
+		if (shadowMaps[sc].isActive) {
+			// Choose which subfrustum to sample from.
+			vsOut.subFrustumIndices[sc] = 0;
+			for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+				if (vsOut.position.z <= shadowMaps[sc].subfrustum[sf].activeCameraSubfrustumFarPlaneDistance) {
+					vsOut.subFrustumIndices[sc] = sf;
+					break;
+				}
 			}
-			vsOut.shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf] = shadowMapPosition;
+
+			for (sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].subfrustum[sf].viewMatrix);
+				shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].subfrustum[sf].projectionMatrix);
+				vsOut.shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf] = shadowMapPosition;
+			}
 		}
 	}
-
-	// Apply "View" and "Projection" transform matrices.
-	vsOut.position = mul(finalWorldPosition, viewMatrix);
-	vsOut.position = mul(vsOut.position, projectionMatrix);
 
 	// Pixel shader needs just world positions without Projection and View.
 	vsOut.positionPS = finalWorldPosition.xyz;
