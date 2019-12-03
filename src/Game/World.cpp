@@ -125,14 +125,6 @@ void World::Update(){
 						);
 						gShadowCastersDistanceLPMap[lightDist] = light;
 						break;
-
-					case LIGHT_TYPE::POINT_LIGHT:
-						lightDist = Vector3::distance(
-							light->gPosition,
-							this->activeCamera->gPosition
-						);
-						gShadowCastersDistanceLPMap[lightDist] = light;
-						break;
 				}
 			}
 		}
@@ -232,21 +224,14 @@ void World::Render() {
 					this->activeCamera
 				);
 				break;
-				this->gShadowCasters[sc]->gShadowBox->Update(
-					this->gShadowCasters[sc]->gPosition,
-					this->gShadowCasters[sc]->gDirection,
-					this->activeCamera
-				);
-			case POINT_LIGHT:
-				break;
 		}
 
-		for (unsigned int sfc = 0; sfc < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sfc++) {
+		for (unsigned int sf = 0; sf < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sf++) {
 			// Set render target and camera for rendering scene from light's "view".
-			this->pGfx->setViewport(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pViewPort[sfc]);
-			this->pGfx->setRenderTarget(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget[sfc]);
-			this->pGfx->updateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sfc]);
-			this->pGfx->activateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sfc]);
+			this->pGfx->setViewport(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pViewPort[sf]);
+			this->pGfx->setRenderTarget(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget[sf]);
+			this->pGfx->updateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]);
+			this->pGfx->activateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]);
 
 			// Render entity.
 			for (unsigned int e = 0; e < this->allEntities.size(); e++) {
@@ -347,10 +332,10 @@ bool World::addLight(Light* light) {
 
 	// Create render target for shadow maps.
 	if (light->isCastingShadow && light->gShadowBox != NULL) {
-		for (unsigned int sfc = 0; sfc < light->gShadowBox->gShadowMap->subFrustumCount; sfc++) {
-			this->pGfx->addCamera(light->gShadowBox->gShadowMap->pCamera[sfc], false);
-			this->pGfx->createRenderTarget(light->gShadowBox->gShadowMap->pRenderTarget[sfc], true);
-			this->pGfx->renderTargets.push_back(light->gShadowBox->gShadowMap->pRenderTarget[sfc]);
+		for (unsigned int sf = 0; sf < light->gShadowBox->gShadowMap->subFrustumCount; sf++) {
+			this->pGfx->addCamera(light->gShadowBox->gShadowMap->pCamera[sf], false);
+			this->pGfx->createRenderTarget(light->gShadowBox->gShadowMap->pRenderTarget[sf], true);
+			this->pGfx->renderTargets.push_back(light->gShadowBox->gShadowMap->pRenderTarget[sf]);
 		}
 	}
 

@@ -113,14 +113,15 @@ VSOut main(VSIn vsIn){
 	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
 		if (shadowMaps[sc].isActive) {
 			// Choose which subfrustum to sample from.
-			vsOut.subFrustumIndices[sc] = 0;
-			for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+			unsigned int sf = 0;
+			for (sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
 				if (vsOut.position.z <= shadowMaps[sc].subfrustum[sf].activeCameraSubfrustumFarPlaneDistance) {
 					vsOut.subFrustumIndices[sc] = sf;
 					break;
 				}
 			}
 
+			// Calculate UV position of current vertex in shadow map.
 			for (sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
 				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].subfrustum[sf].viewMatrix);
 				shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].subfrustum[sf].projectionMatrix);

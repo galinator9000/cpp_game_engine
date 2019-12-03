@@ -161,7 +161,8 @@ float calculateAllShadows(
 		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
 			if (shadowMaps[sc].isActive && sf == subFrustumIndices[sc]) {
 				// Distance calculations for smooth shadow transition.
-				switch (shadowMaps[sc].lightType) {
+				fadingFactor = 1;
+				/*switch (shadowMaps[sc].lightType) {
 					case DIRECTIONAL_LIGHT:
 						shadowDistance = shadowMaps[sc].shadowDistance;
 						transitionDistance = shadowMaps[sc].shadowDistance * 0.03;
@@ -182,7 +183,7 @@ float calculateAllShadows(
 							dirVertexToLight
 						);
 						break;
-				}
+				}*/
 
 				shadowMapIndex = sc * MAX_CSM_SUBFRUSTUM_COUNT + sf;
 				shadowMapCoords.x = shadowMapPosition[shadowMapIndex].x / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;

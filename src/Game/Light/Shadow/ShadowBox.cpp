@@ -26,11 +26,12 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions,
 	}
 }
 
-void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera) {
+void ShadowBox::Update(Vector3 lightPosition, Vector3 lightDirection, Camera* activeCamera) {
 	switch (this->lightType) {
 		case LIGHT_TYPE::SPOT_LIGHT:
-			this->gShadowMap->pCamera[0]->setPosition(position);
-			this->gShadowMap->pCamera[0]->setDirection(direction);
+			this->gShadowMap->pCamera[0]->setPosition(lightPosition);
+			this->gShadowMap->pCamera[0]->setDirection(lightDirection);
+			this->gShadowMap->pCamera[0]->updateConstantBuffer();
 			break;
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
@@ -57,7 +58,7 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 			float subFrustumZStep = (activeCameraFrustum.Far - activeCameraFrustum.Near) / this->gShadowMap->subFrustumCount;
 
 			dx::BoundingFrustum* subFrustum;
-			dx::XMFLOAT3 subFrustumCorners[activeCameraFrustum.CORNER_COUNT];
+			dx::BoundingFrustum* subFrustumLightSpace;
 			dx::XMFLOAT3 subFrustumCornersLightSpace[activeCameraFrustum.CORNER_COUNT];
 			for (unsigned int sf = 0; sf < this->gShadowMap->subFrustumCount; sf++) {
 				// Copy active camera's view frustum, adjust far and near planes and finally calculate subfrustum's corners.
@@ -68,20 +69,21 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 				// Transform corner positions to world space.
 				subFrustum->Transform(*subFrustum, activeCameraViewMatrixInverse);
 
-				// Get corners of the subfrustum.
-				subFrustum->GetCorners(subFrustumCorners);
-
 				// Transform subfrustum vertices from world space to light space.
-				dx::XMMATRIX lightViewMatrix = dx::XMLoadFloat4x4(&this->gShadowMap->pCamera[sf]->gCameraVSConstantBuffer.viewMatrix);
-				for (unsigned int cc = 0; cc < subFrustum->CORNER_COUNT; cc++) {
-					dx::XMStoreFloat3(
-						&subFrustumCornersLightSpace[cc],
-						dx::XMVector3Transform(
-							dx::XMLoadFloat3(&subFrustumCorners[cc]),
-							lightViewMatrix
+				subFrustumLightSpace = new dx::BoundingFrustum(*subFrustum);
+				subFrustumLightSpace->Transform(
+					*subFrustumLightSpace,
+					dx::XMMatrixTranspose(
+						dx::XMMatrixLookAtLH(
+							lightPosition.loadXMVECTOR(),
+							(lightPosition + lightDirection).loadXMVECTOR(),
+							dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
 						)
-					);
-				}
+					)
+				);
+
+				// Get corners of the subfrustum.
+				subFrustumLightSpace->GetCorners(subFrustumCornersLightSpace);
 
 				// Calculate dimensions of the current subfrustum's shadow box.
 				Vector3 minCorner(INFINITY, INFINITY, INFINITY), maxCorner(-INFINITY, -INFINITY, -INFINITY);
@@ -119,7 +121,7 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 				subFrustumCenter = activeCamera->gPosition + (activeCamera->gDirection.normalize() * (((subFrustum->Far - subFrustum->Near) / 2) + subFrustum->Near));
 
 				// Set shadow box's position to center of the subfrustum.
-				this->gShadowMap->pCamera[sf]->setDirection(direction);
+				this->gShadowMap->pCamera[sf]->setDirection(lightDirection);
 				this->gShadowMap->pCamera[sf]->setPosition(
 					subFrustumCenter + (-this->gShadowMap->pCamera[sf]->gDirection * shadowBoxDimensions.z / 2)
 				);
@@ -134,8 +136,8 @@ void ShadowBox::Update(Vector3 position, Vector3 direction, Camera* activeCamera
 				// Update constant buffer & frustum information.
 				this->gShadowMap->pCamera[sf]->updateConstantBuffer();
 
-				this->gShadowMap->activeCameraSubfrustumFarPlaneDistance[sf] = subFrustum->Near;
-				this->gShadowMap->activeCameraSubfrustumNearPlaneDistance[sf] = subFrustum->Far;
+				this->gShadowMap->activeCameraSubfrustumNearPlaneDistance[sf] = subFrustum->Near;
+				this->gShadowMap->activeCameraSubfrustumFarPlaneDistance[sf] = subFrustum->Far;
 			}
 
 			break;

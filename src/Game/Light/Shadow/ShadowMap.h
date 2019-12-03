@@ -19,25 +19,17 @@ public:
 		this->activeCameraSubfrustumFarPlaneDistance = new float[subFrustumCount];
 		this->subFrustumCount = subFrustumCount;
 
-		if (subFrustumCount > 1) {
+		if (this->subFrustumCount > 1) {
 			this->isCascaded = true;
-
-			for (unsigned sf = 0; sf < subFrustumCount; sf++) {
-				this->pCamera[sf] = new Camera(position, direction, WIDTH, HEIGHT, projectionType);
-				this->pRenderTarget[sf] = new RenderTarget();
-				this->pViewPort[sf] = new Viewport({ dimensions.x, dimensions.y });
-
-				this->activeCameraSubfrustumNearPlaneDistance[sf] = 0;
-				this->activeCameraSubfrustumFarPlaneDistance[sf] = 0;
-			}
 		}
-		else {
-			this->pCamera[0] = new Camera(position, direction, WIDTH, HEIGHT, projectionType);
-			this->pRenderTarget[0] = new RenderTarget();
-			this->pViewPort[0] = new Viewport({ dimensions.x, dimensions.y });
 
-			this->activeCameraSubfrustumNearPlaneDistance[0] = 0;
-			this->activeCameraSubfrustumFarPlaneDistance[0] = 0;
+		for (unsigned sf = 0; sf < this->subFrustumCount; sf++) {
+			this->pCamera[sf] = new Camera(position, direction, WIDTH, HEIGHT, projectionType);
+			this->pRenderTarget[sf] = new RenderTarget();
+			this->pViewPort[sf] = new Viewport({ dimensions.x, dimensions.y });
+
+			this->activeCameraSubfrustumNearPlaneDistance[sf] = 0;
+			this->activeCameraSubfrustumFarPlaneDistance[sf] = 0;
 		}
 	}
 
@@ -46,6 +38,6 @@ public:
 	Viewport** pViewPort = NULL;
 	float* activeCameraSubfrustumNearPlaneDistance = NULL;
 	float* activeCameraSubfrustumFarPlaneDistance = NULL;
-	unsigned subFrustumCount = 1;
+	unsigned int subFrustumCount = 1;
 	bool isCascaded = false;
 };
