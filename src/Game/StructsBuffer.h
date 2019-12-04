@@ -6,9 +6,10 @@ namespace dx = DirectX;
 
 #define MAX_JOINT_COUNT 256
 #define MAX_JOINT_PER_VERTEX 4
-#define MAX_CSM_SUBFRUSTUM_COUNT 3
+
 #define MAX_LIGHT_COUNT 8
-#define MAX_SHADOW_CASTER_COUNT 2
+#define MAX_SHADOWBOX_COUNT 2
+#define MAX_SHADOWMAP_COUNT 3
 
 struct GraphicsSettingsStruct {
 	int PCFLevel = 0;
@@ -62,7 +63,7 @@ struct CameraVSConstantBuffer {
 };
 
 // Each camera object holds this, camera's position and projection information held.
-struct ShadowMapSubfrustumSStruct {
+struct ShadowMapSStruct {
 	dx::XMFLOAT4X4 projectionMatrix;
 	dx::XMFLOAT4X4 viewMatrix;
 	float activeCameraSubfrustumNearPlaneDistance;
@@ -70,8 +71,8 @@ struct ShadowMapSubfrustumSStruct {
 	dx::XMFLOAT2 padding;
 };
 
-struct ShadowMapSStruct {
-	ShadowMapSubfrustumSStruct shadowMapSubfrustum[MAX_CSM_SUBFRUSTUM_COUNT];
+struct ShadowBoxSStruct {
+	ShadowMapSStruct shadowMap[MAX_SHADOWMAP_COUNT];
 	unsigned int isActive;
 	unsigned int lightType;
 	float shadowDistance;

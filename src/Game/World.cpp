@@ -27,35 +27,35 @@ void World::Setup() {
 	this->pGfx->bindPixelShaderBuffer(1, this->pAllLightConstantBuffers.Get());
 
 	// Create buffer that will hold shadow casters.
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		this->gAllShadowMapConstantBuffers[sc].isActive = false;
+	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		this->gAllShadowBoxConstantBuffers[sb].isActive = false;
 
-		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
+		for (unsigned int sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
 			dx::XMStoreFloat4x4(
-				&(this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].viewMatrix),
+				&(this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].viewMatrix),
 				dx::XMMatrixIdentity()
 			);
 			dx::XMStoreFloat4x4(
-				&(this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].projectionMatrix),
+				&(this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].projectionMatrix),
 				dx::XMMatrixIdentity()
 			);
-			this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].activeCameraSubfrustumNearPlaneDistance = 0;
-			this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].activeCameraSubfrustumFarPlaneDistance = 0;
+			this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].activeCameraSubfrustumNearPlaneDistance = 0;
+			this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance = 0;
 		}
 	}
-	this->pGfx->createShadowMapsBuffer(
-		&this->gAllShadowMapConstantBuffers[0],
-		MAX_SHADOW_CASTER_COUNT,
-		&this->pAllShadowMapConstantBuffers
+	this->pGfx->createShadowBoxesBuffer(
+		&this->gAllShadowBoxConstantBuffers[0],
+		MAX_SHADOWBOX_COUNT,
+		&this->pAllShadowBoxConstantBuffers
 	);
-	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
-	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
+	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowBoxConstantBuffers.Get());
+	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowBoxConstantBuffers.Get());
 
 	// Set NULL all shadow casters initially.
 	memset(
 		&this->gShadowCasters,
 		NULL,
-		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
+		sizeof(Light*) * MAX_SHADOWBOX_COUNT
 	);
 }
 
@@ -80,7 +80,7 @@ void World::Update(){
 	memset(
 		&this->gShadowCasters,
 		NULL,
-		sizeof(Light*) * MAX_SHADOW_CASTER_COUNT
+		sizeof(Light*) * MAX_SHADOWBOX_COUNT
 	);
 	gShadowCastersDistanceLPMap.clear();
 
@@ -109,7 +109,7 @@ void World::Update(){
 		}
 
 		if (light->isCastingShadow) {
-			if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
+			if (shadowCasterIndex < MAX_SHADOWBOX_COUNT) {
 				float lightDist = 0;
 
 				switch (light->type) {
@@ -131,11 +131,11 @@ void World::Update(){
 	}
 
 	// Fill shadow caster array, starting from nearest lights.
-	if (shadowCasterIndex < MAX_SHADOW_CASTER_COUNT) {
+	if (shadowCasterIndex < MAX_SHADOWBOX_COUNT) {
 		for (const auto entry : gShadowCastersDistanceLPMap) {
 			this->gShadowCasters[shadowCasterIndex] = entry.second;
 			shadowCasterIndex++;
-			if (shadowCasterIndex >= MAX_SHADOW_CASTER_COUNT) {
+			if (shadowCasterIndex >= MAX_SHADOWBOX_COUNT) {
 				break;
 			}
 		}
@@ -203,35 +203,35 @@ void World::Render() {
 	this->pGfx->setPixelShader(this->pGfx->depthPixelShader);
 
 	// Render only depth values of entities for each shadow map.
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (this->gShadowCasters[sc] == NULL) {
+	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		if (this->gShadowCasters[sb] == NULL) {
 			continue;
 		}
 
 		// Copy position & direction values from light to camera.
-		switch (this->gShadowCasters[sc]->gShadowBox->lightType) {
+		switch (this->gShadowCasters[sb]->gShadowBox->lightType) {
 			case DIRECTIONAL_LIGHT:
-				this->gShadowCasters[sc]->gShadowBox->Update(
-					this->gShadowCasters[sc]->gPosition,
-					this->gShadowCasters[sc]->gDirection.normalize(),
+				this->gShadowCasters[sb]->gShadowBox->Update(
+					this->gShadowCasters[sb]->gPosition,
+					this->gShadowCasters[sb]->gDirection.normalize(),
 					this->activeCamera
 				);
 				break;
 			case SPOT_LIGHT:
-				this->gShadowCasters[sc]->gShadowBox->Update(
-					this->gShadowCasters[sc]->gPosition,
-					this->gShadowCasters[sc]->gDirection.normalize(),
+				this->gShadowCasters[sb]->gShadowBox->Update(
+					this->gShadowCasters[sb]->gPosition,
+					this->gShadowCasters[sb]->gDirection.normalize(),
 					this->activeCamera
 				);
 				break;
 		}
 
-		for (unsigned int sf = 0; sf < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sf++) {
+		for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMap->subFrustumCount; sm++) {
 			// Set render target and camera for rendering scene from light's "view".
-			this->pGfx->setViewport(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pViewPort[sf]);
-			this->pGfx->setRenderTarget(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget[sf]);
-			this->pGfx->updateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]);
-			this->pGfx->activateCamera(this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]);
+			this->pGfx->setViewport(this->gShadowCasters[sb]->gShadowBox->gShadowMap->pViewPort[sm]);
+			this->pGfx->setRenderTarget(this->gShadowCasters[sb]->gShadowBox->gShadowMap->pRenderTarget[sm]);
+			this->pGfx->updateCamera(this->gShadowCasters[sb]->gShadowBox->gShadowMap->pCamera[sm]);
+			this->pGfx->activateCamera(this->gShadowCasters[sb]->gShadowBox->gShadowMap->pCamera[sm]);
 
 			// Render entity.
 			for (unsigned int e = 0; e < this->allEntities.size(); e++) {
@@ -256,43 +256,43 @@ void World::Render() {
 	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 
 	// Provide View & Projection matrices of shadow boxes to Vertex & Pixel Shader.
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (this->gShadowCasters[sc] == NULL) {
-			this->gAllShadowMapConstantBuffers[sc].isActive = false;
+	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		if (this->gShadowCasters[sb] == NULL) {
+			this->gAllShadowBoxConstantBuffers[sb].isActive = false;
 
-			for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
-				dx::XMStoreFloat4x4(&this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].viewMatrix, dx::XMMatrixIdentity());
-				dx::XMStoreFloat4x4(&this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].projectionMatrix, dx::XMMatrixIdentity());
-				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].activeCameraSubfrustumNearPlaneDistance = 0;
-				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].activeCameraSubfrustumFarPlaneDistance = 0;
+			for (unsigned int sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+				dx::XMStoreFloat4x4(&this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].viewMatrix, dx::XMMatrixIdentity());
+				dx::XMStoreFloat4x4(&this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].projectionMatrix, dx::XMMatrixIdentity());
+				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].activeCameraSubfrustumNearPlaneDistance = 0;
+				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance = 0;
 			}
 		}
 		else {
-			this->gAllShadowMapConstantBuffers[sc].isActive = this->gShadowCasters[sc]->gShadowBox->isActive;
-			this->gAllShadowMapConstantBuffers[sc].shadowDistance = this->gShadowCasters[sc]->gShadowBox->getShadowDistance();
-			this->gAllShadowMapConstantBuffers[sc].lightType = this->gShadowCasters[sc]->gShadowBox->lightType;
-			this->gAllShadowMapConstantBuffers[sc].lightID = this->gShadowCasters[sc]->id;
-			for (unsigned int sf = 0; sf < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sf++) {
-				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].viewMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]->gCameraVSConstantBuffer.viewMatrix;
-				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].projectionMatrix = this->gShadowCasters[sc]->gShadowBox->gShadowMap->pCamera[sf]->gCameraVSConstantBuffer.projectionMatrix;
-				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].activeCameraSubfrustumNearPlaneDistance = this->gShadowCasters[sc]->gShadowBox->gShadowMap->activeCameraSubfrustumNearPlaneDistance[sf];
-				this->gAllShadowMapConstantBuffers[sc].shadowMapSubfrustum[sf].activeCameraSubfrustumFarPlaneDistance = this->gShadowCasters[sc]->gShadowBox->gShadowMap->activeCameraSubfrustumFarPlaneDistance[sf];
+			this->gAllShadowBoxConstantBuffers[sb].isActive = this->gShadowCasters[sb]->gShadowBox->isActive;
+			this->gAllShadowBoxConstantBuffers[sb].shadowDistance = this->gShadowCasters[sb]->gShadowBox->getShadowDistance();
+			this->gAllShadowBoxConstantBuffers[sb].lightType = this->gShadowCasters[sb]->gShadowBox->lightType;
+			this->gAllShadowBoxConstantBuffers[sb].lightID = this->gShadowCasters[sb]->id;
+			for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMap->subFrustumCount; sm++) {
+				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].viewMatrix = this->gShadowCasters[sb]->gShadowBox->gShadowMap->pCamera[sm]->gCameraVSConstantBuffer.viewMatrix;
+				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].projectionMatrix = this->gShadowCasters[sb]->gShadowBox->gShadowMap->pCamera[sm]->gCameraVSConstantBuffer.projectionMatrix;
+				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].activeCameraSubfrustumNearPlaneDistance = this->gShadowCasters[sb]->gShadowBox->gShadowMap->activeCameraSubfrustumNearPlaneDistance[sm];
+				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance = this->gShadowCasters[sb]->gShadowBox->gShadowMap->activeCameraSubfrustumFarPlaneDistance[sm];
 			}
 		}
 	}
-	this->pGfx->updateShadowMapsBuffer(&this->gAllShadowMapConstantBuffers[0], MAX_SHADOW_CASTER_COUNT, this->pAllShadowMapConstantBuffers.Get());
-	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
-	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowMapConstantBuffers.Get());
+	this->pGfx->updateShadowBoxesBuffer(&this->gAllShadowBoxConstantBuffers[0], MAX_SHADOWBOX_COUNT, this->pAllShadowBoxConstantBuffers.Get());
+	this->pGfx->bindVertexShaderBuffer(3, this->pAllShadowBoxConstantBuffers.Get());
+	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowBoxConstantBuffers.Get());
 
 	// Provide shadow mappings to Pixel Shader
 	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 3;
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (this->gShadowCasters[sc] == NULL) {
+	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		if (this->gShadowCasters[sb] == NULL) {
 			continue;
 		}
 
-		for (unsigned int sf = 0; sf < this->gShadowCasters[sc]->gShadowBox->gShadowMap->subFrustumCount; sf++) {
-			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sc * MAX_CSM_SUBFRUSTUM_COUNT + sf), this->gShadowCasters[sc]->gShadowBox->gShadowMap->pRenderTarget[sf]->pTexture);
+		for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMap->subFrustumCount; sm++) {
+			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWBOX_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMap->pRenderTarget[sm]->pTexture);
 		}
 	}
 	

@@ -31,13 +31,13 @@ struct PSIn {
 
 	// Camera position in world space.
 	float3 eyePosition : EyePosition;
-	// Specifies which subfrustum to sample from.
-	unsigned int subFrustumIndices[MAX_SHADOW_CASTER_COUNT]: SubFrustumIndices;
+	// Specifies which shadow map to sample from.
+	unsigned int shadowMapIndices[MAX_SHADOWBOX_COUNT]: ShadowMapIndices;
 
 	// Shadow map
 	// XY, shadow map texture UV coordinates
 	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT] : TEXCOORD0;
+	float4 shadowMapPosition[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : TEXCOORD0;
 };
 
 // Output structure of the Pixel shader.
@@ -94,7 +94,7 @@ PSOut main(PSIn psIn){
 	// Calculate shadows.
 	float shadowFactor = calculateAllShadows(
 		psIn.shadowMapPosition,
-		psIn.subFrustumIndices,
+		psIn.shadowMapIndices,
 		psIn.positionPS,
 		psIn.eyePosition
 	);

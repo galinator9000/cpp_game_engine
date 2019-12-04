@@ -703,31 +703,31 @@ void Graphics::updateLightsBuffer(LightPSStruct* gAllLights, unsigned int lightC
 
 // Shadow Maps
 // Create buffers that will contain shadow maps.
-bool Graphics::createShadowMapsBuffer(ShadowMapSStruct* gAllShadowMaps, unsigned int shadowMapCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowMaps) {
+bool Graphics::createShadowBoxesBuffer(ShadowBoxSStruct* gAllShadowBoxes, unsigned int shadowBoxCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowBoxes) {
 	D3D11_BUFFER_DESC cBd = { 0 };
-	cBd.ByteWidth = (unsigned int)(sizeof(*gAllShadowMaps) * shadowMapCount);
+	cBd.ByteWidth = (unsigned int)(sizeof(*gAllShadowBoxes) * shadowBoxCount);
 	cBd.Usage = D3D11_USAGE_DYNAMIC;
 	cBd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA cSd = { gAllShadowMaps, 0, 0 };
+	D3D11_SUBRESOURCE_DATA cSd = { gAllShadowBoxes, 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
 		&cBd,
 		&cSd,
-		pAllShadowMaps->GetAddressOf()
+		pAllShadowBoxes->GetAddressOf()
 	);
 	return true;
 }
-void Graphics::updateShadowMapsBuffer(ShadowMapSStruct* gAllShadowMaps, unsigned int shadowMapCount, ID3D11Buffer* pAllShadowMaps) {
+void Graphics::updateShadowBoxesBuffer(ShadowBoxSStruct* gAllShadowBoxes, unsigned int shadowBoxCount, ID3D11Buffer* pAllShadowBoxes) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 	this->hr = this->pDeviceContext->Map(
-		pAllShadowMaps,
+		pAllShadowBoxes,
 		0,
 		D3D11_MAP_WRITE_DISCARD,
 		0,
 		&mappedResource
 	);
-	memcpy(mappedResource.pData, gAllShadowMaps, (unsigned int)(sizeof(*gAllShadowMaps) * shadowMapCount));
-	this->pDeviceContext->Unmap(pAllShadowMaps, 0);
+	memcpy(mappedResource.pData, gAllShadowBoxes, (unsigned int)(sizeof(*gAllShadowBoxes) * shadowBoxCount));
+	this->pDeviceContext->Unmap(pAllShadowBoxes, 0);
 }
 
 // Camera

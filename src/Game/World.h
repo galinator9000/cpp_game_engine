@@ -71,10 +71,10 @@ public:
 	wrl::ComPtr<ID3D11Buffer> pAllLightConstantBuffers;
 
 	// Buffer for providing shadow casters.
-	ShadowMapSStruct gAllShadowMapConstantBuffers[MAX_SHADOW_CASTER_COUNT];
-	wrl::ComPtr<ID3D11Buffer> pAllShadowMapConstantBuffers;
+	ShadowBoxSStruct gAllShadowBoxConstantBuffers[MAX_SHADOWBOX_COUNT];
+	wrl::ComPtr<ID3D11Buffer> pAllShadowBoxConstantBuffers;
 
-	Light* gShadowCasters[MAX_SHADOW_CASTER_COUNT];
+	Light* gShadowCasters[MAX_SHADOWBOX_COUNT];
 	std::map<float, Light*> gShadowCastersDistanceLPMap;
 
 private:

@@ -2,7 +2,7 @@
 #include "Buffers.hlsli"
 
 SamplerState whiteBorderSampler : register(s2);
-Texture2D ShadowMapTexture[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT] : register(t3);
+Texture2D ShadowMapTexture[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : register(t3);
 
 // Lights constant buffer.
 cbuffer LightConstantBuffer : register(b1) {
@@ -140,8 +140,8 @@ float4 calculateAllLights(
 }
 
 float calculateAllShadows(
-	in float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT],
-	in unsigned int subFrustumIndices[MAX_SHADOW_CASTER_COUNT],
+	in float4 shadowMapPosition[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT],
+	in unsigned int shadowMapIndices[MAX_SHADOWBOX_COUNT],
 	float3 position,
 	float3 eyePosition
 ) {
@@ -157,15 +157,15 @@ float calculateAllShadows(
 	// Process shadow maps.
 	float shadowFactor = 0;
 	unsigned int shadowMapIndex;
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		for (unsigned int sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
-			if (shadowMaps[sc].isActive && sf == subFrustumIndices[sc]) {
+	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		for (unsigned int sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+			if (shadowBoxes[sb].isActive && sm == shadowMapIndices[sb]) {
 				// Distance calculations for smooth shadow transition.
 				fadingFactor = 1;
-				/*switch (shadowMaps[sc].lightType) {
+				switch (shadowBoxes[sb].lightType) {
 					case DIRECTIONAL_LIGHT:
-						shadowDistance = shadowMaps[sc].shadowDistance;
-						transitionDistance = shadowMaps[sc].shadowDistance * 0.03;
+						shadowDistance = shadowBoxes[sb].shadowDistance;
+						transitionDistance = shadowBoxes[sb].shadowDistance * 0.03;
 						distanceVal = distance(eyePosition, position);
 						distanceVal = distanceVal - (shadowDistance - transitionDistance);
 						distanceVal = distanceVal / transitionDistance;
@@ -173,19 +173,19 @@ float calculateAllShadows(
 						break;
 
 					case SPOT_LIGHT:
-						float3 vertexToLight = allLights[shadowMaps[sc].lightID].position - position;
+						float3 vertexToLight = allLights[shadowBoxes[sb].lightID].position - position;
 						float3 dirVertexToLight = normalize(vertexToLight);
 						float distVertexToLight = length(vertexToLight);
 
 						fadingFactor = calculateAttenuation(distVertexToLight) * calculateConeCenterDistance(
-							allLights[shadowMaps[sc].lightID].halfSpotAngle,
-							allLights[shadowMaps[sc].lightID].direction,
+							allLights[shadowBoxes[sb].lightID].halfSpotAngle,
+							allLights[shadowBoxes[sb].lightID].direction,
 							dirVertexToLight
 						);
 						break;
-				}*/
+				}
 
-				shadowMapIndex = sc * MAX_CSM_SUBFRUSTUM_COUNT + sf;
+				shadowMapIndex = sb * MAX_SHADOWBOX_COUNT + sm;
 				shadowMapCoords.x = shadowMapPosition[shadowMapIndex].x / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;
 				shadowMapCoords.y = -shadowMapPosition[shadowMapIndex].y / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;
 

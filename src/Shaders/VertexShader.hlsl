@@ -46,13 +46,13 @@ struct VSOut {
 
 	// Camera position in world space.
 	float3 eyePosition : EyePosition;
-	// Specifies which subfrustum to sample from.
-	unsigned int subFrustumIndices[MAX_SHADOW_CASTER_COUNT]: SubFrustumIndices;
+	// Specifies which shadow map to sample from.
+	unsigned int shadowMapIndices[MAX_SHADOWBOX_COUNT]: ShadowMapIndices;
 
 	// Shadow map
 	// XY, shadow map texture UV coordinates
 	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOW_CASTER_COUNT * MAX_CSM_SUBFRUSTUM_COUNT] : TEXCOORD0;
+	float4 shadowMapPosition[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : TEXCOORD0;
 
 	// Final vertex shader output
 	float4 position : SV_Position;
@@ -110,22 +110,22 @@ VSOut main(VSIn vsIn){
 	// Apply shadow map projection & view matrices.
 	// These values will be processed for shadowing.
 	float4 shadowMapPosition = float4(0,0,0,1);
-	for (unsigned int sc = 0; sc < MAX_SHADOW_CASTER_COUNT; sc++) {
-		if (shadowMaps[sc].isActive) {
-			// Choose which subfrustum to sample from.
-			unsigned int sf = 0;
-			for (sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
-				if (vsOut.position.z <= shadowMaps[sc].subfrustum[sf].activeCameraSubfrustumFarPlaneDistance) {
-					vsOut.subFrustumIndices[sc] = sf;
+	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		if (shadowBoxes[sb].isActive) {
+			// Choose which shadow map to sample from.
+			unsigned int sm = 0;
+			for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+				if (vsOut.position.z <= shadowBoxes[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance) {
+					vsOut.shadowMapIndices[sb] = sm;
 					break;
 				}
 			}
 
 			// Calculate UV position of current vertex in shadow map.
-			for (sf = 0; sf < MAX_CSM_SUBFRUSTUM_COUNT; sf++) {
-				shadowMapPosition = mul(finalWorldPosition, shadowMaps[sc].subfrustum[sf].viewMatrix);
-				shadowMapPosition = mul(shadowMapPosition, shadowMaps[sc].subfrustum[sf].projectionMatrix);
-				vsOut.shadowMapPosition[sc * MAX_CSM_SUBFRUSTUM_COUNT + sf] = shadowMapPosition;
+			for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+				shadowMapPosition = mul(finalWorldPosition, shadowBoxes[sb].shadowMap[sm].viewMatrix);
+				shadowMapPosition = mul(shadowMapPosition, shadowBoxes[sb].shadowMap[sm].projectionMatrix);
+				vsOut.shadowMapPosition[sb * MAX_SHADOWBOX_COUNT + sm] = shadowMapPosition;
 			}
 		}
 	}

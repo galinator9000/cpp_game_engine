@@ -2,7 +2,7 @@
 
 //// Main VertexShader
 // Shadow map struct.
-struct ShadowMapSubfrustum {
+struct ShadowMap {
 	matrix projectionMatrix;
 	matrix viewMatrix;
 	float activeCameraSubfrustumNearPlaneDistance;
@@ -10,8 +10,8 @@ struct ShadowMapSubfrustum {
 	float2 padding;
 };
 
-struct ShadowMap {
-	ShadowMapSubfrustum subfrustum[MAX_CSM_SUBFRUSTUM_COUNT];
+struct ShadowBox {
+	ShadowMap shadowMap[MAX_SHADOWMAP_COUNT];
 	bool isActive;
 	unsigned int lightType;
 	float shadowDistance;
