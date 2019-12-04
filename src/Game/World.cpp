@@ -113,9 +113,14 @@ void World::Update(){
 				float lightDist = 0;
 
 				switch (light->type) {
-					case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+					case LIGHT_TYPE::POINT_LIGHT:
 						this->gShadowCasters[shadowCasterIndex] = light;
 						shadowCasterIndex++;
+						break;
+
+					case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+						/*this->gShadowCasters[shadowCasterIndex] = light;
+						shadowCasterIndex++;*/
 						break;
 
 					case LIGHT_TYPE::SPOT_LIGHT:

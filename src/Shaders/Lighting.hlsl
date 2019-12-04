@@ -157,9 +157,22 @@ float calculateAllShadows(
 	// Process shadow maps.
 	float shadowFactor = 0;
 	unsigned int shadowMapIndex;
+	bool secondaryCondition = true;
 	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
 		for (unsigned int sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
-			if (shadowBoxes[sb].isActive && sm == shadowMapIndices[sb]) {
+			switch (shadowBoxes[sb].lightType) {
+			case DIRECTIONAL_LIGHT:
+				secondaryCondition = (sm == shadowMapIndices[sb]);
+				break;
+			case POINT_LIGHT:
+				secondaryCondition = true;
+				break;
+			case SPOT_LIGHT:
+				secondaryCondition = true;
+				break;
+			}
+
+			if (shadowBoxes[sb].isActive && secondaryCondition) {
 				// Distance calculations for smooth shadow transition.
 				fadingFactor = 1;
 				switch (shadowBoxes[sb].lightType) {

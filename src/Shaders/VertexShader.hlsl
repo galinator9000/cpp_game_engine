@@ -112,12 +112,14 @@ VSOut main(VSIn vsIn){
 	float4 shadowMapPosition = float4(0,0,0,1);
 	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
 		if (shadowBoxes[sb].isActive) {
-			// Choose which shadow map to sample from.
 			unsigned int sm = 0;
-			for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
-				if (vsOut.position.z <= shadowBoxes[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance) {
-					vsOut.shadowMapIndices[sb] = sm;
-					break;
+			if (shadowBoxes[sb].lightType == DIRECTIONAL_LIGHT) {
+				// Choose which shadow map to sample from.
+				for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+					if (vsOut.position.z <= shadowBoxes[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance) {
+						vsOut.shadowMapIndices[sb] = sm;
+						break;
+					}
 				}
 			}
 

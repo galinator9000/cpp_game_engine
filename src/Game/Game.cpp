@@ -159,9 +159,10 @@ void Game::Setup(){
 
 	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
 	this->pWorld->addLight(this->wMainCameraSpotLight);
+	wMainCameraSpotLight->isActive = false;
 
-	this->pointLight = new PointLight(Vector3(15, 5, 3), 1, Color(1,1,1));
-	//this->pWorld->addLight(this->pointLight);
+	this->pointLight = new PointLight(Vector3(15, 5, 3), 1, Color(1,1,1), true);
+	this->pWorld->addLight(this->pointLight);
 
 	//// Attach point light to main camera.
 	// Position relation, camera to point light.

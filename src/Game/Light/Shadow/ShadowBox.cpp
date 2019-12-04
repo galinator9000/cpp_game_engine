@@ -58,13 +58,7 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions,
 
 void ShadowBox::Update(Vector3 lightPosition, Vector3 lightDirection, Camera* activeCamera) {
 	switch (this->lightType) {
-		case LIGHT_TYPE::SPOT_LIGHT:
-			this->gShadowMaps[0]->pCamera->setPosition(lightPosition);
-			this->gShadowMaps[0]->pCamera->setDirection(lightDirection);
-			this->gShadowMaps[0]->pCamera->updateConstantBuffer();
-			break;
-
-		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+		case LIGHT_TYPE::DIRECTIONAL_LIGHT:{
 			// Calculate active camera's frustum vertices.
 			dx::BoundingFrustum activeCameraFrustum(
 				dx::XMMatrixTranspose(
@@ -169,7 +163,25 @@ void ShadowBox::Update(Vector3 lightPosition, Vector3 lightDirection, Camera* ac
 				this->gShadowMaps[sm]->activeCameraSubfrustumNearPlaneDistance = subFrustum->Near;
 				this->gShadowMaps[sm]->activeCameraSubfrustumFarPlaneDistance = subFrustum->Far;
 			}
+			break;
+		}
+		case LIGHT_TYPE::SPOT_LIGHT:
+			this->gShadowMaps[0]->pCamera->setPosition(lightPosition);
+			this->gShadowMaps[0]->pCamera->setDirection(lightDirection);
+			this->gShadowMaps[0]->pCamera->updateConstantBuffer();
+			break;
+		case LIGHT_TYPE::POINT_LIGHT:
+			this->gShadowMaps[0]->pCamera->setDirection({ 1, 0, 0});
+			this->gShadowMaps[1]->pCamera->setDirection({ -1, 0, 0 });
+			this->gShadowMaps[2]->pCamera->setDirection({ 0, 1, 0 });
+			this->gShadowMaps[3]->pCamera->setDirection({ 0, -1, 0 });
+			this->gShadowMaps[4]->pCamera->setDirection({ 0, 0, 1 });
+			this->gShadowMaps[5]->pCamera->setDirection({ 0, 0, -1 });
 
+			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
+				this->gShadowMaps[sm]->pCamera->setPosition(lightPosition);
+				this->gShadowMaps[sm]->pCamera->updateConstantBuffer();
+			}
 			break;
 	}
 }

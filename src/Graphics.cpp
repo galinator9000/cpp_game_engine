@@ -733,7 +733,6 @@ void Graphics::updateShadowBoxesBuffer(ShadowBoxSStruct* gAllShadowBoxes, unsign
 }
 
 bool Graphics::createShadowMapTexture(Texture* texture) {
-	// Create 2D texture for Depth View.
 	ID3D11Texture2D* pDSTexture;
 	D3D11_TEXTURE2D_DESC descDSTXT = {};
 	descDSTXT.Width = texture->gWidth;
