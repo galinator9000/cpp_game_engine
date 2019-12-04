@@ -11,6 +11,6 @@ namespace wrl = Microsoft::WRL;
 
 class SpotLight : public Light {
 public:
-	SpotLight(Vector3 position, Vector3 direction, float intensity, Color color = Color(1, 1, 1, 1), float halfSpotAngle = dx::XM_PIDIV4, bool shadowCasting = false);
+	SpotLight(Vector3 position, Vector3 direction, float intensity, Color color = Color(1, 1, 1, 1), float halfSpotAngle = dx::XM_PIDIV4, bool isCastingShadow = false);
 	void setSpotAngle(float halfSpotAngle);
 };

@@ -10,7 +10,7 @@ SpotLight::SpotLight(Vector3 position, Vector3 direction, float intensity, Color
 
 	this->isCastingShadow = isCastingShadow;
 	if (this->isCastingShadow) {
-		this->gShadowBox = new ShadowBox(this->gPosition, this->gDirection, Vector2(WIDTH, HEIGHT), this->type);
+		this->gShadowBox = new ShadowBox(this->gPosition, this->gDirection, Vector2(WIDTH, HEIGHT), this->type, 1);
 	}
 
 	this->gHalfSpotAngle = halfSpotAngle;

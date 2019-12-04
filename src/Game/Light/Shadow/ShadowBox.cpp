@@ -1,37 +1,63 @@
 #include "ShadowBox.h"
 
-ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions, LIGHT_TYPE lightType, unsigned int CSMLevel) {
+ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions, LIGHT_TYPE lightType, unsigned int shadowMapCount) {
 	this->lightType = lightType;
 
-	this->isActive = true;
+	if (shadowMapCount > MAX_SHADOWMAP_COUNT) {
+		shadowMapCount = MAX_SHADOWMAP_COUNT;
+	}
 	switch (this->lightType) {
-		case LIGHT_TYPE::SPOT_LIGHT:
-			this->gShadowMap = new ShadowMap(
-				position, direction, mapDimensions, PROJECTION_TYPE::PERSPECTIVE
-			);
-			break;
-
+		// Cascaded Shadow Mapping.
+		// One shadow map for each subfrustum
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
-			if (CSMLevel > 1) {
-				this->gShadowMap = new ShadowMap(
-					Vector3(0, 0, 0), direction, mapDimensions, PROJECTION_TYPE::ORTHOGRAPHIC, CSMLevel
-				);
-			}
-			else {
-				this->gShadowMap = new ShadowMap(
+			this->gShadowMapCount = shadowMapCount;
+			break;
+		// One shadow map for each XYZ and -XYZ axes
+		case LIGHT_TYPE::POINT_LIGHT:
+			shadowMapCount = 6;
+			this->gShadowMapCount = shadowMapCount;
+			break;
+		case LIGHT_TYPE::SPOT_LIGHT:
+			shadowMapCount = 1;
+			this->gShadowMapCount = shadowMapCount;
+			break;
+	}
+
+	// Create array for holding shadow maps.
+	this->gShadowMaps = new ShadowMap*[this->gShadowMapCount];
+
+	switch (this->lightType) {
+		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
+				this->gShadowMaps[sm] = new ShadowMap(
 					Vector3(0, 0, 0), direction, mapDimensions, PROJECTION_TYPE::ORTHOGRAPHIC
 				);
 			}
 			break;
+		case LIGHT_TYPE::POINT_LIGHT:
+			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
+				this->gShadowMaps[sm] = new ShadowMap(
+					position, Vector3(0, 0, 1), mapDimensions, PROJECTION_TYPE::PERSPECTIVE
+				);
+			}
+			break;
+		case LIGHT_TYPE::SPOT_LIGHT:
+			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
+				this->gShadowMaps[sm] = new ShadowMap(
+					position, direction, mapDimensions, PROJECTION_TYPE::PERSPECTIVE
+				);
+			}
+			break;
 	}
+	this->isActive = true;
 }
 
 void ShadowBox::Update(Vector3 lightPosition, Vector3 lightDirection, Camera* activeCamera) {
 	switch (this->lightType) {
 		case LIGHT_TYPE::SPOT_LIGHT:
-			this->gShadowMap->pCamera[0]->setPosition(lightPosition);
-			this->gShadowMap->pCamera[0]->setDirection(lightDirection);
-			this->gShadowMap->pCamera[0]->updateConstantBuffer();
+			this->gShadowMaps[0]->pCamera->setPosition(lightPosition);
+			this->gShadowMaps[0]->pCamera->setDirection(lightDirection);
+			this->gShadowMaps[0]->pCamera->updateConstantBuffer();
 			break;
 
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
@@ -55,16 +81,16 @@ void ShadowBox::Update(Vector3 lightPosition, Vector3 lightDirection, Camera* ac
 			);
 
 			// Get corner positions of each frustum.
-			float subFrustumZStep = (activeCameraFrustum.Far - activeCameraFrustum.Near) / this->gShadowMap->subFrustumCount;
+			float subFrustumZStep = (activeCameraFrustum.Far - activeCameraFrustum.Near) / this->gShadowMapCount;
 
 			dx::BoundingFrustum* subFrustum;
 			dx::BoundingFrustum* subFrustumLightSpace;
 			dx::XMFLOAT3 subFrustumCornersLightSpace[activeCameraFrustum.CORNER_COUNT];
-			for (unsigned int sf = 0; sf < this->gShadowMap->subFrustumCount; sf++) {
+			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
 				// Copy active camera's view frustum, adjust far and near planes and finally calculate subfrustum's corners.
 				subFrustum = new dx::BoundingFrustum(activeCameraFrustum);
-				subFrustum->Near = activeCameraFrustum.Near + subFrustumZStep * sf;
-				subFrustum->Far = activeCameraFrustum.Near + subFrustumZStep * (sf + 1);
+				subFrustum->Near = activeCameraFrustum.Near + subFrustumZStep * sm;
+				subFrustum->Far = activeCameraFrustum.Near + subFrustumZStep * (sm + 1);
 
 				// Transform corner positions to world space.
 				subFrustum->Transform(*subFrustum, activeCameraViewMatrixInverse);
@@ -121,23 +147,23 @@ void ShadowBox::Update(Vector3 lightPosition, Vector3 lightDirection, Camera* ac
 				subFrustumCenter = activeCamera->gPosition + (activeCamera->gDirection.normalize() * (((subFrustum->Far - subFrustum->Near) / 2) + subFrustum->Near));
 
 				// Set shadow box's position to center of the subfrustum.
-				this->gShadowMap->pCamera[sf]->setDirection(lightDirection);
-				this->gShadowMap->pCamera[sf]->setPosition(
-					subFrustumCenter + (-this->gShadowMap->pCamera[sf]->gDirection * shadowBoxDimensions.z / 2)
+				this->gShadowMaps[sm]->pCamera->setDirection(lightDirection);
+				this->gShadowMaps[sm]->pCamera->setPosition(
+					subFrustumCenter + (-lightDirection * shadowBoxDimensions.z / 2)
 				);
 
 				// Recalculate orthographic projection matrices on subfrustum cameras.
-				this->gShadowMap->pCamera[sf]->setOrthographicProjection(
+				this->gShadowMaps[sm]->pCamera->setOrthographicProjection(
 					shadowBoxDimensions.x, shadowBoxDimensions.y,
 					0.5f,
 					shadowBoxDimensions.z
 				);
 
 				// Update constant buffer & frustum information.
-				this->gShadowMap->pCamera[sf]->updateConstantBuffer();
+				this->gShadowMaps[sm]->pCamera->updateConstantBuffer();
 
-				this->gShadowMap->activeCameraSubfrustumNearPlaneDistance[sf] = subFrustum->Near;
-				this->gShadowMap->activeCameraSubfrustumFarPlaneDistance[sf] = subFrustum->Far;
+				this->gShadowMaps[sm]->activeCameraSubfrustumNearPlaneDistance = subFrustum->Near;
+				this->gShadowMaps[sm]->activeCameraSubfrustumFarPlaneDistance = subFrustum->Far;
 			}
 
 			break;
