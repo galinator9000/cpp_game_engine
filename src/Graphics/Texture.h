@@ -12,7 +12,10 @@ namespace wrl = Microsoft::WRL;
 
 class Texture{
 public:
-	Texture(){}
+	Texture(unsigned int width, unsigned int height){
+		this->gWidth = width;
+		this->gHeight = height;
+	}
 	Texture(
 		const char* textureReferenceName,
 		const char* colorFileName,
@@ -44,6 +47,11 @@ public:
 	// Texture name.
 	std::string textureReferenceName;
 
+	//// Custom
+	unsigned int gWidth;
+	unsigned int gHeight;
+
+	//// DDS
 	// File names.
 	std::wstring colorFileName;
 	std::wstring alphaFileName;

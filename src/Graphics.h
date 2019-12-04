@@ -66,7 +66,7 @@ public:
 	void setViewport(Viewport* viewPort);
 
 	//// Render targets.
-	void createRenderTarget(RenderTarget* renderTarget, bool isShaderResource = false, ID3D11Resource* pTargetResource = NULL, bool setRenderTarget = false);
+	bool createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pTargetResource = NULL, bool setRenderTarget = false, bool isShaderResource = false, Texture* pTexture = NULL);
 	void setRenderTarget(RenderTarget* renderTarget);
 	void clearStateRenderTarget(RenderTarget* renderTarget, Color c = { 0.0f, 0.0f, 0.0f, 1.0f });
 	std::vector<RenderTarget*> renderTargets;
@@ -83,6 +83,7 @@ public:
 	// Shadow
 	bool createShadowBoxesBuffer(ShadowBoxSStruct* gAllShadowBoxes, unsigned int shadowBoxCount, wrl::ComPtr<ID3D11Buffer>* pAllShadowBoxes);
 	void updateShadowBoxesBuffer(ShadowBoxSStruct* gAllShadowBoxes, unsigned int shadowBoxCount, ID3D11Buffer* pAllShadowBoxes);
+	bool createShadowMapTexture(Texture* texture);
 	
 	// Camera
 	bool addCamera(Camera* camera, bool setAsMain);
@@ -91,8 +92,8 @@ public:
 
 	// Texturing
 	void setTexture(Texture* texture);
+	bool createTexture(Texture* texture);
 	bool createTextureDDS(Texture* texture);
-	bool createTextureSampler(TextureSampler* textureSampler);
 
 	//// Graphics components
 	GraphicsSettingsStruct gGraphicsSettingsStruct;

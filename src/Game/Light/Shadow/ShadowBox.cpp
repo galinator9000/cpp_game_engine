@@ -26,25 +26,29 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapDimensions,
 	// Create array for holding shadow maps.
 	this->gShadowMaps = new ShadowMap*[this->gShadowMapCount];
 
+	unsigned int width, height;
+	width = (unsigned int) mapDimensions.x;
+	height = (unsigned int) mapDimensions.y;
+
 	switch (this->lightType) {
 		case LIGHT_TYPE::DIRECTIONAL_LIGHT:
 			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
 				this->gShadowMaps[sm] = new ShadowMap(
-					Vector3(0, 0, 0), direction, mapDimensions, PROJECTION_TYPE::ORTHOGRAPHIC
+					Vector3(0, 0, 0), direction, width, height, PROJECTION_TYPE::ORTHOGRAPHIC
 				);
 			}
 			break;
 		case LIGHT_TYPE::POINT_LIGHT:
 			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
 				this->gShadowMaps[sm] = new ShadowMap(
-					position, Vector3(0, 0, 1), mapDimensions, PROJECTION_TYPE::PERSPECTIVE
+					position, Vector3(0, 0, 1), width, height, PROJECTION_TYPE::PERSPECTIVE
 				);
 			}
 			break;
 		case LIGHT_TYPE::SPOT_LIGHT:
 			for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
 				this->gShadowMaps[sm] = new ShadowMap(
-					position, direction, mapDimensions, PROJECTION_TYPE::PERSPECTIVE
+					position, direction, width, height, PROJECTION_TYPE::PERSPECTIVE
 				);
 			}
 			break;

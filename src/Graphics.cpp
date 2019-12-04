@@ -69,7 +69,7 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 
 	//// Render target creations.
 	this->mainRenderTarget = new RenderTarget();
-	this->createRenderTarget(this->mainRenderTarget, false, pBackBufferTexture.Get(), true);
+	this->createRenderTarget(this->mainRenderTarget, pBackBufferTexture.Get(), true, false, NULL);
 	renderTargets.push_back(this->mainRenderTarget);
 
 	//// Shader creation.
@@ -252,8 +252,12 @@ void Graphics::setViewport(Viewport* viewPort) {
 }
 
 //// Render targets.
-void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResource, ID3D11Resource* pTargetResource, bool setRenderTarget) {
+bool Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pTargetResource, bool setRenderTarget, bool isShaderResource, Texture* pTexture) {
 	// If resource provided, create render target view.
+	if (isShaderResource && pTexture == NULL) {
+		return false;
+	}
+
 	if (pTargetResource != NULL) {
 		this->hr = this->pDevice->CreateRenderTargetView(
 			pTargetResource,
@@ -270,37 +274,33 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 	this->hr = this->pDevice->CreateDepthStencilState(&dsDesc, &renderTarget->pDepthState);
 
-	// Create 2D texture for Depth View.
-	wrl::ComPtr<ID3D11Texture2D> pDSTexture;
-	D3D11_TEXTURE2D_DESC descDSTXT = {};
-	descDSTXT.Width = WIDTH;
-	descDSTXT.Height = HEIGHT;
-	descDSTXT.MipLevels = 1;
-	descDSTXT.ArraySize = 1;
-	descDSTXT.Format = DXGI_FORMAT_D32_FLOAT;
-	descDSTXT.SampleDesc.Count = 1;
-	descDSTXT.SampleDesc.Quality = 0;
-	descDSTXT.Usage = D3D11_USAGE_DEFAULT;
-	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	if(isShaderResource){
-		descDSTXT.Format = DXGI_FORMAT_R32_TYPELESS;
-		descDSTXT.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-
-		//descDSTXT.Width = 2048;
-		//descDSTXT.Height = 2048;
-	}
-	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
-
 	// Create Depth View.
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
 	descDSV.Flags = 0;
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
+
 	if (isShaderResource) {
 		descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+		this->hr = this->pDevice->CreateDepthStencilView(pTexture->pColorResource.Get(), &descDSV, &renderTarget->pDepthView);
 	}
-	this->hr = this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDepthView);
+	else {
+		// Create 2D texture for Depth View.
+		wrl::ComPtr<ID3D11Texture2D> pDSTexture;
+		D3D11_TEXTURE2D_DESC descDSTXT = {};
+		descDSTXT.Width = WIDTH;
+		descDSTXT.Height = HEIGHT;
+		descDSTXT.MipLevels = 1;
+		descDSTXT.ArraySize = 1;
+		descDSTXT.Format = DXGI_FORMAT_D32_FLOAT;
+		descDSTXT.SampleDesc.Count = 1;
+		descDSTXT.SampleDesc.Quality = 0;
+		descDSTXT.Usage = D3D11_USAGE_DEFAULT;
+		descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
+		this->hr = this->pDevice->CreateDepthStencilView(pDSTexture.Get(), &descDSV, &renderTarget->pDepthView);
+	}
 
 	// Create Shader Resource View for providing DepthView to shader.
 	if (isShaderResource) {
@@ -312,15 +312,17 @@ void Graphics::createRenderTarget(RenderTarget* renderTarget, bool isShaderResou
 		resViewDsc.Texture2D.MostDetailedMip = 0;
 
 		this->hr = this->pDevice->CreateShaderResourceView(
-			pDSTexture.Get(),
+			pTexture->pColorResource.Get(),
 			&resViewDsc,
-			&renderTarget->pTexture->pColorShaderResourceView
+			&pTexture->pColorShaderResourceView
 		);
 	}
 
 	if (setRenderTarget) {
 		this->setRenderTarget(renderTarget);
 	}
+
+	return true;
 }
 
 void Graphics::setRenderTarget(RenderTarget* renderTarget) {
@@ -728,6 +730,24 @@ void Graphics::updateShadowBoxesBuffer(ShadowBoxSStruct* gAllShadowBoxes, unsign
 	);
 	memcpy(mappedResource.pData, gAllShadowBoxes, (unsigned int)(sizeof(*gAllShadowBoxes) * shadowBoxCount));
 	this->pDeviceContext->Unmap(pAllShadowBoxes, 0);
+}
+
+bool Graphics::createShadowMapTexture(Texture* texture) {
+	// Create 2D texture for Depth View.
+	ID3D11Texture2D* pDSTexture;
+	D3D11_TEXTURE2D_DESC descDSTXT = {};
+	descDSTXT.Width = texture->gWidth;
+	descDSTXT.Height = texture->gHeight;
+	descDSTXT.MipLevels = 1;
+	descDSTXT.ArraySize = 1;
+	descDSTXT.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDSTXT.SampleDesc.Count = 1;
+	descDSTXT.SampleDesc.Quality = 0;
+	descDSTXT.Usage = D3D11_USAGE_DEFAULT;
+	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
+	texture->pColorResource = pDSTexture;
+	return true;
 }
 
 // Camera

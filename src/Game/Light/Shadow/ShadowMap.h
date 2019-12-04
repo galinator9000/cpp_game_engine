@@ -8,12 +8,14 @@ public:
 	ShadowMap(
 		Vector3 position,
 		Vector3 direction,
-		Vector2 dimensions,
+		unsigned int width,
+		unsigned int height,
 		PROJECTION_TYPE projectionType
 	) {
-		this->pCamera = new Camera(position, direction, WIDTH, HEIGHT, projectionType);
+		this->pCamera = new Camera(position, direction, (float) width, (float)height, projectionType);
 		this->pRenderTarget = new RenderTarget();
-		this->pViewPort = new Viewport({ dimensions.x, dimensions.y });
+		this->pViewPort = new Viewport({ (float) width, (float) height });
+		this->pTexture = new Texture(width, height);
 
 		this->activeCameraSubfrustumNearPlaneDistance = 0;
 		this->activeCameraSubfrustumFarPlaneDistance = 0;
@@ -22,6 +24,9 @@ public:
 	Camera* pCamera = NULL;
 	RenderTarget* pRenderTarget = NULL;
 	Viewport* pViewPort = NULL;
+	// Texture object to be filled with shadow map information.
+	Texture* pTexture = NULL;
+
 	float activeCameraSubfrustumNearPlaneDistance = NULL;
 	float activeCameraSubfrustumFarPlaneDistance = NULL;
 };

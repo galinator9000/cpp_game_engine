@@ -300,7 +300,7 @@ void World::Render() {
 		}
 
 		for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMapCount; sm++) {
-			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWBOX_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pRenderTarget->pTexture);
+			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWBOX_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pTexture);
 		}
 	}
 	
@@ -342,7 +342,14 @@ bool World::addLight(Light* light) {
 	if (light->isCastingShadow && light->gShadowBox != NULL) {
 		for (unsigned int sm = 0; sm < light->gShadowBox->gShadowMapCount; sm++) {
 			this->pGfx->addCamera(light->gShadowBox->gShadowMaps[sm]->pCamera, false);
-			this->pGfx->createRenderTarget(light->gShadowBox->gShadowMaps[sm]->pRenderTarget, true);
+			this->pGfx->createShadowMapTexture(light->gShadowBox->gShadowMaps[sm]->pTexture);
+			this->pGfx->createRenderTarget(
+				light->gShadowBox->gShadowMaps[sm]->pRenderTarget,
+				NULL,
+				false,
+				true,
+				light->gShadowBox->gShadowMaps[sm]->pTexture
+			);
 			this->pGfx->renderTargets.push_back(light->gShadowBox->gShadowMaps[sm]->pRenderTarget);
 		}
 	}
