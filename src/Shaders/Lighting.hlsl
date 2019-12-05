@@ -152,29 +152,35 @@ float calculateAllShadows(
 	float shadowDistance;
 	float transitionDistance;
 	float distanceVal;
-	float fadingFactor = 0;
+	float fadingFactor = 1;
 
 	// Process shadow maps.
 	float shadowFactor = 0;
+
 	unsigned int shadowMapIndex;
 	bool secondaryCondition = true;
+	[unroll]
 	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		[unroll]
 		for (unsigned int sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+			float3 vertexToLight;
+			float3 dirVertexToLight;
+			float distVertexToLight;
+
 			switch (shadowBoxes[sb].lightType) {
-			case DIRECTIONAL_LIGHT:
-				secondaryCondition = (sm == shadowMapIndices[sb]);
-				break;
-			case POINT_LIGHT:
-				secondaryCondition = true;
-				break;
-			case SPOT_LIGHT:
-				secondaryCondition = true;
-				break;
+				case DIRECTIONAL_LIGHT:
+					secondaryCondition = (sm == shadowMapIndices[sb]);
+					break;
+				case POINT_LIGHT:
+					secondaryCondition = true;
+					break;
+				case SPOT_LIGHT:
+					secondaryCondition = true;
+					break;
 			}
 
 			if (shadowBoxes[sb].isActive && secondaryCondition) {
 				// Distance calculations for smooth shadow transition.
-				fadingFactor = 1;
 				switch (shadowBoxes[sb].lightType) {
 					case DIRECTIONAL_LIGHT:
 						shadowDistance = shadowBoxes[sb].shadowDistance;
@@ -185,11 +191,17 @@ float calculateAllShadows(
 						fadingFactor = clamp(1.0 - distanceVal, 0, 1);
 						break;
 
-					case SPOT_LIGHT:
-						float3 vertexToLight = allLights[shadowBoxes[sb].lightID].position - position;
-						float3 dirVertexToLight = normalize(vertexToLight);
-						float distVertexToLight = length(vertexToLight);
+					case POINT_LIGHT:
+						vertexToLight = allLights[shadowBoxes[sb].lightID].position - position;
+						dirVertexToLight = normalize(vertexToLight);
+						distVertexToLight = length(vertexToLight);
+						fadingFactor = calculateAttenuation(distVertexToLight);
+						break;
 
+					case SPOT_LIGHT:
+						vertexToLight = allLights[shadowBoxes[sb].lightID].position - position;
+						dirVertexToLight = normalize(vertexToLight);
+						distVertexToLight = length(vertexToLight);
 						fadingFactor = calculateAttenuation(distVertexToLight) * calculateConeCenterDistance(
 							allLights[shadowBoxes[sb].lightID].halfSpotAngle,
 							allLights[shadowBoxes[sb].lightID].direction,
@@ -198,15 +210,13 @@ float calculateAllShadows(
 						break;
 				}
 
-				shadowMapIndex = sb * MAX_SHADOWBOX_COUNT + sm;
+				shadowMapIndex = sb * MAX_SHADOWMAP_COUNT + sm;
 				shadowMapCoords.x = shadowMapPosition[shadowMapIndex].x / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;
 				shadowMapCoords.y = -shadowMapPosition[shadowMapIndex].y / shadowMapPosition[shadowMapIndex].w * 0.5 + 0.5;
 
 				if ((saturate(shadowMapCoords.x) == shadowMapCoords.x) && (saturate(shadowMapCoords.y) == shadowMapCoords.y)) {
 					finalDepth = (shadowMapPosition[shadowMapIndex].z / shadowMapPosition[shadowMapIndex].w) - 0.0001f;
-					if (finalDepth > 1.0f) {
-						finalDepth = 0;
-					}
+					finalDepth = clamp(finalDepth, 0, 1);
 
 					nearestObjectDepth = ShadowMapTexture[shadowMapIndex].Sample(whiteBorderSampler, shadowMapCoords).r;
 

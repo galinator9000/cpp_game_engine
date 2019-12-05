@@ -31,13 +31,9 @@ struct PSIn {
 
 	// Camera position in world space.
 	float3 eyePosition : EyePosition;
-	// Specifies which shadow map to sample from.
-	unsigned int shadowMapIndices[MAX_SHADOWBOX_COUNT]: ShadowMapIndices;
 
-	// Shadow map
-	// XY, shadow map texture UV coordinates
-	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : TEXCOORD0;
+	// Final vertex shader output
+	float4 position : SV_Position;
 };
 
 // Output structure of the Pixel shader.
@@ -85,16 +81,54 @@ PSOut main(PSIn psIn){
 		pixelColor.a = 1.0f;
 	}
 
-	// Calculate lighting.
+	//// Calculate lighting.
 	float4 lightingFactor = calculateAllLights(
 		psIn.positionPS, psIn.normal, psIn.eyePosition,
 		specularHighlightColor, specularIntensity, specularPower
 	);
 
-	// Calculate shadows.
+	//// Calculate shadows.
+	// Variables to use on for-loops.
+	unsigned int sb = 0;	// ShadowBox index
+	unsigned int sm = 0;	// ShadowMap index
+
+	// Shadow map
+	float4 shadowMapPosition[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT];
+	// XY, shadow map texture UV coordinates
+	// Z, distance from light.
+	float4 shadowMapPositionCurrent = float4(0, 0, 0, 1);
+	[unroll]
+	for (sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		if (shadowBoxes[sb].isActive) {
+			[unroll]
+			for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+				// Apply shadow map projection & view matrices.
+				shadowMapPositionCurrent = mul(float4(psIn.positionPS, 1), shadowBoxes[sb].shadowMap[sm].viewMatrix);
+				shadowMapPositionCurrent = mul(shadowMapPositionCurrent, shadowBoxes[sb].shadowMap[sm].projectionMatrix);
+				shadowMapPosition[sb * MAX_SHADOWMAP_COUNT + sm] = shadowMapPositionCurrent;
+			}
+		}
+	}
+
+	// Specify which shadow map to sample from.
+	unsigned int shadowMapIndices[MAX_SHADOWBOX_COUNT];
+	float distanceToPixel = distance(psIn.eyePosition, psIn.positionPS);
+	[unroll]
+	for (sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
+		if (shadowBoxes[sb].isActive && shadowBoxes[sb].lightType == DIRECTIONAL_LIGHT) {
+			[unroll]
+			for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
+				if (distanceToPixel <= shadowBoxes[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance) {
+					shadowMapIndices[sb] = sm;
+					break;
+				}
+			}
+		}
+	}
+
 	float shadowFactor = calculateAllShadows(
-		psIn.shadowMapPosition,
-		psIn.shadowMapIndices,
+		shadowMapPosition,
+		shadowMapIndices,
 		psIn.positionPS,
 		psIn.eyePosition
 	);

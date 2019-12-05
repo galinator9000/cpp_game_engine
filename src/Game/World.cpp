@@ -114,13 +114,13 @@ void World::Update(){
 
 				switch (light->type) {
 					case LIGHT_TYPE::POINT_LIGHT:
-						this->gShadowCasters[shadowCasterIndex] = light;
-						shadowCasterIndex++;
+						/*this->gShadowCasters[shadowCasterIndex] = light;
+						shadowCasterIndex++; */
 						break;
 
 					case LIGHT_TYPE::DIRECTIONAL_LIGHT:
-						/*this->gShadowCasters[shadowCasterIndex] = light;
-						shadowCasterIndex++;*/
+						this->gShadowCasters[shadowCasterIndex] = light;
+						shadowCasterIndex++;
 						break;
 
 					case LIGHT_TYPE::SPOT_LIGHT:
@@ -281,9 +281,10 @@ void World::Render() {
 		}
 		else {
 			this->gAllShadowBoxConstantBuffers[sb].isActive = this->gShadowCasters[sb]->gShadowBox->isActive;
-			this->gAllShadowBoxConstantBuffers[sb].shadowDistance = this->gShadowCasters[sb]->gShadowBox->getShadowDistance();
 			this->gAllShadowBoxConstantBuffers[sb].lightType = this->gShadowCasters[sb]->gShadowBox->lightType;
 			this->gAllShadowBoxConstantBuffers[sb].lightID = this->gShadowCasters[sb]->id;
+			this->gAllShadowBoxConstantBuffers[sb].shadowDistance = this->gShadowCasters[sb]->gShadowBox->getShadowDistance();
+			this->gAllShadowBoxConstantBuffers[sb].shadowMapCount = this->gShadowCasters[sb]->gShadowBox->gShadowMapCount;
 
 			for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMapCount; sm++) {
 				this->gAllShadowBoxConstantBuffers[sb].shadowMap[sm].viewMatrix = this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pCamera->gCameraVSConstantBuffer.viewMatrix;
@@ -305,7 +306,7 @@ void World::Render() {
 		}
 
 		for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMapCount; sm++) {
-			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWBOX_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pTexture);
+			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWMAP_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pTexture);
 		}
 	}
 	

@@ -157,23 +157,11 @@ void Game::Setup(){
 	this->directionalSunLight = new DirectionalLight(Vector3(-1, -1, 1), 0.15f, Color(0.99f, 0.72f, 0.074f), true, 3);
 	this->pWorld->addLight(this->directionalSunLight);
 
-	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4, true);
+	this->wMainCameraSpotLight = new SpotLight(Vector3(), Vector3(), 1, Color(0.66f, 0.66f, 0.66f), dx::XM_PIDIV4);
 	this->pWorld->addLight(this->wMainCameraSpotLight);
-	wMainCameraSpotLight->isActive = false;
 
-	this->pointLight = new PointLight(Vector3(15, 5, 3), 1, Color(1,1,1), true);
+	this->pointLight = new PointLight(Vector3(15, 5, 3), 1, Color(1,1,1));
 	this->pWorld->addLight(this->pointLight);
-
-	//// Attach point light to main camera.
-	// Position relation, camera to point light.
-	VectorRelation* camPositionPL = new Vector3Relation(
-		&(this->wMainCamera.gPosition),
-		&(pointLight->gPosition),
-		VECTOR_RELATION_TYPE::COPY,
-		&(this->wMainCamera.dataChanged),
-		&(pointLight->dataChanged)
-	);
-	this->pWorld->addVectorRelation(camPositionPL);
 
 	//// Create secondary camera, attach spot light to it.
 	Camera* pwSecondaryCamera = new Camera(

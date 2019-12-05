@@ -46,13 +46,6 @@ struct VSOut {
 
 	// Camera position in world space.
 	float3 eyePosition : EyePosition;
-	// Specifies which shadow map to sample from.
-	unsigned int shadowMapIndices[MAX_SHADOWBOX_COUNT]: ShadowMapIndices;
-
-	// Shadow map
-	// XY, shadow map texture UV coordinates
-	// Z, distance from light.
-	float4 shadowMapPosition[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : TEXCOORD0;
 
 	// Final vertex shader output
 	float4 position : SV_Position;
@@ -106,31 +99,6 @@ VSOut main(VSIn vsIn){
 	// Apply "View" and "Projection" transform matrices.
 	vsOut.position = mul(finalWorldPosition, viewMatrix);
 	vsOut.position = mul(vsOut.position, projectionMatrix);
-
-	// Apply shadow map projection & view matrices.
-	// These values will be processed for shadowing.
-	float4 shadowMapPosition = float4(0,0,0,1);
-	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
-		if (shadowBoxes[sb].isActive) {
-			unsigned int sm = 0;
-			if (shadowBoxes[sb].lightType == DIRECTIONAL_LIGHT) {
-				// Choose which shadow map to sample from.
-				for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
-					if (vsOut.position.z <= shadowBoxes[sb].shadowMap[sm].activeCameraSubfrustumFarPlaneDistance) {
-						vsOut.shadowMapIndices[sb] = sm;
-						break;
-					}
-				}
-			}
-
-			// Calculate UV position of current vertex in shadow map.
-			for (sm = 0; sm < MAX_SHADOWMAP_COUNT; sm++) {
-				shadowMapPosition = mul(finalWorldPosition, shadowBoxes[sb].shadowMap[sm].viewMatrix);
-				shadowMapPosition = mul(shadowMapPosition, shadowBoxes[sb].shadowMap[sm].projectionMatrix);
-				vsOut.shadowMapPosition[sb * MAX_SHADOWBOX_COUNT + sm] = shadowMapPosition;
-			}
-		}
-	}
 
 	// Pixel shader needs just world positions without Projection and View.
 	vsOut.positionPS = finalWorldPosition.xyz;

@@ -14,8 +14,10 @@ struct ShadowBox {
 	ShadowMap shadowMap[MAX_SHADOWMAP_COUNT];
 	bool isActive;
 	unsigned int lightType;
-	float shadowDistance;
 	unsigned int lightID;
+	float shadowDistance;
+	unsigned int shadowMapCount;
+	float3 padding;
 };
 
 //// Main PixelShader

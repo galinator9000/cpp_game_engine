@@ -8,8 +8,8 @@ namespace dx = DirectX;
 #define MAX_JOINT_PER_VERTEX 4
 
 #define MAX_LIGHT_COUNT 8
-#define MAX_SHADOWBOX_COUNT 1
-#define MAX_SHADOWMAP_COUNT 6
+#define MAX_SHADOWBOX_COUNT 2
+#define MAX_SHADOWMAP_COUNT 3
 
 struct GraphicsSettingsStruct {
 	int PCFLevel = 0;
@@ -75,6 +75,8 @@ struct ShadowBoxSStruct {
 	ShadowMapSStruct shadowMap[MAX_SHADOWMAP_COUNT];
 	unsigned int isActive;
 	unsigned int lightType;
-	float shadowDistance;
 	unsigned int lightID;
+	float shadowDistance;
+	unsigned int shadowMapCount;
+	dx::XMFLOAT3 padding;
 };
