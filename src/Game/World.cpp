@@ -240,7 +240,7 @@ void World::Render() {
 
 		for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMapCount; sm++) {
 			// Set render target and camera for rendering scene from light's "view".
-			this->pGfx->setViewport(this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pViewPort);
+			this->pGfx->setViewport(this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pViewport);
 			this->pGfx->setRenderTarget(this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pRenderTarget);
 			this->pGfx->updateCamera(this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pCamera);
 			this->pGfx->activateCamera(this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pCamera);
@@ -265,6 +265,7 @@ void World::Render() {
 	// Set main shaders & render target.
 	this->pGfx->setVertexShader(this->pGfx->mainVertexShader);
 	this->pGfx->setPixelShader(this->pGfx->mainPixelShader);
+	this->pGfx->setViewport(this->pGfx->mainViewport);
 	this->pGfx->setRenderTarget(this->pGfx->mainRenderTarget);
 
 	// Provide View & Projection matrices of shadow boxes to Vertex & Pixel Shader.

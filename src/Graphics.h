@@ -99,9 +99,9 @@ public:
 	GraphicsSettingsStruct gGraphicsSettingsStruct;
 	wrl::ComPtr<ID3D11Buffer> pGraphicsSettingsStruct;
 
-	// Main render target.
+	// Main render target & Viewport
 	RenderTarget* mainRenderTarget;
-	Viewport* viewPort;
+	Viewport* mainViewport;
 
 	// Samplers
 	TextureSampler* defaultSampler;

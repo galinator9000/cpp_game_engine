@@ -10,7 +10,13 @@ PointLight::PointLight(Vector3 position, float intensity, Color color, bool isCa
 
 	this->isCastingShadow = isCastingShadow;
 	if (this->isCastingShadow) {
-		this->gShadowBox = new ShadowBox(this->gPosition, this->gDirection, Vector2(WIDTH, HEIGHT), this->type, 6);
+		this->gShadowBox = new ShadowBox(
+			this->gPosition,
+			this->gDirection,
+			{ SHADOWMAP_TEXTURE_SIZE_X, SHADOWMAP_TEXTURE_SIZE_Y },
+			this->type,
+			6
+		);
 	}
 
 	this->isActive = true;

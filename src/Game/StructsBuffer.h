@@ -1,15 +1,9 @@
 #pragma once
+#include "Constants.h"
 #include <DirectXMath.h>
 #include "PxPhysicsAPI.h"
 using namespace physx;
 namespace dx = DirectX;
-
-#define MAX_JOINT_COUNT 256
-#define MAX_JOINT_PER_VERTEX 4
-
-#define MAX_LIGHT_COUNT 8
-#define MAX_SHADOWBOX_COUNT 2
-#define MAX_SHADOWMAP_COUNT 3
 
 struct GraphicsSettingsStruct {
 	int PCFLevel = 0;

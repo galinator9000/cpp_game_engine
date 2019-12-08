@@ -10,7 +10,13 @@ DirectionalLight::DirectionalLight(Vector3 direction, float intensity, Color col
 
 	this->isCastingShadow = isCastingShadow;
 	if (this->isCastingShadow) {
-		this->gShadowBox = new ShadowBox(this->gPosition, this->gDirection, Vector2(WIDTH, HEIGHT), this->type, CSMLevel);
+		this->gShadowBox = new ShadowBox(
+			this->gPosition,
+			this->gDirection,
+			{ SHADOWMAP_TEXTURE_SIZE_X, SHADOWMAP_TEXTURE_SIZE_Y },
+			this->type,
+			CSMLevel
+		);
 	}
 
 	this->isActive = true;

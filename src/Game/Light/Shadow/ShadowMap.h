@@ -12,9 +12,9 @@ public:
 		unsigned int height,
 		PROJECTION_TYPE projectionType
 	) {
-		this->pCamera = new Camera(position, direction, (float) width, (float)height, projectionType);
+		this->pCamera = new Camera(position, direction, (float) width, (float) height, projectionType);
 		this->pRenderTarget = new RenderTarget();
-		this->pViewPort = new Viewport({ (float) width, (float) height });
+		this->pViewport = new Viewport({ (float) width, (float) height });
 		this->pTexture = new Texture(width, height);
 
 		this->activeCameraSubfrustumNearPlaneDistance = 0;
@@ -23,7 +23,7 @@ public:
 
 	Camera* pCamera = NULL;
 	RenderTarget* pRenderTarget = NULL;
-	Viewport* pViewPort = NULL;
+	Viewport* pViewport = NULL;
 	// Texture object to be filled with shadow map information.
 	Texture* pTexture = NULL;
 

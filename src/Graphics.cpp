@@ -60,8 +60,8 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	);
 
 	// Create a viewport configuration & bind it to pipeline.
-	this->viewPort = new Viewport({ (float) WIDTH, (float) HEIGHT });
-	this->setViewport(this->viewPort);
+	this->mainViewport = new Viewport({ (float) WIDTH, (float) HEIGHT });
+	this->setViewport(this->mainViewport);
 
 	// Get back-buffer from swap chain created by API call.
 	wrl::ComPtr<ID3D11Texture2D> pBackBufferTexture;

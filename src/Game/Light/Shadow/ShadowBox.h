@@ -1,9 +1,11 @@
 #pragma once
 #include "Config.h"
 #include "ShadowMap.h"
-#include <directxcollision.h>
+#include "../Utils/General.h"
 
+#include <directxcollision.h>
 #include <stdio.h>
+#include <cmath>
 
 class ShadowBox{
 public:

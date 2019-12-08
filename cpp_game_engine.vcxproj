@@ -224,6 +224,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\Constants.h" />
     <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h" />
     <ClInclude Include="src\Game\Light\Shadow\ShadowMap.h" />
     <ClInclude Include="src\Graphics\RenderTarget.h" />
@@ -260,6 +261,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Utils\FBX_Importer.h" />
+    <ClInclude Include="src\Utils\General.h" />
     <ClInclude Include="src\Utils\OBJ_Loader.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\Game\World.h" />
