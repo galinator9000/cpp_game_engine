@@ -78,9 +78,9 @@ bool Physics::addEntity(Entity* pEntity){
 
 	// Create physical material
 	pEntity->pCollisionShape->pMaterial = this->pxPhysics->createMaterial(
-		pEntity->collisionMaterial.staticFriction,
-		pEntity->collisionMaterial.dynamicFriction,
-		pEntity->collisionMaterial.restitution
+		pEntity->collisionMaterial->staticFriction,
+		pEntity->collisionMaterial->dynamicFriction,
+		pEntity->collisionMaterial->restitution
 	);
 
 	// CCT (Character Controller)
@@ -108,7 +108,7 @@ bool Physics::addEntity(Entity* pEntity){
 			pEntity->gPosition.z
 		);
 		pxCDesc.upDirection = PxVec3(0, 1, 0);
-		pxCDesc.density = pEntity->collisionMaterial.density;
+		pxCDesc.density = pEntity->collisionMaterial->density;
 		pxCDesc.material = pEntity->pCollisionShape->pMaterial;
 		pxCDesc.contactOffset = 0.1f;
 
@@ -160,7 +160,7 @@ bool Physics::addEntity(Entity* pEntity){
 		PxRigidDynamic* rigidDynamicActor = this->pxPhysics->createRigidDynamic(rigidActorTransform);
 
 		rigidDynamicActor->attachShape(*(pEntity->pCollisionShape->pShape));
-		PxRigidBodyExt::updateMassAndInertia(*rigidDynamicActor, pEntity->collisionMaterial.density);
+		PxRigidBodyExt::updateMassAndInertia(*rigidDynamicActor, pEntity->collisionMaterial->density);
 
 		rigidActor = rigidDynamicActor;
 	}
@@ -199,9 +199,9 @@ void Physics::setupEntityRagdoll(Entity* pEntity) {
 		for (unsigned int j = 0; j < pEntity->meshDeformer->gJointCount; j++) {
 			// Create material and shape of the joint.
 			pMeshDeformer->pRagdollCollisionShape[j]->pMaterial = this->pxPhysics->createMaterial(
-				pEntity->collisionMaterial.staticFriction,
-				pEntity->collisionMaterial.dynamicFriction,
-				pEntity->collisionMaterial.restitution
+				pEntity->collisionMaterial->staticFriction,
+				pEntity->collisionMaterial->dynamicFriction,
+				pEntity->collisionMaterial->restitution
 			);
 			pMeshDeformer->pRagdollCollisionShape[j]->pShape = this->pxPhysics->createShape(
 				*(pMeshDeformer->pRagdollCollisionShape[j]->pGeometry),

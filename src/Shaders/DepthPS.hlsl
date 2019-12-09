@@ -1,20 +1,18 @@
 #include "Lighting.hlsl"
 
 // Provided by entity object.
-Texture2D AlphaTexture : register(t2);
+Texture2D AlphaTexture : register(t3);
 
 // Various samplers.
 SamplerState defaultSampler : register(s0);
 
-cbuffer EntityPSConstantBuffer : register(b0) {
-	float4 entityColor;
+cbuffer MaterialSConstantBuffer : register(b0) {
+	float4 materialColor;
 	float4 specularHighlightColor;
-	float specularIntensity;
-	float specularPower;
-	bool useTexture;
+	bool useDiffuse;
 	bool useNormalMapping;
 	bool useAlpha;
-	float3 padding;
+	bool useSpecular;
 };
 
 // Input structure of the Pixel shader.

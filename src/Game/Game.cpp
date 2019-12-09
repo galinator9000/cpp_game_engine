@@ -21,6 +21,10 @@ void Game::Setup(){
 
 	Entity* box;
 	CollisionActor* boxColActor;
+	CollisionMaterial* boxColMat = new CollisionMaterial();
+	Material* boxMaterial = new Material(
+		NULL, Color(0, 1, 0)
+	);
 
 	Entity* prevBox = NULL;
 
@@ -36,16 +40,14 @@ void Game::Setup(){
 			}
 			
 			box = new Entity(
-				{
-					{ 0.1f, 0.1f, 0.1f },
-					{ bb*3.0f, 5 + (b * marginBetweenBoxes), 10+(bb * 3.0f) },
-					{ 0,0,0,0 },
-					{{ 0.5f, 0, 0, 1 }},
-					{},
-					boxMesh,
-					dynamicBoxColShape,
-					boxColActor
-				}
+				{ 0.1f, 0.1f, 0.1f },
+				{ bb*3.0f, 5 + (b * marginBetweenBoxes), 10+(bb * 3.0f) },
+				{ 0,0,0,0 },
+				boxMaterial,
+				boxColMat,
+				boxMesh,
+				dynamicBoxColShape,
+				boxColActor
 			);
 
 			this->pWorld->addEntity(box);
@@ -65,17 +67,16 @@ void Game::Setup(){
 	// Ground box.
 	CollisionShape* groundBoxColShape = new CollisionShape();
 	CollisionActor* groundBoxColActor = new CollisionActor(COLLISION_ACTOR_STATIC);
+
 	Entity* groundBox = new Entity(
-		{
-			{ 2000, 0.1f, 2000 },
-			{ 0, 0, 0 },
-			{ 0,0,0,0 },
-			{{ 1, 1, 1, 1 }},
-			{},
-			boxMesh,
-			groundBoxColShape,
-			groundBoxColActor
-		}
+		{ 2000, 0.1f, 2000 },
+		{ 0, 0, 0 },
+		{ 0,0,0,0 },
+		NULL,
+		NULL,
+		boxMesh,
+		groundBoxColShape,
+		groundBoxColActor
 	);
 	this->pWorld->addEntity(groundBox);
 
@@ -95,39 +96,36 @@ void Game::Setup(){
 
 	CollisionShape* bigBoxColShape = new CollisionShape();
 	CollisionActor* bigBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
+	Material* bigBoxMaterial = new Material(brickTexture, { 0, 0, 0.66f, 1 });
 	Entity* bigBox = new Entity(
-		{
-			{ 3, 3, 3 },
-			{ -20, 10, 0 },
-			{ 0,0,0,0 },
-			{{ 0, 0, 0.66f, 1 }, 1, 5},
-			{},
-			bigBoxMesh,
-			bigBoxColShape,
-			bigBoxColActor
-		}
+		{ 3, 3, 3 },
+		{ -20, 10, 0 },
+		{ 0,0,0,0 },
+		bigBoxMaterial,
+		NULL,
+		bigBoxMesh,
+		bigBoxColShape,
+		bigBoxColActor
 	);
-	bigBox->attachTexture(brickTexture);
 	this->pWorld->addEntity(bigBox);
 
 	//// Load animated entity.
 	// Collision.
 	CollisionShape* mainCharacterCollisionShape = new CollisionShape();
 	CollisionActor* mainCharacterCollisionActor = new CollisionActor(COLLISION_ACTOR_CCT);
+	Material* mainCharacterMaterial = new Material(NULL, { 1, 1, 1, 1 });
 
 	Mesh* mainCharacterMesh = new Mesh();
 	mainCharacter = new Character(
-		{
-			{ 0.01f, 0.01f, 0.01f },
-			{ 0,0,0 },
-			{ 0,0,0,0 },
-			{{ 1, 1, 1, 1 }, 1, 5},
-			{},
-			mainCharacterMesh,
-			mainCharacterCollisionShape,
-			mainCharacterCollisionActor
-		},
-		{}
+		{ 0.01f, 0.01f, 0.01f },
+		{ 0,0,0 },
+		{ 0,0,0,0 },
+		mainCharacterMaterial,
+		NULL,
+		mainCharacterMesh,
+		mainCharacterCollisionShape,
+		mainCharacterCollisionActor,
+		0.1f, {0, 0, 1}
 	);
 
 	// Load mesh.

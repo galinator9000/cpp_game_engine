@@ -7,17 +7,16 @@ SamplerState clampSampler : register(s1);
 // Provided by entity object.
 Texture2D Texture : register(t0);
 Texture2D NormalMappingTexture : register(t1);
-Texture2D AlphaTexture : register(t2);
+Texture2D SpecularTexture : register(t2);
+Texture2D AlphaTexture : register(t3);
 
-cbuffer EntityPSConstantBuffer : register(b0) {
-	float4 entityColor;
+cbuffer MaterialSConstantBuffer : register(b0) {
+	float4 materialColor;
 	float4 specularHighlightColor;
-	float specularIntensity;
-	float specularPower;
-	bool useTexture;
+	bool useDiffuse;
 	bool useNormalMapping;
 	bool useAlpha;
-	float3 padding;
+	bool useSpecular;
 };
 
 // Input structure of the Pixel shader.
@@ -45,8 +44,8 @@ PSOut main(PSIn psIn){
 	PSOut psOut;
 
 	// Current pixel color: Use solid entity color, or sample from texture if entity provides it.
-	float4 pixelColor = entityColor;
-	if (useTexture) {
+	float4 pixelColor = materialColor;
+	if (useDiffuse) {
 		pixelColor = Texture.Sample(defaultSampler, psIn.texture_UV);
 	}
 
@@ -82,6 +81,8 @@ PSOut main(PSIn psIn){
 	}
 
 	//// Calculate lighting.
+	float specularIntensity = 2;
+	float specularPower = 10.0f;
 	float4 lightingFactor = calculateAllLights(
 		psIn.positionPS, psIn.normal, psIn.eyePosition,
 		specularHighlightColor, specularIntensity, specularPower

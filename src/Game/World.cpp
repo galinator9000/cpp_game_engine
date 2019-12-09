@@ -300,14 +300,13 @@ void World::Render() {
 	this->pGfx->bindPixelShaderBuffer(3, this->pAllShadowBoxConstantBuffers.Get());
 
 	// Provide shadow mappings to Pixel Shader
-	const unsigned int SHADOW_MAP_TEXTURE_PS_START_SLOT = 3;
 	for (unsigned int sb = 0; sb < MAX_SHADOWBOX_COUNT; sb++) {
 		if (this->gShadowCasters[sb] == NULL) {
 			continue;
 		}
 
 		for (unsigned int sm = 0; sm < this->gShadowCasters[sb]->gShadowBox->gShadowMapCount; sm++) {
-			this->pGfx->setTexturePixelShader(SHADOW_MAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWMAP_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pTexture);
+			this->pGfx->setTexturePixelShader(SHADOWMAP_TEXTURE_PS_START_SLOT + (sb * MAX_SHADOWMAP_COUNT + sm), this->gShadowCasters[sb]->gShadowBox->gShadowMaps[sm]->pTexture);
 		}
 	}
 	

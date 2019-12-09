@@ -19,16 +19,14 @@ struct EntityVSConstantBuffer {
 	dx::XMFLOAT3 padding;
 };
 
-// Entity constant buffer for Pixel Shader.
-struct EntityPSConstantBuffer {
+// Material constant buffer for providing it to shader(s).
+struct MaterialSConstantBuffer {
 	dx::XMFLOAT4 color;
 	dx::XMFLOAT4 specularHighlightColor;
-	float specularIntensity;
-	float specularPower;
-	unsigned int useTexture;
+	unsigned int useDiffuse;
 	unsigned int useNormalMapping;
 	unsigned int useAlpha;
-	dx::XMFLOAT3 padding1;
+	unsigned int useSpecular;
 };
 
 // Mesh Deformer constant buffer for Vertex Shader.

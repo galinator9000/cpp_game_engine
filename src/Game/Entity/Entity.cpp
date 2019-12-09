@@ -3,53 +3,51 @@
 
 // Default constructor.
 Entity::Entity(){
-	EntityProperties entProp;
+	this->gSize = Vector3(1, 1, 1);
+	this->gPosition = Vector3(0, 0, 0);
+	this->gRotationQ = Vector4(1, 0, 0, 0);
 
-	this->gSize = entProp.size;
-	this->gPosition = entProp.position;
-	this->gRotationQ = entProp.rotationQ;
-
-	this->material.color = entProp.material.color;
-	this->material.specularHighlightColor = entProp.material.specularHighlightColor;
-	this->material.specularPower = entProp.material.specularPower;
-	this->material.specularIntensity = entProp.material.specularIntensity;
-
-	// Physics material information
-	this->collisionMaterial.staticFriction = entProp.collisionMaterial.staticFriction;
-	this->collisionMaterial.dynamicFriction = entProp.collisionMaterial.dynamicFriction;
-	this->collisionMaterial.restitution = entProp.collisionMaterial.restitution;
-	this->collisionMaterial.density = entProp.collisionMaterial.density;
+	this->gMaterial = new Material(NULL);
+	this->collisionMaterial = new CollisionMaterial();
 
 	this->updateConstantBuffer();
 }
 
-Entity::Entity(EntityProperties entProp){
-	this->gSize = entProp.size;
-	this->gPosition = entProp.position;
-	this->gRotationQ = entProp.rotationQ;
+Entity::Entity(
+	Vector3 size, Vector3 position, Vector4 rotationQ,
+	Material* material, CollisionMaterial* collisionMaterial,
+	Mesh* pMesh,
+	CollisionShape* pCollisionShape,
+	CollisionActor* pCollisionActor
+){
+	this->gSize = size;
+	this->gPosition = position;
 
-	this->material.color = entProp.material.color;
-	this->material.specularHighlightColor = entProp.material.specularHighlightColor;
-	this->material.specularPower = entProp.material.specularPower;
-	this->material.specularIntensity = entProp.material.specularIntensity;
+	if (Vector3(rotationQ.x, rotationQ.y, rotationQ.z) == Vector3(0,0,0)) {
+		rotationQ.x = 1;
+	}
+	this->gRotationQ = rotationQ;
 
-	// Physics material information
-	this->collisionMaterial.staticFriction = entProp.collisionMaterial.staticFriction;
-	this->collisionMaterial.dynamicFriction = entProp.collisionMaterial.dynamicFriction;
-	this->collisionMaterial.restitution = entProp.collisionMaterial.restitution;
-	this->collisionMaterial.density = entProp.collisionMaterial.density;
+	if (material == NULL) {
+		material = new Material(NULL);
+	}
+	this->gMaterial = material;
+	if (collisionMaterial == NULL) {
+		collisionMaterial = new CollisionMaterial();
+	}
+	this->collisionMaterial = collisionMaterial;
 
 	// Attach mesh object if given.
-	if (entProp.pMesh != NULL) {
-		this->attachMesh((Mesh*) entProp.pMesh);
+	if (pMesh != NULL) {
+		this->attachMesh((Mesh*) pMesh);
 	}
 
 	// Attach collision objects if given.
-	if (entProp.pCollisionShape != NULL) {
-		this->attachCollisionShape((CollisionShape*) entProp.pCollisionShape);
+	if (pCollisionShape != NULL) {
+		this->attachCollisionShape((CollisionShape*) pCollisionShape);
 	}
-	if (entProp.pCollisionActor != NULL) {
-		this->attachCollisionActor((CollisionActor*) entProp.pCollisionActor);
+	if (pCollisionActor != NULL) {
+		this->attachCollisionActor((CollisionActor*) pCollisionActor);
 	}
 
 	this->updateConstantBuffer();
@@ -59,6 +57,8 @@ void Entity::Update() {
 	if (this->useMeshDeformer) {
 		this->meshDeformer->Update();
 	}
+
+	this->gMaterial->Update();
 
 	if (!this->dataChanged) {
 		this->shouldUpdateGPUData = false;
@@ -89,23 +89,6 @@ void Entity::updateConstantBuffer() {
 	);
 	this->gEntityVSConstantBuffer.useMeshDeformer = (unsigned int) this->useMeshDeformer;
 
-	//// Update PS constant buffer.
-	// Material information.
-	this->gEntityPSConstantBuffer.color = this->material.color.loadXMFLOAT();
-	this->gEntityPSConstantBuffer.specularHighlightColor = this->material.specularHighlightColor.loadXMFLOAT();
-	this->gEntityPSConstantBuffer.specularPower = this->material.specularPower;
-	this->gEntityPSConstantBuffer.specularIntensity = this->material.specularIntensity;
-
-	this->gEntityPSConstantBuffer.useTexture = (unsigned int) this->useTexture;
-	if (this->texture != NULL) {
-		this->gEntityPSConstantBuffer.useNormalMapping = (unsigned int) this->texture->useNormalMapping;
-		this->gEntityPSConstantBuffer.useAlpha = (unsigned int) this->texture->useAlpha;
-	}
-	else {
-		this->gEntityPSConstantBuffer.useNormalMapping = false;
-		this->gEntityPSConstantBuffer.useAlpha = false;
-	}
-
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;
 }
@@ -113,26 +96,6 @@ void Entity::updateConstantBuffer() {
 void Entity::Reset() {
 	this->dataChanged = false;
 	this->shouldUpdateGPUData = false;
-}
-
-// Texture
-void Entity::attachTexture(Texture* texture){
-	if (texture == NULL) {
-		return;
-	}
-
-	this->texture = texture;
-	this->useTexture = true;
-	this->dataChanged = true;
-}
-
-void Entity::attachTextureSampler(TextureSampler* textureSampler) {
-	if (textureSampler == NULL) {
-		return;
-	}
-
-	this->textureSampler = textureSampler;
-	this->dataChanged = true;
 }
 
 // Mesh
@@ -207,11 +170,6 @@ unsigned int Entity::getChildCount() {
 }
 
 // General
-void Entity::setColor(Color color) {
-	this->material.color = color;
-	this->dataChanged = true;
-}
-
 // Position & Rotation & Scaling setters.
 void Entity::setPosition(Vector3 position) {
 	this->gPosition = position;

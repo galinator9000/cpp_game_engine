@@ -26,6 +26,9 @@ Graphics::Graphics(HWND hWnd, unsigned int WIDTH, unsigned int HEIGHT, int REFRE
 	scd.Flags = 0;
 
 	const D3D_FEATURE_LEVEL FeatureLevelsRequested[] = {
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL_10_1,
 		D3D_FEATURE_LEVEL_10_0,
@@ -266,7 +269,7 @@ bool Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pT
 		);
 	}
 
-	//// Create depth view & state objects and bind it to pipeline. (a.k.a Z-Buffer)
+	//// Create depth view & state objects.
 	// Create Depth state.
 	CD3D11_DEPTH_STENCIL_DESC dsDesc = {};
 	dsDesc.DepthEnable = TRUE;
@@ -283,7 +286,7 @@ bool Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pT
 
 	if (isShaderResource) {
 		descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-		this->hr = this->pDevice->CreateDepthStencilView(pTexture->pColorResource.Get(), &descDSV, &renderTarget->pDepthView);
+		this->hr = this->pDevice->CreateDepthStencilView(pTexture->pDiffuseResource.Get(), &descDSV, &renderTarget->pDepthView);
 	}
 	else {
 		// Create 2D texture for Depth View.
@@ -312,9 +315,9 @@ bool Graphics::createRenderTarget(RenderTarget* renderTarget, ID3D11Resource* pT
 		resViewDsc.Texture2D.MostDetailedMip = 0;
 
 		this->hr = this->pDevice->CreateShaderResourceView(
-			pTexture->pColorResource.Get(),
+			pTexture->pDiffuseResource.Get(),
 			&resViewDsc,
-			&pTexture->pColorShaderResourceView
+			&pTexture->pDiffuseShaderResourceView
 		);
 	}
 
@@ -417,14 +420,14 @@ void Graphics::setPixelShader(PixelShader* pixelShader) {
 }
 
 void Graphics::setTexturePixelShader(unsigned int slot, Texture* texture) {
-	if (texture == NULL || texture->pColorShaderResourceView.Get() == NULL) {
+	if (texture == NULL || texture->pDiffuseShaderResourceView.Get() == NULL) {
 		return;
 	}
 
 	this->pDeviceContext->PSSetShaderResources(
 		slot,
 		1,
-		texture->pColorShaderResourceView.GetAddressOf()
+		texture->pDiffuseShaderResourceView.GetAddressOf()
 	);
 }
 
@@ -477,16 +480,16 @@ bool Graphics::addEntity(Entity* entity){
 		&(entity->pEntityVSConstantBuffer)
 	);
 
-	D3D11_BUFFER_DESC cBdPS = { 0 };
-	cBdPS.ByteWidth = sizeof(entity->gEntityPSConstantBuffer);
-	cBdPS.Usage = D3D11_USAGE_DYNAMIC;
-	cBdPS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBdPS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA cSdPS = { &(entity->gEntityPSConstantBuffer), 0, 0 };
+	D3D11_BUFFER_DESC cBdS = { 0 };
+	cBdS.ByteWidth = sizeof(entity->gMaterial->gMaterialSConstantBuffer);
+	cBdS.Usage = D3D11_USAGE_DYNAMIC;
+	cBdS.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBdS.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_SUBRESOURCE_DATA cSdS = { &(entity->gMaterial->gMaterialSConstantBuffer), 0, 0 };
 	this->hr = this->pDevice->CreateBuffer(
-		&cBdPS,
-		&cSdPS,
-		&(entity->pEntityPSConstantBuffer)
+		&cBdS,
+		&cSdS,
+		&(entity->gMaterial->pMaterialSConstantBuffer)
 	);
 
 	// If attached mesh doesn't have GPU buffers yet, create it.
@@ -560,11 +563,11 @@ void Graphics::drawEntity(Entity* entity){
 		entity->pEntityVSConstantBuffer.GetAddressOf()
 	);
 
-	// Bind entity's constant buffer for Pixel Shader.
+	// Bind entity's material constant buffer to Pixel Shader.
 	this->pDeviceContext->PSSetConstantBuffers(
 		0,
 		1,
-		entity->pEntityPSConstantBuffer.GetAddressOf()
+		entity->gMaterial->pMaterialSConstantBuffer.GetAddressOf()
 	);
 
 	// Vertex buffer
@@ -594,13 +597,8 @@ void Graphics::drawEntity(Entity* entity){
 	// Set samplers to default.
 	this->setDefault();
 
-	// Bind texture sampler if this entity uses a different one.
-	if (entity->useTexture) {
-		if (entity->textureSampler != NULL) {
-			this->setTextureSamplerPixelShader(0, entity->textureSampler);
-		}
-
-		this->setTexture(entity->texture);
+	if (entity->gMaterial->texture) {
+		this->setTexture(entity->gMaterial->texture);
 	}
 
 	// If mesh deformer is attached to mesh, set buffers to Vertex Shader.
@@ -628,9 +626,9 @@ void Graphics::updateEntity(Entity* entity) {
 
 	// Update subresource of the constant buffer on GPU side.
 	// ONLY if it should.
+	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 	if (entity->shouldUpdateGPUData) {
 		// Update constant buffer of entity for Vertex Shader.
-		D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 		this->hr = this->pDeviceContext->Map(
 			entity->pEntityVSConstantBuffer.Get(),
 			0,
@@ -640,18 +638,19 @@ void Graphics::updateEntity(Entity* entity) {
 		);
 		memcpy(mappedResource.pData, &entity->gEntityVSConstantBuffer, sizeof(entity->gEntityVSConstantBuffer));
 		this->pDeviceContext->Unmap(entity->pEntityVSConstantBuffer.Get(), 0);
+	}
 
-		// Update constant buffer of entity for Pixel Shader.
+	if (entity->gMaterial->shouldUpdateGPUData) {
 		mappedResource = { 0 };
 		this->hr = this->pDeviceContext->Map(
-			entity->pEntityPSConstantBuffer.Get(),
+			entity->gMaterial->pMaterialSConstantBuffer.Get(),
 			0,
 			D3D11_MAP_WRITE_DISCARD,
 			0,
 			&mappedResource
 		);
-		memcpy(mappedResource.pData, &entity->gEntityPSConstantBuffer, sizeof(entity->gEntityPSConstantBuffer));
-		this->pDeviceContext->Unmap(entity->pEntityPSConstantBuffer.Get(), 0);
+		memcpy(mappedResource.pData, &entity->gMaterial->gMaterialSConstantBuffer, sizeof(entity->gMaterial->gMaterialSConstantBuffer));
+		this->pDeviceContext->Unmap(entity->gMaterial->pMaterialSConstantBuffer.Get(), 0);
 	}
 
 	if (entity->meshDeformer != NULL) {
@@ -745,7 +744,7 @@ bool Graphics::createShadowMapTexture(Texture* texture) {
 	descDSTXT.Usage = D3D11_USAGE_DEFAULT;
 	descDSTXT.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	this->hr = this->pDevice->CreateTexture2D(&descDSTXT, NULL, &pDSTexture);
-	texture->pColorResource = pDSTexture;
+	texture->pDiffuseResource = pDSTexture;
 	return true;
 }
 
@@ -799,9 +798,9 @@ bool Graphics::createTextureDDS(Texture* texture) {
 	this->hr = CreateDDSTextureFromFile(
 		this->pDevice.Get(),
 		this->pDeviceContext.Get(),
-		texture->colorFileName.c_str(),
-		texture->pColorResource.GetAddressOf(),
-		texture->pColorShaderResourceView.GetAddressOf()
+		texture->diffuseFileName.c_str(),
+		texture->pDiffuseResource.GetAddressOf(),
+		texture->pDiffuseShaderResourceView.GetAddressOf()
 	);
 
 	if (texture->useNormalMapping) {
@@ -811,6 +810,16 @@ bool Graphics::createTextureDDS(Texture* texture) {
 			texture->normalFileName.c_str(),
 			texture->pNormalResource.GetAddressOf(),
 			texture->pNormalShaderResourceView.GetAddressOf()
+		);
+	}
+
+	if (texture->useSpecular) {
+		this->hr = CreateDDSTextureFromFile(
+			this->pDevice.Get(),
+			this->pDeviceContext.Get(),
+			texture->specularFileName.c_str(),
+			texture->pSpecularResource.GetAddressOf(),
+			texture->pSpecularShaderResourceView.GetAddressOf()
 		);
 	}
 
@@ -827,14 +836,14 @@ bool Graphics::createTextureDDS(Texture* texture) {
 }
 
 void Graphics::setTexture(Texture* texture) {
-	if (texture == NULL || texture->pColorShaderResourceView.Get() == NULL) {
+	if (texture == NULL || texture->pDiffuseShaderResourceView.Get() == NULL) {
 		return;
 	}
 
 	this->pDeviceContext->PSSetShaderResources(
 		0,
 		1,
-		texture->pColorShaderResourceView.GetAddressOf()
+		texture->pDiffuseShaderResourceView.GetAddressOf()
 	);
 
 	if (texture->useNormalMapping) {
@@ -845,9 +854,17 @@ void Graphics::setTexture(Texture* texture) {
 		);
 	}
 
-	if (texture->useAlpha) {
+	if (texture->useSpecular) {
 		this->pDeviceContext->PSSetShaderResources(
 			2,
+			1,
+			texture->pSpecularShaderResourceView.GetAddressOf()
+		);
+	}
+
+	if (texture->useAlpha) {
+		this->pDeviceContext->PSSetShaderResources(
+			3,
 			1,
 			texture->pAlphaShaderResourceView.GetAddressOf()
 		);

@@ -2,7 +2,7 @@
 #include "Buffers.hlsli"
 
 SamplerState whiteBorderSampler : register(s2);
-Texture2D ShadowMapTexture[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : register(t3);
+Texture2D ShadowMapTexture[MAX_SHADOWBOX_COUNT * MAX_SHADOWMAP_COUNT] : register(t4);
 
 // Lights constant buffer.
 cbuffer LightConstantBuffer : register(b1) {
@@ -21,7 +21,7 @@ float calculateAttenuation(float distVertexToLight) {
 		attenuation_constant +
 		(attenuation_linear * distVertexToLight) +
 		(attenuation_quadratic * (distVertexToLight * distVertexToLight))
-		);
+	);
 }
 
 // Specular highlight calculation.

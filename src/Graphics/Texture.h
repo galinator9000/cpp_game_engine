@@ -18,23 +18,33 @@ public:
 	}
 	Texture(
 		const char* textureReferenceName,
-		const char* colorFileName,
+		const char* diffuseFileName,
 		const char* normalFileName = NULL,
+		const char* specularFileName = NULL,
 		const char* alphaFileName = NULL
 	) {
-		if (textureReferenceName == NULL || colorFileName == NULL) {
+		if (textureReferenceName == NULL || diffuseFileName == NULL) {
 			return;
 		}
 
 		this->textureReferenceName = std::string(textureReferenceName);
 
-		std::string colorFileName_(colorFileName);
-		this->colorFileName = std::wstring(colorFileName_.begin(), colorFileName_.end());
+		if (diffuseFileName != NULL) {
+			std::string colorFileName_(diffuseFileName);
+			this->diffuseFileName = std::wstring(colorFileName_.begin(), colorFileName_.end());
+			this->useDiffuse = true;
+		}
 
 		if (normalFileName != NULL) {
 			std::string normalFileName_(normalFileName);
 			this->normalFileName = std::wstring(normalFileName_.begin(), normalFileName_.end());
 			this->useNormalMapping = true;
+		}
+
+		if (specularFileName != NULL) {
+			std::string specularFileName_(specularFileName);
+			this->specularFileName = std::wstring(specularFileName_.begin(), specularFileName_.end());
+			this->useSpecular = true;
 		}
 
 		if (alphaFileName != NULL) {
@@ -53,21 +63,28 @@ public:
 
 	//// DDS
 	// File names.
-	std::wstring colorFileName;
-	std::wstring alphaFileName;
+	std::wstring diffuseFileName;
 	std::wstring normalFileName;
+	std::wstring specularFileName;
+	std::wstring alphaFileName;
 
-	// Color
-	wrl::ComPtr<ID3D11Resource> pColorResource;
-	wrl::ComPtr<ID3D11ShaderResourceView> pColorShaderResourceView;
-
-	// Alpha
-	wrl::ComPtr<ID3D11Resource> pAlphaResource;
-	wrl::ComPtr<ID3D11ShaderResourceView> pAlphaShaderResourceView;
-	bool useAlpha = false;
+	// Diffuse
+	wrl::ComPtr<ID3D11Resource> pDiffuseResource;
+	wrl::ComPtr<ID3D11ShaderResourceView> pDiffuseShaderResourceView;
+	bool useDiffuse = false;
 
 	// Normal
 	wrl::ComPtr<ID3D11Resource> pNormalResource;
 	wrl::ComPtr<ID3D11ShaderResourceView> pNormalShaderResourceView;
 	bool useNormalMapping = false;
+
+	// Specular
+	wrl::ComPtr<ID3D11Resource> pSpecularResource;
+	wrl::ComPtr<ID3D11ShaderResourceView> pSpecularShaderResourceView;
+	bool useSpecular = false;
+
+	// Alpha
+	wrl::ComPtr<ID3D11Resource> pAlphaResource;
+	wrl::ComPtr<ID3D11ShaderResourceView> pAlphaShaderResourceView;
+	bool useAlpha = false;
 };

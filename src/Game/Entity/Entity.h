@@ -10,6 +10,8 @@
 #include "Collision/CollisionShape.h"
 #include "Collision/CollisionActor.h"
 #include "Structs.h"
+#include "Material.h"
+#include "CollisionMaterial.h"
 #include "../Graphics/Texture.h"
 #include "../Graphics/TextureSampler.h"
 
@@ -20,7 +22,13 @@ class Entity {
 public:
 	// Default constructor.
 	Entity();
-	Entity(EntityProperties entityProperties);
+	Entity(
+		Vector3 size = Vector3(1, 1, 1), Vector3 position = Vector3(0, 0, 0), Vector4 rotationQ = Vector4(1, 0, 0, 0),
+		Material* material = NULL, CollisionMaterial* collisionMaterial = NULL,
+		Mesh* pMesh = NULL,
+		CollisionShape* pCollisionShape = NULL,
+		CollisionActor* pCollisionActor = NULL
+	);
 	void Update();
 	virtual void Reset();
 	void setColor(Color color);
@@ -34,8 +42,8 @@ public:
 	Vector3 gSize;
 	Vector3 gPosition;
 	Vector4 gRotationQ;
-	Material material;
-	CollisionMaterial collisionMaterial;
+	Material* gMaterial = NULL;
+	CollisionMaterial* collisionMaterial = NULL;
 
 	// Position & Rotation & Scaling setters.
 	void setPosition(Vector3 position);
@@ -47,12 +55,12 @@ public:
 	void rotateQuaternion(Vector4 rotationVector);
 	void Scale(Vector3 scalingVector);
 
-	// Texture
-	Texture* texture = NULL;
-	TextureSampler* textureSampler = NULL;
-	void attachTexture(Texture* texture);
-	void attachTextureSampler(TextureSampler* textureSampler);
-	bool useTexture = false;
+	// Material
+	void attachMaterial(Material* material) {
+		if (material != NULL) {
+			this->gMaterial = material;
+		}
+	}
 
 	// Hierarchy system
 	Entity* parentEntity = NULL;
@@ -74,12 +82,9 @@ public:
 
 	// Constant buffer
 	EntityVSConstantBuffer gEntityVSConstantBuffer;
-	EntityPSConstantBuffer gEntityPSConstantBuffer;
+	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
 	void updateConstantBuffer();
 	bool shouldUpdateGPUData;
-
-	wrl::ComPtr<ID3D11Buffer> pEntityVSConstantBuffer;
-	wrl::ComPtr<ID3D11Buffer> pEntityPSConstantBuffer;
 
 	//// Physics
 	CollisionShape* pCollisionShape = NULL;
