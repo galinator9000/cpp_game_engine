@@ -85,7 +85,8 @@ void Game::Setup(){
 	Texture* brickTexture = new Texture(
 		"brick",
 		"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_diffuse.dds",
-		"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds"
+		"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_normal.dds",
+		"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_specular.dds"
 		//"D:\\VisualStudioProjects\\cpp_game_engine\\assets\\brick_wall_alpha.dds"
 	);
 	this->pWorld->createTexture(brickTexture);
@@ -96,13 +97,14 @@ void Game::Setup(){
 
 	CollisionShape* bigBoxColShape = new CollisionShape();
 	CollisionActor* bigBoxColActor = new CollisionActor(COLLISION_ACTOR_DYNAMIC);
-	Material* bigBoxMaterial = new Material(brickTexture, { 0, 0, 0.66f, 1 });
+	CollisionMaterial* bigBoxColMaterial = new CollisionMaterial(1, 1, 1);
+	Material* bigBoxMaterial = new Material(brickTexture, { 0, 0, 0.66f, 1 }, 5, 25);
 	Entity* bigBox = new Entity(
 		{ 3, 3, 3 },
 		{ -20, 10, 0 },
 		{ 0,0,0,0 },
 		bigBoxMaterial,
-		NULL,
+		bigBoxColMaterial,
 		bigBoxMesh,
 		bigBoxColShape,
 		bigBoxColActor
@@ -113,7 +115,7 @@ void Game::Setup(){
 	// Collision.
 	CollisionShape* mainCharacterCollisionShape = new CollisionShape();
 	CollisionActor* mainCharacterCollisionActor = new CollisionActor(COLLISION_ACTOR_CCT);
-	Material* mainCharacterMaterial = new Material(NULL, { 1, 1, 1, 1 });
+	Material* mainCharacterMaterial = new Material(NULL, { 1, 1, 1, 1 }, 1, 5);
 
 	Mesh* mainCharacterMesh = new Mesh();
 	mainCharacter = new Character(

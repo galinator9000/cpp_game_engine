@@ -12,11 +12,14 @@ Texture2D AlphaTexture : register(t3);
 
 cbuffer MaterialSConstantBuffer : register(b0) {
 	float4 materialColor;
-	float4 specularHighlightColor;
+	float4 specularColor;
+	float specularPower;
+	float specularIntensity;
+	float2 padding;
 	bool useDiffuse;
 	bool useNormalMapping;
-	bool useAlpha;
 	bool useSpecular;
+	bool useAlpha;
 };
 
 // Input structure of the Pixel shader.
@@ -70,22 +73,25 @@ PSOut main(PSIn psIn){
 			)
 		);
 	}
+	
+	// If uses alpha value from texture, sample it.
+	float sampledSpecular = 1.0f;
+	if (useSpecular) {
+		sampledSpecular = SpecularTexture.Sample(defaultSampler, psIn.texture_UV).r;
+	}
 
 	// If uses alpha value from texture, sample it.
 	if (useAlpha) {
-		float3 alpha = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).rgb;
-		pixelColor.a = (alpha.r + alpha.g + alpha.b) / 3;
+		pixelColor.a = AlphaTexture.Sample(defaultSampler, psIn.texture_UV).r;
 	}
 	else {
 		pixelColor.a = 1.0f;
 	}
 
 	//// Calculate lighting.
-	float specularIntensity = 2;
-	float specularPower = 10.0f;
 	float4 lightingFactor = calculateAllLights(
 		psIn.positionPS, psIn.normal, psIn.eyePosition,
-		specularHighlightColor, specularIntensity, specularPower
+		specularColor, specularIntensity, specularPower, sampledSpecular
 	);
 
 	//// Calculate shadows.

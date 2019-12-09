@@ -13,6 +13,8 @@ public:
 
 	void setPosition(Vector3 position);
 	void setRotation(Vector4 rotationQ);
+	void setMass(float mass);
+	void setVelocity(Vector3 velocityVec);
 
 	// Ragdoll
 	CollisionActor* parentActor = NULL;

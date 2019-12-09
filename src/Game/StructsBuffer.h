@@ -22,11 +22,14 @@ struct EntityVSConstantBuffer {
 // Material constant buffer for providing it to shader(s).
 struct MaterialSConstantBuffer {
 	dx::XMFLOAT4 color;
-	dx::XMFLOAT4 specularHighlightColor;
+	dx::XMFLOAT4 specularColor;
+	float specularPower;
+	float specularIntensity;
+	dx::XMFLOAT2 padding;
 	unsigned int useDiffuse;
 	unsigned int useNormalMapping;
-	unsigned int useAlpha;
 	unsigned int useSpecular;
+	unsigned int useAlpha;
 };
 
 // Mesh Deformer constant buffer for Vertex Shader.

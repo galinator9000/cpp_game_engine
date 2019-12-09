@@ -35,3 +35,31 @@ void CollisionActor::setRotation(Vector4 rotationQ) {
 		);
 	}
 }
+
+void CollisionActor::setMass(float mass) {
+	if (mass <= 0) {
+		return;
+	}
+
+	if (
+		this->actorType == COLLISION_ACTOR_DYNAMIC
+	) {
+		PxRigidDynamic* rigidDynamic = this->pActor->is<PxRigidDynamic>();
+
+		rigidDynamic->setMass(mass);
+	}
+}
+
+void CollisionActor::setVelocity(Vector3 velocityVec) {
+	if (
+		this->actorType == COLLISION_ACTOR_DYNAMIC ||
+		this->actorType == COLLISION_ACTOR_KINEMATIC
+		) {
+		PxRigidDynamic* rigidDynamic = this->pActor->is<PxRigidDynamic>();
+
+		rigidDynamic->setLinearVelocity(
+			velocityVec.toPxVec3(),
+			true
+		);
+	}
+}

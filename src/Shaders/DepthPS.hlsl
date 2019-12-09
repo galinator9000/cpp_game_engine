@@ -8,7 +8,9 @@ SamplerState defaultSampler : register(s0);
 
 cbuffer MaterialSConstantBuffer : register(b0) {
 	float4 materialColor;
-	float4 specularHighlightColor;
+	float specularPower;
+	float specularIntensity;
+	float2 padding;
 	bool useDiffuse;
 	bool useNormalMapping;
 	bool useAlpha;

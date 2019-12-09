@@ -11,17 +11,23 @@ public:
 	Material() {
 		this->texture = NULL;
 		this->color = Color(1, 1, 1, 1);
-		this->specularHighlightColor = Color(0.18f, 0.18f, 0.18f);
+		this->specularColor = Color(1, 1, 1, 1);
+		this->specularIntensity = 0.18f;
+		this->specularPower = 2.0f;
 	}
 
 	Material(
 		Texture* texture = NULL,
 		Color color = Color(1, 1, 1, 1),
-		Color specularHighlightColor = Color(0.18f, 0.18f, 0.18f)
+		float specularIntensity = 0.18f,
+		float specularPower = 2.0f,
+		Color specularColor = Color(1, 1, 1, 1)
 	) {
 		this->texture = texture;
 		this->color = color;
-		this->specularHighlightColor = specularHighlightColor;
+		this->specularColor = specularColor;
+		this->specularIntensity = specularIntensity;
+		this->specularPower = specularPower;
 
 		this->updateConstantBuffer();
 	}
@@ -35,7 +41,9 @@ public:
 
 	void updateConstantBuffer() {
 		this->gMaterialSConstantBuffer.color = this->color.loadXMFLOAT();
-		this->gMaterialSConstantBuffer.specularHighlightColor = this->specularHighlightColor.loadXMFLOAT();
+		this->gMaterialSConstantBuffer.specularColor = this->specularColor.loadXMFLOAT();
+		this->gMaterialSConstantBuffer.specularIntensity = this->specularIntensity;
+		this->gMaterialSConstantBuffer.specularPower = this->specularPower;
 
 		// Texture
 		if (texture != NULL) {
@@ -50,7 +58,9 @@ public:
 
 	Texture* texture = NULL;
 	Color color;
-	Color specularHighlightColor;
+	Color specularColor;
+	float specularIntensity;
+	float specularPower;
 
 	void attachTexture(Texture* texture) {
 		if (texture != NULL) {

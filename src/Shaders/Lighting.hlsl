@@ -59,9 +59,10 @@ float4 calculateAllLights(
 	float3 position,
 	float3 normal,
 	float3 eyePosition,
-	float4 specularHighlightColor,
+	float4 specularColor,
 	float specularIntensity,
-	float specularPower
+	float specularPower,
+	float sampledSpecular
 ) {
 	float4 sumDiffuse = float4(0, 0, 0, 0);
 	float4 sumSpecularHighlight = float4(0, 0, 0, 0);
@@ -98,7 +99,7 @@ float4 calculateAllLights(
 				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, allLights[light].direction, normal);
 				sumSpecularHighlight += attenuation * calculateSpecularHighlight(
 					allLights[light].direction, normal,
-					specularHighlightColor, specularIntensity, specularPower,
+					specularColor, specularIntensity, specularPower,
 					eyePosition, position
 				);
 				break;
@@ -107,7 +108,7 @@ float4 calculateAllLights(
 				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normal);
 				sumSpecularHighlight += attenuation * calculateSpecularHighlight(
 					-dirVertexToLight, normal,
-					specularHighlightColor, specularIntensity, specularPower,
+					specularColor, specularIntensity, specularPower,
 					eyePosition, position
 				);
 				break;
@@ -119,7 +120,7 @@ float4 calculateAllLights(
 				sumDiffuse += attenuation * calculateDiffuse(allLights[light].color, lightIntensity, -dirVertexToLight, normal);
 				sumSpecularHighlight += attenuation * calculateSpecularHighlight(
 					-dirVertexToLight, normal,
-					specularHighlightColor, specularIntensity, specularPower,
+					specularColor, specularIntensity, specularPower,
 					eyePosition, position
 				);
 				break;
@@ -133,7 +134,7 @@ float4 calculateAllLights(
 	sumDiffuse.a = 1.0f;
 	sumSpecularHighlight.a = 1.0f;
 
-	float4 finalOutput = (sumDiffuse + sumSpecularHighlight);
+	float4 finalOutput = (sumDiffuse + (sumSpecularHighlight * sampledSpecular));
 	finalOutput.a = 1;
 
 	return finalOutput;
