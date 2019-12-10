@@ -25,30 +25,29 @@ void Controller::Update() {
 		}
 	}
 
-	// Control character.
-	if (this->pWorld->activeCamera->isFollowingEntity) {
+	// Character Camera / Free Camera movement
+	if (this->pWorld->activeCamera->id == this->pMainCharacter->characterCamera->id) {
 		if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {
-			this->pMainCharacter->Walk(
-				Vector3(0.0f, 0.0f, -1.0f)
-			);
-		}
-		if (this->pKeyb->isKeyPressed('S') || this->pKeyb->isKeyPressed(VK_DOWN)) {
 			this->pMainCharacter->Walk(
 				Vector3(0.0f, 0.0f, 1.0f)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('A') || this->pKeyb->isKeyPressed(VK_LEFT)) {
+		if (this->pKeyb->isKeyPressed('S') || this->pKeyb->isKeyPressed(VK_DOWN)) {
 			this->pMainCharacter->Walk(
-				Vector3(1.0f, 0.0f, 0.0f)
+				Vector3(0.0f, 0.0f, -1.0f)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('D') || this->pKeyb->isKeyPressed(VK_RIGHT)) {
+		if (this->pKeyb->isKeyPressed('A') || this->pKeyb->isKeyPressed(VK_LEFT)) {
 			this->pMainCharacter->Walk(
 				Vector3(-1.0f, 0.0f, 0.0f)
 			);
 		}
+		if (this->pKeyb->isKeyPressed('D') || this->pKeyb->isKeyPressed(VK_RIGHT)) {
+			this->pMainCharacter->Walk(
+				Vector3(1.0f, 0.0f, 0.0f)
+			);
+		}
 	}
-	// Camera position if camera isn't following any entity.
 	else {
 		if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {
 			this->pWorld->activeCamera->Move(
@@ -92,11 +91,6 @@ void Controller::Update() {
 	// Camera rotation (Pitch, Yaw)
 	if (this->pMouse->rawAccumulateX != 0 || this->pMouse->rawAccumulateY != 0) {
 		this->pWorld->activeCamera->Rotate((float) this->pMouse->rawAccumulateX, (float) this->pMouse->rawAccumulateY);
-	}
-
-	// Camera zoom in/out
-	if (this->pWorld->activeCamera->isFollowingEntity && this->pMouse->wheelRotateCountDirection != 0) {
-		this->pWorld->activeCamera->Zoom(this->pMouse->wheelRotateCountDirection);
 	}
 }
 

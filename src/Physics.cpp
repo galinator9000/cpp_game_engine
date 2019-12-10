@@ -414,7 +414,6 @@ bool Physics::createFixedJoint(CollisionActor* collisionActor1, CollisionActor* 
 	
 	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-	this->pJoints.push_back(pJoint);
 	return true;
 }
 
@@ -441,7 +440,6 @@ bool Physics::createDistanceJoint(CollisionActor* collisionActor1, CollisionActo
 
 	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-	this->pJoints.push_back(pJoint);
 	return true;
 }
 
@@ -468,7 +466,6 @@ bool Physics::createSphericalJoint(CollisionActor* collisionActor1, CollisionAct
 
 	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-	this->pJoints.push_back(pJoint);
 	return true;
 }
 
@@ -495,7 +492,6 @@ bool Physics::createRevoluteJoint(CollisionActor* collisionActor1, CollisionActo
 
 	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-	this->pJoints.push_back(pJoint);
 	return true;
 }
 
@@ -526,6 +522,5 @@ bool Physics::createSphericalJointRagdoll(CollisionActor* collisionActor1, Colli
 
 	pJoint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-	this->pJoints.push_back(pJoint);
 	return true;
 }

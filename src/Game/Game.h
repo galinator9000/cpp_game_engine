@@ -4,7 +4,7 @@
 #include "World.h"
 #include "Config.h"
 #include "Controller.h"
-#include "Entity/Character/Character.h"
+#include "Character/Character.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
 #include "Light/SpotLight.h"
@@ -14,6 +14,7 @@ public:
 	Game(World* pWorld, Controller* pMainController);
 	void Setup();
 	void Update();
+	void Reset();
 
 	DirectionalLight* directionalSunLight;
 	PointLight* pointLight;

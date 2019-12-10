@@ -6,7 +6,7 @@
 #include "World.h"
 #include "Keyboard.h"
 #include "Mouse.h"
-#include "Entity/Character/Character.h"
+#include "Character/Character.h"
 
 class Controller{
 public:

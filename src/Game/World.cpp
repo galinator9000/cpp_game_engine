@@ -419,7 +419,6 @@ void World::switchCamera() {
 
 // Texture
 void World::createTexture(Texture* texture) {
-	this->allTextures.push_back(texture);
 	this->pGfx->createTextureDDS(texture);
 }
 

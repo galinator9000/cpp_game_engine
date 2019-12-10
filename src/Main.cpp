@@ -51,6 +51,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 		// Reset section
 		pController->Reset();
+		pGame->Reset();
 		pWorld->Reset();
 	}
 

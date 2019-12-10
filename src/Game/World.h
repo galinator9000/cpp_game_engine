@@ -63,7 +63,6 @@ public:
 	std::vector<Entity*> allEntities;
 	std::vector<Light*> allLights;
 	std::vector<Camera*> allCameras;
-	std::vector<Texture*> allTextures;
 	std::vector<VectorRelation*> allVectorRelations;
 
 	// Buffers for providing multiple lights at the same time.

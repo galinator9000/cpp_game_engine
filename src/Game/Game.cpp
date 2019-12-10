@@ -149,8 +149,20 @@ void Game::Setup(){
 			PROJECTION_TYPE::PERSPECTIVE
 		);
 		pCharacterCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
-		pCharacterCamera->followEntity(mainCharacter, Vector3(0, 1.5f, 0), Vector3(0, 0, 2.5f));
 		pWorld->addCamera(pCharacterCamera);
+		this->mainCharacter->setCamera(pCharacterCamera);
+
+		// Position relation, camera to spot light.
+		VectorRelation* characterCam = new Vector3Relation(
+			&(mainCharacter->gPosition),
+			&(pCharacterCamera->gPosition),
+			VECTOR_RELATION_TYPE::RLTV,
+			&(mainCharacter->dataChanged),
+			&(pCharacterCamera->dataChanged),
+			true,
+			Vector3(0, 2.5f, -2.5f)
+		);
+		this->pWorld->addVectorRelation(characterCam);
 	}
 
 	//// Add lights to scene.
@@ -202,4 +214,8 @@ void Game::Update(){
 	// Circular motion
 	float cosx = cos(timer.Peek() * dx::XM_2PI) * 5;
 	float siny = sin(timer.Peek() * dx::XM_2PI) * 5;
+}
+
+void Game::Reset() {
+
 }

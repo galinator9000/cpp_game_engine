@@ -23,12 +23,21 @@ public:
 	Vector2* pDstVector;
 	Vector2 initialRelative;
 
-	Vector2Relation(Vector2* pSrc, Vector2* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
+	Vector2Relation(
+		Vector2* pSrc, Vector2* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL,
+		bool updateInitially = false, Vector2 initialVector = Vector2(0, 0)
+	) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
 		this->pSrcDataChanged = pSrcDataChanged;
 		this->pDstDataChanged = pDstDataChanged;
+
+		if (updateInitially) {
+			(*this->pDstVector) = (*this->pSrcVector) + initialVector;
+			(*this->pDstDataChanged) = true;
+		}
+		
 		this->initialRelative = (*this->pDstVector) - (*this->pSrcVector);
 
 		this->_Update();
@@ -68,12 +77,21 @@ public:
 	Vector3* pDstVector;
 	Vector3 initialRelative;
 
-	Vector3Relation(Vector3* pSrc, Vector3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
+	Vector3Relation(
+		Vector3* pSrc, Vector3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL,
+		bool updateInitially = false, Vector3 initialVector = Vector3(0, 0, 0)
+	) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
 		this->pSrcDataChanged = pSrcDataChanged;
 		this->pDstDataChanged = pDstDataChanged;
+
+		if (updateInitially) {
+			(*this->pDstVector) = (*this->pSrcVector) + initialVector;
+			(*this->pDstDataChanged) = true;
+		}
+		
 		this->initialRelative = (*this->pDstVector) - (*this->pSrcVector);
 
 		this->_Update();
@@ -113,7 +131,9 @@ public:
 	dx::XMFLOAT3* pDstVector;
 	dx::XMFLOAT3 initialRelative;
 
-	Vector3RelationXM(dx::XMFLOAT3* pSrc, dx::XMFLOAT3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
+	Vector3RelationXM(
+		dx::XMFLOAT3* pSrc, dx::XMFLOAT3* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL
+	) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
@@ -163,12 +183,21 @@ public:
 	Vector4* pDstVector;
 	Vector4 initialRelative;
 
-	Vector4Relation(Vector4* pSrc, Vector4* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL) {
+	Vector4Relation(
+		Vector4* pSrc, Vector4* pDst, VECTOR_RELATION_TYPE type, bool* pSrcDataChanged = NULL, bool* pDstDataChanged = NULL,
+		bool updateInitially = false, Vector4 initialVector = Vector4(0,0,0,0)
+	) {
 		this->pSrcVector = pSrc;
 		this->pDstVector = pDst;
 		this->type = type;
 		this->pSrcDataChanged = pSrcDataChanged;
 		this->pDstDataChanged = pDstDataChanged;
+
+		if (updateInitially) {
+			(*this->pDstVector) = (*this->pSrcVector) + initialVector;
+			(*this->pDstDataChanged) = true;
+		}
+		
 		this->initialRelative = (*this->pDstVector) - (*this->pSrcVector);
 
 		this->_Update();

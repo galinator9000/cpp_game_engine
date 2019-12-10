@@ -234,7 +234,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Game\Light\SpotLight.h" />
     <ClInclude Include="src\Game\Entity\Collision\CollisionActor.h" />
     <ClInclude Include="src\Game\Entity\Collision\CollisionShape.h" />
-    <ClInclude Include="src\Game\Entity\Character\Character.h" />
+    <ClInclude Include="src\Game\Character\Character.h" />
     <ClInclude Include="src\Game\Controller.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.h" />
@@ -264,7 +264,6 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Utils\FBX_Importer.h" />
     <ClInclude Include="src\Utils\General.h" />
-    <ClInclude Include="src\Utils\OBJ_Loader.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\Game\World.h" />
     <ClInclude Include="src\Timer.h" />
@@ -277,7 +276,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClCompile Include="src\Audio.cpp" />
     <ClCompile Include="src\Game\Light\SpotLight.cpp" />
     <ClCompile Include="src\Game\Entity\Collision\CollisionActor.cpp" />
-    <ClCompile Include="src\Game\Entity\Character\Character.cpp" />
+    <ClCompile Include="src\Game\Character\Character.cpp" />
     <ClCompile Include="src\Game\Controller.cpp" />
     <ClCompile Include="src\Game\Entity\Collision\CollisionShape.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.cpp" />

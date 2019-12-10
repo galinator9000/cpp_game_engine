@@ -38,7 +38,6 @@ public:
 	void updateCamera(Camera* camera);
 
 	// Physical Joints
-	std::vector<PxJoint*> pJoints;
 	bool createFixedJoint(
 		CollisionActor* collisionActor1, CollisionActor* collisionActor2,
 		PxTransform transform1, PxTransform transform2

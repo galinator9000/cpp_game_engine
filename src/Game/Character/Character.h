@@ -1,7 +1,8 @@
 #pragma once
 #include "PxPhysicsAPI.h"
 
-#include "Entity/Entity.h"
+#include "../Entity/Entity.h"
+#include "Camera.h"
 
 using namespace physx;
 
@@ -15,22 +16,26 @@ public:
 		CollisionActor* pCollisionActor = NULL,
 
 		float movementSpeed = 0.1f,
-		Vector3 facingDirection = { 0, 0, 1 }) : Entity(size, position, rotationQ, material, collisionMaterial, pMesh, pCollisionShape, pCollisionActor
+		Vector3 direction = { 0, 0, 1 }) : Entity(size, position, rotationQ, material, collisionMaterial, pMesh, pCollisionShape, pCollisionActor
 	) {
-		this->facingDirection = facingDirection;
+		this->direction = direction;
 		this->movementSpeed = movementSpeed;
 
 		this->Setup();
 	}
 
 	void Setup();
+	void setCamera(Camera* cam) {
+		this->characterCamera = cam;
+	}
 
 	// General values.
 	float health = 1.0f;
-	Vector3 facingDirection;
+	Vector3 direction = Vector3(0, 0, 1);
+	Camera* characterCamera = NULL;
 
 	// Actions
-	void Walk(Vector3 displacement);
+	void Walk(Vector3 walkDirection);
 
 	// Physics
 	PxControllerFilters* cctControllerFilters;

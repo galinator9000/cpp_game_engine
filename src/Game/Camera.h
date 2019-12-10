@@ -36,17 +36,6 @@ public:
 	const float fastMovementFactor = 1.02f;
 	const float zoomFactor = 1.02f;
 
-	// Entity following functionality
-	void followEntity(Entity* followEntity, Vector3 entityCenterOffset, Vector3 followOffset);
-	void Zoom(int zoomDirection);
-	Entity* followedEntity = NULL;
-
-	const float minDistanceToEntity = 5.0f;
-	const float maxDistanceToEntity = 20.0f;
-	Vector3 followEntityOffset = Vector3();
-	Vector3 entityCenterOffset = Vector3();
-	bool isFollowingEntity = false;
-
 	// GPU side
 	CameraVSConstantBuffer gCameraVSConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pCameraVSConstantBuffer;
