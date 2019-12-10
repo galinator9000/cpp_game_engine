@@ -72,7 +72,6 @@ void World::Update(){
 	for (unsigned int vr = 0; vr < allVectorRelations.size(); vr++) {
 		allVectorRelations.at(vr)->Update();
 	}
-
 	// Update all light objects.
 	// Also pick lights that will cast shadow.
 	// (directional lights has priority, nearest to active camera)
@@ -164,7 +163,6 @@ void World::Update(){
 		}
 
 		cam->Update();
-		this->pPhy->updateCamera(cam);
 	}
 	// Update GPU data of active camera.
 	this->pGfx->updateCamera(this->activeCamera);
@@ -370,9 +368,8 @@ bool World::addLight(Light* light) {
 bool World::addCamera(Camera* camera, bool setAsMain){
 	setAsMain = (setAsMain || this->activeCamera == NULL);
 	bool gAddResult = this->pGfx->addCamera(camera, setAsMain);
-	bool pAddResult = this->pPhy->addCamera(camera);
 
-	if (gAddResult || pAddResult) {
+	if (gAddResult) {
 		camera->id = (unsigned int)this->allCameras.size();
 		this->allCameras.push_back(camera);
 

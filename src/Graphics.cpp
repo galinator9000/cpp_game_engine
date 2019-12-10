@@ -638,6 +638,7 @@ void Graphics::updateEntity(Entity* entity) {
 		);
 		memcpy(mappedResource.pData, &entity->gEntityVSConstantBuffer, sizeof(entity->gEntityVSConstantBuffer));
 		this->pDeviceContext->Unmap(entity->pEntityVSConstantBuffer.Get(), 0);
+		entity->shouldUpdateGPUData = false;
 	}
 
 	if (entity->gMaterial->shouldUpdateGPUData) {
@@ -651,6 +652,7 @@ void Graphics::updateEntity(Entity* entity) {
 		);
 		memcpy(mappedResource.pData, &entity->gMaterial->gMaterialSConstantBuffer, sizeof(entity->gMaterial->gMaterialSConstantBuffer));
 		this->pDeviceContext->Unmap(entity->gMaterial->pMaterialSConstantBuffer.Get(), 0);
+		entity->gMaterial->shouldUpdateGPUData = false;
 	}
 
 	if (entity->meshDeformer != NULL) {
@@ -666,6 +668,7 @@ void Graphics::updateEntity(Entity* entity) {
 			);
 			memcpy(mappedResource.pData, &entity->meshDeformer->gMeshDeformerVSConstantBuffer, sizeof(entity->meshDeformer->gMeshDeformerVSConstantBuffer));
 			this->pDeviceContext->Unmap(entity->meshDeformer->pMeshDeformerVSConstantBuffer.Get(), 0);
+			entity->meshDeformer->shouldUpdateGPUData = false;
 		}
 	}
 }

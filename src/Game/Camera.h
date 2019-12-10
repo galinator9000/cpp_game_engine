@@ -27,7 +27,7 @@ public:
 	void Move(Vector3 moveDir, bool moveFast);
 	void Rotate(float x, float y);
 
-	// Movement factors
+	// Movement factors (DEV)
 	bool wasMovingFast;
 	const float initialMovementSpeed = 0.15f;
 	const float initialRotationSpeed = 0.005f;
@@ -42,13 +42,7 @@ public:
 	bool shouldUpdateGPUData = false;
 	bool dataChanged = false;
 
-	// Physics
-	CollisionActor* pCollisionActor;
-	CollisionShape* pCollisionShape;
-
 	Vector3 gPosition;
 	Vector3 gDirection;
-
 	Vector3 rotation;
-	Vector3 camLookAt;
 };

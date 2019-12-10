@@ -26,7 +26,7 @@ void Controller::Update() {
 	}
 
 	// Character Camera / Free Camera movement
-	if (this->pWorld->activeCamera->id == this->pMainCharacter->characterCamera->id) {
+	if (this->pMainCharacter && this->pMainCharacter->characterCamera && this->pWorld->activeCamera->id == this->pMainCharacter->characterCamera->id) {
 		if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {
 			this->pMainCharacter->Walk(
 				Vector3(0.0f, 0.0f, 1.0f)

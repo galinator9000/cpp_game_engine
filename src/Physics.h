@@ -32,10 +32,6 @@ public:
 	bool addEntity(Entity* bEntity);
 	void setupEntityRagdoll(Entity* pEntity);
 	void updateEntity(Entity* bEntity);
-	
-	// Camera
-	bool addCamera(Camera* camera);
-	void updateCamera(Camera* camera);
 
 	// Physical Joints
 	bool createFixedJoint(

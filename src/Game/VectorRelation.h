@@ -49,10 +49,8 @@ public:
 			return;
 		}
 
-		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			this->_Update();
-			return;
-		}
+		this->_Update();
+		return;
 	}
 
 	void _Update() {
@@ -65,9 +63,7 @@ public:
 				break;
 		}
 
-		if (this->pDstDataChanged != NULL) {
-			(*this->pDstDataChanged) = true;
-		}
+		(*this->pDstDataChanged) = true;
 	}
 };
 
@@ -103,10 +99,8 @@ public:
 			return;
 		}
 
-		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			this->_Update();
-			return;
-		}
+		this->_Update();
+		return;
 	}
 
 	void _Update() {
@@ -119,9 +113,7 @@ public:
 				break;
 		}
 
-		if (this->pDstDataChanged != NULL) {
-			(*this->pDstDataChanged) = true;
-		}
+		(*this->pDstDataChanged) = true;
 	}
 };
 
@@ -153,10 +145,8 @@ public:
 			return;
 		}
 
-		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			this->_Update();
-			return;
-		}
+		this->_Update();
+		return;
 	}
 
 	void _Update() {
@@ -171,9 +161,7 @@ public:
 				break;
 		}
 
-		if (this->pDstDataChanged != NULL) {
-			(*this->pDstDataChanged) = true;
-		}
+		(*this->pDstDataChanged) = true;
 	}
 };
 
@@ -209,10 +197,8 @@ public:
 			return;
 		}
 
-		if (*(this->pSrcDataChanged) || *(this->pDstDataChanged)) {
-			this->_Update();
-			return;
-		}
+		this->_Update();
+		return;
 	}
 
 	void _Update() {
@@ -225,8 +211,6 @@ public:
 				break;
 		}
 
-		if (this->pDstDataChanged != NULL) {
-			(*this->pDstDataChanged) = true;
-		}
+		(*this->pDstDataChanged) = true;
 	}
 };

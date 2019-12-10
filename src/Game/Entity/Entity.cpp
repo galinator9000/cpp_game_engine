@@ -91,11 +91,11 @@ void Entity::updateConstantBuffer() {
 
 	// Graphics object will check this if buffer should be updated or not.
 	this->shouldUpdateGPUData = true;
+	this->dataChanged = false;
 }
 
 void Entity::Reset() {
-	this->dataChanged = false;
-	this->shouldUpdateGPUData = false;
+
 }
 
 // Mesh

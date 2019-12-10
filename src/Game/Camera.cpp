@@ -4,7 +4,6 @@ Camera::Camera() {
 	this->gPosition = Vector3();
 	this->gDirection = Vector3();
 	this->rotation = Vector3();
-	this->camLookAt = this->gPosition + this->gDirection;
 	this->setPerspectiveProjection();
 
 	this->updateConstantBuffer();
@@ -25,7 +24,6 @@ Camera::Camera(Vector3 position, Vector3 direction, float WIDTH, float HEIGHT, P
 			)
 		)
 	);
-	this->camLookAt = this->gPosition + this->gDirection;
 
 	// Default perspective.
 	switch (projectionType) {
@@ -37,25 +35,11 @@ Camera::Camera(Vector3 position, Vector3 direction, float WIDTH, float HEIGHT, P
 			break;
 	}
 
-	// Create physics shape&actor.
-	this->pCollisionActor = new CollisionActor(COLLISION_ACTOR_KINEMATIC);
-	this->pCollisionShape = new CollisionShape();
-	this->pCollisionShape->createBoxGeometry({ 0.1f, 0.1f, 0.1f });
-
 	this->updateConstantBuffer();
 }
 
 void Camera::setPosition(Vector3 newPos) {
 	this->gPosition = newPos;
-
-	// Update physics actor's position.
-	if (this->pCollisionActor->pActor != NULL) {
-		PxRigidDynamic* rigidDynamic = this->pCollisionActor->pActor->is<PxRigidDynamic>();
-		if (rigidDynamic != NULL) {
-			rigidDynamic->setGlobalPose(this->gPosition.toPxTransform());
-		}
-	}
-
 	this->dataChanged = true;
 }
 
@@ -88,8 +72,6 @@ void Camera::Update() {
 }
 
 void Camera::updateConstantBuffer() {
-	this->camLookAt = this->gPosition + this->gDirection;
-
 	//// Update constant buffer on class which is provided to GPU side.
 	// Update View matrix.
 	dx::XMStoreFloat4x4(
@@ -97,7 +79,7 @@ void Camera::updateConstantBuffer() {
 		dx::XMMatrixTranspose(
 			dx::XMMatrixLookAtLH(
 				this->gPosition.loadXMVECTOR(),
-				this->camLookAt.loadXMVECTOR(),
+				(this->gPosition + this->gDirection).loadXMVECTOR(),
 				dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
 			)
 		)
@@ -153,17 +135,6 @@ void Camera::Move(Vector3 translation, bool moveFast) {
 	this->gPosition.x += camTranslation.x;
 	this->gPosition.y += camTranslation.y;
 	this->gPosition.z += camTranslation.z;
-
-	// Update physics actor's position.
-	if (this->pCollisionActor->pActor != NULL) {
-		PxRigidDynamic* rigidDynamic = this->pCollisionActor->pActor->is<PxRigidDynamic>();
-		if (rigidDynamic != NULL) {
-			rigidDynamic->setGlobalPose(this->gPosition.toPxTransform());
-		}
-	}
-
-	// Update looking direction vector
-	this->camLookAt = this->gPosition + this->gDirection;
 
 	this->wasMovingFast = moveFast;
 	this->dataChanged = true;

@@ -49,7 +49,6 @@ void Game::Setup(){
 				dynamicBoxColShape,
 				boxColActor
 			);
-
 			this->pWorld->addEntity(box);
 
 			// Create joint.
@@ -152,12 +151,11 @@ void Game::Setup(){
 		pWorld->addCamera(pCharacterCamera);
 		this->mainCharacter->setCamera(pCharacterCamera);
 
-		// Position relation, camera to spot light.
 		VectorRelation* characterCam = new Vector3Relation(
-			&(mainCharacter->gPosition),
+			&(this->mainCharacter->gPosition),
 			&(pCharacterCamera->gPosition),
 			VECTOR_RELATION_TYPE::RLTV,
-			&(mainCharacter->dataChanged),
+			&(this->mainCharacter->dataChanged),
 			&(pCharacterCamera->dataChanged),
 			true,
 			Vector3(0, 2.5f, -2.5f)
@@ -183,7 +181,19 @@ void Game::Setup(){
 		PROJECTION_TYPE::PERSPECTIVE
 	);
 	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
-	pWorld->addCamera(pwSecondaryCamera);
+	pWorld->addCamera(pwSecondaryCamera, true);
+
+	// Position relation, last dynamic box to camera.
+	VectorRelation* boxPositionCam = new Vector3Relation(
+		&(box->gPosition),
+		&(pwSecondaryCamera->gPosition),
+		VECTOR_RELATION_TYPE::RLTV,
+		&(box->dataChanged),
+		&(pwSecondaryCamera->dataChanged),
+		true,
+		Vector3(0, 2.5f, 2.5f)
+	);
+	this->pWorld->addVectorRelation(boxPositionCam);
 
 	// Position relation, camera to spot light.
 	VectorRelation* camPositionSL = new Vector3Relation(
