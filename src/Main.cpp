@@ -9,8 +9,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		HEIGHT
 	);
 
-	// Controller class which is a wrapper for keyboard and mouse classes.
-	Controller* pController = new Controller();
+	// InputHandler class which is a wrapper for keyboard and mouse classes.
+	InputHandler* pInputHandler = new InputHandler();
 
 	// Input to window
 	Keyboard* pKeyb = new Keyboard();
@@ -35,24 +35,24 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	pWorld->Setup();
 
 	// Game is setups scene.
-	Game* pGame = new Game(pWorld, pController);
+	Game* pGame = new Game(pWorld, pInputHandler);
 	pGame->Setup();
 
 	// Connect window and controller with keyboard and mouse.
 	pMainWnd->Setup(pKeyb, pMouse);
-	pController->Setup(pWorld, pKeyb, pMouse);
+	pInputHandler->Setup(pWorld, pKeyb, pMouse);
 
 	// Main loop of the engine
 	while (pMainWnd->ProcessMessages()){
 		// Update section
-		pWorld->Update();
+		pInputHandler->Update();
 		pGame->Update();
-		pController->Update();
+		pWorld->Update();
 
 		// Reset section
-		pController->Reset();
-		pGame->Reset();
 		pWorld->Reset();
+		pGame->Reset();
+		pInputHandler->Reset();
 	}
 
 	return 0;

@@ -1,8 +1,8 @@
 #include "Game.h"
 
-Game::Game(World* pWorld, Controller* pMainController){
+Game::Game(World* pWorld, InputHandler* pInputHandler){
 	this->pWorld = pWorld;
-	this->pMainController = pMainController;
+	this->pInputHandler = pInputHandler;
 }
 
 void Game::Setup(){
@@ -138,7 +138,7 @@ void Game::Setup(){
 
 		// Add entity to world.
 		this->pWorld->addEntity(mainCharacter);
-		this->pMainController->setMainCharacter(mainCharacter);
+		this->pInputHandler->setMainCharacter(mainCharacter);
 
 		// Add character camera.
 		Camera* pCharacterCamera = new Camera(
@@ -148,7 +148,7 @@ void Game::Setup(){
 			PROJECTION_TYPE::PERSPECTIVE
 		);
 		pCharacterCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
-		pWorld->addCamera(pCharacterCamera);
+		pWorld->addCamera(pCharacterCamera, true);
 		this->mainCharacter->setCamera(pCharacterCamera);
 
 		VectorRelation* characterCam = new Vector3Relation(
@@ -181,7 +181,7 @@ void Game::Setup(){
 		PROJECTION_TYPE::PERSPECTIVE
 	);
 	pwSecondaryCamera->setPerspectiveProjection(FOV, WIDTH / HEIGHT);
-	pWorld->addCamera(pwSecondaryCamera, true);
+	pWorld->addCamera(pwSecondaryCamera);
 
 	// Position relation, last dynamic box to camera.
 	VectorRelation* boxPositionCam = new Vector3Relation(
@@ -222,8 +222,16 @@ void Game::Update(){
 	}
 
 	// Circular motion
-	float cosx = cos(timer.Peek() * dx::XM_2PI) * 5;
-	float siny = sin(timer.Peek() * dx::XM_2PI) * 5;
+	float cosx = cos(timer.Peek() * dx::XM_PI);
+	float siny = sin(timer.Peek() * dx::XM_PI);
+
+	/*this->directionalSunLight->setDirection(
+		Vector3(
+			cosx,
+			-siny,
+			1
+		).normalize()
+	);*/
 }
 
 void Game::Reset() {

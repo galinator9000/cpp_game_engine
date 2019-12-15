@@ -114,6 +114,7 @@ bool Entity::attachMeshDeformer(MeshDeformer* meshDeformer) {
 		this->meshDeformer = meshDeformer;
 		this->useMeshDeformer = true;
 		this->gEntityVSConstantBuffer.useMeshDeformer = this->useMeshDeformer;
+		this->shouldUpdateGPUData = true;
 
 		// Give Skeleton information to MeshDeformer class from current Mesh.
 		this->meshDeformer->Setup(

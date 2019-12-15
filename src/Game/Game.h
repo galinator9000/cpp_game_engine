@@ -3,7 +3,7 @@
 // Game world
 #include "World.h"
 #include "Config.h"
-#include "Controller.h"
+#include "InputHandler.h"
 #include "Character/Character.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
@@ -11,7 +11,7 @@
 
 class Game{
 public:
-	Game(World* pWorld, Controller* pMainController);
+	Game(World* pWorld, InputHandler* pInputHandler);
 	void Setup();
 	void Update();
 	void Reset();
@@ -24,7 +24,7 @@ public:
 
 	// Base components for a scene.
 	World* pWorld;
-	Controller* pMainController;
+	InputHandler* pInputHandler;
 	Timer timer;
 
 	Camera wMainCamera = Camera(

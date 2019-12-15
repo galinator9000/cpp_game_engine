@@ -8,7 +8,7 @@
 #include "Mouse.h"
 #include "Character/Character.h"
 
-class Controller{
+class InputHandler{
 public:
 	void Setup(World* world, Keyboard* keyb, Mouse* mouse);
 	void Update();

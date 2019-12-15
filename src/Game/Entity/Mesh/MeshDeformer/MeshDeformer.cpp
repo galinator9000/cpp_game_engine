@@ -194,7 +194,7 @@ void MeshDeformer::Update() {
 				(
 					dx::XMMatrixRotationQuaternion(
 						dx::XMQuaternionRotationAxis(
-							dx::XMVectorSet(axisVector.x, axisVector.y, axisVector.z, 0),
+							dx::XMVectorSet(axisVector.x, axisVector.y, axisVector.z, 1),
 							rotationRadian
 						)
 					)
@@ -297,7 +297,7 @@ void MeshDeformer::activateRagdoll() {
 			continue;
 		}
 
-		// Get animation transformation of the joint.
+		// Get animation transformation of the joints and apply them on physical joints.
 		/*JointTransform* baseJointTransform = this->gJointTransforms[j];
 
 		dx::XMStoreFloat4x4(
@@ -320,7 +320,7 @@ void MeshDeformer::activateRagdoll() {
 		jointQuaternion.z = axisVector.z;*/
 
 		// "Unfreeze" dynamic actor.
-		rigidDynamic->wakeUp();
+		//rigidDynamic->wakeUp();
 	}
 
 	this->currentTransformSource = RAGDOLL;

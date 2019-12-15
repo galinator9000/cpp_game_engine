@@ -226,6 +226,8 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
   <ItemGroup>
     <ClInclude Include="src\Game\Entity\CollisionMaterial.h" />
     <ClInclude Include="src\Game\Constants.h" />
+    <ClInclude Include="src\Game\Event\Event.h" />
+    <ClInclude Include="src\Game\Event\EventHandler.h" />
     <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h" />
     <ClInclude Include="src\Game\Light\Shadow\ShadowMap.h" />
     <ClInclude Include="src\Game\Entity\Material.h" />
@@ -235,7 +237,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Game\Entity\Collision\CollisionActor.h" />
     <ClInclude Include="src\Game\Entity\Collision\CollisionShape.h" />
     <ClInclude Include="src\Game\Character\Character.h" />
-    <ClInclude Include="src\Game\Controller.h" />
+    <ClInclude Include="src\Game\InputHandler.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.h" />
     <ClInclude Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animation.h" />
@@ -272,12 +274,13 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Game\VectorRelation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Event\EventHandler.cpp" />
     <ClCompile Include="src\Game\Light\Shadow\ShadowBox.cpp" />
     <ClCompile Include="src\Audio.cpp" />
     <ClCompile Include="src\Game\Light\SpotLight.cpp" />
     <ClCompile Include="src\Game\Entity\Collision\CollisionActor.cpp" />
     <ClCompile Include="src\Game\Character\Character.cpp" />
-    <ClCompile Include="src\Game\Controller.cpp" />
+    <ClCompile Include="src\Game\InputHandler.cpp" />
     <ClCompile Include="src\Game\Entity\Collision\CollisionShape.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Animator.cpp" />
     <ClCompile Include="src\Game\Entity\Mesh\MeshDeformer\Animation\Keyframe.cpp" />

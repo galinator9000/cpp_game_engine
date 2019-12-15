@@ -1,12 +1,12 @@
-#include "Controller.h"
+#include "InputHandler.h"
 
-void Controller::Setup(World* world, Keyboard* keyb, Mouse* mouse) {
+void InputHandler::Setup(World* world, Keyboard* keyb, Mouse* mouse) {
 	this->pWorld = world;
 	this->pKeyb = keyb;
 	this->pMouse = mouse;
 }
 
-void Controller::Update() {
+void InputHandler::Update() {
 	//// Keyboard
 	// Free cursor with ESC key.
 	if (this->pKeyb->isKeyPressed(VK_ESCAPE)) {
@@ -94,11 +94,11 @@ void Controller::Update() {
 	}
 }
 
-void Controller::Reset() {
+void InputHandler::Reset() {
 	this->pKeyb->Reset();
 	this->pMouse->Reset();
 }
 
-void Controller::setMainCharacter(Character* character) {
+void InputHandler::setMainCharacter(Character* character) {
 	this->pMainCharacter = character;
 }

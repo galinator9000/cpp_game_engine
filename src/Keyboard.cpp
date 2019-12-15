@@ -14,6 +14,10 @@ bool Keyboard::isKeyPressed(unsigned int key) {
 // Windows procedure
 void Keyboard::OnKeyPress(WPARAM wParam, LPARAM lParam) {
 	this->keyStatus[wParam] = true;
+	unsigned int keyCount = (lParam & 0xFFFF);
+	if (keyCount > 1) {
+		keyCount++;
+	}
 }
 
 void Keyboard::OnKeyRelease(WPARAM wParam, LPARAM lParam) {

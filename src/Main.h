@@ -17,7 +17,7 @@
 // Game world
 #include "Game.h"
 #include "World.h"
-#include "Controller.h"
+#include "InputHandler.h"
 #include "Character/Character.h"
 
 #include "Structs.h"

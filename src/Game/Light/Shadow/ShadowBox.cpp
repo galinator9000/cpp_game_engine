@@ -29,8 +29,8 @@ ShadowBox::ShadowBox(Vector3 position, Vector3 direction, Vector2 mapSize, LIGHT
 	unsigned int* mapWidths = new unsigned int[this->gShadowMapCount];
 	unsigned int* mapHeights = new unsigned int[this->gShadowMapCount];
 	for (unsigned int sm = 0; sm < this->gShadowMapCount; sm++) {
-		mapWidths[sm] = (unsigned int) mapSize.x / (float) std::pow(2, sm);
-		mapHeights[sm] = (unsigned int) mapSize.y / (float) std::pow(2, sm);
+		mapWidths[sm] = (unsigned int) (mapSize.x / (float) std::pow(2, sm));
+		mapHeights[sm] = (unsigned int) (mapSize.y / (float) std::pow(2, sm));
 	}
 
 	switch (this->lightType) {
