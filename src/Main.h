@@ -10,14 +10,14 @@
 
 // Main components
 #include "Window.h"
-#include "Graphics.h"
-#include "Physics.h"
-#include "Audio.h"
+#include "Graphics/Graphics.h"
+#include "Physics/Physics.h"
+#include "Audio/Audio.h"
 
 // Game world
 #include "Game.h"
 #include "World.h"
-#include "InputHandler.h"
+#include "Input/InputHandler.h"
 #include "Character/Character.h"
 
 #include "Structs.h"

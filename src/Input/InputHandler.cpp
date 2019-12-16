@@ -9,7 +9,7 @@ void InputHandler::Setup(World* world, Keyboard* keyb, Mouse* mouse) {
 void InputHandler::Update() {
 	//// Keyboard
 	// Free cursor with ESC key.
-	if (this->pKeyb->isKeyPressed(VK_ESCAPE)) {
+	if (this->pKeyb->isKeyReleased(VK_ESCAPE)) {
 		this->pMouse->freeCursor();
 	}
 
@@ -27,59 +27,59 @@ void InputHandler::Update() {
 
 	// Character Camera / Free Camera movement
 	if (this->pMainCharacter && this->pMainCharacter->characterCamera && this->pWorld->activeCamera->id == this->pMainCharacter->characterCamera->id) {
-		if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {
+		if (this->pKeyb->isKeyHeld('W') || this->pKeyb->isKeyHeld(VK_UP)) {
 			this->pMainCharacter->Walk(
 				Vector3(0.0f, 0.0f, 1.0f)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('S') || this->pKeyb->isKeyPressed(VK_DOWN)) {
+		if (this->pKeyb->isKeyHeld('S') || this->pKeyb->isKeyHeld(VK_DOWN)) {
 			this->pMainCharacter->Walk(
 				Vector3(0.0f, 0.0f, -1.0f)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('A') || this->pKeyb->isKeyPressed(VK_LEFT)) {
+		if (this->pKeyb->isKeyHeld('A') || this->pKeyb->isKeyHeld(VK_LEFT)) {
 			this->pMainCharacter->Walk(
 				Vector3(-1.0f, 0.0f, 0.0f)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('D') || this->pKeyb->isKeyPressed(VK_RIGHT)) {
+		if (this->pKeyb->isKeyHeld('D') || this->pKeyb->isKeyHeld(VK_RIGHT)) {
 			this->pMainCharacter->Walk(
 				Vector3(1.0f, 0.0f, 0.0f)
 			);
 		}
 	}
 	else {
-		if (this->pKeyb->isKeyPressed('W') || this->pKeyb->isKeyPressed(VK_UP)) {
+		if (this->pKeyb->isKeyHeld('W') || this->pKeyb->isKeyHeld(VK_UP)) {
 			this->pWorld->activeCamera->Move(
 				Vector3(0.0f, 0.0f, 1.0f),
-				this->pKeyb->isKeyPressed(VK_CONTROL)
+				this->pKeyb->isKeyHeld(VK_CONTROL)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('S') || this->pKeyb->isKeyPressed(VK_DOWN)) {
+		if (this->pKeyb->isKeyHeld('S') || this->pKeyb->isKeyHeld(VK_DOWN)) {
 			this->pWorld->activeCamera->Move(
 				Vector3(0.0f, 0.0f, -1.0f),
-				this->pKeyb->isKeyPressed(VK_CONTROL)
+				this->pKeyb->isKeyHeld(VK_CONTROL)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('A') || this->pKeyb->isKeyPressed(VK_LEFT)) {
+		if (this->pKeyb->isKeyHeld('A') || this->pKeyb->isKeyHeld(VK_LEFT)) {
 			this->pWorld->activeCamera->Move(
 				Vector3(-1.0f, 0.0f, 0.0f),
-				this->pKeyb->isKeyPressed(VK_CONTROL)
+				this->pKeyb->isKeyHeld(VK_CONTROL)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('D') || this->pKeyb->isKeyPressed(VK_RIGHT)) {
+		if (this->pKeyb->isKeyHeld('D') || this->pKeyb->isKeyHeld(VK_RIGHT)) {
 			this->pWorld->activeCamera->Move(
 				Vector3(1.0f, 0.0f, 0.0f),
-				this->pKeyb->isKeyPressed(VK_CONTROL)
+				this->pKeyb->isKeyHeld(VK_CONTROL)
 			);
 		}
-		if (this->pKeyb->isKeyPressed('E')) {
+		if (this->pKeyb->isKeyHeld('E')) {
 			this->pWorld->activeCamera->Move(
 				Vector3(0.0f, 1.0f, 0.0f),
 				false
 			);
 		}
-		if (this->pKeyb->isKeyPressed('Q')) {
+		if (this->pKeyb->isKeyHeld('Q')) {
 			this->pWorld->activeCamera->Move(
 				Vector3(0.0f, -1.0f, 0.0f),
 				false

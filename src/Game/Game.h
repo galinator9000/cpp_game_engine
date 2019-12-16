@@ -3,7 +3,7 @@
 // Game world
 #include "World.h"
 #include "Config.h"
-#include "InputHandler.h"
+#include "Input/InputHandler.h"
 #include "Character/Character.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"

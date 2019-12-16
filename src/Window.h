@@ -1,6 +1,6 @@
 #pragma once
-#include "Keyboard.h"
-#include "Mouse.h"
+#include "Input/Keyboard.h"
+#include "Input/Mouse.h"
 
 class Window{
 public:

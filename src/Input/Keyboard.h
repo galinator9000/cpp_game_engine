@@ -13,6 +13,8 @@ public:
 
 	// Game Engine
 	bool isKeyPressed(unsigned int key);
+	bool isKeyHeld(unsigned int key);
+	bool isKeyReleased(unsigned int key);
 
 	// Windows procedure
 	void OnKeyPress(WPARAM wParam, LPARAM lParam);
@@ -20,5 +22,6 @@ public:
 	void OnChar(WPARAM wParam, LPARAM lParam);
 
 private:
-	std::bitset<256> keyStatus;
+	std::bitset<256> keyState;
+	std::bitset<256> keyPreviousState;
 };

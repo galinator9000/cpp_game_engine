@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "Graphics.h"
-#include "Physics.h"
-#include "Audio.h"
+#include "Graphics/Graphics.h"
+#include "Physics/Physics.h"
+#include "Audio/Audio.h"
 
 // Base class for all entities
 #include "Camera.h"

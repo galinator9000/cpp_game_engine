@@ -68,9 +68,11 @@ void Mouse::OnRightRelease(WPARAM wParam, LPARAM lParam){
 	rightPressed = false;
 }
 
-void Mouse::OnMove(WPARAM wParam, LPARAM lParam){
-	this->posX = GET_X_LPARAM(lParam);
-	this->posY = GET_Y_LPARAM(lParam);
+void Mouse::OnMove(WPARAM wParam, LPARAM lParam) {
+	if (!this->confined){
+		this->posX = GET_X_LPARAM(lParam);
+		this->posY = GET_Y_LPARAM(lParam);
+	}
 }
 
 void Mouse::OnMoveRaw(signed long deltaX, signed long deltaY){
