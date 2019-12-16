@@ -2,8 +2,13 @@
 #include "Structs.h"
 #include "Event.h"
 
+#include <queue>
+
 class EventHandler {
 public:
 	void Update();
-	std::vector<Event*> pEventQueue;
+	void Reset();
+	void pushEvent(Event* event);
+
+	std::queue<Event*> pEventQueue;
 };

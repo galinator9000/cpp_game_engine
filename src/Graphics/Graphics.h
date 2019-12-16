@@ -22,7 +22,7 @@
 
 #include "Config.h"
 #include "Camera.h"
-#include "Timer.h"
+#include "Core/Timer.h"
 #include "Structs.h"
 #include "Entity/Entity.h"
 #include "Entity/Mesh/Mesh.h"

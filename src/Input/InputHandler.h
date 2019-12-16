@@ -3,6 +3,7 @@
 #pragma comment(lib, "user32.lib")
 #include <Windowsx.h>
 
+#include "Core/Event/EventHandler.h"
 #include "World.h"
 #include "Keyboard.h"
 #include "Mouse.h"
@@ -10,10 +11,11 @@
 
 class InputHandler{
 public:
-	void Setup(World* world, Keyboard* keyb, Mouse* mouse);
+	void Setup(EventHandler* eventHandler, World* world, Keyboard* keyb, Mouse* mouse);
 	void Update();
 	void Reset();
 
+	EventHandler* pEventHandler;
 	World* pWorld;
 	Keyboard* pKeyb;
 	Mouse* pMouse;

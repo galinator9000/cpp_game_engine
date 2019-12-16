@@ -226,8 +226,8 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
   <ItemGroup>
     <ClInclude Include="src\Game\Entity\CollisionMaterial.h" />
     <ClInclude Include="src\Game\Constants.h" />
-    <ClInclude Include="src\Game\Event\Event.h" />
-    <ClInclude Include="src\Game\Event\EventHandler.h" />
+    <ClInclude Include="src\Core\Event\Event.h" />
+    <ClInclude Include="src\Core\Event\EventHandler.h" />
     <ClInclude Include="src\Game\Light\Shadow\ShadowBox.h" />
     <ClInclude Include="src\Game\Light\Shadow\ShadowMap.h" />
     <ClInclude Include="src\Game\Entity\Material.h" />
@@ -258,7 +258,7 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Graphics\Viewport.h" />
     <ClInclude Include="src\Physics\Physics.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
-    <ClInclude Include="src\Exception.h" />
+    <ClInclude Include="src\Core\Exception.h" />
     <ClInclude Include="src\Input\Keyboard.h" />
     <ClInclude Include="src\Main.h" />
     <ClInclude Include="src\Input\Mouse.h" />
@@ -266,15 +266,15 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Utils\FBX_Importer.h" />
     <ClInclude Include="src\Utils\General.h" />
-    <ClInclude Include="src\Window.h" />
+    <ClInclude Include="src\Core\Window.h" />
     <ClInclude Include="src\Game\World.h" />
-    <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\Core\Timer.h" />
     <ClInclude Include="src\Graphics\Texture.h" />
     <ClInclude Include="src\Graphics\TextureSampler.h" />
     <ClInclude Include="src\Game\VectorRelation.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Game\Event\EventHandler.cpp" />
+    <ClCompile Include="src\Core\Event\EventHandler.cpp" />
     <ClCompile Include="src\Game\Light\Shadow\ShadowBox.cpp" />
     <ClCompile Include="src\Audio\Audio.cpp" />
     <ClCompile Include="src\Game\Light\SpotLight.cpp" />
@@ -297,14 +297,14 @@ xcopy /y /d "$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\*.cso" "$(Solu
     <ClCompile Include="src\Game\Light\PointLight.cpp" />
     <ClCompile Include="src\Physics\Physics.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
-    <ClCompile Include="src\Exception.cpp" />
+    <ClCompile Include="src\Core\Exception.cpp" />
     <ClCompile Include="src\Input\Keyboard.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Input\Mouse.cpp" />
     <ClCompile Include="src\Utils\FBX_Importer.cpp" />
-    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Game\World.cpp" />
-    <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\Core\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cpp_game_engine.rc" />

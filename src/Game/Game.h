@@ -23,8 +23,8 @@ public:
 	Character* mainCharacter = NULL;
 
 	// Base components for a scene.
-	World* pWorld;
 	InputHandler* pInputHandler;
+	World* pWorld;
 	Timer timer;
 
 	Camera wMainCamera = Camera(

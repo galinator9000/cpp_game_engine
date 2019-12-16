@@ -9,7 +9,7 @@
 #include <sstream>
 
 // Main components
-#include "Window.h"
+#include "Core/Window.h"
 #include "Graphics/Graphics.h"
 #include "Physics/Physics.h"
 #include "Audio/Audio.h"
