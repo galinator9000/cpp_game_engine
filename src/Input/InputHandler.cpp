@@ -1,10 +1,10 @@
 #include "InputHandler.h"
 
-void InputHandler::Setup(EventHandler* eventHandler, World* world, Keyboard* keyb, Mouse* mouse) {
-	this->pEventHandler = eventHandler;
-	this->pWorld = world;
+void InputHandler::Setup(Keyboard* keyb, Mouse* mouse, EventHandler* eventHandler, World* world) {
 	this->pKeyb = keyb;
 	this->pMouse = mouse;
+	this->pEventHandler = eventHandler;
+	this->pWorld = world;
 }
 
 void InputHandler::Update() {

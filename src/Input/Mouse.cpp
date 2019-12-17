@@ -6,10 +6,24 @@ Mouse::Mouse(){
 
 // Game Engine
 void Mouse::Reset(){
+	// Keep previous state.
+	memcpy(&this->buttonPreviousStates, &this->buttonStates, (sizeof(bool) * MOUSE_BUTTON_COUNT));
+
 	this->rawAccumulateX = 0;
 	this->rawAccumulateY = 0;
-
 	this->wheelRotateCountDirection = 0;
+}
+
+bool Mouse::isButtonPressed(MOUSE_BUTTON button) {
+	return this->buttonStates[button] && !this->buttonPreviousStates[button];
+}
+
+bool Mouse::isButtonHeld(MOUSE_BUTTON button) {
+	return this->buttonStates[button] && this->buttonPreviousStates[button];
+}
+
+bool Mouse::isButtonReleased(MOUSE_BUTTON button) {
+	return !this->buttonStates[button] && this->buttonPreviousStates[button];
 }
 
 bool Mouse::confineCursor(){
@@ -47,27 +61,28 @@ void Mouse::showCursor(){
 void Mouse::OnLeftPress(WPARAM wParam, LPARAM lParam){
 	this->posX = GET_X_LPARAM(lParam);
 	this->posY = GET_Y_LPARAM(lParam);
-	leftPressed = true;
+	this->buttonStates[MOUSE_BUTTON::LEFT_BUTTON] = true;
 }
 
 void Mouse::OnLeftRelease(WPARAM wParam, LPARAM lParam){
 	this->posX = GET_X_LPARAM(lParam);
 	this->posY = GET_Y_LPARAM(lParam);
-	leftPressed = false;
+	this->buttonStates[MOUSE_BUTTON::LEFT_BUTTON] = false;
 }
 
 void Mouse::OnRightPress(WPARAM wParam, LPARAM lParam){
 	this->posX = GET_X_LPARAM(lParam);
 	this->posY = GET_Y_LPARAM(lParam);
-	rightPressed = true;
+	this->buttonStates[MOUSE_BUTTON::RIGHT_BUTTON] = true;
 }
 
 void Mouse::OnRightRelease(WPARAM wParam, LPARAM lParam){
 	this->posX = GET_X_LPARAM(lParam);
 	this->posY = GET_Y_LPARAM(lParam);
-	rightPressed = false;
+	this->buttonStates[MOUSE_BUTTON::RIGHT_BUTTON] = false;
 }
 
+// Move callbacks.
 void Mouse::OnMove(WPARAM wParam, LPARAM lParam) {
 	if (!this->confined){
 		this->posX = GET_X_LPARAM(lParam);

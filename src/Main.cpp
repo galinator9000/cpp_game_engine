@@ -41,7 +41,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// Connect window and controller with keyboard and mouse.
 	pMainWnd->Setup(pKeyb, pMouse);
-	pInputHandler->Setup(pEventHandler, pWorld, pKeyb, pMouse);
+	pInputHandler->Setup(pKeyb, pMouse, pEventHandler, pWorld);
 
 	// Main loop of the engine
 	while (pMainWnd->ProcessMessages()){

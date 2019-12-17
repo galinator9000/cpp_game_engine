@@ -11,14 +11,14 @@
 
 class InputHandler{
 public:
-	void Setup(EventHandler* eventHandler, World* world, Keyboard* keyb, Mouse* mouse);
+	void Setup(Keyboard* keyb, Mouse* mouse, EventHandler* eventHandler, World* world);
 	void Update();
 	void Reset();
 
-	EventHandler* pEventHandler;
-	World* pWorld;
 	Keyboard* pKeyb;
 	Mouse* pMouse;
+	EventHandler* pEventHandler;
+	World* pWorld;
 
 	// Main character pointer
 	Character* pMainCharacter = NULL;

@@ -6,10 +6,6 @@
 #include "Entity/Mesh/MeshDeformer/JointTransform.h"
 #include "Entity/Mesh/MeshDeformer/Skeleton.h"
 
-const enum EVENT_TYPE {
-	
-};
-
 const enum LIGHT_TYPE {
 	DIRECTIONAL_LIGHT,
 	POINT_LIGHT,

@@ -1,15 +1,17 @@
 #include "Keyboard.h"
 
-Keyboard::Keyboard(){}
+Keyboard::Keyboard(){
 
+}
+
+// Game Engine
 void Keyboard::Reset() {
-	// Keep previous press state.
+	// Keep previous state.
 	memcpy(&this->keyPreviousState, &this->keyState, this->keyState.size());
 
 	//memset(&this->keyState, false, this->keyState.size());
 }
 
-// Game Engine
 bool Keyboard::isKeyPressed(unsigned int key) {
 	return this->keyState[key] && !this->keyPreviousState[key];
 }

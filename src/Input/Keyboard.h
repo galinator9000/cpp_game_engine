@@ -9,9 +9,8 @@ class Keyboard{
 public:
 	Keyboard();
 
-	void Reset();
-
 	// Game Engine
+	void Reset();
 	bool isKeyPressed(unsigned int key);
 	bool isKeyHeld(unsigned int key);
 	bool isKeyReleased(unsigned int key);
