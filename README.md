@@ -4,9 +4,13 @@ Basic 3D Game Engine with usage of DirectX 11 &amp; PhysX on C++
 - DirectX 11 as graphics engine
 - PhysX as physics engine
 - Basic lighting (point light, directional light, spot light)
-- Basic shadows
+- Basic shadows (shadow mapping using depth)
+- Basic event timer
+- Entity system
+- Camera system (field-of-view setting, perspective & orthogonal projection)
+- Textures, normal maps while rendering
 - Skeleton animation system
-- Loading FBX models with animation
+- Being able to load FBX models (Autodesk format) with animation
 
 # Initialization
 Main window class
