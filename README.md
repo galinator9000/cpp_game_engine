@@ -12,7 +12,8 @@ Basic 3D Game Engine with usage of DirectX 11 &amp; PhysX on C++
 - Skeleton animation system
 - Being able to load FBX models (Autodesk format) with animation
 
-# Initialization
+# Usage
+## Initialization
 ### Main window class
 ```
 Window* pMainWnd = new Window(hInstance, WND_TITLE, WIDTH, HEIGHT);
@@ -53,9 +54,7 @@ pMainWnd->Setup(pKeyb, pMouse);
 pInputHandler->Setup(pKeyb, pMouse, pEventHandler, pWorld);
 ```
 
-# Setting the scene
-## Setup game scene
-
+## Setting up the game scene
 ### Add main camera
 ```
 wMainCamera.setPerspectiveProjection(FOV, WIDTH / HEIGHT);
